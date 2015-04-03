@@ -1,0 +1,15 @@
+/* Post Views Counter settings */
+.post-views-counter-settings { margin-right: 300px; }
+.post-views-counter-settings form { float: left; min-width: 463px; width: auto; }
+.post-views-counter-settings fieldset .description { font-size: 13px; margin-bottom: 8px; margin-top: 4px; display: block; }
+.post-views-counter-settings .chosen-container { margin: 0.25em 0 0.5em; }
+.post-views-counter-settings .chosen-container-multi .chosen-choices li.search-field input[type="text"] { font-family: inherit; height: inherit; line-height: 1em; margin: 0; }
+.post-views-counter-settings p.help, .post-views-counter-settings p.description, .post-views-counter-settings span.description { font-size: 13px; font-style: italic; }
+.post-views-counter-settings div.ip-box { margin-bottom: 3px; }
+
+.df-credits { float: right; width: 280px; background: #fff; margin: 20px -300px 20px 20px; position: relative; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05); }
+.df-credits .inner { padding-left: 10px; padding-right: 10px; }
+.df-credits h3 { font-size: 14px; line-height: 1.4; margin: 0;  padding: 8px 12px; border-bottom: 1px solid #eee; }
+.df-credits .df-link { font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif; font-style:italic; padding-bottom: 10px; margin: 0; }
+.df-credits .df-link a { vertical-align: middle; padding: 5px 0 0 4px; }
+.df-credits hr { border: solid #eee; border-width: 1px 0 0; clear: both; height: 0; }

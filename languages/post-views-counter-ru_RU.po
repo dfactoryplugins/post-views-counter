@@ -1,0 +1,438 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Post Views Counter\n"
+"POT-Creation-Date: 2014-07-03 01:05+0100\n"
+"PO-Revision-Date: 2014-07-10 19:47+0200\n"
+"Last-Translator: 4ukanov@gmail.com <4ukanov@gmail.com>\n"
+"Language-Team: dFactory <info@dfactory.eu>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.5\n"
+"X-Poedit-KeywordsList: gettext;gettext_noop;__;_e;esc_attr__;esc_attr_e;"
+"esc_html__;esc_html_e\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Language: ru_RU\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../includes/columns.php:113 ../includes/columns.php:121
+msgid "Post Views"
+msgstr "Просмотров"
+
+#: ../includes/cron.php:40
+msgid "Post Views Counter reset daily counts interval"
+msgstr ""
+
+#: ../includes/functions.php:114
+msgid "No Posts"
+msgstr "Нет записей"
+
+#: ../includes/settings.php:41
+msgid "Enable"
+msgstr "Включить"
+
+#: ../includes/settings.php:42
+msgid "Disable"
+msgstr "Выключить"
+
+#: ../includes/settings.php:46
+msgid "PHP"
+msgstr "PHP"
+
+#: ../includes/settings.php:47
+msgid "JavaScript"
+msgstr "JavaScript"
+
+#: ../includes/settings.php:51
+msgid "minutes"
+msgstr "минуты"
+
+#: ../includes/settings.php:52
+msgid "hours"
+msgstr "час(ов)"
+
+#: ../includes/settings.php:53
+msgid "days"
+msgstr "дней"
+
+#: ../includes/settings.php:54
+msgid "weeks"
+msgstr "недель"
+
+#: ../includes/settings.php:55
+msgid "months"
+msgstr "месяцев"
+
+#: ../includes/settings.php:56
+msgid "years"
+msgstr "лет"
+
+#: ../includes/settings.php:60
+msgid "robots"
+msgstr "роботы"
+
+#: ../includes/settings.php:61
+msgid "logged in users"
+msgstr "Авторизованые пользователи"
+
+#: ../includes/settings.php:62
+msgid "guests"
+msgstr "Гости"
+
+#: ../includes/settings.php:63
+msgid "selected user roles"
+msgstr "Выберите роли пользователя"
+
+#: ../includes/settings.php:67
+msgid "before the content"
+msgstr "ДО контента"
+
+#: ../includes/settings.php:68
+msgid "after the content"
+msgstr "ПОСЛЕ контета"
+
+#: ../includes/settings.php:69
+msgid "manual"
+msgstr "В ручную"
+
+#: ../includes/settings.php:73
+msgid "icon"
+msgstr "Иконка"
+
+#: ../includes/settings.php:74
+msgid "label"
+msgstr "Текст"
+
+#: ../includes/settings.php:79
+msgid "General"
+msgstr "Основное"
+
+#: ../includes/settings.php:85
+msgid "Display"
+msgstr "Отображение"
+
+#: ../includes/settings.php:149 ../includes/settings.php:150
+#: ../includes/settings.php:167 ../includes/settings.php:180
+msgid "Post Views Counter"
+msgstr "Post Views Counter"
+
+#: ../includes/settings.php:182
+msgid "Need support?"
+msgstr "Необходима помощь?"
+
+#: ../includes/settings.php:183
+msgid ""
+"If you are having problems with this plugin, please talk about them in the"
+msgstr "Если у вас есть проблемы с этим плагином, пожалуйста сообщите о них "
+
+#: ../includes/settings.php:183
+msgid "Support forum"
+msgstr "Форум поддержки"
+
+#: ../includes/settings.php:185
+msgid "Do you like this plugin?"
+msgstr "Вам нравится этот плагин?"
+
+#: ../includes/settings.php:186
+msgid "Rate it 5"
+msgstr "Поставьте 5 звезд!"
+
+#: ../includes/settings.php:186
+msgid "on WordPress.org"
+msgstr "на WordPress.org"
+
+#: ../includes/settings.php:187
+msgid "Blog about it & link to the"
+msgstr "Информация и помощь"
+
+#: ../includes/settings.php:187
+msgid "plugin page"
+msgstr "страница плагина"
+
+#: ../includes/settings.php:188
+msgid "Check out our other"
+msgstr "Посмотрите наши другие "
+
+#: ../includes/settings.php:188
+msgid "WordPress plugins"
+msgstr "WordPress плагины"
+
+#: ../includes/settings.php:191
+msgid "Created by"
+msgstr "Создано"
+
+#: ../includes/settings.php:207
+msgid "Reset to defaults"
+msgstr "Сбросить настройки"
+
+#: ../includes/settings.php:225
+msgid "General settings"
+msgstr "Основные настройки"
+
+#: ../includes/settings.php:226
+msgid "Post Types Count"
+msgstr "Считать контент:"
+
+#: ../includes/settings.php:227
+msgid "Counter Mode"
+msgstr "Тип счетчика:"
+
+#: ../includes/settings.php:228
+msgid "Post Views Column"
+msgstr "Post Views Column"
+
+#: ../includes/settings.php:229
+msgid "Time Between Counts"
+msgstr "Период между счетом"
+
+#: ../includes/settings.php:230
+msgid "Reset Data"
+msgstr "Сохранение просмотров за период:"
+
+#: ../includes/settings.php:231
+msgid "Exclude Visitors"
+msgstr "Исключить посетителей"
+
+#: ../includes/settings.php:232
+msgid "Exclude IPs"
+msgstr "Исключить IP"
+
+#: ../includes/settings.php:233
+msgid "WP-PostViews"
+msgstr "WP-PostViews"
+
+#: ../includes/settings.php:234
+msgid "Deactivation"
+msgstr "Деактивация"
+
+#: ../includes/settings.php:238
+msgid "Display settings"
+msgstr "Настройки отображения"
+
+#: ../includes/settings.php:239
+msgid "Post Views Label"
+msgstr "Текст перед счетчиком"
+
+#: ../includes/settings.php:240
+msgid "Post Types Display"
+msgstr "Отображение счетчика на:"
+
+#: ../includes/settings.php:241
+msgid "Restrict Display"
+msgstr "НЕ показывать для"
+
+#: ../includes/settings.php:242
+msgid "Position"
+msgstr "Расположение"
+
+#: ../includes/settings.php:243
+msgid "Display Style"
+msgstr "Отображать:"
+
+#: ../includes/settings.php:244
+msgid "Icon Class"
+msgstr "Вид иконки"
+
+#: ../includes/settings.php:258
+msgid "Enter the label for the post views counter field."
+msgstr "Введите метку для встречного поля Просмотров сообщение."
+
+#: ../includes/settings.php:272
+msgid "Select post types"
+msgstr "Выберите типы записей"
+
+#: ../includes/settings.php:283
+msgid "Select post types for which post views will be counted."
+msgstr "Выберите контент, на котором будет размещен счетчик просмоторов."
+
+#: ../includes/settings.php:297 ../includes/settings.php:423
+#: ../includes/settings.php:599
+msgid "Select groups"
+msgstr "Выберите тип посетителей"
+
+#: ../includes/settings.php:308
+msgid "Select post types for which post views will be displayed."
+msgstr "Выберите типы контента на которых будет отображен счетчик"
+
+#: ../includes/settings.php:332
+msgid ""
+"Select the method of collecting post views data. If you are using any of the "
+"caching plugins select Javascript."
+msgstr ""
+"Выберите метод сбора данных кол-ва просмотров. Если вы используете плагины "
+"для кеширования - выберите Javascript."
+
+#: ../includes/settings.php:357
+msgid ""
+"Enable to display post views count column for each of the selected post "
+"types."
+msgstr ""
+"Включить для отображения счетчика колонки рассчитывать для каждого из "
+"выбранных типов контета."
+
+#: ../includes/settings.php:383
+msgid "Enter the time between single user visit count."
+msgstr ""
+"Задайте период времени между которами будет считаться просмотр одного "
+"посетителя"
+
+#: ../includes/settings.php:409
+msgid ""
+"Delete single day post views data older than specified above. Enter 0 "
+"(number zero) if you want to preserve your data regardless of its age."
+msgstr ""
+"Сохранять данные о просмотрах за выбранный период. Введите 0 (ноль) если вы "
+"хотите сохранять кол-во просмотров за все время."
+
+#: ../includes/settings.php:435 ../includes/settings.php:614
+msgid "Select user roles"
+msgstr "Выберите роли пользователей"
+
+#: ../includes/settings.php:447
+msgid "Select the type of visitors to be excluded from post views count."
+msgstr "Выберите посетителей, которые будут исключены из исчетчика"
+
+#: ../includes/settings.php:466 ../includes/settings.php:475
+msgid "Remove"
+msgstr "Удалить"
+
+#: ../includes/settings.php:475
+msgid "Add new"
+msgstr "Добавить новый"
+
+#: ../includes/settings.php:475
+msgid "Add my current IP"
+msgstr "Добавить мой текущий IP"
+
+#: ../includes/settings.php:477
+msgid "Enter the IP addresses to be excluded from post views count."
+msgstr "Введите IP-адреса которые должны быть исключены из счетчика просмотров"
+
+#: ../includes/settings.php:491
+msgid "Import"
+msgstr "Импорт"
+
+#: ../includes/settings.php:493
+msgid "Import post views data from WP-PostViews plugin."
+msgstr "Импорт данных  из  WP-PostViews плагина"
+
+#: ../includes/settings.php:494
+msgid "Override existing Post Views Counter data."
+msgstr "Перезаписать текущие данные счетчика."
+
+#: ../includes/settings.php:519
+msgid "Enable to delete all plugin data on deactivation."
+msgstr "Включите что бы удалить все данные при деактивации плагина"
+
+#: ../includes/settings.php:544
+msgid ""
+"Select where would you like to display the post views counter. Use [post-"
+"views] shortcode for manual display."
+msgstr ""
+"Выберите где вы хотите отобразить счетчик просмотров. Используйте  [post-"
+"views] шорткод для ручного отображения счечика"
+
+#: ../includes/settings.php:569
+msgid "Choose how to display the post views counter."
+msgstr "Выберите как будет отображаться счетчик"
+
+#: ../includes/settings.php:585
+#, php-format
+msgid ""
+"Enter the post views icon class. Any of the <a href=\"%s\" target=\"_blank"
+"\">Dashicons</a> classes are available."
+msgstr ""
+"Введите название иконки для отображения. Выберите любую из <a href=\"%s\" "
+"target=\"_blank\"> Dashicons </ a>"
+
+#: ../includes/settings.php:626
+msgid "Use it to hide the post views counter from selected type of visitors."
+msgstr "Используйте для скрытия счетчика от выбраных типов пользователей."
+
+#: ../includes/settings.php:661
+msgid "WP-PostViews data imported succesfully."
+msgstr "Данные из WP-PostViews импортированы успешно."
+
+#: ../includes/settings.php:665
+msgid "There was no data to import."
+msgstr "Отсутсвуют данные для импорта"
+
+#: ../includes/settings.php:827
+msgid "General settings restored to defaults."
+msgstr "Основные настройки восстановлены по умолчанию."
+
+#: ../includes/settings.php:833
+msgid "Display settings restored to defaults."
+msgstr "Настройки дисплея восстанавливается по умолчанию."
+
+#: ../includes/settings.php:854
+msgid "Support"
+msgstr "Поддержка"
+
+#: ../includes/widgets.php:38 ../includes/widgets.php:49
+msgid "Most Viewed Posts"
+msgstr "Самые популярные Сообщений"
+
+#: ../includes/widgets.php:40
+msgid "Displays a list of the most viewed posts"
+msgstr "Отображает список самых просматриваемых сообщений"
+
+#: ../includes/widgets.php:57
+msgid "No Posts found"
+msgstr "No Posts found"
+
+#: ../includes/widgets.php:61
+msgid "Ascending"
+msgstr "По возрастанию"
+
+#: ../includes/widgets.php:62
+msgid "Descending"
+msgstr "По убыванию"
+
+#: ../includes/widgets.php:105
+msgid "Title"
+msgstr "Заголовок"
+
+#: ../includes/widgets.php:109
+msgid "Post types"
+msgstr "Тип записей"
+
+#: ../includes/widgets.php:123
+msgid "Number of posts to show"
+msgstr "Количество сообщений, чтобы показать"
+
+#: ../includes/widgets.php:127
+msgid "No posts message"
+msgstr "Нет сообщений сообщение"
+
+#: ../includes/widgets.php:131
+msgid "Order"
+msgstr "Order"
+
+#: ../includes/widgets.php:144
+msgid "Display post views?"
+msgstr "Показать разместить просмотров?"
+
+#: ../includes/widgets.php:146
+msgid "Display post excerpt?"
+msgstr "Показать сообщение отрывок?"
+
+#: ../includes/widgets.php:148
+msgid "Display post thumbnail?"
+msgstr "Показать сообщение миниатюрами?"
+
+#: ../includes/widgets.php:151
+msgid "Thumbnail size"
+msgstr "Размер миниатюры"
+
+#: ../post-views-counter.php:251
+msgid "Are you sure you want to reset these settings to defaults?"
+msgstr ""
+"Вы уверены, что хотите сбросить эти настройки на значения по умолчанию?"
+
+#: ../post-views-counter.php:285
+msgid "Settings"
+msgstr "Настройки"

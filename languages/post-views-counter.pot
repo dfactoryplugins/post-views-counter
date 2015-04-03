@@ -1,0 +1,424 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Post Views Counter\n"
+"POT-Creation-Date: 2014-07-03 01:05+0100\n"
+"PO-Revision-Date: 2014-07-03 01:05+0100\n"
+"Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
+"Language-Team: dFactory <info@dfactory.eu>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.5\n"
+"X-Poedit-KeywordsList: gettext;gettext_noop;__;_e;esc_attr__;esc_attr_e;"
+"esc_html__;esc_html_e\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../includes/columns.php:113 ../includes/columns.php:121
+msgid "Post Views"
+msgstr ""
+
+#: ../includes/cron.php:40
+msgid "Post Views Counter reset daily counts interval"
+msgstr ""
+
+#: ../includes/functions.php:114
+msgid "No Posts"
+msgstr ""
+
+#: ../includes/settings.php:41
+msgid "Enable"
+msgstr ""
+
+#: ../includes/settings.php:42
+msgid "Disable"
+msgstr ""
+
+#: ../includes/settings.php:46
+msgid "PHP"
+msgstr ""
+
+#: ../includes/settings.php:47
+msgid "JavaScript"
+msgstr ""
+
+#: ../includes/settings.php:51
+msgid "minutes"
+msgstr ""
+
+#: ../includes/settings.php:52
+msgid "hours"
+msgstr ""
+
+#: ../includes/settings.php:53
+msgid "days"
+msgstr ""
+
+#: ../includes/settings.php:54
+msgid "weeks"
+msgstr ""
+
+#: ../includes/settings.php:55
+msgid "months"
+msgstr ""
+
+#: ../includes/settings.php:56
+msgid "years"
+msgstr ""
+
+#: ../includes/settings.php:60
+msgid "robots"
+msgstr ""
+
+#: ../includes/settings.php:61
+msgid "logged in users"
+msgstr ""
+
+#: ../includes/settings.php:62
+msgid "guests"
+msgstr ""
+
+#: ../includes/settings.php:63
+msgid "selected user roles"
+msgstr ""
+
+#: ../includes/settings.php:67
+msgid "before the content"
+msgstr ""
+
+#: ../includes/settings.php:68
+msgid "after the content"
+msgstr ""
+
+#: ../includes/settings.php:69
+msgid "manual"
+msgstr ""
+
+#: ../includes/settings.php:73
+msgid "icon"
+msgstr ""
+
+#: ../includes/settings.php:74
+msgid "label"
+msgstr ""
+
+#: ../includes/settings.php:79
+msgid "General"
+msgstr ""
+
+#: ../includes/settings.php:85
+msgid "Display"
+msgstr ""
+
+#: ../includes/settings.php:149 ../includes/settings.php:150
+#: ../includes/settings.php:167 ../includes/settings.php:180
+msgid "Post Views Counter"
+msgstr ""
+
+#: ../includes/settings.php:182
+msgid "Need support?"
+msgstr ""
+
+#: ../includes/settings.php:183
+msgid ""
+"If you are having problems with this plugin, please talk about them in the"
+msgstr ""
+
+#: ../includes/settings.php:183
+msgid "Support forum"
+msgstr ""
+
+#: ../includes/settings.php:185
+msgid "Do you like this plugin?"
+msgstr ""
+
+#: ../includes/settings.php:186
+msgid "Rate it 5"
+msgstr ""
+
+#: ../includes/settings.php:186
+msgid "on WordPress.org"
+msgstr ""
+
+#: ../includes/settings.php:187
+msgid "Blog about it & link to the"
+msgstr ""
+
+#: ../includes/settings.php:187
+msgid "plugin page"
+msgstr ""
+
+#: ../includes/settings.php:188
+msgid "Check out our other"
+msgstr ""
+
+#: ../includes/settings.php:188
+msgid "WordPress plugins"
+msgstr ""
+
+#: ../includes/settings.php:191
+msgid "Created by"
+msgstr ""
+
+#: ../includes/settings.php:207
+msgid "Reset to defaults"
+msgstr ""
+
+#: ../includes/settings.php:225
+msgid "General settings"
+msgstr ""
+
+#: ../includes/settings.php:226
+msgid "Post Types Count"
+msgstr ""
+
+#: ../includes/settings.php:227
+msgid "Counter Mode"
+msgstr ""
+
+#: ../includes/settings.php:228
+msgid "Post Views Column"
+msgstr ""
+
+#: ../includes/settings.php:229
+msgid "Time Between Counts"
+msgstr ""
+
+#: ../includes/settings.php:230
+msgid "Reset Data"
+msgstr ""
+
+#: ../includes/settings.php:231
+msgid "Exclude Visitors"
+msgstr ""
+
+#: ../includes/settings.php:232
+msgid "Exclude IPs"
+msgstr ""
+
+#: ../includes/settings.php:233
+msgid "WP-PostViews"
+msgstr ""
+
+#: ../includes/settings.php:234
+msgid "Deactivation"
+msgstr ""
+
+#: ../includes/settings.php:238
+msgid "Display settings"
+msgstr ""
+
+#: ../includes/settings.php:239
+msgid "Post Views Label"
+msgstr ""
+
+#: ../includes/settings.php:240
+msgid "Post Types Display"
+msgstr ""
+
+#: ../includes/settings.php:241
+msgid "Restrict Display"
+msgstr ""
+
+#: ../includes/settings.php:242
+msgid "Position"
+msgstr ""
+
+#: ../includes/settings.php:243
+msgid "Display Style"
+msgstr ""
+
+#: ../includes/settings.php:244
+msgid "Icon Class"
+msgstr ""
+
+#: ../includes/settings.php:258
+msgid "Enter the label for the post views counter field."
+msgstr ""
+
+#: ../includes/settings.php:272
+msgid "Select post types"
+msgstr ""
+
+#: ../includes/settings.php:283
+msgid "Select post types for which post views will be counted."
+msgstr ""
+
+#: ../includes/settings.php:297 ../includes/settings.php:423
+#: ../includes/settings.php:599
+msgid "Select groups"
+msgstr ""
+
+#: ../includes/settings.php:308
+msgid "Select post types for which post views will be displayed."
+msgstr ""
+
+#: ../includes/settings.php:332
+msgid ""
+"Select the method of collecting post views data. If you are using any of the "
+"caching plugins select Javascript."
+msgstr ""
+
+#: ../includes/settings.php:357
+msgid ""
+"Enable to display post views count column for each of the selected post "
+"types."
+msgstr ""
+
+#: ../includes/settings.php:383
+msgid "Enter the time between single user visit count."
+msgstr ""
+
+#: ../includes/settings.php:409
+msgid ""
+"Delete single day post views data older than specified above. Enter 0 "
+"(number zero) if you want to preserve your data regardless of its age."
+msgstr ""
+
+#: ../includes/settings.php:435 ../includes/settings.php:614
+msgid "Select user roles"
+msgstr ""
+
+#: ../includes/settings.php:447
+msgid "Select the type of visitors to be excluded from post views count."
+msgstr ""
+
+#: ../includes/settings.php:466 ../includes/settings.php:475
+msgid "Remove"
+msgstr ""
+
+#: ../includes/settings.php:475
+msgid "Add new"
+msgstr ""
+
+#: ../includes/settings.php:475
+msgid "Add my current IP"
+msgstr ""
+
+#: ../includes/settings.php:477
+msgid "Enter the IP addresses to be excluded from post views count."
+msgstr ""
+
+#: ../includes/settings.php:491
+msgid "Import"
+msgstr ""
+
+#: ../includes/settings.php:493
+msgid "Import post views data from WP-PostViews plugin."
+msgstr ""
+
+#: ../includes/settings.php:494
+msgid "Override existing Post Views Counter data."
+msgstr ""
+
+#: ../includes/settings.php:519
+msgid "Enable to delete all plugin data on deactivation."
+msgstr ""
+
+#: ../includes/settings.php:544
+msgid ""
+"Select where would you like to display the post views counter. Use [post-"
+"views] shortcode for manual display."
+msgstr ""
+
+#: ../includes/settings.php:569
+msgid "Choose how to display the post views counter."
+msgstr ""
+
+#: ../includes/settings.php:585
+#, php-format
+msgid ""
+"Enter the post views icon class. Any of the <a href=\"%s\" target=\"_blank"
+"\">Dashicons</a> classes are available."
+msgstr ""
+
+#: ../includes/settings.php:626
+msgid "Use it to hide the post views counter from selected type of visitors."
+msgstr ""
+
+#: ../includes/settings.php:661
+msgid "WP-PostViews data imported succesfully."
+msgstr ""
+
+#: ../includes/settings.php:665
+msgid "There was no data to import."
+msgstr ""
+
+#: ../includes/settings.php:827
+msgid "General settings restored to defaults."
+msgstr ""
+
+#: ../includes/settings.php:833
+msgid "Display settings restored to defaults."
+msgstr ""
+
+#: ../includes/settings.php:854
+msgid "Support"
+msgstr ""
+
+#: ../includes/widgets.php:38 ../includes/widgets.php:49
+msgid "Most Viewed Posts"
+msgstr ""
+
+#: ../includes/widgets.php:40
+msgid "Displays a list of the most viewed posts"
+msgstr ""
+
+#: ../includes/widgets.php:57
+msgid "No Posts found"
+msgstr ""
+
+#: ../includes/widgets.php:61
+msgid "Ascending"
+msgstr ""
+
+#: ../includes/widgets.php:62
+msgid "Descending"
+msgstr ""
+
+#: ../includes/widgets.php:105
+msgid "Title"
+msgstr ""
+
+#: ../includes/widgets.php:109
+msgid "Post types"
+msgstr ""
+
+#: ../includes/widgets.php:123
+msgid "Number of posts to show"
+msgstr ""
+
+#: ../includes/widgets.php:127
+msgid "No posts message"
+msgstr ""
+
+#: ../includes/widgets.php:131
+msgid "Order"
+msgstr ""
+
+#: ../includes/widgets.php:144
+msgid "Display post views?"
+msgstr ""
+
+#: ../includes/widgets.php:146
+msgid "Display post excerpt?"
+msgstr ""
+
+#: ../includes/widgets.php:148
+msgid "Display post thumbnail?"
+msgstr ""
+
+#: ../includes/widgets.php:151
+msgid "Thumbnail size"
+msgstr ""
+
+#: ../post-views-counter.php:251
+msgid "Are you sure you want to reset these settings to defaults?"
+msgstr ""
+
+#: ../post-views-counter.php:285
+msgid "Settings"
+msgstr ""

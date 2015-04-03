@@ -1,0 +1,672 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Post Views Counter\n"
+"POT-Creation-Date: 2014-07-03 15:24+0100\n"
+"PO-Revision-Date: 2014-07-03 15:27+0100\n"
+"Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
+"Language-Team: dFactory <info@dfactory.eu>\n"
+"Language: pl_PL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.5\n"
+"X-Poedit-KeywordsList: gettext;gettext_noop;__;_e;esc_attr__;esc_attr_e;"
+"esc_html__;esc_html_e\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../includes/columns.php:113 ../includes/columns.php:121
+msgid "Post Views"
+msgstr "Odwiedziny"
+
+#: ../includes/cron.php:40
+msgid "Post Views Counter reset daily counts interval"
+msgstr ""
+"Odstęp czasu po jakim resetowane będą dzienne dane o liczbie odwiedzin."
+
+#: ../includes/functions.php:114
+msgid "No Posts"
+msgstr "Brak wpisów"
+
+#: ../includes/settings.php:41
+msgid "Enable"
+msgstr "Włącz"
+
+#: ../includes/settings.php:42
+msgid "Disable"
+msgstr "Wyłącz"
+
+#: ../includes/settings.php:46
+msgid "PHP"
+msgstr "PHP"
+
+#: ../includes/settings.php:47
+msgid "JavaScript"
+msgstr "JavaScript"
+
+#: ../includes/settings.php:51
+msgid "minutes"
+msgstr "minuty"
+
+#: ../includes/settings.php:52
+msgid "hours"
+msgstr "godziny"
+
+#: ../includes/settings.php:53
+msgid "days"
+msgstr "dni"
+
+#: ../includes/settings.php:54
+msgid "weeks"
+msgstr "tygodnie"
+
+#: ../includes/settings.php:55
+msgid "months"
+msgstr "miesiące"
+
+#: ../includes/settings.php:56
+msgid "years"
+msgstr "lata"
+
+#: ../includes/settings.php:60
+msgid "robots"
+msgstr "roboty"
+
+#: ../includes/settings.php:61
+msgid "logged in users"
+msgstr "zalogowani użytkownicy"
+
+#: ../includes/settings.php:62
+msgid "guests"
+msgstr "goście"
+
+#: ../includes/settings.php:63
+msgid "selected user roles"
+msgstr "wybrane role użytkowników"
+
+#: ../includes/settings.php:67
+msgid "before the content"
+msgstr "przed treścią"
+
+#: ../includes/settings.php:68
+msgid "after the content"
+msgstr "po treści"
+
+#: ../includes/settings.php:69
+msgid "manual"
+msgstr "ręcznie"
+
+#: ../includes/settings.php:73
+msgid "icon"
+msgstr "ikona"
+
+#: ../includes/settings.php:74
+msgid "label"
+msgstr "etykieta"
+
+#: ../includes/settings.php:79
+msgid "General"
+msgstr "Ogólne"
+
+#: ../includes/settings.php:85
+msgid "Display"
+msgstr "Wyświetlanie"
+
+#: ../includes/settings.php:149 ../includes/settings.php:150
+#: ../includes/settings.php:167 ../includes/settings.php:180
+msgid "Post Views Counter"
+msgstr "Licznik odwiedzin"
+
+#: ../includes/settings.php:182
+msgid "Need support?"
+msgstr "Potrzebujesz pomocy?"
+
+#: ../includes/settings.php:183
+msgid ""
+"If you are having problems with this plugin, please talk about them in the"
+msgstr "Jeśli masz jakieś problemy z tą wtyczką, powiedz o nich"
+
+#: ../includes/settings.php:183
+msgid "Support forum"
+msgstr "Forum pomocy"
+
+#: ../includes/settings.php:185
+msgid "Do you like this plugin?"
+msgstr "Lubisz tę wtyczkę?"
+
+#: ../includes/settings.php:186
+msgid "Rate it 5"
+msgstr "Oceń ją na 5"
+
+#: ../includes/settings.php:186
+msgid "on WordPress.org"
+msgstr "na WordPress.org"
+
+#: ../includes/settings.php:187
+msgid "Blog about it & link to the"
+msgstr "Napisz o niej i dodaj link"
+
+#: ../includes/settings.php:187
+msgid "plugin page"
+msgstr "do strony wtyczki"
+
+#: ../includes/settings.php:188
+msgid "Check out our other"
+msgstr "Sprawdż nasze inne"
+
+#: ../includes/settings.php:188
+msgid "WordPress plugins"
+msgstr "wtyczki do WordPressa"
+
+#: ../includes/settings.php:191
+msgid "Created by"
+msgstr "Stworzone przez"
+
+#: ../includes/settings.php:207
+msgid "Reset to defaults"
+msgstr "Resetuj do domyślnych"
+
+#: ../includes/settings.php:225
+msgid "General settings"
+msgstr "Ustawienia ogólne"
+
+#: ../includes/settings.php:226
+msgid "Post Types Count"
+msgstr "Własne typy wpisów"
+
+#: ../includes/settings.php:227
+msgid "Counter Mode"
+msgstr "Tryb pracy licznika"
+
+#: ../includes/settings.php:228
+msgid "Post Views Column"
+msgstr "Kolumna z liczbą odwiedzin"
+
+#: ../includes/settings.php:229
+msgid "Time Between Counts"
+msgstr "Czas między zliczaniem"
+
+#: ../includes/settings.php:230
+msgid "Reset Data"
+msgstr "Resetowanie danych"
+
+#: ../includes/settings.php:231
+msgid "Exclude Visitors"
+msgstr "Wykluczanie odwiedzających"
+
+#: ../includes/settings.php:232
+msgid "Exclude IPs"
+msgstr "Wykluczanie IP"
+
+#: ../includes/settings.php:233
+msgid "WP-PostViews"
+msgstr "WP-PostViews"
+
+#: ../includes/settings.php:234
+msgid "Deactivation"
+msgstr "Deaktywacja wtyczki"
+
+#: ../includes/settings.php:238
+msgid "Display settings"
+msgstr "Ustawienia wyświetlania"
+
+#: ../includes/settings.php:239
+msgid "Post Views Label"
+msgstr "Etykieta licznika"
+
+#: ../includes/settings.php:240
+msgid "Post Types Display"
+msgstr "Wyświetlanie licznika"
+
+#: ../includes/settings.php:241
+msgid "Restrict Display"
+msgstr "Ograniczenia wyświetlania"
+
+#: ../includes/settings.php:242
+msgid "Position"
+msgstr "Pozycja"
+
+#: ../includes/settings.php:243
+msgid "Display Style"
+msgstr "Styl wyświetlania"
+
+#: ../includes/settings.php:244
+msgid "Icon Class"
+msgstr "Klasa ikony"
+
+#: ../includes/settings.php:258
+msgid "Enter the label for the post views counter field."
+msgstr "Wpisz etykietę jaka będzie wyświetlana w liczniku odwiedzin wpisu."
+
+#: ../includes/settings.php:272
+msgid "Select post types"
+msgstr "Wybierz typy wpisów"
+
+#: ../includes/settings.php:283
+msgid "Select post types for which post views will be counted."
+msgstr "Wybierz typy wpisów dla których będzie włączone zliczanie."
+
+#: ../includes/settings.php:297 ../includes/settings.php:423
+#: ../includes/settings.php:599
+msgid "Select groups"
+msgstr "Wybierz grupy"
+
+#: ../includes/settings.php:308
+msgid "Select post types for which post views will be displayed."
+msgstr "Wybierz typy wpisów dla których licznik będzie wyświetlony."
+
+#: ../includes/settings.php:332
+msgid ""
+"Select the method of collecting post views data. If you are using any of the "
+"caching plugins select Javascript."
+msgstr ""
+"Wybierz metodę gromadzenia danych. Jeśli używaż jakiejkolwiek wtyczki do "
+"cachowania wybierz Javascript."
+
+#: ../includes/settings.php:357
+msgid ""
+"Enable to display post views count column for each of the selected post "
+"types."
+msgstr "Włącz aby wyświetlić kolumnę z liczbą odsłon."
+
+#: ../includes/settings.php:383
+msgid "Enter the time between single user visit count."
+msgstr "Określ czas pomiędzy zliczaniem wizyt poszczególnego użytkownika."
+
+#: ../includes/settings.php:409
+msgid ""
+"Delete single day post views data older than specified above. Enter 0 "
+"(number zero) if you want to preserve your data regardless of its age."
+msgstr ""
+"Usuwanie dziennych danych o liczbie wpisów po określonym powyżej czasie. "
+"Wpisz 0 jeśli chcesz przetrzymywać te dane bez ograniczeń."
+
+#: ../includes/settings.php:435 ../includes/settings.php:614
+msgid "Select user roles"
+msgstr "Wybierz role użytkowników"
+
+#: ../includes/settings.php:447
+msgid "Select the type of visitors to be excluded from post views count."
+msgstr "Wybierz typy użytkowników wyłączonych z działania licznika."
+
+#: ../includes/settings.php:466 ../includes/settings.php:475
+msgid "Remove"
+msgstr "Usuń"
+
+#: ../includes/settings.php:475
+msgid "Add new"
+msgstr "Dodaj nowy"
+
+#: ../includes/settings.php:475
+msgid "Add my current IP"
+msgstr "Dodaj mój aktualny IP"
+
+#: ../includes/settings.php:477
+msgid "Enter the IP addresses to be excluded from post views count."
+msgstr "Wpisz adresy IP, któe mają być wyłączone z działania licznika."
+
+#: ../includes/settings.php:491
+msgid "Import"
+msgstr "Importuj"
+
+#: ../includes/settings.php:493
+msgid "Import post views data from WP-PostViews plugin."
+msgstr "Importuj dane o liczbie odwiedzin z wtyczki WP-PostViews."
+
+#: ../includes/settings.php:494
+msgid "Override existing Post Views Counter data."
+msgstr "Nadpisz istniejące dane Licznika odwiedzin."
+
+#: ../includes/settings.php:519
+msgid "Enable to delete all plugin data on deactivation."
+msgstr "Włącz aby usunąć wszystkie dane wtyczki podczas deaktywacji"
+
+#: ../includes/settings.php:544
+msgid ""
+"Select where would you like to display the post views counter. Use [post-"
+"views] shortcode for manual display."
+msgstr ""
+"Wybierz w którym miejscu chcesz wyświetlać licznik odwiedzin. Użyj skrótu "
+"[post-views] aby wyświetlić licznik ręcznie."
+
+#: ../includes/settings.php:569
+msgid "Choose how to display the post views counter."
+msgstr "Wybierz w jaki sposób chcesz wyświetlać licznik."
+
+#: ../includes/settings.php:585
+#, php-format
+msgid ""
+"Enter the post views icon class. Any of the <a href=\"%s\" target=\"_blank"
+"\">Dashicons</a> classes are available."
+msgstr ""
+"Wpisz klasę CSS ikony. Każda z ikond typu <a href=\"%s\" target=\"_blank"
+"\">Dashicons</a> może być tutaj zastosowana."
+
+#: ../includes/settings.php:626
+msgid "Use it to hide the post views counter from selected type of visitors."
+msgstr ""
+"Użyj tego aby ograniczyć wyświetlanie licznika do określonych typów "
+"użytkowników."
+
+#: ../includes/settings.php:661
+msgid "WP-PostViews data imported succesfully."
+msgstr "Dane z wtyczki WP-PostViews zostały zaimportowane pomyślnie."
+
+#: ../includes/settings.php:665
+msgid "There was no data to import."
+msgstr "Niestety, nie znaleziono danych do zaimportowania."
+
+#: ../includes/settings.php:827
+msgid "General settings restored to defaults."
+msgstr "Ustawienia zostały przywrócone do domyślnych."
+
+#: ../includes/settings.php:833
+msgid "Display settings restored to defaults."
+msgstr "Ustawienia wyświetlania została przywrócone do domyślnych."
+
+#: ../includes/settings.php:854
+msgid "Support"
+msgstr "Forum pomocy"
+
+#: ../includes/widgets.php:38 ../includes/widgets.php:49
+msgid "Most Viewed Posts"
+msgstr "Najczęściej oglądane wpisy"
+
+#: ../includes/widgets.php:40
+msgid "Displays a list of the most viewed posts"
+msgstr "Wyświetla listę najczęściej oglądanych wpisów"
+
+#: ../includes/widgets.php:57
+msgid "No Posts found"
+msgstr "Brak wpisów"
+
+#: ../includes/widgets.php:61
+msgid "Ascending"
+msgstr "Rosnąco"
+
+#: ../includes/widgets.php:62
+msgid "Descending"
+msgstr "Malejąco"
+
+#: ../includes/widgets.php:105
+msgid "Title"
+msgstr "Tytuł"
+
+#: ../includes/widgets.php:109
+msgid "Post types"
+msgstr "Typy wpisów"
+
+#: ../includes/widgets.php:123
+msgid "Number of posts to show"
+msgstr "Liczba wpisów do wyświetlenia"
+
+#: ../includes/widgets.php:127
+msgid "No posts message"
+msgstr "Treść braku wpisów"
+
+#: ../includes/widgets.php:131
+msgid "Order"
+msgstr "Kolejność"
+
+#: ../includes/widgets.php:144
+msgid "Display post views?"
+msgstr "Wyświetlanie liczby odsłon?"
+
+#: ../includes/widgets.php:146
+msgid "Display post excerpt?"
+msgstr "Wyświetlanie wypisu?"
+
+#: ../includes/widgets.php:148
+msgid "Display post thumbnail?"
+msgstr "WYświetlanie miniatury?"
+
+#: ../includes/widgets.php:151
+msgid "Thumbnail size"
+msgstr "WIelkość miniatury"
+
+#: ../post-views-counter.php:260
+msgid "Are you sure you want to reset these settings to defaults?"
+msgstr "Czy jesteś pewny, że chcesz zresetować ustawienia do domyślnych?"
+
+#: ../post-views-counter.php:294
+msgid "Settings"
+msgstr "Ustawienia"
+
+#~ msgid "text"
+#~ msgstr "tekst"
+
+#~ msgid "Enable if you would like the post views counter link to the post."
+#~ msgstr "Włącz jeśli chcesz aby liczba odwiedzin była linkiem do wpisu."
+
+#~ msgid "Top"
+#~ msgstr "Na górze"
+
+#~ msgid "Bottom"
+#~ msgstr "Na dole"
+
+#~ msgid "None"
+#~ msgstr "Brak"
+
+#~ msgid "WordPress"
+#~ msgstr "WordPress"
+
+#~ msgid "Bootstrap"
+#~ msgstr "Bootstrap"
+
+#~ msgid "Custom link"
+#~ msgstr "Własny link"
+
+#~ msgid "Page link"
+#~ msgstr "Link do strony"
+
+#~ msgid "Text color"
+#~ msgstr "Kolor tekstu"
+
+#~ msgid "Bar color"
+#~ msgstr "Kolor tła"
+
+#~ msgid "1 day"
+#~ msgstr "1 dzień"
+
+#~ msgid "1 month"
+#~ msgstr "1 miesiąc"
+
+#~ msgid "6 months"
+#~ msgstr "6 miesięcy"
+
+#~ msgid "infinity"
+#~ msgstr "W nieskończoność"
+
+#~ msgid "Fade"
+#~ msgstr "Zanikanie"
+
+#~ msgid "Slide"
+#~ msgstr "Przesuwanie"
+
+#~ msgid "Cookie Notice"
+#~ msgstr "Ciasteczka"
+
+#~ msgid "Configuration"
+#~ msgstr "Konfiguracja"
+
+#~ msgid "Message"
+#~ msgstr "Wiadomość"
+
+#~ msgid "Button text"
+#~ msgstr "Tekst przycisku"
+
+#~ msgid "More info"
+#~ msgstr "Więcej informacji"
+
+#~ msgid "Cookie expiry"
+#~ msgstr "Wygasanie cookie"
+
+#~ msgid "Design"
+#~ msgstr "Wygląd"
+
+#~ msgid "Hide animation"
+#~ msgstr "Ukrywanie animacji"
+
+#~ msgid "Button style"
+#~ msgstr "Styl przycisku"
+
+#~ msgid "Colors"
+#~ msgstr "Kolorystyka"
+
+#~ msgid "Enter the cookie notice message."
+#~ msgstr "Wpisz treść informacji o ciasteczkach."
+
+#~ msgid "The text to show on the button when cookies have not been accepted"
+#~ msgstr ""
+#~ "Tekst przycisku, który będzie wyświetlany gdy ciasteczka nie zostały "
+#~ "jeszcze zaakceptowane."
+
+#~ msgid "Enable or Disable Read more button."
+#~ msgstr "Włącz lub wyłącz przycisk z linkiem do dodatkowych informacji."
+
+#~ msgid "Select where to redirect user for more information about cookies."
+#~ msgstr ""
+#~ "Wybierz dokąd przekierować użytkownika aby uzyskał więcej informacji o "
+#~ "ciasteczkach."
+
+#~ msgid "-- select page --"
+#~ msgstr "-- wybierz stronę --"
+
+#~ msgid "Select from one of your site's pages"
+#~ msgstr "Wybierz jedną z istniejących stron."
+
+#~ msgid "Enter the full URL starting with http://"
+#~ msgstr "Podaj pełny adres URL zaczynający się od http://"
+
+#~ msgid "The ammount of time that cookie should be stored for."
+#~ msgstr "Okres czasu przez jaki będzie przechowywane ciasteczko."
+
+#~ msgid "Select location for your cookie notice."
+#~ msgstr "Wybierz pozycję wiadomości o ciasteczkach."
+
+#~ msgid "Cookie notice acceptance animation."
+#~ msgstr "Animacja po akceptacji ciasteczek."
+
+#~ msgid "Choose buttons style."
+#~ msgstr "Wybierz styl dla przycisków."
+
+#~ msgid ""
+#~ "We use cookies to ensure that we give you the best experience on our "
+#~ "website. If you continue to use this site we will assume that you are "
+#~ "happy with it."
+#~ msgstr ""
+#~ "Ta strona korzysta z ciasteczek aby świadczyć usługi na najwyższym "
+#~ "poziomie. Dalsze korzystanie ze strony oznacza, że zgadzasz się na ich "
+#~ "użycie."
+
+#~ msgid "Ok"
+#~ msgstr "Zamknij"
+
+#~ msgid "Read more"
+#~ msgstr "Dowiedz się więcej"
+
+#~ msgid "Widgets"
+#~ msgstr "Widgety"
+
+#~ msgid "Pages"
+#~ msgstr "Strony"
+
+#~ msgid "Custom Post Type Archives"
+#~ msgstr "Archiwa własnych typów wpisów"
+
+#~ msgid "Categories"
+#~ msgstr "Kategorie"
+
+#~ msgid "Taxonomies"
+#~ msgstr "Taksonomie"
+
+#~ msgid "Others"
+#~ msgstr "Inne"
+
+#~ msgid "Users"
+#~ msgstr "Użytkownicy"
+
+#~ msgid "Languages"
+#~ msgstr "Języki"
+
+#~ msgid "Front Page"
+#~ msgstr "Strona główna"
+
+#~ msgid "Blog Page"
+#~ msgstr "Strona z wpisami"
+
+#~ msgid "Single Posts"
+#~ msgstr "Pojedyncze wpisy"
+
+#~ msgid "Sticky Posts"
+#~ msgstr "Wpisy przyklejone"
+
+#~ msgid "Author Archive"
+#~ msgstr "Archiwum autora"
+
+#~ msgid "Date Archive"
+#~ msgstr "Archiwum daty"
+
+#~ msgid "404 Page"
+#~ msgstr "Strona błędów 404"
+
+#~ msgid "Search Page"
+#~ msgstr "Strona wyszukiwania"
+
+#~ msgid "Logged out users"
+#~ msgstr "Wylogowani użytkownicy"
+
+#~ msgid ""
+#~ "Use this settings to manage access to widgets page and to restrict "
+#~ "availability of certain widgets, sidebars and widgets options to site "
+#~ "administrators only."
+#~ msgstr ""
+#~ "Użyj tych ustawień aby określić kto może mieć dostęp do widgetów, jakie "
+#~ "widgety, panele boczne i ustawienia widgetów są dostępne dla użytkowników "
+#~ "a jakie tylko dla administratorów."
+
+#~ msgid "Restrict Users"
+#~ msgstr "Ograniczenia użytkowników"
+
+#~ msgid "Select user roles restricted to manage widgets."
+#~ msgstr "Wybierz role użytkowników, którzy mogą zarządzać widgetami."
+
+#~ msgid "Restrict Sidebars"
+#~ msgstr "Ograniczenia paneli bocznych"
+
+#~ msgid "Select which sidebars will be restricted to admins only."
+#~ msgstr ""
+#~ "Wybierz panele boczne, które będą dostępne tylko dla administratorów."
+
+#~ msgid "Restrict Widgets"
+#~ msgstr "Ograniczenia widgetów"
+
+#~ msgid "Select which widgets will be restricted to admins only."
+#~ msgstr "Wybierz widgety, któe będą dostępne tylko dla administratorów."
+
+#~ msgid "Restrict Widget Options"
+#~ msgstr "Ograniczenia opcji widgetów"
+
+#~ msgid "Select which widget options will be restricted to admins only."
+#~ msgstr ""
+#~ "Wybierz które opcje widgetów, będą dostępne tylko dla administratorów."
+
+#~ msgid "Restrict Option Groups"
+#~ msgstr "Ograniczenia grup opcji"
+
+#~ msgid "Single %s"
+#~ msgstr "Pojedyncze %s"
+
+#~ msgid "%s Archive"
+#~ msgstr "Archiwum %s"
+
+#~ msgid "Display / Hide Widget"
+#~ msgstr "Wyświetl / Ukryj widget"
+
+#~ msgid "Display widget on selected"
+#~ msgstr "Wyświetl widget na wybranych stronach"
+
+#~ msgid "Hide widget on selected"
+#~ msgstr "Ukryj widget na wybranych stronach"
