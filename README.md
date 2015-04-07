@@ -1,4 +1,4 @@
-# Post Views Counter # 
+# Post Views Counter #
 
 Forget WP-PostViews. Display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
 
@@ -23,6 +23,7 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * .pot file for translations included
 
 ### Translations: ###
+* Hebrew - by [Ahrale Shrem](http://atar4u.com/)
 * Polish - by Bartosz Arendt
 * Russian - by moonkir
 
@@ -33,6 +34,10 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 3. Go to the Post Views Counter settings and set your options.
 
 ## Changelog ##
+
+#### 1.0.6 ####
+* New: Object cache support, thanks to [Tomas Trkulja](http://zytzagoo.net/blog/)
+* New: Hebrew translation, thanks to [Ahrale Shrem](http://atar4u.com/)
 
 #### 1.0.5 ####
 * Tweak: Added number_format_i18n for displayed views count

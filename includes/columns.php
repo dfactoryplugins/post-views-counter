@@ -71,7 +71,7 @@ class Post_Views_Counter_Columns {
 		if (isset($columns['comments']))
 			$offset++;
 
-		if ($offset > 0)	{
+		if ($offset > 0) {
 			$date = array_slice($columns, -$offset, $offset, true);
 
 			foreach ($date as $column => $name) {

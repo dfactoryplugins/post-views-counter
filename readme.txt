@@ -4,7 +4,7 @@ Donate link: http://www.dfactory.eu/
 Tags: counter, hits, postviews, post views, views, count
 Requires at least: 3.8.0
 Tested up to: 4.1.1
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -31,6 +31,7 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * .pot file for translations included
 
 = Translations: =
+* Hebrew - by [Ahrale Shrem](http://atar4u.com/)
 * Polish - by Bartosz Arendt
 * Russian - by moonkir
 
@@ -56,6 +57,10 @@ No questions yet.
 
 == Changelog ==
 
+= 1.0.6 =
+* New: Object cache support, thanks to [Tomas Trkulja](http://zytzagoo.net/blog/)
+* New: Hebrew translation, thanks to [Ahrale Shrem](http://atar4u.com/)
+
 = 1.0.5 =
 * Tweak: Added number_format_i18n for displayed views count
 * Tweak: Additional action hook for developers
@@ -75,6 +80,6 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.0.5 =
-* Tweak: Added number_format_i18n for displayed views count
-* Tweak: Additional action hook for developers
+= 1.0.6 =
+* New: Object cache support, thanks to [Tomas Trkulja](http://zytzagoo.net/blog/)
+* New: Hebrew translation, thanks to [Ahrale Shrem](http://atar4u.com/)
