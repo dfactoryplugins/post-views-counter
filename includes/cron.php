@@ -13,6 +13,7 @@ class Post_Views_Counter_Cron
 		// actions
 		add_action('init', array(&$this, 'check_cron'));
 		add_action('pvc_reset_counts', array(&$this, 'reset_counts'));
+		add_action('pvc_flush_cached_counts', array(&$this, 'flush_cached_counts'));
 
 		// filters
 		add_filter('cron_schedules', array(&$this, 'cron_time_intervals'));
@@ -31,6 +32,19 @@ class Post_Views_Counter_Cron
 
 
 	/**
+	 * Calls Post_Views_Counter_Counter::flush_cache_to_db()
+	 * This is (un)scheduled on plugin activation/deactivation
+	 */
+	public function flush_cached_counts()
+	{
+		$counter = Post_Views_Counter()->get_instance('counter');
+		if ( $counter && $counter->using_object_cache() ) {
+			$counter->flush_cache_to_db();
+		}
+	}
+
+
+	/**
 	 * Adds new cron interval from settings
 	*/
 	public function cron_time_intervals($schedules)
@@ -38,6 +52,11 @@ class Post_Views_Counter_Cron
 		$schedules['post_views_counter_interval'] = array(
 			'interval' => Post_Views_Counter()->get_instance('counter')->get_timestamp(Post_Views_Counter()->get_attribute('options', 'general', 'reset_counts', 'type'), Post_Views_Counter()->get_attribute('options', 'general', 'reset_counts', 'number'), false),
 			'display' => __('Post Views Counter reset daily counts interval', 'post-views-counter')
+		);
+
+		$schedules['post_views_counter_flush_interval'] = array(
+			'interval' => Post_Views_Counter()->get_instance('counter')->get_timestamp(Post_Views_Counter()->get_attribute('options', 'general', 'flush_interval', 'type'), Post_Views_Counter()->get_attribute('options', 'general', 'flush_interval', 'number'), false),
+			'display'  => __('Post Views Counter cache flush interval', 'post-views-counter')
 		);
 
 		return $schedules;
