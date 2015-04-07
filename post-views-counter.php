@@ -56,6 +56,10 @@ class Post_Views_Counter
 				'number' => 30,
 				'type' => 'days'
 			),
+			'flush_interval' => array(
+				'number' => 0,
+				'type' => 'minutes'
+			),
 			'exclude' => array(
 				'groups' => array(),
 				'roles' => array()
@@ -145,6 +149,9 @@ class Post_Views_Counter
 		add_option('post_views_counter_settings_general', $this->defaults['general'], '', 'no');
 		add_option('post_views_counter_settings_display', $this->defaults['display'], '', 'no');
 		add_option('post_views_counter_version', $this->defaults['version'], '', 'no');
+
+		// schedule cache flush
+		$this->schedule_cache_flush();
 	}
 
 
@@ -163,6 +170,27 @@ class Post_Views_Counter
 		// removes schedule
 		wp_clear_scheduled_hook('pvc_reset_counts');
 		remove_action('pvc_reset_counts', array(Post_Views_Counter()->get_instance('cron'), 'reset_counts'));
+
+		$this->remove_cache_flush();
+	}
+
+	/**
+	 * Schedules cache flushing if it's not already scheduled
+	 */
+	public function schedule_cache_flush($forced = true)
+	{
+		if ( $forced || ! wp_next_scheduled( 'pvc_flush_cached_counts' ) ) {
+			wp_schedule_event( time(), 'post_views_counter_flush_interval', 'pvc_flush_cached_counts' );
+		}
+	}
+
+	/**
+	 * Removes scheduled cache flush and the corresponding action
+	 */
+	public function remove_cache_flush()
+	{
+		wp_clear_scheduled_hook( 'pvc_flush_cached_counts' );
+		remove_action( 'pvc_flush_cached_counts', array( Post_Views_Counter()->get_instance('cron'), 'flush_cached_counts' ) );
 	}
 
 
@@ -173,12 +201,12 @@ class Post_Views_Counter
 	{
 		load_plugin_textdomain('post-views-counter', false, POST_VIEWS_COUNTER_REL_PATH.'languages/');
 	}
-	
-	
+
+
 	/**
 	 * Load pluggable template functions
 	*/
-	public function load_pluggable_functions() 
+	public function load_pluggable_functions()
 	{
 	    include_once(POST_VIEWS_COUNTER_PATH.'includes/functions.php');
 	}

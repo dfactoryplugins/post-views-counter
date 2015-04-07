@@ -33,7 +33,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function load_defaults()
 	{
@@ -94,7 +94,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function load_post_types()
 	{
@@ -156,7 +156,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function options_page()
 	{
@@ -183,10 +183,10 @@ class Post_Views_Counter_Settings
 						<p class="inner">'.__('If you are having problems with this plugin, please talk about them in the', 'post-views-counter').' <a href="http://www.dfactory.eu/support/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=support" target="_blank" title="'.__('Support forum', 'post-views-counter').'">'.__('Support forum', 'post-views-counter').'</a></p>
 						<hr />
 						<h4 class="inner">'.__('Do you like this plugin?', 'post-views-counter').'</h4>
-						<p class="inner"><a href="http://wordpress.org/support/view/plugin-reviews/post-views-counter" target="_blank" title="'.__('Rate it 5', 'events-maker').'">'.__('Rate it 5', 'post-views-counter').'</a> '.__('on WordPress.org', 'post-views-counter').'<br />'.
+						<p class="inner"><a href="http://wordpress.org/support/view/plugin-reviews/post-views-counter" target="_blank" title="'.__('Rate it 5', 'post-views-counter').'">'.__('Rate it 5', 'post-views-counter').'</a> '.__('on WordPress.org', 'post-views-counter').'<br />'.
 						__('Blog about it & link to the', 'post-views-counter').' <a href="http://www.dfactory.eu/plugins/post-views-counter/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=blog-about" target="_blank" title="'.__('plugin page', 'post-views-counter').'">'.__('plugin page', 'post-views-counter').'</a><br/>'.
 						__('Check out our other', 'post-views-counter').' <a href="http://www.dfactory.eu/plugins/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=other-plugins" target="_blank" title="'.__('WordPress plugins', 'post-views-counter').'">'.__('WordPress plugins', 'post-views-counter').'</a>
-						</p>            
+						</p>
 						<hr />
 						<p class="df-link inner">'.__('Created by', 'post-views-counter').' <a href="http://www.dfactory.eu/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=created-by" target="_blank" title="dFactory - Quality plugins for WordPress"><img src="'.POST_VIEWS_COUNTER_URL.'/images/logo-dfactory.png'.'" title="dFactory - Quality plugins for WordPress" alt="dFactory - Quality plugins for WordPress" /></a></p>
 					</div>
@@ -216,7 +216,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function register_settings()
 	{
@@ -228,6 +228,7 @@ class Post_Views_Counter_Settings
 		add_settings_field('pvc_post_views_column', __('Post Views Column', 'post-views-counter'), array(&$this, 'post_views_column'), 'post_views_counter_settings_general', 'post_views_counter_settings_general');
 		add_settings_field('pvc_time_between_counts', __('Time Between Counts', 'post-views-counter'), array(&$this, 'time_between_counts'), 'post_views_counter_settings_general', 'post_views_counter_settings_general');
 		add_settings_field('pvc_reset_counts', __('Reset Data', 'post-views-counter'), array(&$this, 'reset_counts'), 'post_views_counter_settings_general', 'post_views_counter_settings_general');
+		add_settings_field('pvc_flush_interval', __('Flush Interval', 'post-views-counter'), array(&$this, 'flush_interval'), 'post_views_counter_settings_general', 'post_views_counter_settings_general');
 		add_settings_field('pvc_exclude', __('Exclude Visitors', 'post-views-counter'), array(&$this, 'exclude'), 'post_views_counter_settings_general', 'post_views_counter_settings_general');
 		add_settings_field('pvc_exclude_ips', __('Exclude IPs', 'post-views-counter'), array(&$this, 'exclude_ips'), 'post_views_counter_settings_general', 'post_views_counter_settings_general');
 		add_settings_field('pvc_wp_postviews', __('WP-PostViews', 'post-views-counter'), array(&$this, 'wp_postviews'), 'post_views_counter_settings_general', 'post_views_counter_settings_general');
@@ -246,7 +247,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function post_views_label()
 	{
@@ -262,7 +263,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function post_types_count()
 	{
@@ -287,7 +288,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function post_types_display()
 	{
@@ -311,7 +312,7 @@ class Post_Views_Counter_Settings
 	}
 
 	/**
-	 * 
+	 *
 	*/
 	public function counter_mode()
 	{
@@ -336,7 +337,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function post_views_column()
 	{
@@ -361,7 +362,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function time_between_counts()
 	{
@@ -387,7 +388,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function reset_counts()
 	{
@@ -412,8 +413,31 @@ class Post_Views_Counter_Settings
 	}
 
 
+	public function flush_interval()
+	{
+		echo '
+		<div id="pvc_flush_interval">
+			<fieldset>
+				<input size="4" type="text" name="post_views_counter_settings_general[flush_interval][number]" value="'.esc_attr(Post_Views_Counter()->get_attribute('options', 'general', 'flush_interval', 'number')).'" />
+				<select class="pvc-chosen-short" name="post_views_counter_settings_general[flush_interval][type]">';
+
+		foreach($this->time_types as $type => $type_name)
+		{
+			echo '
+					<option value="'.esc_attr($type).'" '.selected($type, Post_Views_Counter()->get_attribute('options', 'general', 'flush_interval', 'type'), false).'>'.esc_html($type_name).'</option>';
+		}
+
+		echo '
+				</select>
+				<br/>
+				<span class="description">'.__('How often to flush cached view counts from the object cache (usually memory-based) into the database. WordPress does not know about those cached counts until they reach the database. This feature is used only if a persistent object cache is detected and the interval is greater than 0 (number zero)). Defaults to 0 (number zero). When used, it means view counts will now be collected and stored in the object cache instead of the database and will then be asynchronously flushed to the database according to the specified interval. This also means you are ok with having potential data loss if the object cache is cleared/unavailable for the duration of the interval.', 'post-views-counter').'</span>
+			</fieldset>
+		</div>';
+	}
+
+
 	/**
-	 * 
+	 *
 	*/
 	public function exclude()
 	{
@@ -451,7 +475,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function exclude_ips()
 	{
@@ -481,7 +505,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function wp_postviews()
 	{
@@ -498,7 +522,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function deactivation_delete()
 	{
@@ -523,7 +547,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function position()
 	{
@@ -548,7 +572,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function display_style()
 	{
@@ -573,7 +597,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function icon_class()
 	{
@@ -589,7 +613,7 @@ class Post_Views_Counter_Settings
 
 
 	/**
-	 * 
+	 *
 	*/
 	public function restrict_display()
 	{
@@ -692,6 +716,19 @@ class Post_Views_Counter_Settings
 			// time between counts
 			$input['time_between_counts']['number'] = (int)(isset($input['time_between_counts']['number']) ? $input['time_between_counts']['number'] : Post_Views_Counter()->get_attribute('defaults', 'general', 'time_between_counts', 'number'));
 			$input['time_between_counts']['type'] = (isset($input['time_between_counts']['type'], $this->time_types[$input['time_between_counts']['type']]) ? $input['time_between_counts']['type'] : Post_Views_Counter()->get_attribute('defaults', 'general', 'time_between_counts', 'type'));
+
+			// flush interval
+			$input['flush_interval']['number'] = (int)(isset($input['flush_interval']['number']) ? $input['flush_interval']['number'] : Post_Views_Counter()->get_attribute('defaults', 'general', 'flush_interval', 'number'));
+			$input['flush_interval']['type'] = (isset($input['flush_interval']['type'], $this->time_types[$input['flush_interval']['type']]) ? $input['flush_interval']['type'] : Post_Views_Counter()->get_attribute('defaults', 'general', 'flush_interval', 'type'));
+			// Since the settings are about to be saved and cache flush interval could've changed,
+			// we want to make sure that any changes done on the settings page are in effect immediately
+			// (instead of having to wait for the previous schedule to occur).
+			// We achieve that by making sure to clear any previous cache flush schedules and
+			// schedule the new one if the specified interval is > 0
+			Post_Views_Counter()->remove_cache_flush();
+			if ( $input['flush_interval']['number'] > 0 ) {
+				Post_Views_Counter()->schedule_cache_flush();
+			}
 
 			// reset counts
 			$input['reset_counts']['number'] = (int)(isset($input['reset_counts']['number']) ? $input['reset_counts']['number'] : Post_Views_Counter()->get_attribute('defaults', 'general', 'reset_counts', 'number'));
@@ -840,7 +877,7 @@ class Post_Views_Counter_Settings
 	/**
 	 * Adds links to Support Forum
 	*/
-	public function plugin_extend_links($links, $file) 
+	public function plugin_extend_links($links, $file)
 	{
 		if(!current_user_can('install_plugins'))
 			return $links;
