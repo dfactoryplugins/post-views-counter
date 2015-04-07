@@ -34,6 +34,10 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * Polish - by Bartosz Arendt
 * Russian - by moonkir
 
+= Get involved =
+
+Feel free to contribute to the source code on the [dFactory GitHub Repository](https://github.com/dfactoryplugins).
+
 
 == Installation ==
 

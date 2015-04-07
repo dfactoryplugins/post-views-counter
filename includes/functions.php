@@ -6,20 +6,23 @@
  *
  * @author 	Digital Factory
  * @package Post Views Counter
- * @version 1.0.0
+ * @since 1.0.0
  */
 
-if(!defined('ABSPATH')) exit;
+if (!defined('ABSPATH')) exit;
 
-// Get post views for a post or array of posts
-if(!function_exists('pvc_get_post_views'))
-{
-	function pvc_get_post_views($post_id = 0)
-	{
-		if(empty($post_id))
+/**
+ * Get post views for a post or array of posts
+ * 
+ * @param	int|array $post_id
+ * @return	int
+ */
+if (!function_exists('pvc_get_post_views')) {
+	function pvc_get_post_views($post_id = 0) {
+		if (empty($post_id))
 			$post_id = get_the_ID();
 
-		if(is_array($post_id))
+		if (is_array($post_id))
 			$post_id = implode(',', array_map('intval', $post_id));
 		else
 			$post_id = (int)$post_id;
@@ -36,12 +39,15 @@ if(!function_exists('pvc_get_post_views'))
 	}
 }
 
-
-// Display post views for a given post
-if(!function_exists('pvc_post_views'))
-{
-	function pvc_post_views($post_id = 0, $display = true)
-	{
+/**
+ * Display post views for a given post
+ * 
+ * @param	int|array $post_id
+ * @param	bool $display
+ * @return	mixed
+ */
+if (!function_exists('pvc_post_views')) {
+	function pvc_post_views($post_id = 0, $display = true) {
 		// get all data
 		$post_id = (int)(empty($post_id) ? get_the_ID() : $post_id);
 		$options = Post_Views_Counter()->get_attribute('options', 'display');
@@ -65,19 +71,21 @@ if(!function_exists('pvc_post_views'))
 			$icon
 		);
 
-		if($display)
+		if ($display)
 			echo $html;
 		else
 			return $html;
 	}
 }
 
-
-// Get most viewed posts
-if(!function_exists('pvc_get_most_viewed_posts'))
-{
-	function pvc_get_most_viewed_posts($args = array())
-	{
+/**
+ * Get most viewed posts
+ * 
+ * @param	array $args
+ * @return	array
+ */
+if(!function_exists('pvc_get_most_viewed_posts')) {
+	function pvc_get_most_viewed_posts($args = array())	{
 		$args = array_merge(
 			array(
 				'posts_per_page' => 10,
@@ -97,12 +105,15 @@ if(!function_exists('pvc_get_most_viewed_posts'))
 	}
 }
 
-
-// Display a list of most viewed posts
-if(!function_exists('pvc_most_viewed_posts'))
-{
-	function pvc_most_viewed_posts($args = array(), $display = true)
-	{
+/**
+ * Display a list of most viewed posts
+ * 
+ * @param	array $post_id
+ * @param	bool $display
+ * @return	mixed
+ */
+if(!function_exists('pvc_most_viewed_posts')) {
+	function pvc_most_viewed_posts($args = array(), $display = true) {
 		$defaults = array(
 			'number_of_posts' => 5,
 			'post_types' => array('post'),
@@ -121,30 +132,24 @@ if(!function_exists('pvc_most_viewed_posts'))
 		$args['show_post_excerpt'] = (bool)$args['show_post_excerpt'];
 
 		$posts = pvc_get_most_viewed_posts(
-			apply_filters(
-				'pvc_get_most_viewed_posts_args',
-				array(
-					'posts_per_page' => (isset($args['number_of_posts']) ? (int)$args['number_of_posts'] : $defaults['number_of_posts']),
-					'order' => (isset($args['order']) ? $args['order'] : $defaults['order']),
-					'post_type' => (isset($args['post_types']) ? $args['post_types'] : $defaults['post_types'])
-				)
+			array(
+				'posts_per_page' => (isset($args['number_of_posts']) ? (int)$args['number_of_posts'] : $defaults['number_of_posts']),
+				'order' => (isset($args['order']) ? $args['order'] : $defaults['order']),
+				'post_type' => (isset($args['post_types']) ? $args['post_types'] : $defaults['post_types'])
 			)
 		);
 
-		if(!empty($posts))
-		{
+		if(!empty($posts)) {
 			$html = '
 			<ul>';
 
-			foreach($posts as $post)
-			{
+			foreach($posts as $post) {
 				setup_postdata($post);
 
 				$html .= '
 				<li>';
 
-				if($args['show_post_thumbnail'] && has_post_thumbnail($post->ID))
-				{
+				if($args['show_post_thumbnail'] && has_post_thumbnail($post->ID)) {
 					$html .= '
 					<span class="post-thumbnail">
 						'.get_the_post_thumbnail($post->ID, $args['thumbnail_size']).'
@@ -156,8 +161,7 @@ if(!function_exists('pvc_most_viewed_posts'))
 
 				$excerpt = '';
 
-				if($args['show_post_excerpt'])
-				{
+				if($args['show_post_excerpt']) {
 					if(empty($post->post_excerpt))
 						$text = $post->post_content;
 					else

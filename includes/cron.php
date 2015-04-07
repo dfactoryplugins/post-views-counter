@@ -3,11 +3,10 @@ if(!defined('ABSPATH')) exit;
 
 new Post_Views_Counter_Cron();
 
-class Post_Views_Counter_Cron
-{
-	public function __construct()
-	{
-		// sets instance
+class Post_Views_Counter_Cron {
+	
+	public function __construct() {
+		// set instance
 		Post_Views_Counter()->add_instance('cron', $this);
 
 		// actions
@@ -21,10 +20,9 @@ class Post_Views_Counter_Cron
 
 
 	/**
-	 * Resets daily counts
+	 * Reset daily counts
 	*/
-	public function reset_counts()
-	{
+	public function reset_counts() {
 		global $wpdb;
 
 		$wpdb->query('DELETE FROM '.$wpdb->prefix.'post_views WHERE type = 0');
@@ -32,12 +30,12 @@ class Post_Views_Counter_Cron
 
 
 	/**
-	 * Calls Post_Views_Counter_Counter::flush_cache_to_db()
+	 * Call Post_Views_Counter_Counter::flush_cache_to_db()
 	 * This is (un)scheduled on plugin activation/deactivation
 	 */
-	public function flush_cached_counts()
-	{
+	public function flush_cached_counts() {
 		$counter = Post_Views_Counter()->get_instance('counter');
+		
 		if ( $counter && $counter->using_object_cache() ) {
 			$counter->flush_cache_to_db();
 		}
@@ -45,10 +43,9 @@ class Post_Views_Counter_Cron
 
 
 	/**
-	 * Adds new cron interval from settings
+	 * Add new cron interval from settings
 	*/
-	public function cron_time_intervals($schedules)
-	{
+	public function cron_time_intervals($schedules)	{
 		$schedules['post_views_counter_interval'] = array(
 			'interval' => Post_Views_Counter()->get_instance('counter')->get_timestamp(Post_Views_Counter()->get_attribute('options', 'general', 'reset_counts', 'type'), Post_Views_Counter()->get_attribute('options', 'general', 'reset_counts', 'number'), false),
 			'display' => __('Post Views Counter reset daily counts interval', 'post-views-counter')
@@ -64,40 +61,36 @@ class Post_Views_Counter_Cron
 
 
 	/**
-	 * Checks whether WP Cron needs to add new task
+	 * Check whether WP Cron needs to add new task
 	*/
-	public function check_cron()
-	{
-		if(!is_admin())
+	public function check_cron() {
+		if (!is_admin())
 			return;
 
 		// sets wp cron task
-		if(Post_Views_Counter()->get_attribute('options', 'general', 'cron_run'))
-		{
+		if (Post_Views_Counter()->get_attribute('options', 'general', 'cron_run')) {
+
 			// not set or need to be updated?
-			if(!wp_next_scheduled('pvc_reset_counts') || Post_Views_Counter()->get_attribute('options', 'general', 'cron_update'))
-			{
+			if (!wp_next_scheduled('pvc_reset_counts') || Post_Views_Counter()->get_attribute('options', 'general', 'cron_update'))	{
+					
 				// task is added but need to be updated
-				if(Post_Views_Counter()->get_attribute('options', 'general', 'cron_update'))
-				{
-					// removes old schedule
+				if (Post_Views_Counter()->get_attribute('options', 'general', 'cron_update')) {
+					// remove old schedule
 					wp_clear_scheduled_hook('pvc_reset_counts');
 
-					// sets update to false
+					// set update to false
 					$general = Post_Views_Counter()->get_attribute('options', 'general');
 					$general['cron_update'] = false;
 
-					// updates settings
+					// update settings
 					update_option('post_views_counter_settings_general', $general);
 				}
 
-				// sets schedule
+				// set schedule
 				wp_schedule_event(Post_Views_Counter()->get_instance('counter')->get_timestamp(Post_Views_Counter()->get_attribute('options', 'general', 'reset_counts', 'type'), Post_Views_Counter()->get_attribute('options', 'general', 'reset_counts', 'number')), 'post_views_counter_interval', 'pvc_reset_counts');
 			}
-		}
-		else
-		{
-			// removes schedule
+		} else {
+			// remove schedule
 			wp_clear_scheduled_hook('pvc_reset_counts');
 			remove_action('pvc_reset_counts', array(&$this, 'reset_counts'));
 		}

@@ -1,20 +1,4 @@
-# Post Views Counter #
-**Contributors:** dfactory
-  
-**Donate link:** http://www.dfactory.eu/
-  
-**Tags:** counter, hits, postviews, post views, views, count
-  
-**Requires at least:** 3.8.0
-  
-**Tested up to:** 4.1.1
-  
-**Stable tag:** 1.0.5
-  
-**License:** MIT License
-  
-**License URI:** http://opensource.org/licenses/MIT
-  
+# Post Views Counter # 
 
 Forget WP-PostViews. Display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
 
@@ -42,29 +26,11 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * Polish - by Bartosz Arendt
 * Russian - by moonkir
 
-
 ## Installation ##
 
 1. Install Post Views Counter either via the WordPress.org plugin directory, or by uploading the files to your server
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Go to the Post Views Counter settings and set your options.
-
-## Frequently Asked Questions ##
-
-No questions yet.
-
-## Screenshots ##
-
-###1. screenshot-1.png
-###
-![screenshot-1.png
-](https://ps.w.org/post-views-counter/assets/screenshot-1.png)
-
-###2. screenshot-2.png
-###
-![screenshot-2.png
-](https://ps.w.org/post-views-counter/assets/screenshot-2.png)
-
 
 ## Changelog ##
 

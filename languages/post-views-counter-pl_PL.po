@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Views Counter\n"
-"POT-Creation-Date: 2014-07-03 15:24+0100\n"
-"PO-Revision-Date: 2014-07-03 15:27+0100\n"
+"POT-Creation-Date: 2015-04-07 21:48+0100\n"
+"PO-Revision-Date: 2015-04-07 21:52+0100\n"
 "Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
 "Language-Team: dFactory <info@dfactory.eu>\n"
 "Language: pl_PL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.6.5\n"
+"X-Generator: Poedit 1.7.5\n"
 "X-Poedit-KeywordsList: gettext;gettext_noop;__;_e;esc_attr__;esc_attr_e;"
 "esc_html__;esc_html_e\n"
 "X-Poedit-Basepath: .\n"
@@ -17,247 +17,255 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../includes/columns.php:113 ../includes/columns.php:121
+#: ../includes/columns.php:81 ../includes/columns.php:88
 msgid "Post Views"
 msgstr "Odwiedziny"
 
-#: ../includes/cron.php:40
+#: ../includes/cron.php:51
 msgid "Post Views Counter reset daily counts interval"
 msgstr ""
 "Odstęp czasu po jakim resetowane będą dzienne dane o liczbie odwiedzin."
 
-#: ../includes/functions.php:114
+#: ../includes/cron.php:56
+msgid "Post Views Counter cache flush interval"
+msgstr "Czas czyszczenia danych o odsłonach z cache"
+
+#: ../includes/functions.php:125
 msgid "No Posts"
 msgstr "Brak wpisów"
 
-#: ../includes/settings.php:41
+#: ../includes/settings.php:36
 msgid "Enable"
 msgstr "Włącz"
 
-#: ../includes/settings.php:42
+#: ../includes/settings.php:37
 msgid "Disable"
 msgstr "Wyłącz"
 
-#: ../includes/settings.php:46
+#: ../includes/settings.php:41
 msgid "PHP"
 msgstr "PHP"
 
-#: ../includes/settings.php:47
+#: ../includes/settings.php:42
 msgid "JavaScript"
 msgstr "JavaScript"
 
-#: ../includes/settings.php:51
+#: ../includes/settings.php:46
 msgid "minutes"
 msgstr "minuty"
 
-#: ../includes/settings.php:52
+#: ../includes/settings.php:47
 msgid "hours"
 msgstr "godziny"
 
-#: ../includes/settings.php:53
+#: ../includes/settings.php:48
 msgid "days"
 msgstr "dni"
 
-#: ../includes/settings.php:54
+#: ../includes/settings.php:49
 msgid "weeks"
 msgstr "tygodnie"
 
-#: ../includes/settings.php:55
+#: ../includes/settings.php:50
 msgid "months"
 msgstr "miesiące"
 
-#: ../includes/settings.php:56
+#: ../includes/settings.php:51
 msgid "years"
 msgstr "lata"
 
-#: ../includes/settings.php:60
+#: ../includes/settings.php:55
 msgid "robots"
 msgstr "roboty"
 
-#: ../includes/settings.php:61
+#: ../includes/settings.php:56
 msgid "logged in users"
 msgstr "zalogowani użytkownicy"
 
-#: ../includes/settings.php:62
+#: ../includes/settings.php:57
 msgid "guests"
 msgstr "goście"
 
-#: ../includes/settings.php:63
+#: ../includes/settings.php:58
 msgid "selected user roles"
 msgstr "wybrane role użytkowników"
 
-#: ../includes/settings.php:67
+#: ../includes/settings.php:62
 msgid "before the content"
 msgstr "przed treścią"
 
-#: ../includes/settings.php:68
+#: ../includes/settings.php:63
 msgid "after the content"
 msgstr "po treści"
 
-#: ../includes/settings.php:69
+#: ../includes/settings.php:64
 msgid "manual"
 msgstr "ręcznie"
 
-#: ../includes/settings.php:73
+#: ../includes/settings.php:68
 msgid "icon"
 msgstr "ikona"
 
-#: ../includes/settings.php:74
+#: ../includes/settings.php:69
 msgid "label"
 msgstr "etykieta"
 
-#: ../includes/settings.php:79
+#: ../includes/settings.php:74
 msgid "General"
 msgstr "Ogólne"
 
-#: ../includes/settings.php:85
+#: ../includes/settings.php:80
 msgid "Display"
 msgstr "Wyświetlanie"
 
-#: ../includes/settings.php:149 ../includes/settings.php:150
-#: ../includes/settings.php:167 ../includes/settings.php:180
+#: ../includes/settings.php:135 ../includes/settings.php:136
+#: ../includes/settings.php:151 ../includes/settings.php:163
 msgid "Post Views Counter"
 msgstr "Licznik odwiedzin"
 
-#: ../includes/settings.php:182
+#: ../includes/settings.php:165
 msgid "Need support?"
 msgstr "Potrzebujesz pomocy?"
 
-#: ../includes/settings.php:183
+#: ../includes/settings.php:166
 msgid ""
 "If you are having problems with this plugin, please talk about them in the"
 msgstr "Jeśli masz jakieś problemy z tą wtyczką, powiedz o nich"
 
-#: ../includes/settings.php:183
+#: ../includes/settings.php:166
 msgid "Support forum"
 msgstr "Forum pomocy"
 
-#: ../includes/settings.php:185
+#: ../includes/settings.php:168
 msgid "Do you like this plugin?"
 msgstr "Lubisz tę wtyczkę?"
 
-#: ../includes/settings.php:186
+#: ../includes/settings.php:169
 msgid "Rate it 5"
 msgstr "Oceń ją na 5"
 
-#: ../includes/settings.php:186
+#: ../includes/settings.php:169
 msgid "on WordPress.org"
 msgstr "na WordPress.org"
 
-#: ../includes/settings.php:187
+#: ../includes/settings.php:170
 msgid "Blog about it & link to the"
 msgstr "Napisz o niej i dodaj link"
 
-#: ../includes/settings.php:187
+#: ../includes/settings.php:170
 msgid "plugin page"
 msgstr "do strony wtyczki"
 
-#: ../includes/settings.php:188
+#: ../includes/settings.php:171
 msgid "Check out our other"
 msgstr "Sprawdż nasze inne"
 
-#: ../includes/settings.php:188
+#: ../includes/settings.php:171
 msgid "WordPress plugins"
 msgstr "wtyczki do WordPressa"
 
-#: ../includes/settings.php:191
+#: ../includes/settings.php:174
 msgid "Created by"
 msgstr "Stworzone przez"
 
-#: ../includes/settings.php:207
+#: ../includes/settings.php:190
 msgid "Reset to defaults"
 msgstr "Resetuj do domyślnych"
 
-#: ../includes/settings.php:225
+#: ../includes/settings.php:207
 msgid "General settings"
 msgstr "Ustawienia ogólne"
 
-#: ../includes/settings.php:226
+#: ../includes/settings.php:208
 msgid "Post Types Count"
 msgstr "Własne typy wpisów"
 
-#: ../includes/settings.php:227
+#: ../includes/settings.php:209
 msgid "Counter Mode"
 msgstr "Tryb pracy licznika"
 
-#: ../includes/settings.php:228
+#: ../includes/settings.php:210
 msgid "Post Views Column"
 msgstr "Kolumna z liczbą odwiedzin"
 
-#: ../includes/settings.php:229
+#: ../includes/settings.php:211
 msgid "Time Between Counts"
 msgstr "Czas między zliczaniem"
 
-#: ../includes/settings.php:230
-msgid "Reset Data"
-msgstr "Resetowanie danych"
+#: ../includes/settings.php:212
+msgid "Reset Data Interval"
+msgstr "Czas resetowania danych"
 
-#: ../includes/settings.php:231
+#: ../includes/settings.php:213
+msgid "Flush Object Cache Interval"
+msgstr "Czas czyszczenia cache"
+
+#: ../includes/settings.php:214
 msgid "Exclude Visitors"
 msgstr "Wykluczanie odwiedzających"
 
-#: ../includes/settings.php:232
+#: ../includes/settings.php:215
 msgid "Exclude IPs"
 msgstr "Wykluczanie IP"
 
-#: ../includes/settings.php:233
+#: ../includes/settings.php:216
 msgid "WP-PostViews"
 msgstr "WP-PostViews"
 
-#: ../includes/settings.php:234
+#: ../includes/settings.php:217
 msgid "Deactivation"
 msgstr "Deaktywacja wtyczki"
 
-#: ../includes/settings.php:238
+#: ../includes/settings.php:221
 msgid "Display settings"
 msgstr "Ustawienia wyświetlania"
 
-#: ../includes/settings.php:239
+#: ../includes/settings.php:222
 msgid "Post Views Label"
 msgstr "Etykieta licznika"
 
-#: ../includes/settings.php:240
+#: ../includes/settings.php:223
 msgid "Post Types Display"
 msgstr "Wyświetlanie licznika"
 
-#: ../includes/settings.php:241
+#: ../includes/settings.php:224
 msgid "Restrict Display"
 msgstr "Ograniczenia wyświetlania"
 
-#: ../includes/settings.php:242
+#: ../includes/settings.php:225
 msgid "Position"
 msgstr "Pozycja"
 
-#: ../includes/settings.php:243
+#: ../includes/settings.php:226
 msgid "Display Style"
 msgstr "Styl wyświetlania"
 
-#: ../includes/settings.php:244
+#: ../includes/settings.php:227
 msgid "Icon Class"
 msgstr "Klasa ikony"
 
-#: ../includes/settings.php:258
+#: ../includes/settings.php:240
 msgid "Enter the label for the post views counter field."
 msgstr "Wpisz etykietę jaka będzie wyświetlana w liczniku odwiedzin wpisu."
 
-#: ../includes/settings.php:272
+#: ../includes/settings.php:253
 msgid "Select post types"
 msgstr "Wybierz typy wpisów"
 
-#: ../includes/settings.php:283
+#: ../includes/settings.php:263
 msgid "Select post types for which post views will be counted."
 msgstr "Wybierz typy wpisów dla których będzie włączone zliczanie."
 
-#: ../includes/settings.php:297 ../includes/settings.php:423
-#: ../includes/settings.php:599
+#: ../includes/settings.php:276 ../includes/settings.php:412
+#: ../includes/settings.php:569
 msgid "Select groups"
 msgstr "Wybierz grupy"
 
-#: ../includes/settings.php:308
+#: ../includes/settings.php:286
 msgid "Select post types for which post views will be displayed."
 msgstr "Wybierz typy wpisów dla których licznik będzie wyświetlony."
 
-#: ../includes/settings.php:332
+#: ../includes/settings.php:308
 msgid ""
 "Select the method of collecting post views data. If you are using any of the "
 "caching plugins select Javascript."
@@ -265,17 +273,17 @@ msgstr ""
 "Wybierz metodę gromadzenia danych. Jeśli używaż jakiejkolwiek wtyczki do "
 "cachowania wybierz Javascript."
 
-#: ../includes/settings.php:357
+#: ../includes/settings.php:330
 msgid ""
 "Enable to display post views count column for each of the selected post "
 "types."
 msgstr "Włącz aby wyświetlić kolumnę z liczbą odsłon."
 
-#: ../includes/settings.php:383
+#: ../includes/settings.php:353
 msgid "Enter the time between single user visit count."
 msgstr "Określ czas pomiędzy zliczaniem wizyt poszczególnego użytkownika."
 
-#: ../includes/settings.php:409
+#: ../includes/settings.php:377
 msgid ""
 "Delete single day post views data older than specified above. Enter 0 "
 "(number zero) if you want to preserve your data regardless of its age."
@@ -283,47 +291,66 @@ msgstr ""
 "Usuwanie dziennych danych o liczbie wpisów po określonym powyżej czasie. "
 "Wpisz 0 jeśli chcesz przetrzymywać te dane bez ograniczeń."
 
-#: ../includes/settings.php:435 ../includes/settings.php:614
+#: ../includes/settings.php:400
+msgid ""
+"How often to flush cached view counts from the object cache into the "
+"database. This feature is used only if a persistent object cache is detected "
+"and the interval is greater than 0 (number zero)). When used, view counts "
+"will be collected and stored in the object cache instead of the database and "
+"will then be asynchronously flushed to the database according to the "
+"specified interval.<br /><strong>Notice:</strong> Potential data loss may "
+"occur if the object cache is cleared/unavailable for the duration of the "
+"interval."
+msgstr ""
+"Jak często powinno odbywać się przenoszenie danych z cache do bazy danych. "
+"Ta funkcja jest używana tylko gdy włączone jest cachowanie obiektowe a "
+"przedział jest większy niż 0. Jeśli jest włączona, zebrane dane będą "
+"przechowywane w cache i przenoszone do bazy danych w określonych odstę[ach "
+"czasu.<br /><strong>Uwaga:</strong> Może nastąpić ustrata części danych "
+"jeśli cachowanie obiektowe nie będzie dostępne lub cache zostanie "
+"wyczyszczony w trakcie trwania wybranego okresu."
+
+#: ../includes/settings.php:423 ../includes/settings.php:584
 msgid "Select user roles"
 msgstr "Wybierz role użytkowników"
 
-#: ../includes/settings.php:447
+#: ../includes/settings.php:434
 msgid "Select the type of visitors to be excluded from post views count."
 msgstr "Wybierz typy użytkowników wyłączonych z działania licznika."
 
-#: ../includes/settings.php:466 ../includes/settings.php:475
+#: ../includes/settings.php:450 ../includes/settings.php:459
 msgid "Remove"
 msgstr "Usuń"
 
-#: ../includes/settings.php:475
+#: ../includes/settings.php:459
 msgid "Add new"
 msgstr "Dodaj nowy"
 
-#: ../includes/settings.php:475
+#: ../includes/settings.php:459
 msgid "Add my current IP"
 msgstr "Dodaj mój aktualny IP"
 
-#: ../includes/settings.php:477
+#: ../includes/settings.php:461
 msgid "Enter the IP addresses to be excluded from post views count."
 msgstr "Wpisz adresy IP, któe mają być wyłączone z działania licznika."
 
-#: ../includes/settings.php:491
+#: ../includes/settings.php:473
 msgid "Import"
 msgstr "Importuj"
 
-#: ../includes/settings.php:493
+#: ../includes/settings.php:475
 msgid "Import post views data from WP-PostViews plugin."
 msgstr "Importuj dane o liczbie odwiedzin z wtyczki WP-PostViews."
 
-#: ../includes/settings.php:494
+#: ../includes/settings.php:476
 msgid "Override existing Post Views Counter data."
 msgstr "Nadpisz istniejące dane Licznika odwiedzin."
 
-#: ../includes/settings.php:519
+#: ../includes/settings.php:498
 msgid "Enable to delete all plugin data on deactivation."
 msgstr "Włącz aby usunąć wszystkie dane wtyczki podczas deaktywacji"
 
-#: ../includes/settings.php:544
+#: ../includes/settings.php:520
 msgid ""
 "Select where would you like to display the post views counter. Use [post-"
 "views] shortcode for manual display."
@@ -331,11 +358,11 @@ msgstr ""
 "Wybierz w którym miejscu chcesz wyświetlać licznik odwiedzin. Użyj skrótu "
 "[post-views] aby wyświetlić licznik ręcznie."
 
-#: ../includes/settings.php:569
+#: ../includes/settings.php:542
 msgid "Choose how to display the post views counter."
 msgstr "Wybierz w jaki sposób chcesz wyświetlać licznik."
 
-#: ../includes/settings.php:585
+#: ../includes/settings.php:556
 #, php-format
 msgid ""
 "Enter the post views icon class. Any of the <a href=\"%s\" target=\"_blank"
@@ -344,95 +371,101 @@ msgstr ""
 "Wpisz klasę CSS ikony. Każda z ikond typu <a href=\"%s\" target=\"_blank"
 "\">Dashicons</a> może być tutaj zastosowana."
 
-#: ../includes/settings.php:626
+#: ../includes/settings.php:595
 msgid "Use it to hide the post views counter from selected type of visitors."
 msgstr ""
 "Użyj tego aby ograniczyć wyświetlanie licznika do określonych typów "
 "użytkowników."
 
-#: ../includes/settings.php:661
+#: ../includes/settings.php:626
 msgid "WP-PostViews data imported succesfully."
 msgstr "Dane z wtyczki WP-PostViews zostały zaimportowane pomyślnie."
 
-#: ../includes/settings.php:665
+#: ../includes/settings.php:628
 msgid "There was no data to import."
 msgstr "Niestety, nie znaleziono danych do zaimportowania."
 
-#: ../includes/settings.php:827
+#: ../includes/settings.php:786
 msgid "General settings restored to defaults."
 msgstr "Ustawienia zostały przywrócone do domyślnych."
 
-#: ../includes/settings.php:833
+#: ../includes/settings.php:790
 msgid "Display settings restored to defaults."
 msgstr "Ustawienia wyświetlania została przywrócone do domyślnych."
 
-#: ../includes/settings.php:854
+#: ../includes/settings.php:810
 msgid "Support"
 msgstr "Forum pomocy"
 
-#: ../includes/widgets.php:38 ../includes/widgets.php:49
+#: ../includes/widgets.php:32 ../includes/widgets.php:43
 msgid "Most Viewed Posts"
 msgstr "Najczęściej oglądane wpisy"
 
-#: ../includes/widgets.php:40
+#: ../includes/widgets.php:34
 msgid "Displays a list of the most viewed posts"
 msgstr "Wyświetla listę najczęściej oglądanych wpisów"
 
-#: ../includes/widgets.php:57
+#: ../includes/widgets.php:51
 msgid "No Posts found"
 msgstr "Brak wpisów"
 
-#: ../includes/widgets.php:61
+#: ../includes/widgets.php:55
 msgid "Ascending"
 msgstr "Rosnąco"
 
-#: ../includes/widgets.php:62
+#: ../includes/widgets.php:56
 msgid "Descending"
 msgstr "Malejąco"
 
-#: ../includes/widgets.php:105
+#: ../includes/widgets.php:93
 msgid "Title"
 msgstr "Tytuł"
 
-#: ../includes/widgets.php:109
-msgid "Post types"
+#: ../includes/widgets.php:97
+msgid "Post Types"
 msgstr "Typy wpisów"
 
-#: ../includes/widgets.php:123
+#: ../includes/widgets.php:110
 msgid "Number of posts to show"
 msgstr "Liczba wpisów do wyświetlenia"
 
-#: ../includes/widgets.php:127
+#: ../includes/widgets.php:114
 msgid "No posts message"
 msgstr "Treść braku wpisów"
 
-#: ../includes/widgets.php:131
+#: ../includes/widgets.php:118
 msgid "Order"
 msgstr "Kolejność"
 
-#: ../includes/widgets.php:144
+#: ../includes/widgets.php:130
 msgid "Display post views?"
 msgstr "Wyświetlanie liczby odsłon?"
 
-#: ../includes/widgets.php:146
+#: ../includes/widgets.php:132
 msgid "Display post excerpt?"
 msgstr "Wyświetlanie wypisu?"
 
-#: ../includes/widgets.php:148
+#: ../includes/widgets.php:134
 msgid "Display post thumbnail?"
 msgstr "WYświetlanie miniatury?"
 
-#: ../includes/widgets.php:151
+#: ../includes/widgets.php:137
 msgid "Thumbnail size"
 msgstr "WIelkość miniatury"
 
-#: ../post-views-counter.php:260
+#: ../post-views-counter.php:278
 msgid "Are you sure you want to reset these settings to defaults?"
 msgstr "Czy jesteś pewny, że chcesz zresetować ustawienia do domyślnych?"
 
-#: ../post-views-counter.php:294
+#: ../post-views-counter.php:310
 msgid "Settings"
 msgstr "Ustawienia"
+
+#~ msgid "Reset Data"
+#~ msgstr "Resetowanie danych"
+
+#~ msgid "Post types"
+#~ msgstr "Typy wpisów"
 
 #~ msgid "text"
 #~ msgstr "tekst"

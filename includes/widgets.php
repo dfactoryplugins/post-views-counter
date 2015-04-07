@@ -3,36 +3,30 @@ if(!defined('ABSPATH')) exit;
 
 new Post_Views_Counter_Widgets();
 
-class Post_Views_Counter_Widgets
-{
-	public function __construct()
-	{
+class Post_Views_Counter_Widgets {
+	
+	public function __construct() {
 		// actions
 		add_action('widgets_init', array(&$this, 'register_widgets'));
 	}
 
-
 	/**
-	 * 
+	 * Register PVC widget
 	*/
-	public function register_widgets()
-	{
+	public function register_widgets() {
 		register_widget('Post_Views_Counter_List_Widget');
 	}
 }
 
-
-class Post_Views_Counter_List_Widget extends WP_Widget
-{
+class Post_Views_Counter_List_Widget extends WP_Widget {
+	
 	private $pvc_options;
 	private $pvc_defaults;
 	private $pvc_post_types;
 	private $pvc_order_types;
 	private $pvc_image_sizes;
 
-
-	public function __construct()
-	{
+	public function __construct() {
 		parent::__construct(
 			'Post_Views_Counter_List_Widget',
 			__('Most Viewed Posts', 'post-views-counter'),
@@ -64,27 +58,23 @@ class Post_Views_Counter_List_Widget extends WP_Widget
 
 		$this->pvc_image_sizes = array_merge(array('full'), get_intermediate_image_sizes());
 
-		// sorts image sizes ascending by name
+		// sort image sizes by name, ascending
 		sort($this->pvc_image_sizes, SORT_STRING);
 
 		add_action('wp_loaded', array(&$this, 'load_post_types'));
 	}
 
-
 	/**
-	 *
+	 * Get selected post types
 	*/
-	public function load_post_types()
-	{
+	public function load_post_types() {
 		$this->pvc_post_types = Post_Views_Counter()->get_instance('settings')->post_types;
 	}
 
-
 	/**
-	 * 
+	 * Display widget function
 	*/
-	public function widget($args, $instance)
-	{
+	public function widget($args, $instance) {
 		$instance['title'] = apply_filters('widget_title', $instance['title'], $instance, $this->id_base);
 
 		$html = $args['before_widget'].(!empty($instance['title']) ? $args['before_title'].$instance['title'].$args['after_title'] : '');
@@ -94,22 +84,19 @@ class Post_Views_Counter_List_Widget extends WP_Widget
 		echo $html;
 	}
 
-
 	/**
-	 * 
+	 * Admin widget function
 	*/
-	public function form($instance)
-	{
+	public function form($instance)	{
 		$html = '
 		<p>
 			<label for="'.$this->get_field_id('title').'">'.__('Title', 'post-views-counter').':</label>
 			<input id="'.$this->get_field_id('title').'" class="widefat" name="'.$this->get_field_name('title').'" type="text" value="'.esc_attr(isset($instance['title']) ? $instance['title'] : $this->pvc_defaults['title']).'" />
 		</p>
 		<p>
-			<label>'.__('Post types', 'post-views-counter').':</label><br />';
+			<label>'.__('Post Types', 'post-views-counter').':</label><br />';
 
-		foreach($this->pvc_post_types as $post_type => $post_type_name)
-		{
+		foreach ($this->pvc_post_types as $post_type => $post_type_name) {
 			$html .=  '
 				<input id="'.$this->get_field_id('post_types').'-'.$post_type.'" type="checkbox" name="'.$this->get_field_name('post_types').'[]" value="'.$post_type.'" '.checked((!isset($instance['post_types']) ? true : in_array($post_type, $instance['post_types'], true)), true, false).'><label for="'.$this->get_field_id('post_types').'-'.$post_type.'">'.esc_html($post_type_name).'</label>';
 		}
@@ -131,8 +118,7 @@ class Post_Views_Counter_List_Widget extends WP_Widget
 			<label for="'.$this->get_field_id('order').'">'.__('Order', 'post-views-counter').':</label>
 			<select id="'.$this->get_field_id('order').'" name="'.$this->get_field_name('order').'">';
 
-		foreach($this->pvc_order_types as $id => $order)
-		{
+		foreach ($this->pvc_order_types as $id => $order) {
 			$html .= '
 				<option value="'.esc_attr($id).'" '.selected($id, (isset($instance['order']) ? $instance['order'] : $this->pvc_defaults['order']), false).'>'.$order.'</option>';
 		}
@@ -153,8 +139,7 @@ class Post_Views_Counter_List_Widget extends WP_Widget
 
 		$size_type = (isset($instance['thumbnail_size']) ? $instance['thumbnail_size'] : $this->pvc_defaults['thumbnail_size']);
 
-		foreach($this->pvc_image_sizes as $size)
-		{
+		foreach ($this->pvc_image_sizes as $size) {
 			$html .= '
 				<option value="'.esc_attr($size).'" '.selected($size, $size_type, false).'>'.$size.'</option>';
 		}
@@ -166,13 +151,11 @@ class Post_Views_Counter_List_Widget extends WP_Widget
 		echo $html;
 	}
 
-
 	/**
-	 * 
+	 * Save widget function
 	*/
-	public function update($new_instance, $old_instance)
-	{
-		// number of events
+	public function update($new_instance, $old_instance) {
+		// number of posts
 		$old_instance['number_of_posts'] = (int)(isset($new_instance['number_of_posts']) ? $new_instance['number_of_posts'] : $this->pvc_defaults['number_of_posts']);
 
 		// order
@@ -191,13 +174,11 @@ class Post_Views_Counter_List_Widget extends WP_Widget
 		$old_instance['no_posts_message'] = sanitize_text_field(isset($new_instance['no_posts_message']) ? $new_instance['no_posts_message'] : $this->pvc_defaults['no_posts_message']);
 
 		// post types
-		if(isset($new_instance['post_types']))
-		{
+		if (isset($new_instance['post_types'])) {
 			$post_types = array();
 
-			foreach($new_instance['post_types'] as $post_type)
-			{
-				if(isset($this->pvc_post_types[$post_type]))
+			foreach ($new_instance['post_types'] as $post_type) {
+				if (isset($this->pvc_post_types[$post_type]))
 					$post_types[] = $post_type;
 			}
 

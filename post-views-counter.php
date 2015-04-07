@@ -21,7 +21,7 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-
+// Exit if accessed directly
 if(!defined('ABSPATH')) exit;
 
 define('POST_VIEWS_COUNTER_URL', plugins_url('', __FILE__));
@@ -37,9 +37,13 @@ include_once(POST_VIEWS_COUNTER_PATH.'includes/columns.php');
 include_once(POST_VIEWS_COUNTER_PATH.'includes/frontend.php');
 include_once(POST_VIEWS_COUNTER_PATH.'includes/widgets.php');
 
-
-class Post_Views_Counter
-{
+/**
+ * Post Views Counter class
+ *
+ * @class Post_Views_Counter
+ * @version	1.0.5
+ */
+class Post_Views_Counter {
 	private static $_instance;
 	private $instances;
 	private $options;
@@ -88,8 +92,7 @@ class Post_Views_Counter
 	);
 
 
-	public static function instance()
-	{
+	public static function instance() {
 		if(self::$_instance === null)
 			self::$_instance = new self();
 
@@ -101,8 +104,7 @@ class Post_Views_Counter
 	private function __wakeup() {}
 
 
-	private function __construct()
-	{
+	private function __construct() {
 		register_activation_hook(__FILE__, array(&$this, 'activation'));
 		register_deactivation_hook(__FILE__, array(&$this, 'deactivation'));
 
@@ -125,14 +127,13 @@ class Post_Views_Counter
 	/**
 	 * Execution of plugin activation function
 	*/
-	public function activation()
-	{
+	public function activation() {
 		global $wpdb, $charset_collate;
 
 		// required for dbdelta
 		require_once(ABSPATH.'wp-admin/includes/upgrade.php');
 
-		// creates post views table
+		// create post views table
 		dbDelta('
 			CREATE TABLE IF NOT EXISTS '.$wpdb->prefix.'post_views (
 				id bigint unsigned NOT NULL,
@@ -145,7 +146,7 @@ class Post_Views_Counter
 			) '.$charset_collate.';'
 		);
 
-		// adds default options
+		// add default options
 		add_option('post_views_counter_settings_general', $this->defaults['general'], '', 'no');
 		add_option('post_views_counter_settings_display', $this->defaults['display'], '', 'no');
 		add_option('post_views_counter_version', $this->defaults['version'], '', 'no');
@@ -158,16 +159,14 @@ class Post_Views_Counter
 	/**
 	 * Execution of plugin deactivation function
 	*/
-	public function deactivation()
-	{
-		// deletes default options
-		if($this->options['general']['deactivation_delete'])
-		{
+	public function deactivation() {
+		// delete default options
+		if ($this->options['general']['deactivation_delete']) {
 			delete_option('post_views_counter_settings_general');
 			delete_option('post_views_counter_settings_display');
 		}
 
-		// removes schedule
+		// remove schedule
 		wp_clear_scheduled_hook('pvc_reset_counts');
 		remove_action('pvc_reset_counts', array(Post_Views_Counter()->get_instance('cron'), 'reset_counts'));
 
@@ -175,30 +174,27 @@ class Post_Views_Counter
 	}
 
 	/**
-	 * Schedules cache flushing if it's not already scheduled
+	 * Schedule cache flushing if it's not already scheduled
 	 */
-	public function schedule_cache_flush($forced = true)
-	{
+	public function schedule_cache_flush($forced = true) {
 		if ( $forced || ! wp_next_scheduled( 'pvc_flush_cached_counts' ) ) {
 			wp_schedule_event( time(), 'post_views_counter_flush_interval', 'pvc_flush_cached_counts' );
 		}
 	}
 
 	/**
-	 * Removes scheduled cache flush and the corresponding action
+	 * Remove scheduled cache flush and the corresponding action
 	 */
-	public function remove_cache_flush()
-	{
+	public function remove_cache_flush() {
 		wp_clear_scheduled_hook( 'pvc_flush_cached_counts' );
 		remove_action( 'pvc_flush_cached_counts', array( Post_Views_Counter()->get_instance('cron'), 'flush_cached_counts' ) );
 	}
 
 
 	/**
-	 * Loads text domain
+	 * Load text domain
 	*/
-	public function load_textdomain()
-	{
+	public function load_textdomain() {
 		load_plugin_textdomain('post-views-counter', false, POST_VIEWS_COUNTER_REL_PATH.'languages/');
 	}
 
@@ -206,40 +202,34 @@ class Post_Views_Counter
 	/**
 	 * Load pluggable template functions
 	*/
-	public function load_pluggable_functions()
-	{
+	public function load_pluggable_functions() {
 	    include_once(POST_VIEWS_COUNTER_PATH.'includes/functions.php');
 	}
 
 
 	/**
-	 * Sets instance of class
+	 * Set instance of class
 	*/
-	public function add_instance($name, $instance)
-	{
+	public function add_instance($name, $instance) {
 		$this->instances[$name] = $instance;
 	}
 
 
 	/**
-	 * Gets instance of class
+	 * Get instance of class
 	*/
-	public function get_instance($name)
-	{
+	public function get_instance($name)	{
 		if(in_array($name, array('counter', 'settings'), true))
 			return $this->instances[$name];
 	}
 
 
 	/**
-	 * Gets allowed attribute
+	 * Get allowed attribute
 	*/
-	public function get_attribute($attribute)
-	{
-		if(in_array($attribute, array('options', 'defaults'), true))
-		{
-			switch(func_num_args())
-			{
+	public function get_attribute($attribute) {
+		if (in_array($attribute, array('options', 'defaults'), true)) {
+			switch(func_num_args())	{
 				case 1:
 					return $this->{$attribute};
 
@@ -259,23 +249,23 @@ class Post_Views_Counter
 
 
 	/**
-	 * Enqueues admin scripts and styles
+	 * Enqueue admin scripts and styles
 	*/
-	public function admin_scripts_styles($page)
-	{
-		// loads only for settings page
-		if($page === 'settings_page_post-views-counter')
-		{
+	public function admin_scripts_styles($page)	{
+		// load on PVC settings page only
+		if ($page === 'settings_page_post-views-counter') {
 			wp_register_script(
 				'post-views-counter-admin-chosen',
 				POST_VIEWS_COUNTER_URL.'/assets/chosen/chosen.jquery.min.js',
-				array('jquery')
+				array('jquery'),
+				$this->defaults['version']
 			);
 
 			wp_register_script(
 				'post-views-counter-admin',
 				POST_VIEWS_COUNTER_URL.'/js/admin.js',
-				array('jquery', 'post-views-counter-admin-chosen')
+				array('jquery', 'post-views-counter-admin-chosen'),
+				$this->defaults['version']
 			);
 
 			wp_enqueue_script('post-views-counter-admin-chosen');
@@ -306,19 +296,17 @@ class Post_Views_Counter
 
 
 	/**
-	 * Adds link to settings page
+	 * Add link to settings page
 	*/
-	public function plugin_settings_link($links, $file)
-	{
-		if(!is_admin() || !current_user_can('manage_options'))
+	public function plugin_settings_link($links, $file)	{
+		if (!is_admin() || !current_user_can('manage_options'))
 			return $links;
 
 		static $plugin;
 
 		$plugin = plugin_basename(__FILE__);
 
-		if($file == $plugin)
-		{
+		if ($file == $plugin) {
 			$settings_link = sprintf('<a href="%s">%s</a>', admin_url('options-general.php').'?page=post-views-counter', __('Settings', 'post-views-counter'));
 
 			array_unshift($links, $settings_link);
@@ -328,13 +316,14 @@ class Post_Views_Counter
 	}
 }
 
-
-function Post_Views_Counter()
-{
+/**
+ * Initialise Post Views Counter
+ */
+function Post_Views_Counter() {
 	static $instance;
 
   	// first call to instance() initializes the plugin
-  	if($instance === null || !($instance instanceof Post_Views_Counter))
+  	if ($instance === null || !($instance instanceof Post_Views_Counter))
     	$instance = Post_Views_Counter::instance();
 
   	return $instance;
