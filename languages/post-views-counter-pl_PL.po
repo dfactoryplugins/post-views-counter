@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Views Counter\n"
-"POT-Creation-Date: 2015-04-07 21:48+0100\n"
-"PO-Revision-Date: 2015-04-07 21:52+0100\n"
+"POT-Creation-Date: 2015-04-08 18:59+0100\n"
+"PO-Revision-Date: 2015-04-08 19:00+0100\n"
 "Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
 "Language-Team: dFactory <info@dfactory.eu>\n"
 "Language: pl_PL\n"
@@ -17,9 +17,26 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../includes/columns.php:81 ../includes/columns.php:88
+#: ../includes/columns.php:45 ../includes/columns.php:183
+#: ../includes/columns.php:190
 msgid "Post Views"
 msgstr "Odwiedziny"
+
+#: ../includes/columns.php:49
+msgid "Edit"
+msgstr "Edytuj"
+
+#: ../includes/columns.php:53
+msgid "Adjust the views count for this post."
+msgstr "Zmodyfikuj liczbę odsłon tego wpisu."
+
+#: ../includes/columns.php:57
+msgid "OK"
+msgstr "OK"
+
+#: ../includes/columns.php:58
+msgid "Cancel"
+msgstr "Anuluj"
 
 #: ../includes/cron.php:51
 msgid "Post Views Counter reset daily counts interval"
@@ -453,11 +470,11 @@ msgstr "WYświetlanie miniatury?"
 msgid "Thumbnail size"
 msgstr "WIelkość miniatury"
 
-#: ../post-views-counter.php:278
+#: ../post-views-counter.php:297
 msgid "Are you sure you want to reset these settings to defaults?"
 msgstr "Czy jesteś pewny, że chcesz zresetować ustawienia do domyślnych?"
 
-#: ../post-views-counter.php:310
+#: ../post-views-counter.php:330
 msgid "Settings"
 msgstr "Ustawienia"
 

@@ -34,8 +34,6 @@ class Post_Views_Counter_Columns {
 				absint($post->ID)
 			)
 		);
-		
-		$options_html = array();
 		?>
 
 		<div class="misc-pub-section" id="post-views">
@@ -44,7 +42,7 @@ class Post_Views_Counter_Columns {
 			
 			<span id="post-views-display">
 			
-				<?php echo __('Post Views', 'post-views-counter') . ': ' . (int)$views; ?>
+				<?php echo __('Post Views', 'post-views-counter') . ': <b>' . number_format_i18n((int)$views) . '</b>'; ?>
 
 			</span>
 
@@ -213,7 +211,7 @@ class Post_Views_Counter_Columns {
 				)
 			);
 
-			echo (int)$views;
+			echo number_format_i18n((int)$views);
 		}
 	}
 }
