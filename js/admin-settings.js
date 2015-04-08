@@ -10,19 +10,16 @@
             width: '300px'
         });
 
-
         // time types and position
         $('.pvc-chosen-short').chosen({
             disable_search_threshold: 8,
             width: '200px'
         });
 
-
         // ask whether to reset options to defaults
         $(document).on('click', '.reset_pvc_settings', function () {
             return confirm(pvcArgsSettings.resetToDefaults);
         });
-
 
         // remove ip box
         $(document).on('click', '.remove-exclude-ip', function () {
@@ -48,7 +45,6 @@
             }
         });
 
-
         // add ip box
         $(document).on('click', '.add-exclude-ip', function () {
             var parent = $(this).parent(),
@@ -67,13 +63,11 @@
             parent.parent().find('.remove-exclude-ip').show();
         });
 
-
         // add current ip
         $(document).on('click', '.add-current-ip', function () {
             // fills input with user's current ip
             $(this).parent().find('input').first().val($(this).attr('data-rel'));
         });
-
 
         // display user roles if needed
         $(document).on('change', '.pvc-chosen-groups', function () {
