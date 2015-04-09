@@ -2,7 +2,7 @@
 /*
 Plugin Name: Post Views Counter
 Description: Forget WP-PostViews. Display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
-Version: 1.0.6
+Version: 1.0.7
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/post-views-counter/
@@ -41,7 +41,7 @@ include_once(POST_VIEWS_COUNTER_PATH.'includes/widgets.php');
  * Post Views Counter class
  *
  * @class Post_Views_Counter
- * @version	1.0.6
+ * @version	1.0.7
  */
 class Post_Views_Counter {
 	private static $_instance;
@@ -88,7 +88,7 @@ class Post_Views_Counter {
 			'link_to_post' => true,
 			'icon_class' => 'dashicons-visibility'
 		),
-		'version' => '1.0.6'
+		'version' => '1.0.7'
 	);
 
 

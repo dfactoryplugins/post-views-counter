@@ -4,7 +4,7 @@ Donate link: http://www.dfactory.eu/
 Tags: counter, hits, postviews, post views, views, count
 Requires at least: 3.8.0
 Tested up to: 4.1.1
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -20,6 +20,7 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 
 * Option to select post types for which post views will be counted and displayed.
 * 2 methods of collecting post views data: PHP and Javascript, for greater flexibility
+* Possibility to manually set views count for each post
 * Option to set time between counts
 * Excluding counts from visitors: bots, logged in users, selected user roles
 * Excluding users by IPs
@@ -27,6 +28,8 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * One-click data import from WP-PostViews
 * Post views display position, automatic or manual via shortcode
 * W3 Cache/WP SuperCache compatible
+* Optional object cache support
+* Post views admin column
 * WPML and Polylang compatible
 * .pot file for translations included
 
@@ -57,6 +60,10 @@ No questions yet.
 
 == Changelog ==
 
+= 1.0.7 =
+* New: Possibility to manually set views count for each post
+* New: Plugin development moved to [dFactory GitHub Repository](https://github.com/dfactoryplugins)
+
 = 1.0.6 =
 * New: Object cache support, thanks to [Tomas Trkulja](http://zytzagoo.net/blog/)
 * New: Hebrew translation, thanks to [Ahrale Shrem](http://atar4u.com/)
@@ -80,6 +87,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.0.6 =
-* New: Object cache support, thanks to [Tomas Trkulja](http://zytzagoo.net/blog/)
-* New: Hebrew translation, thanks to [Ahrale Shrem](http://atar4u.com/)
+= 1.0.7 =
+* New: Possibility to manually set views count for each post
