@@ -4,7 +4,7 @@ if(!defined('ABSPATH')) exit;
 new Post_Views_Counter_Widgets();
 
 class Post_Views_Counter_Widgets {
-	
+
 	public function __construct() {
 		// actions
 		add_action('widgets_init', array(&$this, 'register_widgets'));
@@ -19,8 +19,7 @@ class Post_Views_Counter_Widgets {
 }
 
 class Post_Views_Counter_List_Widget extends WP_Widget {
-	
-	private $pvc_options;
+
 	private $pvc_defaults;
 	private $pvc_post_types;
 	private $pvc_order_types;
@@ -33,10 +32,6 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 			array(
 				'description' => __('Displays a list of the most viewed posts', 'post-views-counter')
 			)
-		);
-
-		$this->pvc_options = array_merge(
-			array('general' => get_option('events_maker_general'))
 		);
 
 		$this->pvc_defaults = array(
