@@ -1,0 +1,579 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Post Views Counter v1.0.7\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2015-04-09 17:59+0100\n"
+"Last-Translator: zytzagoo\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%100/10==1 ? 2 : n%10==1 ? 0 : (n+9)%10>3 ? 2 : 1;\n"
+"X-Generator: Poedit 1.7.5\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2\n"
+"X-Poedit-Basepath: ../\n"
+"X-Textdomain-Support: yes\n"
+"Language: hr_HR\n"
+"X-Poedit-SearchPath-0: .\n"
+
+# @ post-views-counter
+#: includes/columns.php:45 includes/columns.php:183 includes/columns.php:190
+msgid "Post Views"
+msgstr "Pregledi"
+
+# @ post-views-counter
+#: includes/cron.php:51
+msgid "Post Views Counter reset daily counts interval"
+msgstr "Interval resetiranja dnevnih podataka o pregledima"
+
+# @ post-views-counter
+#: includes/cron.php:56
+msgid "Post Views Counter cache flush interval"
+msgstr "Interval spremanja broja pregleda iz privremene memorije u WordPress bazu"
+
+# @ post-views-counter
+#: includes/functions.php:125
+msgid "No Posts"
+msgstr "Nema rezultata"
+
+# @ post-views-counter
+#: includes/settings.php:36
+msgid "Enable"
+msgstr "Uključeno"
+
+# @ post-views-counter
+#: includes/settings.php:37
+msgid "Disable"
+msgstr "Isključeno"
+
+# @ post-views-counter
+#: includes/settings.php:41
+msgid "PHP"
+msgstr "PHP"
+
+# @ post-views-counter
+#: includes/settings.php:42
+msgid "JavaScript"
+msgstr "JavaScript"
+
+# @ post-views-counter
+#: includes/settings.php:46
+msgid "minutes"
+msgstr "minuta/minute"
+
+# @ post-views-counter
+#: includes/settings.php:47
+msgid "hours"
+msgstr "sat/sata/sati"
+
+# @ post-views-counter
+#: includes/settings.php:48
+msgid "days"
+msgstr "dan/dana"
+
+# @ post-views-counter
+#: includes/settings.php:49
+msgid "weeks"
+msgstr "tjedan/tjedana/tjedna"
+
+# @ post-views-counter
+#: includes/settings.php:50
+msgid "months"
+msgstr "mjesec/mjeseca/mjeseci"
+
+# @ post-views-counter
+#: includes/settings.php:51
+msgid "years"
+msgstr "godinu/godine/godina"
+
+# @ post-views-counter
+#: includes/settings.php:55
+msgid "robots"
+msgstr "roboti"
+
+# @ post-views-counter
+#: includes/settings.php:56
+msgid "logged in users"
+msgstr "prijavljeni korisnici"
+
+# @ post-views-counter
+#: includes/settings.php:57
+msgid "guests"
+msgstr "gosti"
+
+# @ post-views-counter
+#: includes/settings.php:58
+msgid "selected user roles"
+msgstr "odabrane korisničke role"
+
+# @ post-views-counter
+#: includes/settings.php:62
+msgid "before the content"
+msgstr "prije sadržaja"
+
+# @ post-views-counter
+#: includes/settings.php:63
+msgid "after the content"
+msgstr "nakon sadržaja"
+
+# @ post-views-counter
+#: includes/settings.php:64
+msgid "manual"
+msgstr "ručno"
+
+# @ post-views-counter
+#: includes/settings.php:68
+msgid "icon"
+msgstr "ikona"
+
+# @ post-views-counter
+#: includes/settings.php:69
+msgid "label"
+msgstr "oznaka"
+
+# @ post-views-counter
+#: includes/settings.php:74
+msgid "General"
+msgstr "Općenito"
+
+# @ post-views-counter
+#: includes/settings.php:80
+msgid "Display"
+msgstr "Prikaz"
+
+# @ post-views-counter
+#. translators: plugin header field 'Name'
+#: includes/settings.php:135 includes/settings.php:136
+#: includes/settings.php:151 includes/settings.php:163
+#: post-views-counter.php:0
+msgid "Post Views Counter"
+msgstr "Brojač pregleda"
+
+# @ post-views-counter
+#: includes/settings.php:165
+msgid "Need support?"
+msgstr "Trebate pomoć?"
+
+# @ post-views-counter
+#: includes/settings.php:166
+msgid "If you are having problems with this plugin, please talk about them in the"
+msgstr "Ako imate poteškoća s korištenjem ovog dodatka uključite se u raspravu na"
+
+# @ post-views-counter
+#: includes/settings.php:166
+msgid "Support forum"
+msgstr "forumima podrške"
+
+# @ post-views-counter
+#: includes/settings.php:168
+msgid "Do you like this plugin?"
+msgstr "Zadovoljni ste s ovim dodatkom?"
+
+# @ post-views-counter
+#: includes/settings.php:169
+msgid "Rate it 5"
+msgstr "Ocjenite ga 5-icom"
+
+# @ post-views-counter
+#: includes/settings.php:169
+msgid "on WordPress.org"
+msgstr "na WordPress.org"
+
+# @ post-views-counter
+#: includes/settings.php:170
+msgid "Blog about it & link to the"
+msgstr "Pišite o njemu i linkajte ga na"
+
+# @ post-views-counter
+#: includes/settings.php:170
+msgid "plugin page"
+msgstr "stranicu dodatka"
+
+# @ post-views-counter
+#: includes/settings.php:171
+msgid "Check out our other"
+msgstr "Provjerite naše ostale"
+
+# @ post-views-counter
+#: includes/settings.php:171
+msgid "WordPress plugins"
+msgstr "WordPress dodatke"
+
+# @ post-views-counter
+#: includes/settings.php:174
+msgid "Created by"
+msgstr "Autor"
+
+# @ post-views-counter
+#: includes/settings.php:190
+msgid "Reset to defaults"
+msgstr "Vrati na zadane postavke"
+
+# @ post-views-counter
+#: includes/settings.php:207
+msgid "General settings"
+msgstr "Općenite postavke"
+
+# @ post-views-counter
+#: includes/settings.php:208
+msgid "Post Types Count"
+msgstr "Vrste objava koje se broje"
+
+# @ post-views-counter
+#: includes/settings.php:209
+msgid "Counter Mode"
+msgstr "Način rada brojača"
+
+# @ post-views-counter
+#: includes/settings.php:210
+msgid "Post Views Column"
+msgstr "Pregledi stupac"
+
+# @ post-views-counter
+#: includes/settings.php:211
+msgid "Time Between Counts"
+msgstr "Vrijeme između posjeta"
+
+# @ post-views-counter
+#: includes/settings.php:214
+msgid "Exclude Visitors"
+msgstr "Isključi posjete"
+
+# @ post-views-counter
+#: includes/settings.php:215
+msgid "Exclude IPs"
+msgstr "Isključi IP adrese"
+
+# @ post-views-counter
+#: includes/settings.php:216
+msgid "WP-PostViews"
+msgstr "WP-PostViews"
+
+# @ post-views-counter
+#: includes/settings.php:217
+msgid "Deactivation"
+msgstr "Deaktivacija"
+
+# @ post-views-counter
+#: includes/settings.php:221
+msgid "Display settings"
+msgstr "Postavke prikaza"
+
+# @ post-views-counter
+#: includes/settings.php:222
+msgid "Post Views Label"
+msgstr "Oznaka brojača"
+
+# @ post-views-counter
+#: includes/settings.php:223
+msgid "Post Types Display"
+msgstr "Vrste objava uz koje se prikazuje brojač"
+
+# @ post-views-counter
+#: includes/settings.php:224
+msgid "Restrict Display"
+msgstr "Ograničenje prikaza"
+
+# @ post-views-counter
+#: includes/settings.php:225
+msgid "Position"
+msgstr "Pozicija brojača"
+
+# @ post-views-counter
+#: includes/settings.php:226
+msgid "Display Style"
+msgstr "Stil prikaza"
+
+# @ post-views-counter
+#: includes/settings.php:227
+msgid "Icon Class"
+msgstr "CSS klasa ikone"
+
+# @ post-views-counter
+#: includes/settings.php:240
+msgid "Enter the label for the post views counter field."
+msgstr "Upišite naziv/oznaku koja će se prikazivati prije vrijednosti brojača"
+
+# @ post-views-counter
+#: includes/settings.php:253
+msgid "Select post types"
+msgstr "Odaberite vrste objava"
+
+# @ post-views-counter
+#: includes/settings.php:263
+msgid "Select post types for which post views will be counted."
+msgstr "Odaberite vrste objava za koje će se brojati posjete."
+
+# @ post-views-counter
+#: includes/settings.php:276 includes/settings.php:412
+#: includes/settings.php:569
+msgid "Select groups"
+msgstr "Odaberite grupe"
+
+# @ post-views-counter
+#: includes/settings.php:286
+msgid "Select post types for which post views will be displayed."
+msgstr "Odaberite vrste objava na kojima će se prikazivati brojač posjeta."
+
+# @ post-views-counter
+#: includes/settings.php:308
+msgid "Select the method of collecting post views data. If you are using any of the caching plugins select Javascript."
+msgstr "Odaberite način rada brojača. Koristite li neki od dodataka za poboljšanje performansi putem spremanja podataka u privremenu memoriju (ili slično), odaberite JavaScript."
+
+# @ post-views-counter
+#: includes/settings.php:330
+msgid "Enable to display post views count column for each of the selected post types."
+msgstr "Uključite ako želite prikaz stupca s vrijednostima brojača za odabrane vrste objava u administraciji."
+
+# @ post-views-counter
+#: includes/settings.php:353
+msgid "Enter the time between single user visit count."
+msgstr "Upišite vrijeme koje mora proći između dvije posjete istog korisnika kako bi se brojač povećao."
+
+# @ post-views-counter
+#: includes/settings.php:377
+msgid "Delete single day post views data older than specified above. Enter 0 (number zero) if you want to preserve your data regardless of its age."
+msgstr "Automatsko brisanje podataka o dnevnim pregledima starijim od navedenog vremena. Upišite 0 (brojka nula) ako želite čuvati sve dnevne podatke bez obzira na starost."
+
+# @ post-views-counter
+#: includes/settings.php:423 includes/settings.php:584
+msgid "Select user roles"
+msgstr "Odaberite korisničke uloge"
+
+# @ post-views-counter
+#: includes/settings.php:434
+msgid "Select the type of visitors to be excluded from post views count."
+msgstr "Odaberite vrste posjeta koje ne želite brojati."
+
+# @ post-views-counter
+#: includes/settings.php:450 includes/settings.php:459
+msgid "Remove"
+msgstr "Ukloni"
+
+# @ post-views-counter
+#: includes/settings.php:459
+msgid "Add new"
+msgstr "Dodaj"
+
+# @ post-views-counter
+#: includes/settings.php:459
+msgid "Add my current IP"
+msgstr "Dodaj moju trenutnu IP adresu"
+
+# @ post-views-counter
+#: includes/settings.php:461
+msgid "Enter the IP addresses to be excluded from post views count."
+msgstr "Upišite IP adrese s kojih se posjete neće brojati."
+
+# @ post-views-counter
+#: includes/settings.php:473
+msgid "Import"
+msgstr "Uvoz"
+
+# @ post-views-counter
+#: includes/settings.php:475
+msgid "Import post views data from WP-PostViews plugin."
+msgstr "Uvezi podatke o brojačima iz WP-PostViews dodatka."
+
+# @ post-views-counter
+#: includes/settings.php:476
+msgid "Override existing Post Views Counter data."
+msgstr "Uredi postojeće podatke prilikom unosa."
+
+# @ post-views-counter
+#: includes/settings.php:498
+msgid "Enable to delete all plugin data on deactivation."
+msgstr "\"Uključeno\" znači da će se prilikom deaktivacije dodatka svi podaci nepovratno obrisati."
+
+# @ post-views-counter
+#: includes/settings.php:520
+msgid "Select where would you like to display the post views counter. Use [post-views] shortcode for manual display."
+msgstr "Odaberite gdje želite prikazati brojač. Možete koristiti [post-views] shortcode za ručno prikazivanje negdje u temi."
+
+# @ post-views-counter
+#: includes/settings.php:542
+msgid "Choose how to display the post views counter."
+msgstr "Odaberite kako želite prikazati brojač."
+
+# @ post-views-counter
+#: includes/settings.php:556
+#, php-format
+msgid "Enter the post views icon class. Any of the <a href=\"%s\" target=\"_blank\">Dashicons</a> classes are available."
+msgstr "Upišite CSS klasu ikone brojača (bilo koju od standardnih <a href=\"%s\" target=\"_blank\">Dashicons</a> klasa)."
+
+# @ post-views-counter
+#: includes/settings.php:595
+msgid "Use it to hide the post views counter from selected type of visitors."
+msgstr "Brojač pregleda neće se prikazivati ovim vrstama posjetitelja (biti će skriven)."
+
+# @ post-views-counter
+#: includes/settings.php:626
+msgid "WP-PostViews data imported succesfully."
+msgstr "WP-PostViews podaci uspješno uvezeni."
+
+# @ post-views-counter
+#: includes/settings.php:628
+msgid "There was no data to import."
+msgstr "Nisu pronađeni podaci za uvoz."
+
+# @ post-views-counter
+#: includes/settings.php:786
+msgid "General settings restored to defaults."
+msgstr "Općenite postavke vraćene su na zadane vrijednosti."
+
+# @ post-views-counter
+#: includes/settings.php:790
+msgid "Display settings restored to defaults."
+msgstr "Postavke prikaza vraćene su na zadane vrijednosti."
+
+# @ post-views-counter
+#: includes/settings.php:810
+msgid "Support"
+msgstr "Podrška"
+
+# @ post-views-counter
+#: includes/widgets.php:32 includes/widgets.php:43
+msgid "Most Viewed Posts"
+msgstr "Najčitanije objave"
+
+# @ post-views-counter
+#: includes/widgets.php:34
+msgid "Displays a list of the most viewed posts"
+msgstr "Prikazuje listu najčitanijih objava"
+
+# @ post-views-counter
+#: includes/widgets.php:51
+msgid "No Posts found"
+msgstr "Nema rezultata"
+
+# @ post-views-counter
+#: includes/widgets.php:55
+msgid "Ascending"
+msgstr "Rastući (A-Z)"
+
+# @ post-views-counter
+#: includes/widgets.php:56
+msgid "Descending"
+msgstr "Padajući (Z-A)"
+
+# @ post-views-counter
+#: includes/widgets.php:93
+msgid "Title"
+msgstr "Naslov"
+
+# @ post-views-counter
+#: includes/widgets.php:110
+msgid "Number of posts to show"
+msgstr "Broj objava koje želite prikazati"
+
+# @ post-views-counter
+#: includes/widgets.php:114
+msgid "No posts message"
+msgstr "Nema objava"
+
+# @ post-views-counter
+#: includes/widgets.php:118
+msgid "Order"
+msgstr "Poredak"
+
+# @ post-views-counter
+#: includes/widgets.php:130
+msgid "Display post views?"
+msgstr "Prikaži brojač?"
+
+# @ post-views-counter
+#: includes/widgets.php:132
+msgid "Display post excerpt?"
+msgstr "Prikaži sažetak objave?"
+
+# @ post-views-counter
+#: includes/widgets.php:134
+msgid "Display post thumbnail?"
+msgstr "Prikaži thumbnail objave?"
+
+# @ post-views-counter
+#: includes/widgets.php:137
+msgid "Thumbnail size"
+msgstr "Dimenzije thumbnaila"
+
+# @ post-views-counter
+#. translators: plugin header field 'PluginURI'
+#: post-views-counter.php:0
+msgid "http://www.dfactory.eu/plugins/post-views-counter/"
+msgstr "http://www.dfactory.eu/plugins/post-views-counter/"
+
+# @ post-views-counter
+#. translators: plugin header field 'Description'
+#: post-views-counter.php:0
+msgid "Forget WP-PostViews. Display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way."
+msgstr "Zaboravite WP-PostViews. Prikažite broj pregleda pojedine objave, stranice ili bilo kojih drugih vrsta objava na jednostavan, brz i pouzdan način."
+
+# @ post-views-counter
+#. translators: plugin header field 'Author'
+#: post-views-counter.php:0
+msgid "dFactory"
+msgstr "dFactory"
+
+# @ post-views-counter
+#. translators: plugin header field 'AuthorURI'
+#: post-views-counter.php:0
+msgid "http://www.dfactory.eu/"
+msgstr "http://www.dfactory.eu/"
+
+# @ post-views-counter
+#: post-views-counter.php:297
+msgid "Are you sure you want to reset these settings to defaults?"
+msgstr "Jeste li sigurni da želite vratiti postavke na njihove zadane vrijednosti?"
+
+# @ post-views-counter
+#: post-views-counter.php:330
+msgid "Settings"
+msgstr "Postavke"
+
+# @ post-views-counter
+#: includes/columns.php:49
+msgid "Edit"
+msgstr "Uredi"
+
+# @ post-views-counter
+#: includes/columns.php:53
+msgid "Adjust the views count for this post."
+msgstr "Promijeni vrijednost broja pregleda ove objave"
+
+# @ post-views-counter
+#: includes/columns.php:57
+msgid "OK"
+msgstr "OK"
+
+# @ post-views-counter
+#: includes/columns.php:58
+msgid "Cancel"
+msgstr "Odustani"
+
+# @ post-views-counter
+#: includes/settings.php:212
+msgid "Reset Data Interval"
+msgstr "Interval resetiranja podataka brojača"
+
+# @ post-views-counter
+#: includes/settings.php:213
+msgid "Flush Object Cache Interval"
+msgstr "Interval spremanja privremene memorije"
+
+# @ post-views-counter
+#: includes/settings.php:400
+msgid "How often to flush cached view counts from the object cache into the database. This feature is used only if a persistent object cache is detected and the interval is greater than 0 (number zero)). When used, view counts will be collected and stored in the object cache instead of the database and will then be asynchronously flushed to the database according to the specified interval.<br /><strong>Notice:</strong> Potential data loss may occur if the object cache is cleared/unavailable for the duration of the interval."
+msgstr "Koliko često se podaci iz privremene memorije trajno pohranjuju u bazu. Ova mogućnost biti će upotrebljena samo ako je podržana i ako je vrijednost intervala veća od 0 (brojka nula). Tada će se podaci o posjetama spremati u privremenu memoriju umjesto direktno u bazu (čime se dobija na performansama) i tek periodički trajno pohranjivati u bazu. <br><strong>Napomena:</strong> Ako se privremena memorija iznenada očisti i/ili je nedostupna, podaci iz privremene memorije mogu biti bespovratno izgubljeni."
+
+# @ post-views-counter
+#: includes/widgets.php:97
+msgid "Post Types"
+msgstr "Vrste objava"
+
+# @ post-views-counter
+#. translators: plugin header field 'Version'
+#: post-views-counter.php:0
+msgid "1.0.7"
+msgstr "1.0.7"
