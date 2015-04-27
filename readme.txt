@@ -3,8 +3,8 @@ Contributors: dfactory
 Donate link: http://www.dfactory.eu/
 Tags: counter, hits, postviews, post views, views, count
 Requires at least: 3.8.0
-Tested up to: 4.1.1
-Stable tag: 1.0.7
+Tested up to: 4.2
+Stable tag: 1.0.8
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -34,6 +34,8 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * .pot file for translations included
 
 = Translations: =
+
+* Croation translation - by [Tomas Trkulja](http://zytzagoo.net/blog/)
 * Hebrew - by [Ahrale Shrem](http://atar4u.com/)
 * Polish - by Bartosz Arendt
 * Russian - by moonkir
@@ -59,6 +61,9 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.0.8 =
+* New: Croation translation, thanks to [Tomas Trkulja](http://zytzagoo.net/blog/)
 
 = 1.0.7 =
 * New: Possibility to manually set views count for each post
@@ -87,5 +92,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.0.7 =
-* New: Possibility to manually set views count for each post
+= 1.0.8 =
+* New: Croation translation, thanks to [Tomas Trkulja](http://zytzagoo.net/blog/)

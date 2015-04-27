@@ -23,6 +23,7 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * .pot file for translations included
 
 ### Translations: ###
+* Croation translation - by [Tomas Trkulja](http://zytzagoo.net/blog/)
 * Hebrew - by [Ahrale Shrem](http://atar4u.com/)
 * Polish - by Bartosz Arendt
 * Russian - by moonkir
@@ -34,6 +35,13 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 3. Go to the Post Views Counter settings and set your options.
 
 ## Changelog ##
+
+#### 1.0.8 ####
+* New: Croation translation, thanks to [Tomas Trkulja](http://zytzagoo.net/blog/)
+
+#### 1.0.7 ####
+* New: Possibility to manually set views count for each post
+* New: Plugin development moved to [dFactory GitHub Repository](https://github.com/dfactoryplugins)
 
 #### 1.0.6 ####
 * New: Object cache support, thanks to [Tomas Trkulja](http://zytzagoo.net/blog/)
