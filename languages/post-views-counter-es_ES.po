@@ -1,0 +1,486 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Post Views Counter\n"
+"POT-Creation-Date: 2015-05-04 16:15-0500\n"
+"PO-Revision-Date: 2015-05-04 17:23-0500\n"
+"Last-Translator: Dto2y3d <masyoututoriales@gmail.com>\n"
+"Language-Team: Dto2y3d <masyoututoriales@gmail.com>\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.5\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: includes/columns.php:45 includes/columns.php:175 includes/columns.php:181
+msgid "Post Views"
+msgstr "Entradas vistas"
+
+#: includes/columns.php:49
+msgid "Edit"
+msgstr "Editar"
+
+#: includes/columns.php:53
+msgid "Adjust the views count for this post."
+msgstr "Ajustar el conteo de vistas para este post."
+
+#: includes/columns.php:57
+msgid "OK"
+msgstr "OK"
+
+#: includes/columns.php:58
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: includes/cron.php:49
+msgid "Post Views Counter reset daily counts interval"
+msgstr "Restablece intervalo conteo diario de las vistas"
+
+#: includes/cron.php:54
+msgid "Post Views Counter cache flush interval"
+msgstr "Intervalo de conteo de vistas volcado en cache"
+
+#: includes/functions.php:127
+msgid "No Posts"
+msgstr "No hay entradas"
+
+#: includes/settings.php:35
+msgid "Enable"
+msgstr "Activar"
+
+#: includes/settings.php:36
+msgid "Disable"
+msgstr "Desactivar"
+
+#: includes/settings.php:40
+msgid "PHP"
+msgstr "PHP"
+
+#: includes/settings.php:41
+msgid "JavaScript"
+msgstr "JavaScript"
+
+#: includes/settings.php:45
+msgid "minutes"
+msgstr "minutos"
+
+#: includes/settings.php:46
+msgid "hours"
+msgstr "horas"
+
+#: includes/settings.php:47
+msgid "days"
+msgstr "días"
+
+#: includes/settings.php:48
+msgid "weeks"
+msgstr "semanas"
+
+#: includes/settings.php:49
+msgid "months"
+msgstr "meses"
+
+#: includes/settings.php:50
+msgid "years"
+msgstr "años"
+
+#: includes/settings.php:54
+msgid "robots"
+msgstr "robots"
+
+#: includes/settings.php:55
+msgid "logged in users"
+msgstr "Usuarios Logueados"
+
+#: includes/settings.php:56
+msgid "guests"
+msgstr "Personas"
+
+#: includes/settings.php:57
+msgid "selected user roles"
+msgstr "roles de usuario seleccionado"
+
+#: includes/settings.php:61
+msgid "before the content"
+msgstr "Antes del Contenido"
+
+#: includes/settings.php:62
+msgid "after the content"
+msgstr "Después del Contenido"
+
+#: includes/settings.php:63
+msgid "manual"
+msgstr "Manual"
+
+#: includes/settings.php:67
+msgid "icon"
+msgstr "icono"
+
+#: includes/settings.php:68
+msgid "label"
+msgstr "Etiqueta"
+
+#: includes/settings.php:73
+msgid "General"
+msgstr "General"
+
+#: includes/settings.php:79
+msgid "Display"
+msgstr "Mostar"
+
+#: includes/settings.php:134 includes/settings.php:146
+#: includes/settings.php:158
+msgid "Post Views Counter"
+msgstr "Post Views Counter"
+
+#: includes/settings.php:160
+msgid "Need support?"
+msgstr " ¿Necesita soporte?"
+
+#: includes/settings.php:161
+msgid ""
+"If you are having problems with this plugin, please talk about them in the"
+msgstr ""
+"Si tiene problemas con este plugin, por favor hable acerca de ello en el"
+
+#: includes/settings.php:161
+msgid "Support forum"
+msgstr "Foro de soporte"
+
+#: includes/settings.php:163
+msgid "Do you like this plugin?"
+msgstr "¿Le gusta este plugin?"
+
+#: includes/settings.php:164
+msgid "Rate it 5"
+msgstr "Ponle 5"
+
+#: includes/settings.php:164
+msgid "on WordPress.org"
+msgstr "en WordPress.org"
+
+#: includes/settings.php:165
+msgid "Blog about it & link to the"
+msgstr "Blog sobre él & enlace a la"
+
+#: includes/settings.php:165
+msgid "plugin page"
+msgstr "página del plugin"
+
+#: includes/settings.php:166
+msgid "Check out our other"
+msgstr "Echa un vistazo a nuestro otro"
+
+#: includes/settings.php:166
+msgid "WordPress plugins"
+msgstr "Plugins de WordPress"
+
+#: includes/settings.php:169
+msgid "Created by"
+msgstr "Creado por"
+
+#: includes/settings.php:185
+msgid "Reset to defaults"
+msgstr "Restablecer valores predeterminados"
+
+#: includes/settings.php:201
+msgid "General settings"
+msgstr "Configuracion General"
+
+#: includes/settings.php:202
+msgid "Post Types Count"
+msgstr " Tipos de conteo de entradas"
+
+#: includes/settings.php:203
+msgid "Counter Mode"
+msgstr "Modo de contador"
+
+#: includes/settings.php:204
+msgid "Post Views Column"
+msgstr "Columna de las entradas vistas"
+
+#: includes/settings.php:205
+msgid "Time Between Counts"
+msgstr "Tiempo entre Conteos"
+
+#: includes/settings.php:206
+msgid "Reset Data Interval"
+msgstr "Restablecer intervalos de datos"
+
+#: includes/settings.php:207
+msgid "Flush Object Cache Interval"
+msgstr "Eliminar objeto Cache intervalo"
+
+#: includes/settings.php:208
+msgid "Exclude Visitors"
+msgstr "Excluir a los visitantes"
+
+#: includes/settings.php:209
+msgid "Exclude IPs"
+msgstr "Excluir IPs"
+
+#: includes/settings.php:210
+msgid "WP-PostViews"
+msgstr "WP-PostViews"
+
+#: includes/settings.php:211
+msgid "Deactivation"
+msgstr "Desactivación"
+
+#: includes/settings.php:215
+msgid "Display settings"
+msgstr "Ajustes de visualización"
+
+#: includes/settings.php:216
+msgid "Post Views Label"
+msgstr "Etiqueta de vistas de entradas"
+
+#: includes/settings.php:217
+msgid "Post Types Display"
+msgstr "Tipos de visualizacíon de entradas"
+
+#: includes/settings.php:218
+msgid "Restrict Display"
+msgstr "Restringir visualización"
+
+#: includes/settings.php:219
+msgid "Position"
+msgstr "Posicion"
+
+#: includes/settings.php:220
+msgid "Display Style"
+msgstr "Estilo de visualización"
+
+#: includes/settings.php:221
+msgid "Icon Class"
+msgstr " Clase de icono"
+
+#: includes/settings.php:233
+msgid "Enter the label for the post views counter field."
+msgstr "Introduzca la etiqueta para el campo contador vistas."
+
+#: includes/settings.php:245
+msgid "Select post types"
+msgstr "Seleccionar tipos de entradas"
+
+#: includes/settings.php:255
+msgid "Select post types for which post views will be counted."
+msgstr "Seleccione tipos de entradas que la entrada se contará en las vistas."
+
+#: includes/settings.php:267 includes/settings.php:402
+#: includes/settings.php:558
+msgid "Select groups"
+msgstr "Seleccionar grupos"
+
+#: includes/settings.php:277
+msgid "Select post types for which post views will be displayed."
+msgstr "Seleccione tipos de entradas para la entradas que mostrarán vistas."
+
+#: includes/settings.php:299
+msgid ""
+"Select the method of collecting post views data. If you are using any of the "
+"caching plugins select Javascript."
+msgstr ""
+"Seleccione el método de recolección de datos de entradas vistas. Si usted "
+"está usando cualquiera de los plugins de cacheo seleccione Javascript."
+
+#: includes/settings.php:321
+msgid ""
+"Enable to display post views count column for each of the selected post "
+"types."
+msgstr ""
+"Activa mostrar una lista de todas las etiquetas para el tipo de publicación "
+"de etiquetas seleccionadas"
+
+#: includes/settings.php:344
+msgid "Enter the time between single user visit count."
+msgstr "Introduzca el tiempo de conteo entre vistas de un usuario."
+
+#: includes/settings.php:367
+msgid ""
+"Delete single day post views data older than specified above. Enter 0 "
+"(number zero) if you want to preserve your data regardless of its age."
+msgstr ""
+"Borra un dia de entradas antiguas especificando antes. Escriba 0 (número "
+"cero) si quiere conservar sus datos independientemente de su edad."
+
+#: includes/settings.php:390
+msgid ""
+"How often to flush cached view counts from the object cache into the "
+"database. This feature is used only if a persistent object cache is detected "
+"and the interval is greater than 0 (number zero)). When used, view counts "
+"will be collected and stored in the object cache instead of the database and "
+"will then be asynchronously flushed to the database according to the "
+"specified interval.<br /><strong>Notice:</strong> Potential data loss may "
+"occur if the object cache is cleared/unavailable for the duration of the "
+"interval."
+msgstr ""
+"¿Con qué frecuencia elimina el caché de los conteos de vista de la memoria "
+"caché de objetos en la base de datos. Esta función se utiliza sólo si se "
+"detecta una memoria caché de objetos persistentes y el intervalo es mayor "
+"que 0 (numero cero).Cuando se utiliza, número de reproducciones serán "
+"recogidos y almacenados en la memoria caché de objetos de la base de datos y "
+"será entonces de forma asíncrona volcado a la base de datos de acuerdo con "
+"el intervalo especificado.<br /><strong>Noticia:</strong>Potencial pérdida "
+"de datos puede producirse si la memoria caché de objetos se borra/no esta "
+"disponible para la duración del intervalo."
+
+#: includes/settings.php:413 includes/settings.php:573
+msgid "Select user roles"
+msgstr "Seleccionar los roles de usuario"
+
+#: includes/settings.php:424
+msgid "Select the type of visitors to be excluded from post views count."
+msgstr "Seleccione el tipo de visitantes serán excluidos de recuento vistas."
+
+#: includes/settings.php:440 includes/settings.php:449
+msgid "Remove"
+msgstr "Eliminar"
+
+#: includes/settings.php:449
+msgid "Add new"
+msgstr "Añadir nuevo"
+
+#: includes/settings.php:449
+msgid "Add my current IP"
+msgstr "Agregar mi IP actual"
+
+#: includes/settings.php:451
+msgid "Enter the IP addresses to be excluded from post views count."
+msgstr "Introduzca las direcciones IP para excluirse del recuento de vistas."
+
+#: includes/settings.php:463
+msgid "Import"
+msgstr "Importar"
+
+#: includes/settings.php:465
+msgid "Import post views data from WP-PostViews plugin."
+msgstr "Importación de datos de vistas de entradas desde WP-PostViews plugin."
+
+#: includes/settings.php:466
+msgid "Override existing Post Views Counter data."
+msgstr "¿Sobreescribir los conteos de vistas existentes?"
+
+#: includes/settings.php:488
+msgid "Enable to delete all plugin data on deactivation."
+msgstr ""
+"Activar si quiere que la informacion del plugin sea borrada en la "
+"desactivacion"
+
+#: includes/settings.php:510
+msgid ""
+"Select where would you like to display the post views counter. Use [post-"
+"views] shortcode for manual display."
+msgstr ""
+"Seleccione dónde te gustaría mostrar el contador de entras vistas Utilice "
+"shortcode [post-views] para la Visualización manual."
+
+#: includes/settings.php:532
+msgid "Choose how to display the post views counter."
+msgstr "Elija cómo mostrar el post views counter."
+
+#: includes/settings.php:546
+#, php-format
+msgid ""
+"Enter the post views icon class. Any of the <a href=\"%s\" target=\"_blank"
+"\">Dashicons</a> classes are available."
+msgstr ""
+"Activa que  clase de icono quieres para las vistas. Cualquiera de los <a "
+"href=\"%s\" target=\"_blank\">Dashicons</a> clases que están disponibles."
+
+#: includes/settings.php:584
+msgid "Use it to hide the post views counter from selected type of visitors."
+msgstr ""
+"Se usa para esconder el contador de entrads vistas, para algún tipo "
+"seleccionado visitante."
+
+#: includes/settings.php:612
+msgid "WP-PostViews data imported succesfully."
+msgstr "Datos de WP-PostViews importados con éxito."
+
+#: includes/settings.php:614
+msgid "There was no data to import."
+msgstr "No hubo datos para importar."
+
+#: includes/settings.php:767
+msgid "General settings restored to defaults."
+msgstr "Configuración general restablecido valores predeterminados."
+
+#: includes/settings.php:771
+msgid "Display settings restored to defaults."
+msgstr "Restablece valores predeterminados de visualización."
+
+#: includes/widgets.php:33 includes/widgets.php:43
+msgid "Most Viewed Posts"
+msgstr "Entradas más vistas"
+
+#: includes/widgets.php:34
+msgid "Displays a list of the most viewed posts"
+msgstr "Muestra una lista de las entradas más vistas"
+
+#: includes/widgets.php:51
+msgid "No Posts found"
+msgstr "Entradas no Encontradas"
+
+#: includes/widgets.php:55
+msgid "Ascending"
+msgstr "Ascendente"
+
+#: includes/widgets.php:56
+msgid "Descending"
+msgstr "Descendente"
+
+#: includes/widgets.php:93
+msgid "Title"
+msgstr "Título"
+
+#: includes/widgets.php:97
+msgid "Post Types"
+msgstr "Tipos de entrada"
+
+#: includes/widgets.php:110
+msgid "Number of posts to show"
+msgstr "Numero de entradas  a mostrar"
+
+#: includes/widgets.php:114
+msgid "No posts message"
+msgstr "Ningún mensaje de entradas"
+
+#: includes/widgets.php:118
+msgid "Order"
+msgstr "Orden"
+
+#: includes/widgets.php:130
+msgid "Display post views?"
+msgstr "¿Mostar vistas en las entradas?"
+
+#: includes/widgets.php:132
+msgid "Display post excerpt?"
+msgstr "¿Mostrar extracto de entrada"
+
+#: includes/widgets.php:134
+msgid "Display post thumbnail?"
+msgstr "¿Mostrar miniatura de la entrada?"
+
+#: includes/widgets.php:137
+msgid "Thumbnail size"
+msgstr "Tamaño de la miniatura"
+
+#: post-views-counter.php:280
+msgid "Are you sure you want to reset these settings to defaults?"
+msgstr "Esta seguro que quiere resetear la configuracion a lo predeterminado?"
+
+#: post-views-counter.php:312
+msgid "Support"
+msgstr "Soporte"
+
+#: post-views-counter.php:331
+msgid "Settings"
+msgstr "Configuracion"
