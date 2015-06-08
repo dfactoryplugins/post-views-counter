@@ -2,7 +2,7 @@
 /*
 Plugin Name: Post Views Counter
 Description: Forget WP-PostViews. Display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
-Version: 1.0.9
+Version: 1.0.11
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/post-views-counter/
@@ -42,7 +42,7 @@ include_once( POST_VIEWS_COUNTER_PATH . 'includes/widgets.php' );
  * Post Views Counter class
  *
  * @class Post_Views_Counter
- * @version	1.0.9
+ * @version	1.0.11
  */
 class Post_Views_Counter {
 
@@ -51,46 +51,47 @@ class Post_Views_Counter {
 	private $options;
 	private $defaults = array(
 		'general'	 => array(
-			'post_types_count'		 => array( 'post' ),
-			'counter_mode'			 => 'php',
-			'post_views_column'		 => true,
-			'time_between_counts'	 => array(
+			'post_types_count'		=> array( 'post' ),
+			'counter_mode'			=> 'php',
+			'post_views_column'		=> true,
+			'time_between_counts'	=> array(
 				'number' => 24,
 				'type'	 => 'hours'
 			),
-			'reset_counts'			 => array(
+			'reset_counts'			=> array(
 				'number' => 30,
 				'type'	 => 'days'
 			),
-			'flush_interval'		 => array(
+			'flush_interval'		=> array(
 				'number' => 0,
 				'type'	 => 'minutes'
 			),
-			'exclude'				 => array(
+			'exclude'				=> array(
 				'groups' => array(),
 				'roles'	 => array()
 			),
-			'exclude_ips'			 => array(),
-			'deactivation_delete'	 => false,
-			'cron_run'				 => true,
-			'cron_update'			 => true
+			'exclude_ips'			=> array(),
+			'restrict_edit_views'	 	=> false,
+			'deactivation_delete'	=> false,
+			'cron_run'				=> true,
+			'cron_update'			=> true
 		),
 		'display'	 => array(
-			'label'				 => 'Post Views:',
-			'post_types_display' => array( 'post' ),
-			'restrict_display'	 => array(
+			'label'				 	=> 'Post Views:',
+			'post_types_display' 	=> array( 'post' ),
+			'restrict_display'	 	=> array(
 				'groups' => array(),
 				'roles'	 => array()
 			),
-			'position'			 => 'after',
-			'display_style'		 => array(
+			'position'			 	=> 'after',
+			'display_style'		 	=> array(
 				'icon'	 => true,
 				'text'	 => true
 			),
-			'link_to_post'		 => true,
-			'icon_class'		 => 'dashicons-visibility'
+			'link_to_post'		 	=> true,
+			'icon_class'		 	=> 'dashicons-visibility'
 		),
-		'version'	 => '1.0.9'
+		'version'	 => '1.0.11'
 	);
 
 	public static function instance() {
