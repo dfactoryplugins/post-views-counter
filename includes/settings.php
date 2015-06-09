@@ -31,11 +31,7 @@ class Post_Views_Counter_Settings {
 	 * Load default settings.
 	 */
 	public function load_defaults() {
-		$this->choices = array(
-			'yes'	 => __( 'Enable', 'post-views-counter' ),
-			'no'	 => __( 'Disable', 'post-views-counter' )
-		);
-
+		
 		$this->modes = array(
 			'php'	 => __( 'PHP', 'post-views-counter' ),
 			'js'	 => __( 'JavaScript', 'post-views-counter' )
@@ -202,12 +198,13 @@ class Post_Views_Counter_Settings {
 		add_settings_field( 'pvc_post_types_count', __( 'Post Types Count', 'post-views-counter' ), array( &$this, 'post_types_count' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
 		add_settings_field( 'pvc_counter_mode', __( 'Counter Mode', 'post-views-counter' ), array( &$this, 'counter_mode' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
 		add_settings_field( 'pvc_post_views_column', __( 'Post Views Column', 'post-views-counter' ), array( &$this, 'post_views_column' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
+		add_settings_field( 'pvc_restrict_edit_views', __( 'Restrict Edit', 'post-views-counter' ), array( &$this, 'restrict_edit_views' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
 		add_settings_field( 'pvc_time_between_counts', __( 'Time Between Counts', 'post-views-counter' ), array( &$this, 'time_between_counts' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
 		add_settings_field( 'pvc_reset_counts', __( 'Reset Data Interval', 'post-views-counter' ), array( &$this, 'reset_counts' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
 		add_settings_field( 'pvc_flush_interval', __( 'Flush Object Cache Interval', 'post-views-counter' ), array( &$this, 'flush_interval' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
 		add_settings_field( 'pvc_exclude', __( 'Exclude Visitors', 'post-views-counter' ), array( &$this, 'exclude' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
 		add_settings_field( 'pvc_exclude_ips', __( 'Exclude IPs', 'post-views-counter' ), array( &$this, 'exclude_ips' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
-		add_settings_field( 'pvc_wp_postviews', __( 'WP-PostViews', 'post-views-counter' ), array( &$this, 'wp_postviews' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
+		add_settings_field( 'pvc_wp_postviews', __( 'WP-PostViews', 'post-views-counter' ), array( &$this, 'wp_postviews' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );	
 		add_settings_field( 'pvc_deactivation_delete', __( 'Deactivation', 'post-views-counter' ), array( &$this, 'deactivation_delete' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
 
 		// display options
@@ -307,19 +304,7 @@ class Post_Views_Counter_Settings {
 	public function post_views_column() {
 		echo '
 		<div id="pvc_post_views_column">
-			<fieldset>';
-
-		foreach ( $this->choices as $key => $value ) {
-			$key = esc_attr( $key );
-
-			echo '
-				<input id="pvc-post-views-column-' . $key . '" type="radio" name="post_views_counter_settings_general[post_views_column]" value="' . $key . '" ' . checked( $key, (Post_Views_Counter()->get_attribute( 'options', 'general', 'post_views_column' ) === true ? 'yes' : 'no' ), false ) . ' /><label for="pvc-post-views-column-' . $key . '">' . esc_html( $value ) . '</label>';
-		}
-
-		echo '
-				<br/>
-				<span class="description">' . esc_html__( 'Enable to display post views count column for each of the selected post types.', 'post-views-counter' ) . '</span>
-			</fieldset>
+			<input id="pvc-post-views-column-enable" type="checkbox" name="post_views_counter_settings_general[post_views_column]" value="1" ' . checked( true, (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'post_views_column' ), false ) . ' /><label for="pvc-post-views-column-enable">' . esc_html__( 'Enable to display post views count column for each of the selected post types.', 'post-views-counter' ) . '</label>
 		</div>';
 	}
 
@@ -463,8 +448,18 @@ class Post_Views_Counter_Settings {
 				<input type="submit" class="button button-secondary" name="post_views_counter_import_wp_postviews" value="' . __( 'Import', 'post-views-counter' ) . '"/>
 				<br/>
 				<p class="description">' . esc_html__( 'Import post views data from WP-PostViews plugin.', 'post-views-counter' ) . '</p>
-				<input id="pvc-wp-postviews" type="checkbox" name="post_views_counter_import_wp_postviews_override"/><label for="pvc-wp-postviews">' . esc_html__( 'Override existing Post Views Counter data.', 'post-views-counter' ) . '</label>
+				<input id="pvc-wp-postviews" type="checkbox" name="post_views_counter_import_wp_postviews_override" value="1" /><label for="pvc-wp-postviews">' . esc_html__( 'Override existing Post Views Counter data.', 'post-views-counter' ) . '</label>
 			</fieldset>
+		</div>';
+	}
+	
+	/**
+	 * Limit views edit to admins.
+	 */
+	public function restrict_edit_views() {
+		echo '
+		<div id="pvc_restrict_edit_views">
+			<input id="pvc-restrict-edit-views-enable" type="checkbox" name="post_views_counter_settings_general[restrict_edit_views]" value="1" ' . checked( true, (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'restrict_edit_views' ), false ) . ' /><label for="pvc-restrict-edit-views-enable">' . esc_html__( 'Enable to restrict post views editing to admins only.', 'post-views-counter' ) . '</label>
 		</div>';
 	}
 
@@ -474,19 +469,7 @@ class Post_Views_Counter_Settings {
 	public function deactivation_delete() {
 		echo '
 		<div id="pvc_deactivation_delete">
-			<fieldset>';
-
-		foreach ( $this->choices as $key => $value ) {
-			$key = esc_attr( $key );
-
-			echo '
-				<input id="pvc-deactivation-delete-' . $key . '" type="radio" name="post_views_counter_settings_general[deactivation_delete]" value="' . $key . '" ' . checked( $key, (Post_Views_Counter()->get_attribute( 'options', 'general', 'deactivation_delete' ) === true ? 'yes' : 'no' ), false ) . ' /><label for="pvc-deactivation-delete-' . $key . '">' . esc_html( $value ) . '</label>';
-		}
-
-		echo '
-				<br/>
-				<span class="description">' . esc_html__( 'Enable to delete all plugin data on deactivation.', 'post-views-counter' ) . '</span>
-			</fieldset>
+			<input id="pvc-deactivation-delete-enable" type="checkbox" name="post_views_counter_settings_general[deactivation_delete]" value="1" ' . checked( true, (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'deactivation_delete' ), false ) . ' /><label for="pvc-deactivation-delete-enable">' . esc_html__( 'Enable to delete all plugin data on deactivation.', 'post-views-counter' ) . '</label>
 		</div>';
 	}
 
@@ -631,7 +614,7 @@ class Post_Views_Counter_Settings {
 			$input['counter_mode'] = (isset( $input['counter_mode'], $this->modes[$input['counter_mode']] ) ? $input['counter_mode'] : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'counter_mode' ));
 
 			// post views column
-			$input['post_views_column'] = (isset( $input['post_views_column'], $this->choices[$input['post_views_column']] ) ? ($input['post_views_column'] === 'yes' ? true : false) : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'post_views_column' ));
+			$input['post_views_column'] = (isset( $input['post_views_column'] ) ? (bool) $input['post_views_column'] : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'post_views_column' ));
 
 			// time between counts
 			$input['time_between_counts']['number'] = (int) (isset( $input['time_between_counts']['number'] ) ? $input['time_between_counts']['number'] : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'time_between_counts', 'number' ));
@@ -697,9 +680,12 @@ class Post_Views_Counter_Settings {
 
 				$input['exclude_ips'] = array_unique( $ips );
 			}
+			
+			// restrict edit viewa
+			$input['restrict_edit_views'] = (isset( $input['restrict_edit_views'] ) ? (bool) $input['restrict_edit_views'] : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'restrict_edit_views' ));
 
 			// deactivation delete
-			$input['deactivation_delete'] = (isset( $input['deactivation_delete'], $this->choices[$input['deactivation_delete']] ) ? ($input['deactivation_delete'] === 'yes' ? true : false) : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'deactivation_delete' ));
+			$input['deactivation_delete'] = (isset( $input['deactivation_delete'] ) ? (bool) $input['deactivation_delete'] : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'deactivation_delete' ));
 		} elseif ( isset( $_POST['save_pvc_display'] ) ) {
 
 			// post views label
@@ -716,7 +702,7 @@ class Post_Views_Counter_Settings {
 			$input['display_style']['text'] = (isset( $input['display_style']['text'] ) ? true : false);
 
 			// link to post
-			$input['link_to_post'] = (isset( $input['link_to_post'], $this->choices[$input['link_to_post']] ) ? ($input['link_to_post'] === 'yes' ? true : false) : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'link_to_post' ));
+			$input['link_to_post'] = (isset( $input['link_to_post'] ) ? (bool) $input['link_to_post'] : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'link_to_post' ));
 
 			// icon class
 			$input['icon_class'] = (isset( $input['icon_class'] ) ? trim( $input['icon_class'] ) : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'icon_class' ));

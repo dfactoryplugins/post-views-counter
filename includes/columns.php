@@ -23,6 +23,10 @@ class Post_Views_Counter_Columns {
 
 		if ( ! in_array( $post->post_type, (array) $post_types ) )
 			return;
+		
+		// break if current user can't edit this post
+		if ( ! current_user_can( 'edit_post', $post->ID ) )
+			return;
 
 		global $wpdb;
 
@@ -45,20 +49,28 @@ class Post_Views_Counter_Columns {
 				<?php echo __( 'Post Views', 'post-views-counter' ) . ': <b>' . number_format_i18n( (int) $views ) . '</b>'; ?>
 
 			</span>
-
-			<a href="#post-views" class="edit-post-views hide-if-no-js"><?php _e( 'Edit', 'post-views-counter' ); ?></a>
-
-			<div id="post-views-input-container" class="hide-if-js">
-
-				<p><?php _e( 'Adjust the views count for this post.', 'post-views-counter' ); ?></p>
-				<input type="hidden" name="current_post_views" id="post-views-current" value="<?php echo (int) $views; ?>" />
-				<input type="text" name="post_views" id="post-views-input" value="<?php echo (int) $views; ?>"/><br />
-				<p>
-					<a href="#post-views" class="save-post-views hide-if-no-js button"><?php _e( 'OK', 'post-views-counter' ); ?></a>
-					<a href="#post-views" class="cancel-post-views hide-if-no-js"><?php _e( 'Cancel', 'post-views-counter' ); ?></a>
-				</p>
-
-			</div>
+			
+			<?php // restrict editing
+			$restrict = (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'restrict_edit_views' );
+			
+			if ( $restrict === false || ( $restrict === true && current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) ) ) {
+				?>
+				<a href="#post-views" class="edit-post-views hide-if-no-js"><?php _e( 'Edit', 'post-views-counter' ); ?></a>
+	
+				<div id="post-views-input-container" class="hide-if-js">
+	
+					<p><?php _e( 'Adjust the views count for this post.', 'post-views-counter' ); ?></p>
+					<input type="hidden" name="current_post_views" id="post-views-current" value="<?php echo (int) $views; ?>" />
+					<input type="text" name="post_views" id="post-views-input" value="<?php echo (int) $views; ?>"/><br />
+					<p>
+						<a href="#post-views" class="save-post-views hide-if-no-js button"><?php _e( 'OK', 'post-views-counter' ); ?></a>
+						<a href="#post-views" class="cancel-post-views hide-if-no-js"><?php _e( 'Cancel', 'post-views-counter' ); ?></a>
+					</p>
+	
+				</div>
+				<?php
+			}
+			?>
 
 		</div>
 		<?php
@@ -86,7 +98,13 @@ class Post_Views_Counter_Columns {
 
 		if ( ! in_array( $post->post_type, (array) $post_types ) )
 			return $post_id;
-
+		
+		// break if views editing is restricted
+		$restrict = (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'restrict_edit_views' );
+			
+		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+			return $post_id;
+		
 		// validate data		
 		if ( ! isset( $_POST['pvc_nonce'] ) || ! wp_verify_nonce( $_POST['pvc_nonce'], 'post_views_count' ) )
 			return $post_id;
