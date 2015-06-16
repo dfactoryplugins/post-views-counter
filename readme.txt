@@ -4,7 +4,7 @@ Donate link: http://www.dfactory.eu/
 Tags: counter, hits, postviews, post views, views, count
 Requires at least: 3.8.0
 Tested up to: 4.2.2
-Stable tag: 1.0.11
+Stable tag: 1.0.12
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -39,6 +39,7 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * Croation - by [Tomas Trkulja](http://zytzagoo.net/blog/)
 * French - by[Theophil Bethel](http://reseau-chretien-gironde.fr/)
 * Hebrew - by [Ahrale Shrem](http://atar4u.com/)
+* Italian - by [Rene Querin](http://www.q-design.it)
 * Polish - by Bartosz Arendt
 * Russian - by moonkir
 * Spanish - by [Carlos Rodriguez](http://cglevel.com/)
@@ -64,6 +65,9 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.0.12 =
+* New: Italian translation, thanks to [Rene Querin](http://www.q-design.it)
 
 = 1.0.11 =
 * New: French translation, thanks to [Theophil Bethel](http://reseau-chretien-gironde.fr/)
@@ -104,5 +108,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.0.11 =
-* New: French translation, thanks to [Theophil Bethel](http://reseau-chretien-gironde.fr/)
+= 1.0.12 =
+* New: Italian translation, thanks to [René Querin](http://www.q-design.it)
