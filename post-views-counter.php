@@ -219,7 +219,7 @@ class Post_Views_Counter {
 	 * Get instance of a class
 	 */
 	public function get_instance( $name ) {
-		if ( in_array( $name, array( 'counter', 'settings' ), true ) )
+		if ( in_array( $name, array( 'counter', 'settings', 'cron' ), true ) )
 			return $this->instances[$name];
 	}
 
