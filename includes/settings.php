@@ -702,7 +702,7 @@ class Post_Views_Counter_Settings {
 			$input['display_style']['text'] = (isset( $input['display_style']['text'] ) ? true : false);
 
 			// link to post
-			$input['link_to_post'] = (isset( $input['link_to_post'] ) ? (bool) $input['link_to_post'] : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'link_to_post' ));
+			$input['link_to_post'] = (isset( $input['link_to_post'] ) ? (bool) $input['link_to_post'] : Post_Views_Counter()->get_attribute( 'defaults', 'display', 'link_to_post' ));
 
 			// icon class
 			$input['icon_class'] = (isset( $input['icon_class'] ) ? trim( $input['icon_class'] ) : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'icon_class' ));
