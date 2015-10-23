@@ -226,8 +226,7 @@ class Post_Views_Counter_Settings {
 		<div id="pvc_post_views_label">
 			<fieldset>
 				<input type="text" class="large-text" name="post_views_counter_settings_display[label]" value="' . esc_attr( Post_Views_Counter()->get_attribute( 'options', 'display', 'label' ) ) . '" />
-				<br/>
-				<span class="description">' . esc_html__( 'Enter the label for the post views counter field.', 'post-views-counter' ) . '</span>
+				<p class="description">' . esc_html__( 'Enter the label for the post views counter field.', 'post-views-counter' ) . '</p>
 			</fieldset>
 		</div>';
 	}
@@ -237,20 +236,15 @@ class Post_Views_Counter_Settings {
 	 */
 	public function post_types_count() {
 		echo '
-		<div id="pvc_post_types_count">
-			<fieldset>
-				<select class="pvc-chosen" data-placeholder="' . esc_attr__( 'Select post types', 'post-views-counter' ) . '" name="post_views_counter_settings_general[post_types_count][]" multiple="multiple">';
+		<div id="pvc_post_types_count">';
 
 		foreach ( $this->post_types as $post_type => $post_type_name ) {
 			echo '
-					<option value="' . esc_attr( $post_type ) . '" ' . selected( in_array( $post_type, Post_Views_Counter()->get_attribute( 'options', 'general', 'post_types_count' ), true ), true, false ) . '>' . esc_html( $post_type_name ) . '</option>';
+					<label class="cb-checkbox"><input id="pvc_post_types_count-' . esc_attr( $post_type ) . '" type="checkbox" name="post_views_counter_settings_general[post_types_count][' . esc_attr( $post_type ) . ']" value="1" ' . checked( in_array( $post_type, Post_Views_Counter()->get_attribute( 'options', 'general', 'post_types_count' ), true ), true, false ) . ' />' . esc_html( $post_type_name ) . ' </label>';
 		}
 
 		echo '
-				</select>
-				<br/>
-				<span class="description">' . esc_html__( 'Select post types for which post views will be counted.', 'post-views-counter' ) . '</span>
-			</fieldset>
+				<p class="description">' . esc_html__( 'Select post types for which post views will be counted.', 'post-views-counter' ) . '</p>
 		</div>';
 	}
 
@@ -259,20 +253,15 @@ class Post_Views_Counter_Settings {
 	 */
 	public function post_types_display() {
 		echo '
-		<div id="pvc_post_types_display">
-			<fieldset>
-				<select class="pvc-chosen" data-placeholder="' . esc_attr__( 'Select groups', 'post-views-counter' ) . '" name="post_views_counter_settings_display[post_types_display][]" multiple="multiple">';
-
+		<div id="pvc_post_types_display">';
+		
 		foreach ( $this->post_types as $post_type => $post_type_name ) {
 			echo '
-					<option value="' . esc_attr( $post_type ) . '" ' . selected( in_array( $post_type, Post_Views_Counter()->get_attribute( 'options', 'display', 'post_types_display' ), true ), true, false ) . '>' . esc_html( $post_type_name ) . '</option>';
+				<label class="cb-checkbox"><input id="pvc_post_types_display-' . esc_attr( $post_type ) . '" type="checkbox" name="post_views_counter_settings_display[post_types_display][' . esc_attr( $post_type ) . ']" value="1" ' . checked( in_array( $post_type, Post_Views_Counter()->get_attribute( 'options', 'display', 'post_types_display' ), true ), true, false ) . ' />' . esc_html( $post_type_name ) . '</label>';
 		}
 
 		echo '
-				</select>
-				<br/>
-				<span class="description">' . esc_html__( 'Select post types for which post views will be displayed.', 'post-views-counter' ) . '</span>
-			</fieldset>
+			<p class="description">' . esc_html__( 'Select post types for which post views will be displayed.', 'post-views-counter' ) . '</p>
 		</div>';
 	}
 
@@ -281,20 +270,17 @@ class Post_Views_Counter_Settings {
 	 */
 	public function counter_mode() {
 		echo '
-		<div id="pvc_counter_mode">
-			<fieldset>';
+		<div id="pvc_counter_mode">';
 
 		foreach ( $this->modes as $key => $value ) {
 			$key = esc_attr( $key );
 
 			echo '
-				<input id="pvc-counter-mode-' . $key . '" type="radio" name="post_views_counter_settings_general[counter_mode]" value="' . $key . '" ' . checked( $key, Post_Views_Counter()->get_attribute( 'options', 'general', 'counter_mode' ), false ) . ' /><label for="pvc-counter-mode-' . $key . '">' . esc_html( $value ) . '</label>';
+			<label class="cb-radio"><input type="radio" name="post_views_counter_settings_general[counter_mode]" value="' . $key . '" ' . checked( $key, Post_Views_Counter()->get_attribute( 'options', 'general', 'counter_mode' ), false ) . ' />' . esc_html( $value ) . '</label>';
 		}
 
 		echo '
-				<br/>
-				<span class="description">' . esc_html__( 'Select the method of collecting post views data. If you are using any of the caching plugins select Javascript.', 'post-views-counter' ) . '</span>
-			</fieldset>
+			<p class="description">' . esc_html__( 'Select the method of collecting post views data. If you are using any of the caching plugins select Javascript.', 'post-views-counter' ) . '</p>
 		</div>';
 	}
 
@@ -304,7 +290,7 @@ class Post_Views_Counter_Settings {
 	public function post_views_column() {
 		echo '
 		<div id="pvc_post_views_column">
-			<input id="pvc-post-views-column-enable" type="checkbox" name="post_views_counter_settings_general[post_views_column]" value="1" ' . checked( true, (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'post_views_column' ), false ) . ' /><label for="pvc-post-views-column-enable">' . esc_html__( 'Enable to display post views count column for each of the selected post types.', 'post-views-counter' ) . '</label>
+			<label class="cb-checkbox"><input id="pvc-post-views-column-enable" type="checkbox" name="post_views_counter_settings_general[post_views_column]" value="1" ' . checked( true, (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'post_views_column' ), false ) . ' />' . esc_html__( 'Enable to display post views count column for each of the selected post types.', 'post-views-counter' ) . '</label>
 		</div>';
 	}
 
@@ -314,9 +300,8 @@ class Post_Views_Counter_Settings {
 	public function time_between_counts() {
 		echo '
 		<div id="pvc_time_between_counts">
-			<fieldset>
-				<input size="4" type="text" name="post_views_counter_settings_general[time_between_counts][number]" value="' . esc_attr( Post_Views_Counter()->get_attribute( 'options', 'general', 'time_between_counts', 'number' ) ) . '" />
-				<select class="pvc-chosen-short" name="post_views_counter_settings_general[time_between_counts][type]">';
+			<input size="4" type="text" name="post_views_counter_settings_general[time_between_counts][number]" value="' . esc_attr( Post_Views_Counter()->get_attribute( 'options', 'general', 'time_between_counts', 'number' ) ) . '" />
+			<select class="pvc-chosen-short" name="post_views_counter_settings_general[time_between_counts][type]">';
 
 		foreach ( $this->time_types as $type => $type_name ) {
 			echo '
@@ -324,10 +309,8 @@ class Post_Views_Counter_Settings {
 		}
 
 		echo '
-				</select>
-				<br/>
-				<span class="description">' . esc_html__( 'Enter the time between single user visit count.', 'post-views-counter' ) . '</span>
-			</fieldset>
+			</select>
+			<p class="description">' . esc_html__( 'Enter the time between single user visit count.', 'post-views-counter' ) . '</p>
 		</div>';
 	}
 
@@ -337,20 +320,17 @@ class Post_Views_Counter_Settings {
 	public function reset_counts() {
 		echo '
 		<div id="pvc_reset_counts">
-			<fieldset>
-				<input size="4" type="text" name="post_views_counter_settings_general[reset_counts][number]" value="' . esc_attr( Post_Views_Counter()->get_attribute( 'options', 'general', 'reset_counts', 'number' ) ) . '" />
-				<select class="pvc-chosen-short" name="post_views_counter_settings_general[reset_counts][type]">';
+			<input size="4" type="text" name="post_views_counter_settings_general[reset_counts][number]" value="' . esc_attr( Post_Views_Counter()->get_attribute( 'options', 'general', 'reset_counts', 'number' ) ) . '" />
+			<select class="pvc-chosen-short" name="post_views_counter_settings_general[reset_counts][type]">';
 
 		foreach ( $this->time_types as $type => $type_name ) {
 			echo '
-					<option value="' . esc_attr( $type ) . '" ' . selected( $type, Post_Views_Counter()->get_attribute( 'options', 'general', 'reset_counts', 'type' ), false ) . '>' . esc_html( $type_name ) . '</option>';
+				<option value="' . esc_attr( $type ) . '" ' . selected( $type, Post_Views_Counter()->get_attribute( 'options', 'general', 'reset_counts', 'type' ), false ) . '>' . esc_html( $type_name ) . '</option>';
 		}
 
 		echo '
-				</select>
-				<br/>
-				<span class="description">' . esc_html__( 'Delete single day post views data older than specified above. Enter 0 (number zero) if you want to preserve your data regardless of its age.', 'post-views-counter' ) . '</span>
-			</fieldset>
+			</select>
+			<p class="description">' . esc_html__( 'Delete single day post views data older than specified above. Enter 0 (number zero) if you want to preserve your data regardless of its age.', 'post-views-counter' ) . '</p>
 		</div>';
 	}
 
@@ -360,20 +340,17 @@ class Post_Views_Counter_Settings {
 	public function flush_interval() {
 		echo '
 		<div id="pvc_flush_interval">
-			<fieldset>
-				<input size="4" type="text" name="post_views_counter_settings_general[flush_interval][number]" value="' . esc_attr( Post_Views_Counter()->get_attribute( 'options', 'general', 'flush_interval', 'number' ) ) . '" />
-				<select class="pvc-chosen-short" name="post_views_counter_settings_general[flush_interval][type]">';
+			<input size="4" type="text" name="post_views_counter_settings_general[flush_interval][number]" value="' . esc_attr( Post_Views_Counter()->get_attribute( 'options', 'general', 'flush_interval', 'number' ) ) . '" />
+			<select class="pvc-chosen-short" name="post_views_counter_settings_general[flush_interval][type]">';
 
 		foreach ( $this->time_types as $type => $type_name ) {
 			echo '
-					<option value="' . esc_attr( $type ) . '" ' . selected( $type, Post_Views_Counter()->get_attribute( 'options', 'general', 'flush_interval', 'type' ), false ) . '>' . esc_html( $type_name ) . '</option>';
+				<option value="' . esc_attr( $type ) . '" ' . selected( $type, Post_Views_Counter()->get_attribute( 'options', 'general', 'flush_interval', 'type' ), false ) . '>' . esc_html( $type_name ) . '</option>';
 		}
 
 		echo '
-				</select>
-				<br/>
-				<span class="description">' . __( 'How often to flush cached view counts from the object cache into the database. This feature is used only if a persistent object cache is detected and the interval is greater than 0 (number zero)). When used, view counts will be collected and stored in the object cache instead of the database and will then be asynchronously flushed to the database according to the specified interval.<br /><strong>Notice:</strong> Potential data loss may occur if the object cache is cleared/unavailable for the duration of the interval.', 'post-views-counter' ) . '</span>
-			</fieldset>
+			</select>
+			<p class="description">' . __( 'How often to flush cached view counts from the object cache into the database. This feature is used only if a persistent object cache is detected and the interval is greater than 0 (number zero)). When used, view counts will be collected and stored in the object cache instead of the database and will then be asynchronously flushed to the database according to the specified interval.<br /><strong>Notice:</strong> Potential data loss may occur if the object cache is cleared/unavailable for the duration of the interval.', 'post-views-counter' ) . '</p>
 		</div>';
 	}
 
@@ -383,30 +360,22 @@ class Post_Views_Counter_Settings {
 	public function exclude() {
 		echo '
 		<div id="pvc_exclude">
-			<fieldset>
-				<select class="pvc-chosen" data-placeholder="' . esc_attr__( 'Select groups', 'post-views-counter' ) . '" name="post_views_counter_settings_general[exclude][groups][]" multiple="multiple">';
+			<fieldset>';
 
 		foreach ( $this->groups as $type => $type_name ) {
 			echo '
-					<option value="' . esc_attr( $type ) . '" ' . selected( in_array( $type, Post_Views_Counter()->get_attribute( 'options', 'general', 'exclude', 'groups' ), true ), true, false ) . '>' . esc_html( $type_name ) . '</option>';
+				<label class="cb-checkbox"><input id="pvc_exclude-' . $type . '" type="checkbox" name="post_views_counter_settings_general[exclude][groups][' . $type . ']" value="1" ' . checked( in_array( $type, Post_Views_Counter()->get_attribute( 'options', 'general', 'exclude', 'groups' ), true ), true, false ) . ' />' . esc_html( $type_name ) . '</label>';
 		}
 
-		echo '
-				</select>
-				<br/>
-				<div class="pvc_user_roles"' . (in_array( 'roles', Post_Views_Counter()->get_attribute( 'options', 'general', 'exclude', 'groups' ), true ) ? '' : ' style="display: none;"') . '>
-					<select class="pvc-chosen" data-placeholder="' . esc_attr__( 'Select user roles', 'post-views-counter' ) . '" name="post_views_counter_settings_general[exclude][roles][]" multiple="multiple">';
+		echo '	<p class="description">' . esc_html__( 'Use it to hide the post views counter from selected type of visitors.', 'post-views-counter' ) . '</p>
+			<div class="pvc_user_roles"' . (in_array( 'roles', Post_Views_Counter()->get_attribute( 'options', 'general', 'exclude', 'groups' ), true ) ? '' : ' style="display: none;"') . '>';
 
 		foreach ( $this->user_roles as $role => $role_name ) {
-			echo '
-						<option value="' . esc_attr( $role ) . '" ' . selected( in_array( $role, Post_Views_Counter()->get_attribute( 'options', 'general', 'exclude', 'roles' ), true ), true, false ) . '>' . esc_html( $role_name ) . '</option>';
+			echo '	<label class="cb-checkbox"><input type="checkbox" name="post_views_counter_settings_general[exclude][roles][' . $role . ']" value="1" ' . checked( in_array( $role, Post_Views_Counter()->get_attribute( 'options', 'general', 'exclude', 'roles' ), true ), true, false ) . '>' . esc_html( $role_name ) . '</label>';
 		}
 
-		echo '
-					</select>
-					<br/>
+		echo '		<p class="description">' . esc_html__( 'Use it to hide the post views counter from selected user roles.', 'post-views-counter' ) . '</p>
 				</div>
-				<span class="description">' . esc_html__( 'Select the type of visitors to be excluded from post views count.', 'post-views-counter' ) . '</span>
 			</fieldset>
 		</div>';
 	}
@@ -415,26 +384,29 @@ class Post_Views_Counter_Settings {
 	 * Exclude IPs option.
 	 */
 	public function exclude_ips() {
-		echo '
-		<div id="pvc_exclude_ips">
-			<fieldset>';
-
-		foreach ( Post_Views_Counter()->get_attribute( 'options', 'general', 'exclude_ips' ) as $key => $ip ) {
-			echo '
-				<div class="ip-box">
-					<input type="text" name="post_views_counter_settings_general[exclude_ips][]" value="' . esc_attr( $ip ) . '" /> <input type="button" class="button button-secondary remove-exclude-ip" value="' . esc_attr__( 'Remove', 'post-views-counter' ) . '" />
-				</div>';
-		}
-
 		// lovely php 5.2 limitations
 		$ips = Post_Views_Counter()->get_attribute( 'options', 'general', 'exclude_ips' );
+		
+		echo '
+		<div id="pvc_exclude_ips">';
+
+		if ( ! empty( $ips ) ) {
+			foreach ( $ips as $key => $ip ) {
+				echo '
+				<div class="ip-box">
+					<input type="text" name="post_views_counter_settings_general[exclude_ips][]" value="' . esc_attr( $ip ) . '" /> <a href="#" class="remove-exclude-ip" title="' . esc_attr__( 'Remove', 'post-views-counter' ) . '">' . esc_attr__( 'Remove', 'post-views-counter' ) . '</a>
+				</div>';
+			}
+		} else {
+			echo '
+			<div class="ip-box">
+				<input type="text" name="post_views_counter_settings_general[exclude_ips][]" value="" /> <a href="#" class="remove-exclude-ip" title="' . esc_attr__( 'Remove', 'post-views-counter' ) . '">' . esc_attr__( 'Remove', 'post-views-counter' ) . '</a>
+			</div>';
+		}
 
 		echo '
-				<div class="ip-box">
-					<input type="text" name="post_views_counter_settings_general[exclude_ips][]" value="" /> <input type="button" class="button button-secondary remove-exclude-ip" value="' . esc_attr__( 'Remove', 'post-views-counter' ) . '"' . (empty( $ips ) ? ' style="display: none;"' : '') . ' /> <input type="button" class="button button-secondary add-exclude-ip" value="' . esc_attr__( 'Add new', 'post-views-counter' ) . '" /> <input type="button" class="button button-secondary add-current-ip" value="' . esc_attr__( 'Add my current IP', 'post-views-counter' ) . '" data-rel="' . esc_attr( $_SERVER['REMOTE_ADDR'] ) . '" />
-				</div>
-				<span class="description">' . esc_html__( 'Enter the IP addresses to be excluded from post views count.', 'post-views-counter' ) . '</span>
-			</fieldset>
+			<p><input type="button" class="button button-secondary add-exclude-ip" value="' . esc_attr__( 'Add new', 'post-views-counter' ) . '" /> <input type="button" class="button button-secondary add-current-ip" value="' . esc_attr__( 'Add my current IP', 'post-views-counter' ) . '" data-rel="' . esc_attr( $_SERVER['REMOTE_ADDR'] ) . '" /></p>
+			<p class="description">' . esc_html__( 'Enter the IP addresses to be excluded from post views count.', 'post-views-counter' ) . '</p>
 		</div>';
 	}
 
@@ -446,9 +418,8 @@ class Post_Views_Counter_Settings {
 		<div id="pvc_wp_postviews">
 			<fieldset>
 				<input type="submit" class="button button-secondary" name="post_views_counter_import_wp_postviews" value="' . __( 'Import', 'post-views-counter' ) . '"/>
-				<br/>
 				<p class="description">' . esc_html__( 'Import post views data from WP-PostViews plugin.', 'post-views-counter' ) . '</p>
-				<input id="pvc-wp-postviews" type="checkbox" name="post_views_counter_import_wp_postviews_override" value="1" /><label for="pvc-wp-postviews">' . esc_html__( 'Override existing Post Views Counter data.', 'post-views-counter' ) . '</label>
+				<label class="cb-checkbox"><input id="pvc-wp-postviews" type="checkbox" name="post_views_counter_import_wp_postviews_override" value="1" />' . esc_html__( 'Override existing Post Views Counter data.', 'post-views-counter' ) . '</label>
 			</fieldset>
 		</div>';
 	}
@@ -459,7 +430,7 @@ class Post_Views_Counter_Settings {
 	public function restrict_edit_views() {
 		echo '
 		<div id="pvc_restrict_edit_views">
-			<input id="pvc-restrict-edit-views-enable" type="checkbox" name="post_views_counter_settings_general[restrict_edit_views]" value="1" ' . checked( true, (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'restrict_edit_views' ), false ) . ' /><label for="pvc-restrict-edit-views-enable">' . esc_html__( 'Enable to restrict post views editing to admins only.', 'post-views-counter' ) . '</label>
+			<label class="cb-checkbox"><input type="checkbox" name="post_views_counter_settings_general[restrict_edit_views]" value="1" ' . checked( true, (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'restrict_edit_views' ), false ) . ' />' . esc_html__( 'Enable to restrict post views editing to admins only.', 'post-views-counter' ) . '</label>
 		</div>';
 	}
 
@@ -469,7 +440,7 @@ class Post_Views_Counter_Settings {
 	public function deactivation_delete() {
 		echo '
 		<div id="pvc_deactivation_delete">
-			<input id="pvc-deactivation-delete-enable" type="checkbox" name="post_views_counter_settings_general[deactivation_delete]" value="1" ' . checked( true, (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'deactivation_delete' ), false ) . ' /><label for="pvc-deactivation-delete-enable">' . esc_html__( 'Enable to delete all plugin data on deactivation.', 'post-views-counter' ) . '</label>
+			<label class="cb-checkbox"><input type="checkbox" name="post_views_counter_settings_general[deactivation_delete]" value="1" ' . checked( true, (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'deactivation_delete' ), false ) . ' />' . esc_html__( 'Enable to delete all plugin data on deactivation.', 'post-views-counter' ) . '</label>
 		</div>';
 	}
 
@@ -479,19 +450,16 @@ class Post_Views_Counter_Settings {
 	public function position() {
 		echo '
 		<div id="pvc_position">
-			<fieldset>
-				<select class="pvc-chosen-short" name="post_views_counter_settings_display[position]">';
+			<select class="pvc-chosen-short" name="post_views_counter_settings_display[position]">';
 
 		foreach ( $this->positions as $position => $position_name ) {
 			echo '
-					<option value="' . esc_attr( $position ) . '" ' . selected( $position, Post_Views_Counter()->get_attribute( 'options', 'display', 'position' ), false ) . '>' . esc_html( $position_name ) . '</option>';
+				<option value="' . esc_attr( $position ) . '" ' . selected( $position, Post_Views_Counter()->get_attribute( 'options', 'display', 'position' ), false ) . '>' . esc_html( $position_name ) . '</option>';
 		}
 
 		echo '
-				</select>
-				<br/>
-				<span class="description">' . esc_html__( 'Select where would you like to display the post views counter. Use [post-views] shortcode for manual display.', 'post-views-counter' ) . '</span>
-			</fieldset>
+			</select>
+			<p class="description">' . esc_html__( 'Select where would you like to display the post views counter. Use [post-views] shortcode for manual display.', 'post-views-counter' ) . '</p>
 		</div>';
 	}
 
@@ -500,20 +468,17 @@ class Post_Views_Counter_Settings {
 	 */
 	public function display_style() {
 		echo '
-		<div id="pvc_display_style">
-			<fieldset>';
+		<div id="pvc_display_style">';
 
 		foreach ( $this->display_styles as $display => $style ) {
 			$display = esc_attr( $display );
 
 			echo '
-				<input id="pvc-display-style-' . $display . '" type="checkbox" name="post_views_counter_settings_display[display_style][' . $display . ']" value="' . $display . '" ' . checked( true, Post_Views_Counter()->get_attribute( 'options', 'display', 'display_style', $display ), false ) . ' /><label for="pvc-display-style-' . $display . '">' . esc_html( $style ) . '</label>';
+				<label class="cb-checkbox"><input type="checkbox" name="post_views_counter_settings_display[display_style][' . $display . ']" value="1" ' . checked( true, Post_Views_Counter()->get_attribute( 'options', 'display', 'display_style', $display ), false ) . ' />' . esc_html( $style ) . '</label>';
 		}
 
 		echo '
-				<br/>
-				<span class="description">' . esc_html__( 'Choose how to display the post views counter.', 'post-views-counter' ) . '</span>
-			</fieldset>
+				<p class="description">' . esc_html__( 'Choose how to display the post views counter.', 'post-views-counter' ) . '</p>
 		</div>';
 	}
 
@@ -523,11 +488,8 @@ class Post_Views_Counter_Settings {
 	public function icon_class() {
 		echo '
 		<div id="pvc_icon_class">
-			<fieldset>
-				<input type="text" name="post_views_counter_settings_display[icon_class]" class="large-text" value="' . esc_attr( Post_Views_Counter()->get_attribute( 'options', 'display', 'icon_class' ) ) . '"/>
-				<br/>
-				<span class="description">' . sprintf( __( 'Enter the post views icon class. Any of the <a href="%s" target="_blank">Dashicons</a> classes are available.', 'post-views-counter' ), 'http://melchoyce.github.io/dashicons/' ) . '</span>
-			</fieldset>
+			<input type="text" name="post_views_counter_settings_display[icon_class]" class="large-text" value="' . esc_attr( Post_Views_Counter()->get_attribute( 'options', 'display', 'icon_class' ) ) . '" />
+			<p class="description">' . sprintf( __( 'Enter the post views icon class. Any of the <a href="%s" target="_blank">Dashicons</a> classes are available.', 'post-views-counter' ), 'http://melchoyce.github.io/dashicons/' ) . '</p>
 		</div>';
 	}
 
@@ -537,8 +499,7 @@ class Post_Views_Counter_Settings {
 	public function restrict_display() {
 		echo '
 		<div id="pvc_restrict_display">
-			<fieldset>
-				<select class="pvc-chosen" data-placeholder="' . esc_attr__( 'Select groups', 'post-views-counter' ) . '" name="post_views_counter_settings_display[restrict_display][groups][]" multiple="multiple">';
+			<fieldset>';
 
 		foreach ( $this->groups as $type => $type_name ) {
 
@@ -546,25 +507,18 @@ class Post_Views_Counter_Settings {
 				continue;
 
 			echo '
-					<option value="' . esc_attr( $type ) . '" ' . selected( in_array( $type, Post_Views_Counter()->get_attribute( 'options', 'display', 'restrict_display', 'groups' ), true ), true, false ) . '>' . esc_html( $type_name ) . '</option>';
+				<label class="cb-checkbox"><input  id="pvc_restrict_display-' . $type . '" type="checkbox" name="post_views_counter_settings_display[restrict_display][groups][' . esc_html( $type ) . ']" value="1" ' . checked( in_array( $type, Post_Views_Counter()->get_attribute( 'options', 'display', 'restrict_display', 'groups' ), true ), true, false ) . ' />' . esc_html( $type_name ) . '</label>';
 		}
 
-		echo '
-				</select>
-				<br/>
-				<div class="pvc_user_roles"' . (in_array( 'roles', Post_Views_Counter()->get_attribute( 'options', 'display', 'restrict_display', 'groups' ), true ) ? '' : ' style="display: none;"') . '>
-					<select class="pvc-chosen" data-placeholder="' . esc_attr__( 'Select user roles', 'post-views-counter' ) . '" name="post_views_counter_settings_display[restrict_display][roles][]" multiple="multiple">';
+		echo '	<p class="description">' . esc_html__( 'Use it to hide the post views counter from selected type of visitors.', 'post-views-counter' ) . '</p>
+				<div class="pvc_user_roles"' . (in_array( 'roles', Post_Views_Counter()->get_attribute( 'options', 'display', 'restrict_display', 'groups' ), true ) ? '' : ' style="display: none;"') . '>';
 
 		foreach ( $this->user_roles as $role => $role_name ) {
-			echo '
-						<option value="' . esc_attr( $role ) . '" ' . selected( in_array( $role, Post_Views_Counter()->get_attribute( 'options', 'display', 'restrict_display', 'roles' ), true ), true, false ) . '>' . esc_html( $role_name ) . '</option>';
+			echo '	<label class="cb-checkbox"><input type="checkbox" name="post_views_counter_settings_display[restrict_display][roles][' . $role . ']" value="1" ' . checked( in_array( $role, Post_Views_Counter()->get_attribute( 'options', 'display', 'restrict_display', 'roles' ), true ), true, false ) . ' />' . esc_html( $role_name ) . '</label>';
 		}
 
-		echo '
-					</select>
-					<br/>
+		echo '		<p class="description">' . esc_html__( 'Use it to hide the post views counter from selected user roles.', 'post-views-counter' ) . '</p>
 				</div>
-				<span class="description">' . esc_html__( 'Use it to hide the post views counter from selected type of visitors.', 'post-views-counter' ) . '</span>
 			</fieldset>
 		</div>';
 	}
@@ -575,9 +529,11 @@ class Post_Views_Counter_Settings {
 	public function validate_settings( $input ) {
 		if ( isset( $_POST['post_views_counter_import_wp_postviews'] ) ) {
 			global $wpdb;
+			
+			$meta_key = esc_attr( apply_filters( 'pvc_import_meta_key', 'views' ) );
 
 			$views = $wpdb->get_results(
-				"SELECT post_id, meta_value FROM " . $wpdb->postmeta . " WHERE meta_key = 'views'", ARRAY_A, 0
+				"SELECT post_id, meta_value FROM " . $wpdb->postmeta . " WHERE meta_key = '" . $meta_key . "'", ARRAY_A, 0
 			);
 
 			if ( ! empty( $views ) ) {
@@ -592,16 +548,16 @@ class Post_Views_Counter_Settings {
 
 				$wpdb->query( "INSERT INTO " . $wpdb->prefix . "post_views(id, type, period, count) VALUES " . implode( ',', $sql ) . " ON DUPLICATE KEY UPDATE count = " . (isset( $_POST['post_views_counter_import_wp_postviews_override'] ) ? '' : 'count + ') . "VALUES(count)" );
 
-				add_settings_error( 'wp_postviews_import', 'wp_postviews_import', __( 'WP-PostViews data imported succesfully.', 'post-views-counter' ), 'updated' );
+				add_settings_error( 'wp_postviews_import', 'wp_postviews_import', __( 'Post views data imported succesfully.', 'post-views-counter' ), 'updated' );
 			} else {
-				add_settings_error( 'wp_postviews_import', 'wp_postviews_import', __( 'There was no data to import.', 'post-views-counter' ), 'updated' );
+				add_settings_error( 'wp_postviews_import', 'wp_postviews_import', __( 'There was no post views data to import.', 'post-views-counter' ), 'updated' );
 			}
 		} elseif ( isset( $_POST['save_pvc_general'] ) ) {
 			// post types count
 			if ( isset( $input['post_types_count'] ) ) {
 				$post_types = array();
 
-				foreach ( $input['post_types_count'] as $post_type ) {
+				foreach ( $input['post_types_count'] as $post_type => $set ) {
 					if ( isset( $this->post_types[$post_type] ) )
 						$post_types[] = $post_type;
 				}
@@ -614,7 +570,7 @@ class Post_Views_Counter_Settings {
 			$input['counter_mode'] = (isset( $input['counter_mode'], $this->modes[$input['counter_mode']] ) ? $input['counter_mode'] : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'counter_mode' ));
 
 			// post views column
-			$input['post_views_column'] = (isset( $input['post_views_column'] ) ? (bool) $input['post_views_column'] : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'post_views_column' ));
+			$input['post_views_column'] = (bool) $input['post_views_column'];
 
 			// time between counts
 			$input['time_between_counts']['number'] = (int) (isset( $input['time_between_counts']['number'] ) ? $input['time_between_counts']['number'] : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'time_between_counts', 'number' ));
@@ -647,7 +603,7 @@ class Post_Views_Counter_Settings {
 			if ( isset( $input['exclude']['groups'] ) ) {
 				$groups = array();
 
-				foreach ( $input['exclude']['groups'] as $group ) {
+				foreach ( $input['exclude']['groups'] as $group => $set ) {
 					if ( isset( $this->groups[$group] ) )
 						$groups[] = $group;
 				}
@@ -659,7 +615,7 @@ class Post_Views_Counter_Settings {
 			if ( in_array( 'roles', $input['exclude']['groups'], true ) && isset( $input['exclude']['roles'] ) ) {
 				$roles = array();
 
-				foreach ( $input['exclude']['roles'] as $role ) {
+				foreach ( $input['exclude']['roles'] as $role => $set ) {
 					if ( isset( $this->user_roles[$role] ) )
 						$roles[] = $role;
 				}
@@ -685,7 +641,7 @@ class Post_Views_Counter_Settings {
 			$input['restrict_edit_views'] = (isset( $input['restrict_edit_views'] ) ? (bool) $input['restrict_edit_views'] : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'restrict_edit_views' ));
 
 			// deactivation delete
-			$input['deactivation_delete'] = (isset( $input['deactivation_delete'] ) ? (bool) $input['deactivation_delete'] : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'deactivation_delete' ));
+			$input['deactivation_delete'] = (bool) isset( $input['deactivation_delete'] );
 		} elseif ( isset( $_POST['save_pvc_display'] ) ) {
 
 			// post views label
@@ -698,8 +654,8 @@ class Post_Views_Counter_Settings {
 			$input['position'] = (isset( $input['position'], $this->positions[$input['position']] ) ? $input['position'] : Post_Views_Counter()->get_attribute( 'defaults', 'general', 'position' ));
 
 			// display style
-			$input['display_style']['icon'] = (isset( $input['display_style']['icon'] ) ? true : false);
-			$input['display_style']['text'] = (isset( $input['display_style']['text'] ) ? true : false);
+			$input['display_style']['icon'] = (bool) isset( $input['display_style']['icon'] );
+			$input['display_style']['text'] = (bool) isset( $input['display_style']['text'] );
 
 			// link to post
 			$input['link_to_post'] = (isset( $input['link_to_post'] ) ? (bool) $input['link_to_post'] : Post_Views_Counter()->get_attribute( 'defaults', 'display', 'link_to_post' ));
@@ -711,7 +667,7 @@ class Post_Views_Counter_Settings {
 			if ( isset( $input['post_types_display'] ) ) {
 				$post_types = array();
 
-				foreach ( $input['post_types_display'] as $post_type ) {
+				foreach ( $input['post_types_display'] as $post_type => $set ) {
 					if ( isset( $this->post_types[$post_type] ) )
 						$post_types[] = $post_type;
 				}
@@ -724,7 +680,7 @@ class Post_Views_Counter_Settings {
 			if ( isset( $input['restrict_display']['groups'] ) ) {
 				$groups = array();
 
-				foreach ( $input['restrict_display']['groups'] as $group ) {
+				foreach ( $input['restrict_display']['groups'] as $group => $set ) {
 					if ( $group === 'robots' )
 						continue;
 
@@ -739,7 +695,7 @@ class Post_Views_Counter_Settings {
 			if ( in_array( 'roles', $input['restrict_display']['groups'], true ) && isset( $input['restrict_display']['roles'] ) ) {
 				$roles = array();
 
-				foreach ( $input['restrict_display']['roles'] as $role ) {
+				foreach ( $input['restrict_display']['roles'] as $role => $set ) {
 					if ( isset( $this->user_roles[$role] ) )
 						$roles[] = $role;
 				}

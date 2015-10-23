@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Views Counter\n"
-"POT-Creation-Date: 2015-05-27 14:35+0100\n"
+"POT-Creation-Date: 2015-10-18 13:38+0200\n"
 "PO-Revision-Date: 2015-04-08 18:59+0100\n"
 "Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
 "Language-Team: dFactory <info@dfactory.eu>\n"
@@ -10,7 +10,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8\n"
+"X-Generator: Poedit 1.8.5\n"
 "X-Poedit-KeywordsList: gettext;gettext_noop;__;_e;esc_attr__;esc_attr_e;"
 "esc_html__;esc_html_e\n"
 "X-Poedit-Basepath: .\n"
@@ -18,24 +18,24 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../includes/columns.php:49 ../includes/columns.php:193
-#: ../includes/columns.php:199
+#: ../includes/columns.php:56 ../includes/columns.php:208
+#: ../includes/columns.php:214 ../includes/columns.php:286
 msgid "Post Views"
 msgstr ""
 
-#: ../includes/columns.php:58
+#: ../includes/columns.php:65
 msgid "Edit"
 msgstr ""
 
-#: ../includes/columns.php:62
+#: ../includes/columns.php:69
 msgid "Adjust the views count for this post."
 msgstr ""
 
-#: ../includes/columns.php:66
+#: ../includes/columns.php:73
 msgid "OK"
 msgstr ""
 
-#: ../includes/columns.php:67
+#: ../includes/columns.php:74
 msgid "Cancel"
 msgstr ""
 
@@ -257,50 +257,41 @@ msgstr ""
 msgid "Icon Class"
 msgstr ""
 
-#: ../includes/settings.php:230
+#: ../includes/settings.php:229
 msgid "Enter the label for the post views counter field."
 msgstr ""
 
-#: ../includes/settings.php:242
-msgid "Select post types"
-msgstr ""
-
-#: ../includes/settings.php:252
+#: ../includes/settings.php:247
 msgid "Select post types for which post views will be counted."
 msgstr ""
 
-#: ../includes/settings.php:264 ../includes/settings.php:387
-#: ../includes/settings.php:541
-msgid "Select groups"
-msgstr ""
-
-#: ../includes/settings.php:274
+#: ../includes/settings.php:264
 msgid "Select post types for which post views will be displayed."
 msgstr ""
 
-#: ../includes/settings.php:296
+#: ../includes/settings.php:283
 msgid ""
 "Select the method of collecting post views data. If you are using any of the "
 "caching plugins select Javascript."
 msgstr ""
 
-#: ../includes/settings.php:307
+#: ../includes/settings.php:293
 msgid ""
 "Enable to display post views count column for each of the selected post "
 "types."
 msgstr ""
 
-#: ../includes/settings.php:329
+#: ../includes/settings.php:313
 msgid "Enter the time between single user visit count."
 msgstr ""
 
-#: ../includes/settings.php:352
+#: ../includes/settings.php:333
 msgid ""
 "Delete single day post views data older than specified above. Enter 0 "
 "(number zero) if you want to preserve your data regardless of its age."
 msgstr ""
 
-#: ../includes/settings.php:375
+#: ../includes/settings.php:353
 msgid ""
 "How often to flush cached view counts from the object cache into the "
 "database. This feature is used only if a persistent object cache is detected "
@@ -312,84 +303,80 @@ msgid ""
 "interval."
 msgstr ""
 
-#: ../includes/settings.php:398 ../includes/settings.php:556
-msgid "Select user roles"
+#: ../includes/settings.php:370 ../includes/settings.php:508
+msgid "Use it to hide the post views counter from selected type of visitors."
 msgstr ""
 
-#: ../includes/settings.php:409
-msgid "Select the type of visitors to be excluded from post views count."
+#: ../includes/settings.php:377 ../includes/settings.php:515
+msgid "Use it to hide the post views counter from selected user roles."
 msgstr ""
 
-#: ../includes/settings.php:425 ../includes/settings.php:434
+#: ../includes/settings.php:393 ../includes/settings.php:402
 msgid "Remove"
 msgstr ""
 
-#: ../includes/settings.php:434
+#: ../includes/settings.php:402
 msgid "Add new"
 msgstr ""
 
-#: ../includes/settings.php:434
+#: ../includes/settings.php:402
 msgid "Add my current IP"
 msgstr ""
 
-#: ../includes/settings.php:436
+#: ../includes/settings.php:404
 msgid "Enter the IP addresses to be excluded from post views count."
 msgstr ""
 
-#: ../includes/settings.php:448
+#: ../includes/settings.php:415
 msgid "Import"
 msgstr ""
 
-#: ../includes/settings.php:450
+#: ../includes/settings.php:416
 msgid "Import post views data from WP-PostViews plugin."
 msgstr ""
 
-#: ../includes/settings.php:451
+#: ../includes/settings.php:417
 msgid "Override existing Post Views Counter data."
 msgstr ""
 
-#: ../includes/settings.php:462
+#: ../includes/settings.php:428
 msgid "Enable to restrict post views editing to admins only."
 msgstr ""
 
-#: ../includes/settings.php:472
+#: ../includes/settings.php:438
 msgid "Enable to delete all plugin data on deactivation."
 msgstr ""
 
-#: ../includes/settings.php:493
+#: ../includes/settings.php:457
 msgid ""
 "Select where would you like to display the post views counter. Use [post-"
 "views] shortcode for manual display."
 msgstr ""
 
-#: ../includes/settings.php:515
+#: ../includes/settings.php:476
 msgid "Choose how to display the post views counter."
 msgstr ""
 
-#: ../includes/settings.php:529
+#: ../includes/settings.php:487
 #, php-format
 msgid ""
 "Enter the post views icon class. Any of the <a href=\"%s\" target=\"_blank"
 "\">Dashicons</a> classes are available."
 msgstr ""
 
-#: ../includes/settings.php:567
-msgid "Use it to hide the post views counter from selected type of visitors."
-msgstr ""
-
-#: ../includes/settings.php:595
+#: ../includes/settings.php:544
 msgid "WP-PostViews data imported succesfully."
 msgstr ""
 
-#: ../includes/settings.php:597
+#: ../includes/settings.php:546
 msgid "There was no data to import."
 msgstr ""
 
-#: ../includes/settings.php:753
+#: ../includes/settings.php:702
 msgid "General settings restored to defaults."
 msgstr ""
 
-#: ../includes/settings.php:757
+#: ../includes/settings.php:706
 msgid "Display settings restored to defaults."
 msgstr ""
 
@@ -449,14 +436,14 @@ msgstr ""
 msgid "Thumbnail size"
 msgstr ""
 
-#: ../post-views-counter.php:281
+#: ../post-views-counter.php:275
 msgid "Are you sure you want to reset these settings to defaults?"
 msgstr ""
 
-#: ../post-views-counter.php:313
+#: ../post-views-counter.php:314
 msgid "Support"
 msgstr ""
 
-#: ../post-views-counter.php:332
+#: ../post-views-counter.php:333
 msgid "Settings"
 msgstr ""

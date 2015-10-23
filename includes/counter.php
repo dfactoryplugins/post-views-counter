@@ -30,6 +30,8 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Remove post views from database when post is deleted.
+	 * 
+	 * @param int $post_id
 	 */
 	public function delete_post_views( $post_id ) {
 		global $wpdb;
@@ -39,6 +41,9 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Check whether user has excluded roles.
+	 * 
+	 * @param string $option
+	 * @return bool
 	 */
 	public function is_user_roles_excluded( $option ) {
 		$user = wp_get_current_user();
@@ -59,7 +64,13 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
+	 * 
 	 * Get timestamp convertion.
+	 * 
+	 * @param string $type
+	 * @param int $number
+	 * @param int $timestamp
+	 * @return string
 	 */
 	public function get_timestamp( $type, $number, $timestamp = true ) {
 		$converter = array(
@@ -241,6 +252,10 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Save cookie function.
+	 * 
+	 * @param int $id
+	 * @param array $cookie
+	 * @param bool $expired
 	 */
 	private function save_cookie( $id, $cookie = array(), $expired = true ) {
 		$expiration = $this->get_timestamp( Post_Views_Counter()->get_attribute( 'options', 'general', 'time_between_counts', 'type' ), Post_Views_Counter()->get_attribute( 'options', 'general', 'time_between_counts', 'number' ) );
@@ -317,6 +332,9 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Check if object cache is in use.
+	 * 
+	 * @param bool $using
+	 * @return bool
 	 */
 	public function using_object_cache( $using = null ) {
 		$using = wp_using_ext_object_cache( $using );
@@ -332,6 +350,10 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Count visit function.
+	 * 
+	 * @global object $wpdb
+	 * @param int $id
+	 * @return bool
 	 */
 	private function count_visit( $id ) {
 		global $wpdb;
@@ -382,6 +404,8 @@ class Post_Views_Counter_Counter {
 	 * A single key is `62053.0.20150327` and that key's data is: $id = 62053, $type = 0, $period = 20150327
 	 *
 	 * This data format proved more efficient (avoids the (un)serialization overhead completely + duplicates filtering is a string search now)
+	 * 
+	 * @param array $key_names
 	 */
 	private function update_cached_keys_list_if_needed( $key_names = array() ) {
 		$existing_list = wp_cache_get( self::NAME_ALLKEYS, self::GROUP );
@@ -416,6 +440,9 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Flush views data stored in the persistent object cache into
 	 * our custom table and clear the object cache keys when done
+	 * 
+	 * @global object $wpdb
+	 * @return bool
 	 */
 	public function flush_cache_to_db() {
 		global $wpdb;
@@ -450,8 +477,15 @@ class Post_Views_Counter_Counter {
 		return true;
 	}
 
-	/*
+	/**
 	 * Insert or update views count.
+	 * 
+	 * @global object $wpdb
+	 * @param int $id
+	 * @param string $type
+	 * @param string $period
+	 * @param int $count
+	 * @return bool
 	 */
 	private function db_insert( $id, $type, $period, $count = 1 ) {
 		global $wpdb;

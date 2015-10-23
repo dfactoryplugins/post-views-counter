@@ -36,6 +36,15 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 
 ## Changelog ##
 
+#### 1.1.1 ####
+* Tweak: Enable edit views on new post.
+* Tweak: Extend WP_Query post data with post_views
+
+#### 1.1.0 ####
+* New: Quick post views edit
+* New: Bulk post views edit
+* Tweak: Admin UI improvements
+
 #### 1.0.8 ####
 * New: Croation translation, thanks to [Tomas Trkulja](http://zytzagoo.net/blog/)
 

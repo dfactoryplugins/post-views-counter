@@ -2,9 +2,9 @@
 Contributors: dfactory
 Donate link: http://www.dfactory.eu/
 Tags: counter, hits, postviews, post views, views, count
-Requires at least: 3.8.0
-Tested up to: 4.2.2
-Stable tag: 1.0.12
+Requires at least: 4.0.0
+Tested up to: 4.3.1
+Stable tag: 1.1.1
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -21,16 +21,17 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * Option to select post types for which post views will be counted and displayed.
 * 2 methods of collecting post views data: PHP and Javascript, for greater flexibility
 * Possibility to manually set views count for each post
+* Capability to query posts according to its views count
 * Option to set time between counts
 * Excluding counts from visitors: bots, logged in users, selected user roles
 * Excluding users by IPs
 * Restricting display by user roles
 * Restricting post views editing to admins
 * One-click data import from WP-PostViews
+* Sortable admin column
 * Post views display position, automatic or manual via shortcode
 * W3 Cache/WP SuperCache compatible
 * Optional object cache support
-* Post views admin column
 * WPML and Polylang compatible
 * .pot file for translations included
 
@@ -65,6 +66,15 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.1.1 =
+* Tweak: Enable edit views on new post.
+* Tweak: Extend WP_Query post data with post_views
+
+= 1.1.0 =
+* New: Quick post views edit
+* New: Bulk post views edit
+* Tweak: Admin UI improvements
 
 = 1.0.12 =
 * New: Italian translation, thanks to [Rene Querin](http://www.q-design.it)
@@ -108,5 +118,6 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.0.12 =
-* New: Italian translation, thanks to [René Querin](http://www.q-design.it)
+= 1.1.1 =
+* Tweak: Enable edit views on new post.
+* Tweak: Extend WP_Query post data with post_views

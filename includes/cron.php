@@ -21,6 +21,8 @@ class Post_Views_Counter_Cron {
 
 	/**
 	 * Reset daily counts.
+	 * 
+	 * @global object $wpdb
 	 */
 	public function reset_counts() {
 		global $wpdb;
@@ -42,6 +44,9 @@ class Post_Views_Counter_Cron {
 
 	/**
 	 * Add new cron interval from settings.
+	 * 
+	 * @param array $schedules
+	 * @return array
 	 */
 	public function cron_time_intervals( $schedules ) {
 		$schedules['post_views_counter_interval'] = array(

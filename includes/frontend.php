@@ -8,7 +8,7 @@ class Post_Views_Counter_Frontend {
 
 	public function __construct() {
 		// actions
-		add_action( 'wp_loaded', array( &$this, 'register_shortcode' ) );
+		add_action( 'after_setup_theme', array( &$this, 'register_shortcode' ) );
 		add_action( 'wp_enqueue_scripts', array( &$this, 'frontend_scripts_styles' ) );
 
 		// filters
@@ -25,6 +25,9 @@ class Post_Views_Counter_Frontend {
 
 	/**
 	 * Post views shortcode function.
+	 * 
+	 * @param array $args
+	 * @return mixed
 	 */
 	public function post_views_shortcode( $args ) {
 		$defaults = array(
@@ -38,6 +41,9 @@ class Post_Views_Counter_Frontend {
 
 	/**
 	 * Add post views counter to content.
+	 * 
+	 * @param mixed $content
+	 * @return mixed
 	 */
 	public function add_post_views_count( $content ) {
 		if ( is_singular() && in_array( get_post_type(), Post_Views_Counter()->get_attribute( 'options', 'display', 'post_types_display' ), true ) ) {
@@ -76,6 +82,9 @@ class Post_Views_Counter_Frontend {
 
 	/**
 	 * Remove post views shortcode from excerpt.
+	 * 
+	 * @param mixed $excerpt
+	 * @return mixed
 	 */
 	public function remove_post_views_count( $excerpt ) {
 		remove_shortcode( 'post-views' );
