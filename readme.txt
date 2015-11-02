@@ -4,7 +4,7 @@ Donate link: http://www.dfactory.eu/
 Tags: counter, hits, postviews, post views, views, count
 Requires at least: 4.0.0
 Tested up to: 4.3.1
-Stable tag: 1.1.1
+Stable tag: 1.1.3
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -67,6 +67,13 @@ No questions yet.
 
 == Changelog ==
 
+= 1.1.3 =
+* Fix: Duplicated views count in custom post types
+* Fix: Exclude visitors checkboxes not working
+
+= 1.1.2 =
+* Fix: Most viewed posts widget broken
+
 = 1.1.1 =
 * Tweak: Enable edit views on new post.
 * Tweak: Extend WP_Query post data with post_views
@@ -118,6 +125,6 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.1.1 =
-* Tweak: Enable edit views on new post.
-* Tweak: Extend WP_Query post data with post_views
+= 1.1.3 =
+* Fix: Duplicated views count in custom post types
+* Fix: Exclude visitors checkboxes not working

@@ -1,20 +1,35 @@
 <?php
+// exit if accessed directly
 if ( ! defined( 'ABSPATH' ) )
 	exit;
 
-new Post_Views_Counter_Query();
-
+/**
+ * Post_Views_Counter_Query class.
+ */
 class Post_Views_Counter_Query {
 
 	public function __construct() {
 		// actions
-		add_action( 'pre_get_posts', array( $this, 'extend_pre_query' ), 9 );
+		add_action( 'pre_get_posts', array( $this, 'extend_pre_query' ), 1 );
 
 		// filters
+		add_filter( 'query_vars', array( $this, 'query_vars' ) );
 		add_filter( 'posts_join', array( $this, 'posts_join' ), 10, 2 );
 		add_filter( 'posts_groupby', array( $this, 'posts_groupby' ), 10, 2 );
 		add_filter( 'posts_orderby', array( $this, 'posts_orderby' ), 10, 2 );
 		add_filter( 'posts_fields', array( $this, 'posts_fields' ), 10, 2 );
+	}
+
+	/**
+	 * Regiseter views_query var.
+	 *
+	 * @param array $query_vars
+	 * @return array
+	 */
+	public function query_vars( $query_vars ) {
+		$query_vars[] = 'views_query';
+
+		return $query_vars;
 	}
 
 	/**
@@ -24,7 +39,7 @@ class Post_Views_Counter_Query {
 	 */
 	public function extend_pre_query( $query ) {
 		if ( isset( $query->query_vars['orderby'] ) && $query->query_vars['orderby'] === 'post_views' )
-			$query->order_by_post_views = true;
+			$query->pvc_orderby = true;
 	}
 
 	/**
@@ -36,11 +51,69 @@ class Post_Views_Counter_Query {
 	 * @return string
 	 */
 	public function posts_join( $join, $query ) {
+		$sql = '';
+
+		if ( ! empty( $query->query['views_query'] ) ) {
+			if ( isset( $query->query['views_query']['year'] ) )
+				$year = (int)$query->query['views_query']['year'];
+
+			if ( isset( $query->query['views_query']['month'] ) )
+				$month = (int)$query->query['views_query']['month'];
+
+			if ( isset( $query->query['views_query']['week'] ) )
+				$week = (int)$query->query['views_query']['week'];
+
+			if ( isset( $query->query['views_query']['day'] ) )
+				$day = (int)$query->query['views_query']['day'];
+
+			// year
+			if ( isset( $year ) ) {
+				// year, week
+				if ( isset( $week ) && $this->is_valid_date( 'yw', $year, 0, 0, $week ) ) {
+					$sql = " AND pvc.type = 1 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $week, 2, 0, STR_PAD_LEFT ) . "'";
+				// year, month
+				} elseif ( isset( $month ) ) {
+					// year, month, day
+					if ( isset( $day ) && $this->is_valid_date( 'ymd', $year, $month, $day ) ) {
+						$sql = " AND pvc.type = 0 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $month, 2, 0, STR_PAD_LEFT ) . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
+					// year, month
+					} elseif ( $this->is_valid_date( 'ym', $year, $month ) ) {
+						$sql = " AND pvc.type = 2 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $month, 2, 0, STR_PAD_LEFT ) . "'";
+					}
+				// year
+				} elseif ( $this->is_valid_date( 'y', $year ) ) {
+					$sql = " AND pvc.type = 3 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . "'";
+				}
+			// month
+			} elseif ( isset( $month ) ) {
+				// month, day
+				if ( isset( $day ) && $this->is_valid_date( 'md', 0, $month, $day ) ) {
+					$sql = " AND pvc.type = 0 AND RIGHT( pvc.period, 4 ) = '" . str_pad( $month, 2, 0, STR_PAD_LEFT ) . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
+				// month
+				} elseif ( $this->is_valid_date( 'm', 0, $month ) ) {
+					$sql = " AND pvc.type = 2 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $month, 2, 0, STR_PAD_LEFT ) . "'";
+				}
+			// week
+			} elseif ( isset( $week ) && $this->is_valid_date( 'w', 0, 0, 0, $week ) ) {
+				$sql = " AND pvc.type = 1 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $week, 2, 0, STR_PAD_LEFT ) . "'";
+			// day
+			} elseif ( isset( $day ) && $this->is_valid_date( 'd', 0, 0, $day ) ) {
+				$sql = " AND pvc.type = 0 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
+			}
+
+			if ( $sql !== '' )
+				$query->pvc_query = true;
+		}
+
 		// is it sorted by post views?
-		if ( ( isset( $query->order_by_post_views ) && $query->order_by_post_views ) || apply_filters( 'pvc_extend_post_object', false, $query ) === true ) {
+		if ( ( $sql === '' && isset( $query->pvc_orderby ) && $query->pvc_orderby ) || apply_filters( 'pvc_extend_post_object', false, $query ) === true )
+			$sql = ' AND pvc.type = 4';
+
+		// add date range
+		if ( $sql !== '' ) {
 			global $wpdb;
 
-			$join .= " LEFT JOIN " . $wpdb->prefix . "post_views pvc ON pvc.id = " . $wpdb->prefix . "posts.ID AND pvc.type = 4";
+			$join .= " LEFT JOIN " . $wpdb->prefix . "post_views pvc ON pvc.id = " . $wpdb->prefix . "posts.ID" . $sql;
 		}
 
 		return $join;
@@ -55,8 +128,8 @@ class Post_Views_Counter_Query {
 	 * @return string
 	 */
 	public function posts_groupby( $groupby, $query ) {
-		// is it sorted by post views?
-		if ( ( isset( $query->order_by_post_views ) && $query->order_by_post_views ) || apply_filters( 'pvc_extend_post_object', false, $query ) === true ) {
+		// is it sorted by post views or views_query is used?
+		if ( ( isset( $query->pvc_orderby ) && $query->pvc_orderby ) || ( isset( $query->pvc_query ) && $query->pvc_query ) || apply_filters( 'pvc_extend_post_object', false, $query ) === true ) {
 			global $wpdb;
 
 			$groupby = trim( $groupby );
@@ -78,7 +151,7 @@ class Post_Views_Counter_Query {
 	 */
 	public function posts_orderby( $orderby, $query ) {
 		// is it sorted by post views?
-		if ( isset( $query->order_by_post_views ) && $query->order_by_post_views ) {
+		if ( ( isset( $query->pvc_orderby ) && $query->pvc_orderby ) ) {
 			global $wpdb;
 
 			$order = $query->get( 'order' );
@@ -91,19 +164,62 @@ class Post_Views_Counter_Query {
 	/**
 	 * Return post views in queried post objects.
 	 * 
-	 * @global object $wpdb
 	 * @param string $fields
 	 * @param object $query
 	 * @return string
 	 */
 	public function posts_fields( $fields, $query ) {
-		// is it sorted by post views?
-		if ( ( isset( $query->order_by_post_views ) && $query->order_by_post_views ) || apply_filters( 'pvc_extend_post_object', false, $query ) === true ) {
-			global $wpdb;
-
-			$fields = $wpdb->prefix . 'posts.ID, IFNULL( pvc.count, 0 ) AS post_views';
-		}
+		if ( ( ! isset( $query->query['fields'] ) || $query->query['fields'] === '' ) && ( ( isset( $query->pvc_orderby ) && $query->pvc_orderby ) || ( isset( $query->pvc_query ) && $query->pvc_query ) || apply_filters( 'pvc_extend_post_object', false, $query ) === true ) )
+			$fields = $fields . ', IFNULL( pvc.count, 0 ) AS post_views';
 
 		return $fields;
+	}
+
+	/**
+	 * Validate date helper function.
+	 *
+	 * @param string $type
+	 * @param int $year
+	 * @param int $month
+	 * @param int $day
+	 * @param int $week
+	 * @return bool
+	 */
+	private function is_valid_date( $type, $year = 0, $month = 0, $day = 0, $week = 0 ) {
+		switch( $type ) {
+			case 'y':
+				$bool = ( $year >= 1 && $year <= 32767 );
+				break;
+
+			case 'yw':
+				$bool = ( $year >= 1 && $year <= 32767 && $week >= 0 && $week <= 53 );
+				break;
+
+			case 'ym':
+				$bool = ( $year >= 1 && $year <= 32767 && $month >= 1 && $month <= 12 );
+				break;
+
+			case 'ymd':
+				$bool = checkdate( $month, $day, $year );
+				break;
+
+			case 'm':
+				$bool = ( $month >= 1 && $month <= 12 );
+				break;
+
+			case 'md':
+				$bool = ( $month >= 1 && $month <= 12 && $day >= 1 && $day <= 31 );
+				break;
+
+			case 'w':
+				$bool = ( $week >= 0 && $week <= 53 );
+				break;
+
+			case 'd':
+				$bool = ( $day >= 1 && $day <= 31 );
+				break;
+		}
+
+		return $bool;
 	}
 }

@@ -1,18 +1,20 @@
 <?php
+// exit if accessed directly
 if ( ! defined( 'ABSPATH' ) )
 	exit;
 
-new Post_Views_Counter_Widgets();
-
+/**
+ * Post_Views_Counter_Widgets class.
+ */
 class Post_Views_Counter_Widgets {
 
 	public function __construct() {
 		// actions
-		add_action( 'widgets_init', array( &$this, 'register_widgets' ) );
+		add_action( 'widgets_init', array( $this, 'register_widgets' ) );
 	}
 
 	/**
-	 * Register PVC widget
+	 * Register widgets.
 	 */
 	public function register_widgets() {
 		register_widget( 'Post_Views_Counter_List_Widget' );
@@ -20,6 +22,9 @@ class Post_Views_Counter_Widgets {
 
 }
 
+/**
+ * Post_Views_Counter_List_Widget class.
+ */
 class Post_Views_Counter_List_Widget extends WP_Widget {
 
 	private $pvc_options;
@@ -61,18 +66,18 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 		// sort image sizes by name, ascending
 		sort( $this->pvc_image_sizes, SORT_STRING );
 
-		add_action( 'wp_loaded', array( &$this, 'load_post_types' ) );
+		add_action( 'wp_loaded', array( $this, 'load_post_types' ) );
 	}
 
 	/**
-	 * Get selected post types
+	 * Get selected post types.
 	 */
 	public function load_post_types() {
-		$this->pvc_post_types = Post_Views_Counter()->get_instance( 'settings' )->post_types;
+		$this->pvc_post_types = Post_Views_Counter()->settings->post_types;
 	}
 
 	/**
-	 * Display widget function
+	 * Display widget function.
 	 */
 	public function widget( $args, $instance ) {
 		$instance['title'] = apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base );
@@ -85,7 +90,7 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Admin widget function
+	 * Admin widget function.
 	 */
 	public function form( $instance ) {
 		$html = '
@@ -101,7 +106,7 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 				<input id="' . $this->get_field_id( 'post_types' ) . '-' . $post_type . '" type="checkbox" name="' . $this->get_field_name( 'post_types' ) . '[]" value="' . $post_type . '" ' . checked( ( ! isset( $instance['post_types'] ) ? true : in_array( $post_type, $instance['post_types'], true ) ), true, false ) . '><label for="' . $this->get_field_id( 'post_types' ) . '-' . $post_type . '">' . esc_html( $post_type_name ) . '</label>';
 		}
 
-		$show_post_thumbnail = (isset( $instance['show_post_thumbnail'] ) ? $instance['show_post_thumbnail'] : $this->pvc_defaults['show_post_thumbnail']);
+		$show_post_thumbnail = isset( $instance['show_post_thumbnail'] ) ? $instance['show_post_thumbnail'] : $this->pvc_defaults['show_post_thumbnail'];
 
 		$html .= '
 			</select>
@@ -120,7 +125,7 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 
 		foreach ( $this->pvc_order_types as $id => $order ) {
 			$html .= '
-				<option value="' . esc_attr( $id ) . '" ' . selected( $id, (isset( $instance['order'] ) ? $instance['order'] : $this->pvc_defaults['order'] ), false ) . '>' . $order . '</option>';
+				<option value="' . esc_attr( $id ) . '" ' . selected( $id, ( isset( $instance['order'] ) ? $instance['order'] : $this->pvc_defaults['order'] ), false ) . '>' . $order . '</option>';
 		}
 
 		$html .= '
@@ -137,7 +142,7 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 			<label for="' . $this->get_field_id( 'thumbnail_size' ) . '">' . __( 'Thumbnail size', 'post-views-counter' ) . ':</label>
 			<select id="' . $this->get_field_id( 'thumbnail_size' ) . '" name="' . $this->get_field_name( 'thumbnail_size' ) . '">';
 
-		$size_type = (isset( $instance['thumbnail_size'] ) ? $instance['thumbnail_size'] : $this->pvc_defaults['thumbnail_size']);
+		$size_type = isset( $instance['thumbnail_size'] ) ? $instance['thumbnail_size'] : $this->pvc_defaults['thumbnail_size'];
 
 		foreach ( $this->pvc_image_sizes as $size ) {
 			$html .= '
@@ -152,22 +157,22 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Save widget function
+	 * Save widget function.
 	 */
 	public function update( $new_instance, $old_instance ) {
 		// number of posts
 		$old_instance['number_of_posts'] = (int) (isset( $new_instance['number_of_posts'] ) ? $new_instance['number_of_posts'] : $this->pvc_defaults['number_of_posts']);
 
 		// order
-		$old_instance['order'] = (isset( $new_instance['order'] ) && in_array( $new_instance['order'], array_keys( $this->pvc_order_types ), true ) ? $new_instance['order'] : $this->pvc_defaults['order']);
+		$old_instance['order'] = isset( $new_instance['order'] ) && in_array( $new_instance['order'], array_keys( $this->pvc_order_types ), true ) ? $new_instance['order'] : $this->pvc_defaults['order'];
 
 		// thumbnail size
-		$old_instance['thumbnail_size'] = (isset( $new_instance['thumbnail_size'] ) && in_array( $new_instance['thumbnail_size'], $this->pvc_image_sizes, true ) ? $new_instance['thumbnail_size'] : $this->pvc_defaults['thumbnail_size']);
+		$old_instance['thumbnail_size'] = isset( $new_instance['thumbnail_size'] ) && in_array( $new_instance['thumbnail_size'], $this->pvc_image_sizes, true ) ? $new_instance['thumbnail_size'] : $this->pvc_defaults['thumbnail_size'];
 
 		// booleans
-		$old_instance['show_post_views'] = (isset( $new_instance['show_post_views'] ) ? true : false);
-		$old_instance['show_post_thumbnail'] = (isset( $new_instance['show_post_thumbnail'] ) ? true : false);
-		$old_instance['show_post_excerpt'] = (isset( $new_instance['show_post_excerpt'] ) ? true : false);
+		$old_instance['show_post_views'] = isset( $new_instance['show_post_views'] );
+		$old_instance['show_post_thumbnail'] = isset( $new_instance['show_post_thumbnail'] );
+		$old_instance['show_post_excerpt'] = isset( $new_instance['show_post_excerpt'] );
 
 		// texts
 		$old_instance['title'] = sanitize_text_field( isset( $new_instance['title'] ) ? $new_instance['title'] : $this->pvc_defaults['title'] );

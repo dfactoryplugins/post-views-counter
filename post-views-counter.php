@@ -2,7 +2,7 @@
 /*
 Plugin Name: Post Views Counter
 Description: Forget WP-PostViews. Display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
-Version: 1.1.1
+Version: 1.1.3
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/post-views-counter/
@@ -25,32 +25,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 if ( ! defined( 'ABSPATH' ) )
 	exit;
 
-define( 'POST_VIEWS_COUNTER_URL', plugins_url( '', __FILE__ ) );
-define( 'POST_VIEWS_COUNTER_PATH', plugin_dir_path( __FILE__ ) );
-define( 'POST_VIEWS_COUNTER_REL_PATH', dirname( plugin_basename( __FILE__ ) ) . '/' );
-
-include_once( POST_VIEWS_COUNTER_PATH . 'includes/update.php' );
-include_once( POST_VIEWS_COUNTER_PATH . 'includes/settings.php' );
-include_once( POST_VIEWS_COUNTER_PATH . 'includes/query.php' );
-include_once( POST_VIEWS_COUNTER_PATH . 'includes/cron.php' );
-include_once( POST_VIEWS_COUNTER_PATH . 'includes/counter.php' );
-include_once( POST_VIEWS_COUNTER_PATH . 'includes/columns.php' );
-include_once( POST_VIEWS_COUNTER_PATH . 'includes/frontend.php' );
-include_once( POST_VIEWS_COUNTER_PATH . 'includes/widgets.php' );
+if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 /**
- * Post Views Counter class
+ * Post Views Counter final class.
  *
  * @class Post_Views_Counter
- * @version	1.1.1
+ * @version	1.1.3
  */
-class Post_Views_Counter {
+final class Post_Views_Counter {
 
-	private static $_instance;
-	private $instances;
-	private $options;
-	private $defaults = array(
-		'general'	 => array(
+	private static $instance;
+	public $_cron;
+	public $_counter;
+	public $_settings;
+	public $options;
+	public $defaults = array(
+		'general' => array(
 			'post_types_count'		=> array( 'post' ),
 			'counter_mode'			=> 'php',
 			'post_views_column'		=> true,
@@ -71,12 +62,12 @@ class Post_Views_Counter {
 				'roles'	 => array()
 			),
 			'exclude_ips'			=> array(),
-			'restrict_edit_views'	 	=> false,
+			'restrict_edit_views'	=> false,
 			'deactivation_delete'	=> false,
 			'cron_run'				=> true,
 			'cron_update'			=> true
 		),
-		'display'	 => array(
+		'display' => array(
 			'label'				 	=> 'Post Views:',
 			'post_types_display' 	=> array( 'post' ),
 			'restrict_display'	 	=> array(
@@ -91,46 +82,98 @@ class Post_Views_Counter {
 			'link_to_post'		 	=> true,
 			'icon_class'		 	=> 'dashicons-chart-bar'
 		),
-		'version'	 => '1.1.1'
+		'version' => '1.1.3'
 	);
 
+	/**
+	 * Disable object clone.
+	 */
+	private function __clone() {}
+
+	/**
+	 * Disable unserializing of the class.
+	 */
+	private function __wakeup() {}
+
+	/**
+	 * Main Post_Views_Counter instance,
+	 * Insures that only one instance of Post_Views_Counter exists in memory at one time.
+	 * 
+	 * @return object
+	 */
 	public static function instance() {
-		if ( self::$_instance === null )
-			self::$_instance = new self();
+		if ( ! isset( self::$instance ) && ! ( self::$instance instanceof Post_Views_Counter ) ) {
+			self::$instance = new Post_Views_Counter;
+			self::$instance->define_constants();
 
-		return self::$_instance;
-	}
+			add_action( 'plugins_loaded', array( self::$instance, 'load_textdomain' ) );
 
-	private function __clone() {
-		
-	}
-
-	private function __wakeup() {
-		
-	}
-
-	private function __construct() {
-		register_activation_hook( __FILE__, array( &$this, 'activation' ) );
-		register_deactivation_hook( __FILE__, array( &$this, 'deactivation' ) );
-
-		// settings
-		$this->options = array(
-			'general'	 => array_merge( $this->defaults['general'], get_option( 'post_views_counter_settings_general', $this->defaults['general'] ) ),
-			'display'	 => array_merge( $this->defaults['display'], get_option( 'post_views_counter_settings_display', $this->defaults['display'] ) )
-		);
-
-		// actions
-		add_action( 'plugins_loaded', array( &$this, 'load_textdomain' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'admin_scripts_styles' ) );
-		add_action( 'wp_loaded', array( &$this, 'load_pluggable_functions' ), 10 );
-
-		// filters
-		add_filter( 'plugin_row_meta', array( &$this, 'plugin_extend_links' ), 10, 2 );
-		add_filter( 'plugin_action_links', array( &$this, 'plugin_settings_link' ), 10, 2 );
+			self::$instance->includes();
+			self::$instance->update		= new Post_Views_Counter_Update();
+			self::$instance->settings	= new Post_Views_Counter_Settings();
+			self::$instance->query		= new Post_Views_Counter_Query();
+			self::$instance->cron		= new Post_Views_Counter_Cron();
+			self::$instance->counter	= new Post_Views_Counter_Counter();
+			self::$instance->columns	= new Post_Views_Counter_Columns();
+			self::$instance->frontend	= new Post_Views_Counter_Frontend();
+			self::$instance->widgets	= new Post_Views_Counter_Widgets();
+		}
+		return self::$instance;
 	}
 
 	/**
-	 * Execution of plugin activation function
+	 * Setup plugin constants.
+	 *
+	 * @return void
+	 */
+	private function define_constants() {
+		define( 'POST_VIEWS_COUNTER_URL', plugins_url( '', __FILE__ ) );
+		define( 'POST_VIEWS_COUNTER_PATH', plugin_dir_path( __FILE__ ) );
+		define( 'POST_VIEWS_COUNTER_REL_PATH', dirname( plugin_basename( __FILE__ ) ) . '/' );
+	}
+
+	/**
+	 * Include required files
+	 *
+	 * @return void
+	 */
+	private function includes() {
+		include_once( POST_VIEWS_COUNTER_PATH . 'includes/update.php' );
+		include_once( POST_VIEWS_COUNTER_PATH . 'includes/settings.php' );
+		include_once( POST_VIEWS_COUNTER_PATH . 'includes/columns.php' );
+		include_once( POST_VIEWS_COUNTER_PATH . 'includes/query.php' );
+		include_once( POST_VIEWS_COUNTER_PATH . 'includes/cron.php' );
+		include_once( POST_VIEWS_COUNTER_PATH . 'includes/counter.php' );
+		include_once( POST_VIEWS_COUNTER_PATH . 'includes/frontend.php' );
+		include_once( POST_VIEWS_COUNTER_PATH . 'includes/widgets.php' );
+	}
+
+	/**
+	 * Class constructor.
+	 * 
+	 * @return void
+	 */
+	public function __construct() {
+		register_activation_hook( __FILE__, array( $this, 'activation' ) );
+		register_deactivation_hook( __FILE__, array( $this, 'deactivation' ) );
+
+		// settings
+		$this->options = array(
+			'general'	=> array_merge( $this->defaults['general'], get_option( 'post_views_counter_settings_general', $this->defaults['general'] ) ),
+			'display'	=> array_merge( $this->defaults['display'], get_option( 'post_views_counter_settings_display', $this->defaults['display'] ) )
+		);
+
+		// actions
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts_styles' ) );
+		add_action( 'wp_loaded', array( $this, 'load_pluggable_functions' ), 10 );
+
+		// filters
+		add_filter( 'plugin_row_meta', array( $this, 'plugin_extend_links' ), 10, 2 );
+		add_filter( 'plugin_action_links', array( $this, 'plugin_settings_link' ), 10, 2 );
+	}
+
+	/**
+	 * Plugin activation function.
 	 */
 	public function activation() {
 		global $wpdb, $charset_collate;
@@ -161,7 +204,7 @@ class Post_Views_Counter {
 	}
 
 	/**
-	 * Execution of plugin deactivation function
+	 * Plugin deactivation function.
 	 */
 	public function deactivation() {
 		// delete default options
@@ -172,13 +215,13 @@ class Post_Views_Counter {
 
 		// remove schedule
 		wp_clear_scheduled_hook( 'pvc_reset_counts' );
-		remove_action( 'pvc_reset_counts', array( Post_Views_Counter()->get_instance( 'cron' ), 'reset_counts' ) );
+		remove_action( 'pvc_reset_counts', array( Post_Views_Counter()->_cron, 'reset_counts' ) );
 
 		$this->remove_cache_flush();
 	}
 
 	/**
-	 * Schedule cache flushing if it's not already scheduled
+	 * Schedule cache flushing if it's not already scheduled.
 	 */
 	public function schedule_cache_flush( $forced = true ) {
 		if ( $forced || ! wp_next_scheduled( 'pvc_flush_cached_counts' ) ) {
@@ -187,66 +230,29 @@ class Post_Views_Counter {
 	}
 
 	/**
-	 * Remove scheduled cache flush and the corresponding action
+	 * Remove scheduled cache flush and the corresponding action.
 	 */
 	public function remove_cache_flush() {
 		wp_clear_scheduled_hook( 'pvc_flush_cached_counts' );
-		remove_action( 'pvc_flush_cached_counts', array( Post_Views_Counter()->get_instance( 'cron' ), 'flush_cached_counts' ) );
+		remove_action( 'pvc_flush_cached_counts', array( Post_Views_Counter()->_cron, 'flush_cached_counts' ) );
 	}
 
 	/**
-	 * Load text domain
+	 * Load text domain.
 	 */
 	public function load_textdomain() {
 		load_plugin_textdomain( 'post-views-counter', false, POST_VIEWS_COUNTER_REL_PATH . 'languages/' );
 	}
 
 	/**
-	 * Load pluggable template functions
+	 * Load pluggable template functions.
 	 */
 	public function load_pluggable_functions() {
-		include_once(POST_VIEWS_COUNTER_PATH . 'includes/functions.php');
+		include_once( POST_VIEWS_COUNTER_PATH . 'includes/functions.php' );
 	}
 
 	/**
-	 * Set instance of class
-	 */
-	public function add_instance( $name, $instance ) {
-		$this->instances[$name] = $instance;
-	}
-
-	/**
-	 * Get instance of a class
-	 */
-	public function get_instance( $name ) {
-		if ( in_array( $name, array( 'counter', 'settings', 'cron' ), true ) )
-			return $this->instances[$name];
-	}
-
-	/**
-	 * Get allowed attribute
-	 */
-	public function get_attribute( $attribute ) {
-		if ( in_array( $attribute, array( 'options', 'defaults' ), true ) ) {
-			switch ( func_num_args() ) {
-				case 1:
-					return $this->{$attribute};
-
-				case 2:
-					return $this->{$attribute}[func_get_arg( 1 )];
-
-				case 3:
-					return $this->{$attribute}[func_get_arg( 1 )][func_get_arg( 2 )];
-
-				case 4:
-					return $this->{$attribute}[func_get_arg( 1 )][func_get_arg( 2 )][func_get_arg( 3 )];
-			}
-		} else
-			return false;
-	}
-
-	/**
-	 * Enqueue admin scripts and styles
+	 * Enqueue admin scripts and styles.
 	 */
 	public function admin_scripts_styles( $page ) {
 		wp_register_style(
@@ -281,7 +287,7 @@ class Post_Views_Counter {
 			// load on single post page
 		} elseif ( $page === 'post.php' || $page === 'post-new.php' ) {
 
-			$post_types = Post_Views_Counter()->get_attribute( 'options', 'general', 'post_types_count' );
+			$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
 			global $post_type;
 
@@ -291,7 +297,7 @@ class Post_Views_Counter {
 			wp_enqueue_style( 'pvc-admin' );
 			wp_enqueue_script( 'pvc-admin-post' );
 		} elseif ( $page === 'edit.php' ) {
-			$post_types = Post_Views_Counter()->get_attribute( 'options', 'general', 'post_types_count' );
+			$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 			
 			global $post_type;
 
@@ -323,7 +329,7 @@ class Post_Views_Counter {
 	}
 
 	/**
-	 * Add link to settings page
+	 * Add link to settings page.
 	 */
 	public function plugin_settings_link( $links, $file ) {
 		if ( ! is_admin() || ! current_user_can( 'manage_options' ) )
@@ -344,14 +350,18 @@ class Post_Views_Counter {
 
 }
 
+endif; // end if class_exists check
+
 /**
- * Initialise Post Views Counter
+ * Initialise Post Views Counter.
+ * 
+ * @return object
  */
 function Post_Views_Counter() {
 	static $instance;
 
 	// first call to instance() initializes the plugin
-	if ( $instance === null || ! ($instance instanceof Post_Views_Counter) )
+	if ( $instance === null || ! ( $instance instanceof Post_Views_Counter ) )
 		$instance = Post_Views_Counter::instance();
 
 	return $instance;

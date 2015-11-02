@@ -1,32 +1,35 @@
 <?php
+// exit if accessed directly
 if ( ! defined( 'ABSPATH' ) )
 	exit;
 
-new Post_Views_Counter_Columns();
-
+/**
+ * Post_Views_Counter_Columns class.
+ */
 class Post_Views_Counter_Columns {
 
 	public function __construct() {
 		// actions
-		add_action( 'admin_init', array( &$this, 'register_new_column' ) );
-		add_action( 'post_submitbox_misc_actions', array( &$this, 'submitbox_views' ) );
-		add_action( 'save_post', array( &$this, 'save_post' ), 10, 2 );
-		add_action( 'bulk_edit_custom_box', array( &$this, 'quick_edit_custom_box' ), 10, 2 );
-		add_action( 'quick_edit_custom_box', array( &$this, 'quick_edit_custom_box') , 10, 2 );
-		add_action( 'wp_ajax_save_bulk_post_views', array( &$this, 'save_bulk_post_views' ) );
+		add_action( 'admin_init', array( $this, 'register_new_column' ) );
+		add_action( 'post_submitbox_misc_actions', array( $this, 'submitbox_views' ) );
+		add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
+		add_action( 'bulk_edit_custom_box', array( $this, 'quick_edit_custom_box' ), 10, 2 );
+		add_action( 'quick_edit_custom_box', array( $this, 'quick_edit_custom_box') , 10, 2 );
+		add_action( 'wp_ajax_save_bulk_post_views', array( $this, 'save_bulk_post_views' ) );
 	}
 
 	/**
 	 * Output post views for single post.
 	 * 
 	 * @global object $post
-	 * @global object $wpbd;
+	 * @global object $wpbd
+	 *
 	 * @return mixed 
 	 */
 	public function submitbox_views() {
 		global $post;
 
-		$post_types = Post_Views_Counter()->get_attribute( 'options', 'general', 'post_types_count' );
+		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
 		if ( ! in_array( $post->post_type, (array) $post_types ) )
 			return;
@@ -58,7 +61,7 @@ class Post_Views_Counter_Columns {
 			</span>
 			
 			<?php // restrict editing
-			$restrict = (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'restrict_edit_views' );
+			$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
 			
 			if ( $restrict === false || ( $restrict === true && current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) ) ) {
 				?>
@@ -104,13 +107,13 @@ class Post_Views_Counter_Columns {
 			return $post_id;
 
 		// break if post views in not one of the selected
-		$post_types = Post_Views_Counter()->get_attribute( 'options', 'general', 'post_types_count' );
+		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
 		if ( ! in_array( $post->post_type, (array) $post_types ) )
 			return $post_id;
 		
 		// break if views editing is restricted
-		$restrict = (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'restrict_edit_views' );
+		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
 			
 		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			return $post_id;
@@ -139,32 +142,24 @@ class Post_Views_Counter_Columns {
 	 * Register post views column for specific post types
 	 */
 	public function register_new_column() {
-		$post_types = Post_Views_Counter()->get_attribute( 'options', 'general', 'post_types_count' );
+		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 		
 		if ( ! empty( $post_types ) ) {
 			foreach ( $post_types as $post_type ) {
-
 				if ( $post_type === 'page' ) {
 					// actions
-					add_action( 'manage_pages_custom_column', array( &$this, 'add_new_column_content' ), 10, 2 );
+					add_action( 'manage_pages_custom_column', array( $this, 'add_new_column_content' ), 10, 2 );
 
 					// filters
-					add_filter( 'manage_pages_columns', array( &$this, 'add_new_column' ) );
-					add_filter( 'manage_edit-page_sortable_columns', array( &$this, 'register_sortable_custom_column' ) );
-				} elseif ( $post_type === 'post' ) {
+					add_filter( 'manage_pages_columns', array( $this, 'add_new_column' ) );
+					add_filter( 'manage_edit-page_sortable_columns', array( $this, 'register_sortable_custom_column' ) );
+				} else {
 					// actions
-					add_action( 'manage_posts_custom_column', array( &$this, 'add_new_column_content' ), 10, 2 );
+					add_action( 'manage_' . $post_type . '_posts_custom_column', array( $this, 'add_new_column_content' ), 10, 2 );
 
 					// filters
-					add_filter( 'manage_posts_columns', array( &$this, 'add_new_column' ) );
-					add_filter( 'manage_edit-post_sortable_columns', array( &$this, 'register_sortable_custom_column' ) );
-				} else{
-					// actions
-					add_action( 'manage_' . $post_type . '_posts_custom_column', array( &$this, 'add_new_column_content' ), 10, 2 );
-
-					// filters
-					add_filter( 'manage_' . $post_type . '_posts_columns', array( &$this, 'add_new_column' ) );
-					add_filter( 'manage_edit-' . $post_type . '_sortable_columns', array( &$this, 'register_sortable_custom_column' ) );
+					add_filter( 'manage_' . $post_type . '_posts_columns', array( $this, 'add_new_column' ) );
+					add_filter( 'manage_edit-' . $post_type . '_sortable_columns', array( $this, 'register_sortable_custom_column' ) );
 				}
 			}
 		}
@@ -257,11 +252,11 @@ class Post_Views_Counter_Columns {
 	   if ( $pagenow !== 'edit.php' )
 		   return;
 	   
-	   if ( ! Post_Views_Counter()->get_attribute( 'options', 'general', 'post_views_column' ) || ! in_array( $post_type, Post_Views_Counter()->get_attribute( 'options', 'general', 'post_types_count' ) ) )
+	   if ( ! Post_Views_Counter()->options['general']['post_views_column'] || ! in_array( $post_type, Post_Views_Counter()->options['general']['post_types_count'] ) )
 		   return;
 	   
 	   // break if views editing is restricted
-		$restrict = (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'restrict_edit_views' );
+		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
 			
 		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			return;
@@ -304,7 +299,7 @@ class Post_Views_Counter_Columns {
 		$count = ( ! empty( $_POST[ 'post_views' ] ) ) ? absint( $_POST[ 'post_views' ] ) : null;
 		
 		// break if views editing is restricted
-		$restrict = (bool) Post_Views_Counter()->get_attribute( 'options', 'general', 'restrict_edit_views' );
+		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
 
 		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			die();

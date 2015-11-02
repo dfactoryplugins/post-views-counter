@@ -54,7 +54,7 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 	function pvc_post_views( $post_id = 0, $display = true ) {
 		// get all data
 		$post_id = (int) (empty( $post_id ) ? get_the_ID() : $post_id);
-		$options = Post_Views_Counter()->get_attribute( 'options', 'display' );
+		$options = Post_Views_Counter()->options['display'];
 		$views = pvc_get_post_views( $post_id );
 
 		// prepares display
@@ -106,7 +106,7 @@ if ( ! function_exists( 'pvc_get_most_viewed_posts' ) ) {
 		// force to get all fields
 		$args['fields'] = '';
 
-		return get_posts( $args );
+		return apply_filters( 'pvc_get_most_viewed_posts', get_posts( $args ), $args );
 	}
 
 }
