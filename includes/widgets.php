@@ -45,15 +45,15 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 		);
 
 		$this->pvc_defaults = array(
-			'title'					 => __( 'Most Viewed Posts', 'post-views-counter' ),
-			'number_of_posts'		 => 5,
-			'thumbnail_size'		 => 'thumbnail',
-			'post_types'			 => array(),
-			'order'					 => 'desc',
-			'show_post_views'		 => true,
-			'show_post_thumbnail'	 => false,
-			'show_post_excerpt'		 => false,
-			'no_posts_message'		 => __( 'No Posts found', 'post-views-counter' )
+			'title'					=> __( 'Most Viewed Posts', 'post-views-counter' ),
+			'number_of_posts'		=> 5,
+			'thumbnail_size'		=> 'thumbnail',
+			'post_type'				=> array(),
+			'order'					=> 'desc',
+			'show_post_views'		=> true,
+			'show_post_thumbnail'	=> false,
+			'show_post_excerpt'		=> false,
+			'no_posts_message'		=> __( 'No Posts found', 'post-views-counter' )
 		);
 
 		$this->pvc_order_types = array(
@@ -103,7 +103,7 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 
 		foreach ( $this->pvc_post_types as $post_type => $post_type_name ) {
 			$html .= '
-				<input id="' . $this->get_field_id( 'post_types' ) . '-' . $post_type . '" type="checkbox" name="' . $this->get_field_name( 'post_types' ) . '[]" value="' . $post_type . '" ' . checked( ( ! isset( $instance['post_types'] ) ? true : in_array( $post_type, $instance['post_types'], true ) ), true, false ) . '><label for="' . $this->get_field_id( 'post_types' ) . '-' . $post_type . '">' . esc_html( $post_type_name ) . '</label>';
+				<input id="' . $this->get_field_id( 'post_type' ) . '-' . $post_type . '" type="checkbox" name="' . $this->get_field_name( 'post_type' ) . '[]" value="' . $post_type . '" ' . checked( ( ! isset( $instance['post_type'] ) ? true : in_array( $post_type, $instance['post_type'], true ) ), true, false ) . '><label for="' . $this->get_field_id( 'post_type' ) . '-' . $post_type . '">' . esc_html( $post_type_name ) . '</label>';
 		}
 
 		$show_post_thumbnail = isset( $instance['show_post_thumbnail'] ) ? $instance['show_post_thumbnail'] : $this->pvc_defaults['show_post_thumbnail'];
@@ -179,17 +179,17 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 		$old_instance['no_posts_message'] = sanitize_text_field( isset( $new_instance['no_posts_message'] ) ? $new_instance['no_posts_message'] : $this->pvc_defaults['no_posts_message'] );
 
 		// post types
-		if ( isset( $new_instance['post_types'] ) ) {
+		if ( isset( $new_instance['post_type'] ) ) {
 			$post_types = array();
 
-			foreach ( $new_instance['post_types'] as $post_type ) {
+			foreach ( $new_instance['post_type'] as $post_type ) {
 				if ( isset( $this->pvc_post_types[$post_type] ) )
 					$post_types[] = $post_type;
 			}
 
-			$old_instance['post_types'] = array_unique( $post_types );
+			$old_instance['post_type'] = array_unique( $post_types );
 		} else
-			$old_instance['post_types'] = array( 'post' );
+			$old_instance['post_type'] = array( 'post' );
 
 		return $old_instance;
 	}

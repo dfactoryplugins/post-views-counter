@@ -146,21 +146,12 @@ class Post_Views_Counter_Columns {
 		
 		if ( ! empty( $post_types ) ) {
 			foreach ( $post_types as $post_type ) {
-				if ( $post_type === 'page' ) {
-					// actions
-					add_action( 'manage_pages_custom_column', array( $this, 'add_new_column_content' ), 10, 2 );
+				// actions
+				add_action( 'manage_' . $post_type . '_posts_custom_column', array( $this, 'add_new_column_content' ), 10, 2 );
 
-					// filters
-					add_filter( 'manage_pages_columns', array( $this, 'add_new_column' ) );
-					add_filter( 'manage_edit-page_sortable_columns', array( $this, 'register_sortable_custom_column' ) );
-				} else {
-					// actions
-					add_action( 'manage_' . $post_type . '_posts_custom_column', array( $this, 'add_new_column_content' ), 10, 2 );
-
-					// filters
-					add_filter( 'manage_' . $post_type . '_posts_columns', array( $this, 'add_new_column' ) );
-					add_filter( 'manage_edit-' . $post_type . '_sortable_columns', array( $this, 'register_sortable_custom_column' ) );
-				}
+				// filters
+				add_filter( 'manage_' . $post_type . '_posts_columns', array( $this, 'add_new_column' ) );
+				add_filter( 'manage_edit-' . $post_type . '_sortable_columns', array( $this, 'register_sortable_custom_column' ) );
 			}
 		}
 	}

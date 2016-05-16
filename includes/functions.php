@@ -51,9 +51,10 @@ if ( ! function_exists( 'pvc_get_post_views' ) ) {
  */
 if ( ! function_exists( 'pvc_post_views' ) ) {
 
-	function pvc_post_views( $post_id = 0, $display = true ) {
+	function pvc_post_views( $post_id = 0, $echo = true ) {
+		
 		// get all data
-		$post_id = (int) (empty( $post_id ) ? get_the_ID() : $post_id);
+		$post_id = (int) ( empty( $post_id ) ? get_the_ID() : $post_id );
 		$options = Post_Views_Counter()->options['display'];
 		$views = pvc_get_post_views( $post_id );
 
@@ -70,7 +71,7 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 			</div>', $post_id, $views, $label, $icon
 		);
 
-		if ( $display )
+		if ( $echo )
 			echo $html;
 		else
 			return $html;
@@ -122,14 +123,14 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 
 	function pvc_most_viewed_posts( $args = array(), $display = true ) {
 		$defaults = array(
-			'number_of_posts'		 => 5,
-			'post_types'			 => array( 'post' ),
-			'order'					 => 'desc',
-			'thumbnail_size'		 => 'thumbnail',
-			'show_post_views'		 => true,
-			'show_post_thumbnail'	 => false,
-			'show_post_excerpt'		 => false,
-			'no_posts_message'		 => __( 'No Posts', 'post-views-counter' )
+			'number_of_posts'		=> 5,
+			'post_type'				=> array( 'post' ),
+			'order'					=> 'desc',
+			'thumbnail_size'		=> 'thumbnail',
+			'show_post_views'		=> true,
+			'show_post_thumbnail'	=> false,
+			'show_post_excerpt'		=> false,
+			'no_posts_message'		=> __( 'No Posts', 'post-views-counter' )
 		);
 
 		$args = apply_filters( 'pvc_most_viewed_posts_args', wp_parse_args( $args, $defaults ) );
@@ -142,7 +143,7 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 			array(
 				'posts_per_page' => (isset( $args['number_of_posts'] ) ? (int) $args['number_of_posts'] : $defaults['number_of_posts']),
 				'order'			 => (isset( $args['order'] ) ? $args['order'] : $defaults['order']),
-				'post_type'		 => (isset( $args['post_types'] ) ? $args['post_types'] : $defaults['post_types'])
+				'post_type'		 => (isset( $args['post_type'] ) ? $args['post_type'] : $defaults['post_type'])
 			)
 		);
 
@@ -201,4 +202,22 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 			return $html;
 	}
 
+}
+
+/**
+ * View post manually function.
+ * 
+ * @since	1.2.0
+ * @param	int $post_id
+ * @return	bool
+ */
+function pvc_view_post( $post_id = 0 ) {
+	$post_id = (int) ( empty( $post_id ) ? get_the_ID() : $post_id );
+	
+	if ( ! $post_id )
+		return false;
+	
+	Post_Views_Counter()->counter->check_post( $post_id );
+	
+	return true;
 }

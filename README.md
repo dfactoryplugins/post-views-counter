@@ -12,21 +12,21 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 
 * Option to select post types for which post views will be counted and displayed.
 * 2 methods of collecting post views data: PHP and Javascript, for greater flexibility
+* Possibility to manually set views count for each post
+* Dashboard post views stats widget
+* Capability to query posts according to its views count
 * Option to set time between counts
 * Excluding counts from visitors: bots, logged in users, selected user roles
 * Excluding users by IPs
 * Restricting display by user roles
+* Restricting post views editing to admins
 * One-click data import from WP-PostViews
+* Sortable admin column
 * Post views display position, automatic or manual via shortcode
 * W3 Cache/WP SuperCache compatible
+* Optional object cache support
 * WPML and Polylang compatible
 * .pot file for translations included
-
-### Translations: ###
-* Croation translation - by [Tomas Trkulja](http://zytzagoo.net/blog/)
-* Hebrew - by [Ahrale Shrem](http://atar4u.com/)
-* Polish - by Bartosz Arendt
-* Russian - by moonkir
 
 ## Installation ##
 
@@ -35,6 +35,14 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 3. Go to the Post Views Counter settings and set your options.
 
 ## Changelog ##
+
+#### 1.2.1 ####
+* New: Option to display post views on select page types
+* Tweak: Dashboard widget query optimization
+
+#### 1.2.0 ####
+* New: Dashboard post views stats widget
+* Fix: A couple of typos in method names
 
 #### 1.1.1 ####
 * Tweak: Enable edit views on new post.

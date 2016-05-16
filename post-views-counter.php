@@ -2,7 +2,7 @@
 /*
 Plugin Name: Post Views Counter
 Description: Forget WP-PostViews. Display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
-Version: 1.1.3
+Version: 1.2.1
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/post-views-counter/
@@ -12,7 +12,7 @@ Text Domain: post-views-counter
 Domain Path: /languages
 
 Post Views Counter
-Copyright (C) 2014-2015, Digital Factory - info@digitalfactory.pl
+Copyright (C) 2014-2016, Digital Factory - info@digitalfactory.pl
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -31,14 +31,11 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
  * Post Views Counter final class.
  *
  * @class Post_Views_Counter
- * @version	1.1.3
+ * @version	1.2.1
  */
 final class Post_Views_Counter {
 
 	private static $instance;
-	public $_cron;
-	public $_counter;
-	public $_settings;
 	public $options;
 	public $defaults = array(
 		'general' => array(
@@ -70,6 +67,7 @@ final class Post_Views_Counter {
 		'display' => array(
 			'label'				 	=> 'Post Views:',
 			'post_types_display' 	=> array( 'post' ),
+			'page_types_display'	=> array( 'singular' ),
 			'restrict_display'	 	=> array(
 				'groups' => array(),
 				'roles'	 => array()
@@ -82,7 +80,7 @@ final class Post_Views_Counter {
 			'link_to_post'		 	=> true,
 			'icon_class'		 	=> 'dashicons-chart-bar'
 		),
-		'version' => '1.1.3'
+		'version' => '1.2.1'
 	);
 
 	/**
@@ -116,6 +114,7 @@ final class Post_Views_Counter {
 			self::$instance->counter	= new Post_Views_Counter_Counter();
 			self::$instance->columns	= new Post_Views_Counter_Columns();
 			self::$instance->frontend	= new Post_Views_Counter_Frontend();
+			self::$instance->dashboard	= new Post_Views_Counter_Dashboard();
 			self::$instance->widgets	= new Post_Views_Counter_Widgets();
 		}
 		return self::$instance;
@@ -145,6 +144,7 @@ final class Post_Views_Counter {
 		include_once( POST_VIEWS_COUNTER_PATH . 'includes/cron.php' );
 		include_once( POST_VIEWS_COUNTER_PATH . 'includes/counter.php' );
 		include_once( POST_VIEWS_COUNTER_PATH . 'includes/frontend.php' );
+		include_once( POST_VIEWS_COUNTER_PATH . 'includes/dashboard.php' );
 		include_once( POST_VIEWS_COUNTER_PATH . 'includes/widgets.php' );
 	}
 
@@ -215,7 +215,7 @@ final class Post_Views_Counter {
 
 		// remove schedule
 		wp_clear_scheduled_hook( 'pvc_reset_counts' );
-		remove_action( 'pvc_reset_counts', array( Post_Views_Counter()->_cron, 'reset_counts' ) );
+		remove_action( 'pvc_reset_counts', array( Post_Views_Counter()->cron, 'reset_counts' ) );
 
 		$this->remove_cache_flush();
 	}
@@ -234,7 +234,7 @@ final class Post_Views_Counter {
 	 */
 	public function remove_cache_flush() {
 		wp_clear_scheduled_hook( 'pvc_flush_cached_counts' );
-		remove_action( 'pvc_flush_cached_counts', array( Post_Views_Counter()->_cron, 'flush_cached_counts' ) );
+		remove_action( 'pvc_flush_cached_counts', array( Post_Views_Counter()->cron, 'flush_cached_counts' ) );
 	}
 
 	/**

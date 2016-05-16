@@ -12,10 +12,7 @@ class Post_Views_Counter_Frontend {
 		// actions
 		add_action( 'after_setup_theme', array( $this, 'register_shortcode' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'frontend_scripts_styles' ) );
-
-		// filters
-		add_filter( 'the_content', array( $this, 'add_post_views_count' ) );
-		add_filter( 'the_excerpt', array( $this, 'remove_post_views_count' ) );
+		add_action( 'wp', array( $this, 'run' ) );
 	}
 
 	/**
@@ -40,6 +37,31 @@ class Post_Views_Counter_Frontend {
 
 		return pvc_post_views( $args['id'], false );
 	}
+	
+	/**
+	 * Set up plugin hooks.
+	 */
+	public function run() {
+		
+		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
+			return;
+		
+		$filter = apply_filters( 'pvc_shortcode_filter_hook', Post_Views_Counter()->options['display']['position'] );
+		
+		if ( ! empty( $filter ) && in_array( $filter, array( 'before', 'after' ) ) ) {
+			// post content
+			add_filter( 'the_content', array( $this, 'add_post_views_count' ) );
+			// add_filter( 'the_excerpt', array( $this, 'add_post_views_count' ) );
+
+			// bbpress
+			add_filter( 'bbp_get_topic_content', array( $this, 'add_post_views_count' ) );
+			add_filter( 'bbp_get_reply_content', array( $this, 'add_post_views_count' ) );
+		} else {
+			// custom
+			if ( $filter != 'manual' && is_string( $filter ) )
+				add_filter( $filter, array( $this, 'add_post_views_count' ) );
+		}
+	}
 
 	/**
 	 * Add post views counter to content.
@@ -47,51 +69,77 @@ class Post_Views_Counter_Frontend {
 	 * @param mixed $content
 	 * @return mixed
 	 */
-	public function add_post_views_count( $content ) {
-		if ( is_singular() && in_array( get_post_type(), Post_Views_Counter()->options['display']['post_types_display'], true ) ) {
+	public function add_post_views_count( $content = '' ) {
+		global $post, $wp_current_filter;
+		
+		$display = false;
 
-			// get groups to check it faster
-			$groups = Post_Views_Counter()->options['display']['restrict_display']['groups'];
+		// get post types
+		$post_types = Post_Views_Counter()->options['display']['post_types_display'];
+		
+		// get pages
+		$pages = Post_Views_Counter()->options['display']['page_types_display'];
 
-			// whether to display views
-			if ( is_user_logged_in() ) {
-				// exclude logged in users?
-				if ( in_array( 'users', $groups, true ) )
-					return $content;
-				// exclude specific roles?
-				elseif ( in_array( 'roles', $groups, true ) && Post_Views_Counter()->_counter->is_user_roles_excluded( Post_Views_Counter()->options['display']['restrict_display']['roles'] ) )
-					return $content;
+		// page visibility check
+		if ( $pages ) {
+			foreach ( $pages as $page ) {
+				switch ( $page ) {
+					case 'singular' :
+						if ( is_singular( $post_types ) ) $display = true;
+						break;
+					case 'archive' :
+						if ( is_archive() ) $display = true;
+						break;
+					case 'search' :
+						if ( is_search() ) $display = true;
+						break;
+					case 'home' :
+						if ( is_home() || is_front_page() ) $display = true;
+						break;
+				}
 			}
-			// exclude guests?
-			elseif ( in_array( 'guests', $groups, true ) )
-				return $content;
+		}
 
-			switch ( Post_Views_Counter()->options['display']['position'] ) {
+		// get groups to check it faster
+		$groups = Post_Views_Counter()->options['display']['restrict_display']['groups'];
+
+		// whether to display views
+		if ( is_user_logged_in() ) {
+			// exclude logged in users?
+			if ( in_array( 'users', $groups, true ) )
+				$display = false;
+			// exclude specific roles?
+			elseif ( in_array( 'roles', $groups, true ) && Post_Views_Counter()->counter->is_user_role_excluded( Post_Views_Counter()->options['display']['restrict_display']['roles'] ) )
+				$display = false;
+		}
+		// exclude guests?
+		elseif ( in_array( 'guests', $groups, true ) )
+			$display = false;
+		
+		// we don't want to mess custom loops
+		if ( ! in_the_loop() )
+			$display = false;
+		
+		if ( apply_filters( 'pvc_display_views_count', $display ) === true ) {
+
+			$filter = apply_filters( 'pvc_shortcode_filter_hook', Post_Views_Counter()->options['display']['position'] );
+			
+			switch ( $filter ) {
 				case 'after':
-					return $content . '[post-views]';
+					$content = $content . do_shortcode( '[post-views]' );
+					break;
 
 				case 'before':
-					return '[post-views]' . $content;
+					$content = do_shortcode( '[post-views]' ) . $content;
+					break;
 
-				default:
 				case 'manual':
-					return $content;
+				default:
+					break;
 			}
 		}
 
 		return $content;
-	}
-
-	/**
-	 * Remove post views shortcode from excerpt.
-	 * 
-	 * @param mixed $excerpt
-	 * @return mixed
-	 */
-	public function remove_post_views_count( $excerpt ) {
-		remove_shortcode( 'post-views' );
-		$excerpt = preg_replace( '/\[post-views[^\]]*\]/', '', $excerpt );
-		return $excerpt;
 	}
 
 	/**

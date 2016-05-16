@@ -21,50 +21,102 @@ class Post_Views_Counter_Counter {
 	public function __construct() {
 		// actions
 		add_action( 'plugins_loaded', array( $this, 'check_cookie' ), 1 );
-		add_action( 'wp', array( $this, 'check_post' ) );
 		add_action( 'deleted_post', array( $this, 'delete_post_views' ) );
+		add_action( 'wp', array( $this, 'check_post_php' ) );
 		add_action( 'wp_ajax_pvc-check-post', array( $this, 'check_post_ajax' ) );
 		add_action( 'wp_ajax_nopriv_pvc-check-post', array( $this, 'check_post_ajax' ) );
 	}
 
 	/**
-	 * Remove post views from database when post is deleted.
+	 * Check whether to count visit.
 	 * 
-	 * @param int $post_id
+	 * @param int $id
 	 */
-	public function delete_post_views( $post_id ) {
-		global $wpdb;
+	public function check_post( $id = 0 ) {
+		// get post id
+		$id = (int) (empty( $id ) ? get_the_ID() : $id);
+		
+		if ( empty( $id ) )
+			return;
 
-		$wpdb->delete( $wpdb->prefix . 'post_views', array( 'id' => $post_id ), array( '%d' ) );
+		$ips = Post_Views_Counter()->options['general']['exclude_ips'];
+
+		// whether to count this ip
+		if ( ! empty( $ips ) && filter_var( preg_replace( '/[^0-9a-fA-F:., ]/', '', $_SERVER['REMOTE_ADDR'] ), FILTER_VALIDATE_IP ) && in_array( $_SERVER['REMOTE_ADDR'], $ips, true ) )
+			return;
+
+		// get groups to check them faster
+		$groups = Post_Views_Counter()->options['general']['exclude']['groups'];
+
+		// whether to count this user
+		if ( is_user_logged_in() ) {
+			// exclude logged in users?
+			if ( in_array( 'users', $groups, true ) )
+				return;
+			// exclude specific roles?
+			elseif ( in_array( 'roles', $groups, true ) && $this->is_user_role_excluded( Post_Views_Counter()->options['general']['exclude']['roles'] ) )
+				return;
+		}
+		// exclude guests?
+		elseif ( in_array( 'guests', $groups, true ) )
+			return;
+
+		// whether to count robots
+		if ( $this->is_robot() )
+			return;
+
+		// cookie already existed?
+		if ( $this->cookie['exists'] ) {
+			// post already viewed but not expired?
+			if ( in_array( $id, array_keys( $this->cookie['visited_posts'] ), true ) && current_time( 'timestamp', true ) < $this->cookie['visited_posts'][$id] ) {
+				// update cookie but do not count visit
+				$this->save_cookie( $id, $this->cookie, false );
+
+				return;
+			} else
+			// update cookie
+				$this->save_cookie( $id, $this->cookie );
+		} else
+		// set new cookie
+			$this->save_cookie( $id );
+
+		// count visit
+		$this->count_visit( $id );
 	}
-
+	
 	/**
+	 * Check whether to count visit via PHP request.
 	 * 
-	 * Get timestamp convertion.
-	 * 
-	 * @param string $type
-	 * @param int $number
-	 * @param int $timestamp
-	 * @return string
+	 * @param int $id
 	 */
-	public function get_timestamp( $type, $number, $timestamp = true ) {
-		$converter = array(
-			'minutes'	 => 60,
-			'hours'		 => 3600,
-			'days'		 => 86400,
-			'weeks'		 => 604800,
-			'months'	 => 2592000,
-			'years'		 => 946080000
-		);
+	public function check_post_php() {
+		// do not count admin entries
+		if ( is_admin() && ! (defined( 'DOING_AJAX' ) && DOING_AJAX) )
+			return;
 
-		return ($timestamp ? current_time( 'timestamp', true ) : 0) + $number * $converter[$type];
+		// do we use PHP as counter?
+		if ( Post_Views_Counter()->options['general']['counter_mode'] != 'php' )
+			return;
+		
+		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+
+		// whether to count this post type
+		if ( empty( $post_types ) || ! is_singular( $post_types ) )
+			return;
+
+		$this->check_post( get_the_ID() );
 	}
-
+	
 	/**
 	 * Check whether to count visit via AJAX request.
 	 */
 	public function check_post_ajax() {
-		if ( isset( $_POST['action'], $_POST['post_id'], $_POST['pvc_nonce'], $_POST['post_type'] ) && $_POST['action'] === 'pvc-check-post' && ($post_id = (int) $_POST['post_id']) > 0 && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-check-post' ) !== false && Post_Views_Counter()->options['general']['counter_mode'] === 'js' ) {
+		if ( isset( $_POST['action'], $_POST['post_id'], $_POST['pvc_nonce'], $_POST['post_type'] ) && $_POST['action'] === 'pvc-check-post' && ($post_id = (int) $_POST['post_id']) > 0 && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-check-post' ) !== false ) {
+			
+			// do we use Ajax as counter?
+			if ( Post_Views_Counter()->options['general']['counter_mode'] != 'js' )
+				exit;
+			
 			// get countable post types
 			$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
@@ -74,120 +126,12 @@ class Post_Views_Counter_Counter {
 			// whether to count this post type or not
 			if ( empty( $post_types ) || empty( $post_type ) || $post_type !== $_POST['post_type'] || ! in_array( $post_type, $post_types, true ) )
 				exit;
-
-			// get excluded ips
-			$excluded_ips = Post_Views_Counter()->options['general']['exclude_ips'];
-
-			// whether to count this ip or not
-			if ( ! empty( $excluded_ips ) && filter_var( preg_replace( '/[^0-9a-fA-F:., ]/', '', $_SERVER['REMOTE_ADDR'] ), FILTER_VALIDATE_IP ) && in_array( $_SERVER['REMOTE_ADDR'], $excluded_ips, true ) )
-				exit;
-
-			// get groups to check them faster
-			$groups = Post_Views_Counter()->options['general']['exclude']['groups'];
-
-			// whether to count this user
-			if ( is_user_logged_in() ) {
-				// exclude logged in users?
-				if ( in_array( 'users', $groups, true ) )
-					exit;
-				// exclude specific roles?
-				elseif ( in_array( 'roles', $groups, true ) && $this->is_user_role_excluded( Post_Views_Counter()->options['general']['exclude']['roles'] ) )
-					exit;
-			}
-			// exclude guests?
-			elseif ( in_array( 'guests', $groups, true ) )
-				exit;
-
-			// whether to count robots
-			if ( $this->is_robot() )
-				exit;
-
-			// cookie already existed?
-			if ( $this->cookie['exists'] ) {
-				// post already viewed but not expired?
-				if ( in_array( $post_id, array_keys( $this->cookie['visited_posts'] ), true ) && current_time( 'timestamp', true ) < $this->cookie['visited_posts'][$post_id] ) {
-					// updates cookie but do not count visit
-					$this->save_cookie( $post_id, $this->cookie, false );
-
-					exit;
-				} else
-				// updates cookie
-					$this->save_cookie( $post_id, $this->cookie );
-			} else {
-				// set new cookie
-				$this->save_cookie( $post_id );
-			}
-
-			// count visit
-			$this->count_visit( $post_id );
+			
+			$this->check_post( $post_id );
+			
 		}
 
 		exit;
-	}
-
-	/**
-	 * Check whether to count visit.
-	 */
-	public function check_post() {
-		// do not count admin entries
-		if ( is_admin() )
-			return;
-
-		// do we use PHP as counter?
-		if ( Post_Views_Counter()->options['general']['counter_mode'] === 'php' ) {
-			$post_types = Post_Views_Counter()->options['general']['post_types_count'];
-
-			// whether to count this post type
-			if ( empty( $post_types ) || ! is_singular( $post_types ) )
-				return;
-
-			$ips = Post_Views_Counter()->options['general']['exclude_ips'];
-
-			// whether to count this ip
-			if ( ! empty( $ips ) && filter_var( preg_replace( '/[^0-9a-fA-F:., ]/', '', $_SERVER['REMOTE_ADDR'] ), FILTER_VALIDATE_IP ) && in_array( $_SERVER['REMOTE_ADDR'], $ips, true ) )
-				return;
-
-			// get groups to check them faster
-			$groups = Post_Views_Counter()->options['general']['exclude']['groups'];
-
-			// whether to count this user
-			if ( is_user_logged_in() ) {
-				// exclude logged in users?
-				if ( in_array( 'users', $groups, true ) )
-					return;
-				// exclude specific roles?
-				elseif ( in_array( 'roles', $groups, true ) && $this->is_user_role_excluded( Post_Views_Counter()->options['general']['exclude']['roles'] ) )
-					return;
-			}
-			// exclude guests?
-			elseif ( in_array( 'guests', $groups, true ) )
-				return;
-
-			// whether to count robots
-			if ( $this->is_robot() )
-				return;
-
-			// get post id
-			$id = get_the_ID();
-
-			// cookie already existed?
-			if ( $this->cookie['exists'] ) {
-				// post already viewed but not expired?
-				if ( in_array( $id, array_keys( $this->cookie['visited_posts'] ), true ) && current_time( 'timestamp', true ) < $this->cookie['visited_posts'][$id] ) {
-					// update cookie but do not count visit
-					$this->save_cookie( $id, $this->cookie, false );
-
-					return;
-				} else
-				// update cookie
-					$this->save_cookie( $id, $this->cookie );
-			} else
-			// set new cookie
-				$this->save_cookie( $id );
-
-			// count visit
-			$this->count_visit( $id );
-		}
 	}
 
 	/**
@@ -195,7 +139,7 @@ class Post_Views_Counter_Counter {
 	 */
 	public function check_cookie() {
 		// do not run in admin except for ajax requests
-		if ( is_admin() && ! (defined( 'DOING_AJAX' ) && DOING_AJAX) )
+		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
 			return;
 
 		// is cookie set?
@@ -306,24 +250,6 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
-	 * Check if object cache is in use.
-	 * 
-	 * @param bool $using
-	 * @return bool
-	 */
-	public function using_object_cache( $using = null ) {
-		$using = wp_using_ext_object_cache( $using );
-
-		if ( $using ) {
-			// check if explicitly disabled by flush_interval setting/option <= 0
-			$flush_interval_number = Post_Views_Counter()->options['general']['flush_interval']['number'];
-			$using = ( $flush_interval_number <= 0 ) ? false : true;
-		}
-
-		return $using;
-	}
-
-	/**
 	 * Count visit function.
 	 * 
 	 * @global object $wpdb
@@ -366,6 +292,57 @@ class Post_Views_Counter_Counter {
 		do_action( 'pvc_after_count_visit', $id );
 
 		return true;
+	}
+	
+	/**
+	 * Remove post views from database when post is deleted.
+	 * 
+	 * @param int $post_id
+	 */
+	public function delete_post_views( $post_id ) {
+		global $wpdb;
+
+		$wpdb->delete( $wpdb->prefix . 'post_views', array( 'id' => $post_id ), array( '%d' ) );
+	}
+
+	/**
+	 * 
+	 * Get timestamp convertion.
+	 * 
+	 * @param string $type
+	 * @param int $number
+	 * @param int $timestamp
+	 * @return string
+	 */
+	public function get_timestamp( $type, $number, $timestamp = true ) {
+		$converter = array(
+			'minutes'	 => 60,
+			'hours'		 => 3600,
+			'days'		 => 86400,
+			'weeks'		 => 604800,
+			'months'	 => 2592000,
+			'years'		 => 946080000
+		);
+
+		return ($timestamp ? current_time( 'timestamp', true ) : 0) + $number * $converter[$type];
+	}
+	
+	/**
+	 * Check if object cache is in use.
+	 * 
+	 * @param bool $using
+	 * @return bool
+	 */
+	public function using_object_cache( $using = null ) {
+		$using = wp_using_ext_object_cache( $using );
+
+		if ( $using ) {
+			// check if explicitly disabled by flush_interval setting/option <= 0
+			$flush_interval_number = Post_Views_Counter()->options['general']['flush_interval']['number'];
+			$using = ( $flush_interval_number <= 0 ) ? false : true;
+		}
+
+		return $using;
 	}
 
 	/**

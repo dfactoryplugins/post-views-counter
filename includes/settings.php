@@ -17,6 +17,7 @@ class Post_Views_Counter_Settings {
 	private $positions;
 	private $display_styles;
 	public $post_types;
+	public $page_types;
 
 	public function __construct() {
 		// actions
@@ -79,6 +80,13 @@ class Post_Views_Counter_Settings {
 		);
 
 		$this->user_roles = $this->get_user_roles();
+		
+		$this->page_types = apply_filters( 'pvc_page_types_display_options', array(
+			'home'		 => __( 'Home', 'post-views-counter' ),
+			'archive'	 => __( 'Archives', 'post-views-counter' ),
+			'singular'	 => __( 'Single pages', 'post-views-counter' ),
+			'search'	 => __( 'Search results', 'post-views-counter' ),
+		) );
 	}
 
 	/**
@@ -210,8 +218,9 @@ class Post_Views_Counter_Settings {
 		register_setting( 'post_views_counter_settings_display', 'post_views_counter_settings_display', array( $this, 'validate_settings' ) );
 		add_settings_section( 'post_views_counter_settings_display', __( 'Display settings', 'post-views-counter' ), '', 'post_views_counter_settings_display' );
 		add_settings_field( 'pvc_post_views_label', __( 'Post Views Label', 'post-views-counter' ), array( $this, 'post_views_label' ), 'post_views_counter_settings_display', 'post_views_counter_settings_display' );
-		add_settings_field( 'pvc_post_types_display', __( 'Post Types Display', 'post-views-counter' ), array( $this, 'post_types_display' ), 'post_views_counter_settings_display', 'post_views_counter_settings_display' );
-		add_settings_field( 'pvc_restrict_display', __( 'Restrict Display', 'post-views-counter' ), array( $this, 'restrict_display' ), 'post_views_counter_settings_display', 'post_views_counter_settings_display' );
+		add_settings_field( 'pvc_post_types_display', __( 'Post Type', 'post-views-counter' ), array( $this, 'post_types_display' ), 'post_views_counter_settings_display', 'post_views_counter_settings_display' );
+		add_settings_field( 'pvc_page_types_display', __( 'Page Type', 'post-views-counter' ), array( $this, 'page_types_display' ), 'post_views_counter_settings_display', 'post_views_counter_settings_display' );
+		add_settings_field( 'pvc_restrict_display', __( 'User Type', 'post-views-counter' ), array( $this, 'restrict_display' ), 'post_views_counter_settings_display', 'post_views_counter_settings_display' );
 		add_settings_field( 'pvc_position', __( 'Position', 'post-views-counter' ), array( $this, 'position' ), 'post_views_counter_settings_display', 'post_views_counter_settings_display' );
 		add_settings_field( 'pvc_display_style', __( 'Display Style', 'post-views-counter' ), array( $this, 'display_style' ), 'post_views_counter_settings_display', 'post_views_counter_settings_display' );
 		add_settings_field( 'pvc_icon_class', __( 'Icon Class', 'post-views-counter' ), array( $this, 'icon_class' ), 'post_views_counter_settings_display', 'post_views_counter_settings_display' );
@@ -260,7 +269,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		echo '
-			<p class="description">' . esc_html__( 'Select post types for which post views will be displayed.', 'post-views-counter' ) . '</p>
+			<p class="description">' . esc_html__( 'Select post types for which the views count will be displayed.', 'post-views-counter' ) . '</p>
 		</div>';
 	}
 
@@ -442,6 +451,23 @@ class Post_Views_Counter_Settings {
 			<label class="cb-checkbox"><input type="checkbox" name="post_views_counter_settings_general[deactivation_delete]" value="1" ' . checked( true, Post_Views_Counter()->options['general']['deactivation_delete'], false ) . ' />' . esc_html__( 'Enable to delete all plugin data on deactivation.', 'post-views-counter' ) . '</label>
 		</div>';
 	}
+	
+	/**
+	 * Visibility option.
+	 */
+	public function page_types_display() {
+		echo '
+		<div id="pvc_post_types_display">';
+		
+		foreach ( $this->page_types as $key => $label ) {
+			echo '
+				<label class="cb-checkbox"><input id="pvc_page_types_display-' . esc_attr( $key ) . '" type="checkbox" name="post_views_counter_settings_display[page_types_display][' . esc_attr( $key ) . ']" value="1" ' . checked( in_array( $key, Post_Views_Counter()->options['display']['page_types_display'], true ), true, false ) . ' />' . esc_html( $label ) . '</label>';
+		}
+
+		echo '
+			<p class="description">' . esc_html__( 'Select page types where the views count will be displayed.', 'post-views-counter' ) . '</p>
+		</div>';
+	}
 
 	/**
 	 * Counter position option.
@@ -488,7 +514,7 @@ class Post_Views_Counter_Settings {
 		echo '
 		<div id="pvc_icon_class">
 			<input type="text" name="post_views_counter_settings_display[icon_class]" class="large-text" value="' . esc_attr( Post_Views_Counter()->options['display']['icon_class'] ) . '" />
-			<p class="description">' . sprintf( __( 'Enter the post views icon class. Any of the <a href="%s" target="_blank">Dashicons</a> classes are available.', 'post-views-counter' ), 'http://melchoyce.github.io/dashicons/' ) . '</p>
+			<p class="description">' . sprintf( __( 'Enter the post views icon class. Any of the <a href="%s" target="_blank">Dashicons</a> classes are available.', 'post-views-counter' ), 'https://developer.wordpress.org/resource/dashicons/' ) . '</p>
 		</div>';
 	}
 
@@ -676,6 +702,19 @@ class Post_Views_Counter_Settings {
 				$input['post_types_display'] = array_unique( $post_types );
 			} else
 				$input['post_types_display'] = array();
+			
+			// page types display
+			if ( isset( $input['page_types_display'] ) ) {
+				$page_types = array();
+
+				foreach ( $input['page_types_display'] as $page_type => $set ) {
+					if ( isset( $this->page_types[$page_type] ) )
+						$page_types[] = $page_type;
+				}
+
+				$input['page_types_display'] = array_unique( $page_types );
+			} else
+				$input['page_types_display'] = array();
 
 			// restrict display
 			if ( isset( $input['restrict_display']['groups'] ) ) {

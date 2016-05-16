@@ -18,10 +18,11 @@ class Post_Views_Counter_Query {
 		add_filter( 'posts_groupby', array( $this, 'posts_groupby' ), 10, 2 );
 		add_filter( 'posts_orderby', array( $this, 'posts_orderby' ), 10, 2 );
 		add_filter( 'posts_fields', array( $this, 'posts_fields' ), 10, 2 );
+		add_filter( 'the_posts', array( $this, 'the_posts' ), 10, 2 );
 	}
 
 	/**
-	 * Regiseter views_query var.
+	 * Register views_query var.
 	 *
 	 * @param array $query_vars
 	 * @return array
@@ -34,7 +35,7 @@ class Post_Views_Counter_Query {
 
 	/**
 	 * Extend query with post_views orderby parameter.
-	 * 
+	 *
 	 * @param object $query
 	 */
 	public function extend_pre_query( $query ) {
@@ -136,6 +137,9 @@ class Post_Views_Counter_Query {
 
 			if ( strpos( $groupby, $wpdb->prefix . 'posts.ID' ) === false )
 				$groupby = ( $groupby !== '' ? $groupby . ', ' : '') . $wpdb->prefix . 'posts.ID';
+
+			if ( ! isset( $query->query['views_query']['hide_empty'] ) || $query->query['views_query']['hide_empty'] === true )
+				$groupby .= ' HAVING post_views > 0';
 		}
 
 		return $groupby;
@@ -155,7 +159,7 @@ class Post_Views_Counter_Query {
 			global $wpdb;
 
 			$order = $query->get( 'order' );
-			$orderby = 'pvc.count ' . $order . ', ' . $wpdb->prefix . 'posts.ID ' . $order;
+			$orderby = ( ! isset( $query->query['views_query']['hide_empty'] ) || $query->query['views_query']['hide_empty'] === true ? 'post_views' : 'pvc.count' ) . ' ' . $order . ', ' . $wpdb->prefix . 'posts.ID ' . $order;
 		}
 
 		return $orderby;
@@ -170,9 +174,35 @@ class Post_Views_Counter_Query {
 	 */
 	public function posts_fields( $fields, $query ) {
 		if ( ( ! isset( $query->query['fields'] ) || $query->query['fields'] === '' ) && ( ( isset( $query->pvc_orderby ) && $query->pvc_orderby ) || ( isset( $query->pvc_query ) && $query->pvc_query ) || apply_filters( 'pvc_extend_post_object', false, $query ) === true ) )
-			$fields = $fields . ', IFNULL( pvc.count, 0 ) AS post_views';
+			$fields = $fields . ', SUM( IFNULL( pvc.count, 0 ) ) AS post_views';
 
 		return $fields;
+	}
+
+	/**
+	 * Extend query object with total post views.
+	 *
+	 * @param array $posts
+	 * @param object $query
+	 * @return array
+	 */
+	public function the_posts( $posts, $query ) {
+		if ( ( isset( $query->pvc_orderby ) && $query->pvc_orderby ) || ( isset( $query->pvc_query ) && $query->pvc_query ) || apply_filters( 'pvc_extend_post_object', false, $query ) === true ) {
+			$sum = 0;
+
+			// any posts found?
+			if ( ! empty( $posts ) ) {
+				foreach ( $posts as $post ) {
+					if ( ! empty( $post->post_views ) )
+						$sum += (int) $post->post_views;
+				}
+			}
+
+			// pass total views
+			$query->total_views = $sum;
+		}
+
+		return $posts;
 	}
 
 	/**

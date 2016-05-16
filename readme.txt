@@ -3,8 +3,8 @@ Contributors: dfactory
 Donate link: http://www.dfactory.eu/
 Tags: counter, hits, postviews, post views, views, count
 Requires at least: 4.0.0
-Tested up to: 4.3.1
-Stable tag: 1.1.3
+Tested up to: 4.5
+Stable tag: 1.2.1
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -21,6 +21,7 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * Option to select post types for which post views will be counted and displayed.
 * 2 methods of collecting post views data: PHP and Javascript, for greater flexibility
 * Possibility to manually set views count for each post
+* Dashboard post views stats widget
 * Capability to query posts according to its views count
 * Option to set time between counts
 * Excluding counts from visitors: bots, logged in users, selected user roles
@@ -66,6 +67,18 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.2.1 =
+* New: Option to display post views on select page types
+* Tweak: Dashboard widget query optimization
+
+= 1.2.0 =
+* New: Dashboard post views stats widget
+* Fix: A couple of typos in method names
+
+= 1.1.4 =
+* Fix: Dashicons link broken.
+* Tweak: Confirmed WordPress 4.4 compatibility 
 
 = 1.1.3 =
 * Fix: Duplicated views count in custom post types
@@ -125,6 +138,6 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.1.3 =
-* Fix: Duplicated views count in custom post types
-* Fix: Exclude visitors checkboxes not working
+= 1.2.1 =
+* New: Option to display post views on select page types
+* Tweak: Dashboard widget query optimization
