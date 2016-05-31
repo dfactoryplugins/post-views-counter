@@ -286,7 +286,7 @@ class Post_Views_Counter_Columns {
 	 */
 	function save_bulk_post_views() {
 		
-		$post_ids = ( ! empty( $_POST[ 'post_ids' ] ) && is_array( $post_ids ) ) ? array_map( 'absint', $_POST[ 'post_ids' ] ) : array();
+		$post_ids = ( ! empty( $_POST[ 'post_ids' ] ) && is_array( $_POST['post_ids'] ) ) ? array_map( 'absint', $_POST[ 'post_ids' ] ) : array();
 		$count = ( ! empty( $_POST[ 'post_views' ] ) ) ? absint( $_POST[ 'post_views' ] ) : null;
 		
 		// break if views editing is restricted
