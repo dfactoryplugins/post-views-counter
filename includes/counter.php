@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Counter class.
+ * 
+ * @class Post_Views_Counter_Counter
  */
 class Post_Views_Counter_Counter {
 
@@ -28,22 +30,49 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
+	 * Check if IPv4 is in range.
+	 *
+	 * @param string $ip IP address
+	 * @param string $range IP range
+	 * @return boolean Whether IP is in range
+	 */
+	function ipv4_in_range( $ip, $range ) {
+		$start = str_replace( '*', '0', $range );
+		$end = str_replace( '*', '255', $range );
+		$ip = (float) sprintf( "%u", ip2long( $ip ) );
+
+		return ( $ip >= (float) sprintf( "%u", ip2long( $start ) ) && $ip <= (float) sprintf( "%u", ip2long( $end ) ) );
+	}
+
+	/**
 	 * Check whether to count visit.
 	 * 
 	 * @param int $id
 	 */
 	public function check_post( $id = 0 ) {
 		// get post id
-		$id = (int) (empty( $id ) ? get_the_ID() : $id);
-		
+		$id = (int) ( empty( $id ) ? get_the_ID() : $id );
+
+		// empty id?
 		if ( empty( $id ) )
 			return;
 
+		// get ips
 		$ips = Post_Views_Counter()->options['general']['exclude_ips'];
 
 		// whether to count this ip
-		if ( ! empty( $ips ) && filter_var( preg_replace( '/[^0-9a-fA-F:., ]/', '', $_SERVER['REMOTE_ADDR'] ), FILTER_VALIDATE_IP ) && in_array( $_SERVER['REMOTE_ADDR'], $ips, true ) )
-			return;
+		if ( ! empty( $ips ) && filter_var( preg_replace( '/[^0-9a-fA-F:., ]/', '', $_SERVER['REMOTE_ADDR'] ), FILTER_VALIDATE_IP ) ) {
+			// check ips
+			foreach ( $ips as $ip ) {
+				if ( strpos( $ip, '*' ) !== false ) {
+					if ( $this->ipv4_in_range( $_SERVER['REMOTE_ADDR'], $ip ) )
+						return;
+				} else {
+					if ( $_SERVER['REMOTE_ADDR'] === $ip )
+						return;
+				}
+			}
+		}
 
 		// get groups to check them faster
 		$groups = Post_Views_Counter()->options['general']['exclude']['groups'];
@@ -62,7 +91,7 @@ class Post_Views_Counter_Counter {
 			return;
 
 		// whether to count robots
-		if ( $this->is_robot() )
+		if ( in_array( 'robots', $groups, true ) && Post_Views_Counter()->crawler_detect->is_crawler() )
 			return;
 
 		// cookie already existed?
@@ -80,14 +109,15 @@ class Post_Views_Counter_Counter {
 		// set new cookie
 			$this->save_cookie( $id );
 
+		$count_visit = (bool) apply_filters( 'pvc_count_visit', true, $id );
+
 		// count visit
-		$this->count_visit( $id );
+		if ( $count_visit )
+			$this->count_visit( $id );
 	}
-	
+
 	/**
 	 * Check whether to count visit via PHP request.
-	 * 
-	 * @param int $id
 	 */
 	public function check_post_php() {
 		// do not count admin entries
@@ -97,7 +127,7 @@ class Post_Views_Counter_Counter {
 		// do we use PHP as counter?
 		if ( Post_Views_Counter()->options['general']['counter_mode'] != 'php' )
 			return;
-		
+
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
 		// whether to count this post type
@@ -106,17 +136,17 @@ class Post_Views_Counter_Counter {
 
 		$this->check_post( get_the_ID() );
 	}
-	
+
 	/**
 	 * Check whether to count visit via AJAX request.
 	 */
 	public function check_post_ajax() {
 		if ( isset( $_POST['action'], $_POST['post_id'], $_POST['pvc_nonce'], $_POST['post_type'] ) && $_POST['action'] === 'pvc-check-post' && ($post_id = (int) $_POST['post_id']) > 0 && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-check-post' ) !== false ) {
-			
+
 			// do we use Ajax as counter?
 			if ( Post_Views_Counter()->options['general']['counter_mode'] != 'js' )
 				exit;
-			
+
 			// get countable post types
 			$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
@@ -126,9 +156,8 @@ class Post_Views_Counter_Counter {
 			// whether to count this post type or not
 			if ( empty( $post_types ) || empty( $post_type ) || $post_type !== $_POST['post_type'] || ! in_array( $post_type, $post_types, true ) )
 				exit;
-			
+
 			$this->check_post( $post_id );
-			
 		}
 
 		exit;
@@ -261,26 +290,27 @@ class Post_Views_Counter_Counter {
 
 		$cache_key_names = array();
 		$using_object_cache = $this->using_object_cache();
+		$increment_amount = (int) apply_filters( 'pvc_views_increment_amount', 1, $id );
 
 		// get day, week, month and year
 		$date = explode( '-', date( 'W-d-m-Y', current_time( 'timestamp' ) ) );
 
-		foreach( array(
-		0	 => $date[3] . $date[2] . $date[1], // day like 20140324
-		1	 => $date[3] . $date[0], // week like 201439
-		2	 => $date[3] . $date[2], // month like 201405
-		3	 => $date[3], // year like 2014
-		4	 => 'total'	  // total views
+		foreach ( array(
+			0	 => $date[3] . $date[2] . $date[1], // day like 20140324
+			1	 => $date[3] . $date[0], // week like 201439
+			2	 => $date[3] . $date[2], // month like 201405
+			3	 => $date[3], // year like 2014
+			4	 => 'total'   // total views
 		) as $type => $period ) {
 			if ( $using_object_cache ) {
 				$cache_key = $id . self::CACHE_KEY_SEPARATOR . $type . self::CACHE_KEY_SEPARATOR . $period;
 				wp_cache_add( $cache_key, 0, self::GROUP );
-				wp_cache_incr( $cache_key, 1, self::GROUP );
+				wp_cache_incr( $cache_key, $increment_amount, self::GROUP );
 				$cache_key_names[] = $cache_key;
 			} else {
 				// hit the db directly
 				// @TODO: investigate queueing these queries on the 'shutdown' hook instead instead of running them instantly?
-				$this->db_insert( $id, $type, $period, 1 );
+				$this->db_insert( $id, $type, $period, $increment_amount );
 			}
 		}
 
@@ -293,10 +323,11 @@ class Post_Views_Counter_Counter {
 
 		return true;
 	}
-	
+
 	/**
 	 * Remove post views from database when post is deleted.
 	 * 
+	 * @global object $wpdb
 	 * @param int $post_id
 	 */
 	public function delete_post_views( $post_id ) {
@@ -306,7 +337,6 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
-	 * 
 	 * Get timestamp convertion.
 	 * 
 	 * @param string $type
@@ -324,9 +354,9 @@ class Post_Views_Counter_Counter {
 			'years'		 => 946080000
 		);
 
-		return ($timestamp ? current_time( 'timestamp', true ) : 0) + $number * $converter[$type];
+		return ( $timestamp ? current_time( 'timestamp', true ) : 0 ) + $number * $converter[$type];
 	}
-	
+
 	/**
 	 * Check if object cache is in use.
 	 * 
@@ -408,7 +438,7 @@ class Post_Views_Counter_Counter {
 			$key_names = explode( '|', $key_names );
 		}
 
-		foreach( $key_names as $key_name ) {
+		foreach ( $key_names as $key_name ) {
 			// get values stored within the key name itself
 			list( $id, $type, $period ) = explode( self::CACHE_KEY_SEPARATOR, $key_name );
 			// get the cached count value
@@ -449,14 +479,14 @@ class Post_Views_Counter_Counter {
 		}
 
 		return $wpdb->query(
-				$wpdb->prepare( "
-				INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
-				VALUES (%d, %d, %s, %d)
-				ON DUPLICATE KEY UPDATE count = count + %d", $id, $type, $period, $count, $count
-				)
+		$wpdb->prepare( "
+		    INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
+		    VALUES (%d, %d, %s, %d)
+		    ON DUPLICATE KEY UPDATE count = count + %d", $id, $type, $period, $count, $count
+		)
 		);
 	}
-	
+
 	/**
 	 * Check whether user has excluded roles.
 	 * 
@@ -476,25 +506,6 @@ class Post_Views_Counter_Counter {
 				if ( in_array( $role, $option, true ) )
 					return true;
 			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Check whether visitor is a bot.
-	 */
-	private function is_robot() {
-		if ( ! isset( $_SERVER['HTTP_USER_AGENT'] ) || (isset( $_SERVER['HTTP_USER_AGENT'] ) && trim( $_SERVER['HTTP_USER_AGENT'] ) === '') )
-			return false;
-
-		$robots = array(
-			'bot', 'b0t', 'Acme.Spider', 'Ahoy! The Homepage Finder', 'Alkaline', 'Anthill', 'Walhello appie', 'Arachnophilia', 'Arale', 'Araneo', 'ArchitextSpider', 'Aretha', 'ARIADNE', 'arks', 'AskJeeves', 'ASpider (Associative Spider)', 'ATN Worldwide', 'AURESYS', 'BackRub', 'Bay Spider', 'Big Brother', 'Bjaaland', 'BlackWidow', 'Die Blinde Kuh', 'Bloodhound', 'BSpider', 'CACTVS Chemistry Spider', 'Calif', 'Cassandra', 'Digimarc Marcspider/CGI', 'ChristCrawler.com', 'churl', 'cIeNcIaFiCcIoN.nEt', 'CMC/0.01', 'Collective', 'Combine System', 'Web Core / Roots', 'Cusco', 'CyberSpyder Link Test', 'CydralSpider', 'Desert Realm Spider', 'DeWeb(c) Katalog/Index', 'DienstSpider', 'Digger', 'Direct Hit Grabber', 'DownLoad Express', 'DWCP (Dridus\' Web Cataloging Project)', 'e-collector', 'EbiNess', 'Emacs-w3 Search Engine', 'ananzi', 'esculapio', 'Esther', 'Evliya Celebi', 'FastCrawler', 'Felix IDE', 'Wild Ferret Web Hopper #1, #2, #3', 'FetchRover', 'fido', 'KIT-Fireball', 'Fish search', 'Fouineur', 'Freecrawl', 'FunnelWeb', 'gammaSpider, FocusedCrawler', 'gazz', 'GCreep', 'GetURL', 'Golem', 'Grapnel/0.01 Experiment', 'Griffon', 'Gromit', 'Northern Light Gulliver', 'Harvest', 'havIndex', 'HI (HTML Index) Search', 'Hometown Spider Pro', 'ht://Dig', 'HTMLgobble', 'Hyper-Decontextualizer', 'IBM_Planetwide', 'Popular Iconoclast', 'Ingrid', 'Imagelock', 'IncyWincy', 'Informant', 'Infoseek Sidewinder', 'InfoSpiders', 'Inspector Web', 'IntelliAgent', 'Iron33', 'Israeli-search', 'JavaBee', 'JCrawler', 'Jeeves', 'JumpStation', 'image.kapsi.net', 'Katipo', 'KDD-Explorer', 'Kilroy', 'LabelGrabber', 'larbin', 'legs', 'Link Validator', 'LinkScan', 'LinkWalker', 'Lockon', 'logo.gif Crawler', 'Lycos', 'Mac WWWWorm', 'Magpie', 'marvin/infoseek', 'Mattie', 'MediaFox', 'MerzScope', 'NEC-MeshExplorer', 'MindCrawler', 'mnoGoSearch search engine software', 'moget', 'MOMspider', 'Monster', 'Motor', 'Muncher', 'Muninn', 'Muscat Ferret', 'Mwd.Search', 'Internet Shinchakubin', 'NDSpider', 'Nederland.zoek', 'NetCarta WebMap Engine', 'NetMechanic', 'NetScoop', 'newscan-online', 'NHSE Web Forager', 'Nomad', 'nzexplorer', 'ObjectsSearch', 'Occam', 'HKU WWW Octopus', 'OntoSpider', 'Openfind data gatherer', 'Orb Search', 'Pack Rat', 'PageBoy', 'ParaSite', 'Patric', 'pegasus', 'The Peregrinator', 'PerlCrawler 1.0', 'Phantom', 'PhpDig', 'PiltdownMan', 'Pioneer', 'html_analyzer', 'Portal Juice Spider', 'PGP Key Agent', 'PlumtreeWebAccessor', 'Poppi', 'PortalB Spider', 'GetterroboPlus Puu', 'Raven Search', 'RBSE Spider', 'RoadHouse Crawling System', 'ComputingSite Robi/1.0', 'RoboCrawl Spider', 'RoboFox', 'Robozilla', 'RuLeS', 'Scooter', 'Sleek', 'Search.Aus-AU.COM', 'SearchProcess', 'Senrigan', 'SG-Scout', 'ShagSeeker', 'Shai\'Hulud', 'Sift', 'Site Valet', 'SiteTech-Rover', 'Skymob.com', 'SLCrawler', 'Inktomi Slurp', 'Smart Spider', 'Snooper', 'Spanner', 'Speedy Spider', 'spider_monkey', 'Spiderline Crawler', 'SpiderMan', 'SpiderView(tm)', 'Site Searcher', 'Suke', 'suntek search engine', 'Sven', 'Sygol', 'TACH Black Widow', 'Tarantula', 'tarspider', 'Templeton', 'TeomaTechnologies', 'TITAN', 'TitIn', 'TLSpider', 'UCSD Crawl', 'UdmSearch', 'URL Check', 'URL Spider Pro', 'Valkyrie', 'Verticrawl', 'Victoria', 'vision-search', 'Voyager', 'W3M2', 'WallPaper (alias crawlpaper)', 'the World Wide Web Wanderer', 'w@pSpider by wap4.com', 'WebBandit Web Spider', 'WebCatcher', 'WebCopy', 'webfetcher', 'Webinator', 'weblayers', 'WebLinker', 'WebMirror', 'The Web Moose', 'WebQuest', 'Digimarc MarcSpider', 'WebReaper', 'webs', 'Websnarf', 'WebSpider', 'WebVac', 'webwalk', 'WebWalker', 'WebWatch', 'Wget', 'whatUseek Winona', 'Wired Digital', 'Weblog Monitor', 'w3mir', 'WebStolperer', 'The Web Wombat', 'The World Wide Web Worm', 'WWWC Ver 0.2.5', 'WebZinger', 'XGET'
-		);
-
-		foreach( $robots as $robot ) {
-			if ( stripos( $_SERVER['HTTP_USER_AGENT'], $robot ) !== false )
-				return true;
 		}
 
 		return false;

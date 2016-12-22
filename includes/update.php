@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Update class.
+ * 
+ * @class Post_Views_Counter_Update
  */
 class Post_Views_Counter_Update {
 
@@ -26,7 +28,7 @@ class Post_Views_Counter_Update {
 		// new version?
 		if ( version_compare( $current_db_version, Post_Views_Counter()->defaults['version'], '<' ) ) {
 			// update plugin version
-			update_option( 'post_views_counter_version', Post_Views_Counter()->defaults['version'] );
+			update_option( 'post_views_counter_version', Post_Views_Counter()->defaults['version'], false );
 		}
 	}
 

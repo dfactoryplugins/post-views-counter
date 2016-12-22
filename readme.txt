@@ -3,8 +3,8 @@ Contributors: dfactory
 Donate link: http://www.dfactory.eu/
 Tags: counter, hits, postviews, post views, views, count
 Requires at least: 4.0.0
-Tested up to: 4.5
-Stable tag: 1.2.1
+Tested up to: 4.7
+Stable tag: 1.2.4
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -36,16 +36,6 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * WPML and Polylang compatible
 * .pot file for translations included
 
-= Translations: =
-
-* Croation - by [Tomas Trkulja](http://zytzagoo.net/blog/)
-* French - by[Theophil Bethel](http://reseau-chretien-gironde.fr/)
-* Hebrew - by [Ahrale Shrem](http://atar4u.com/)
-* Italian - by [Rene Querin](http://www.q-design.it)
-* Polish - by Bartosz Arendt
-* Russian - by moonkir
-* Spanish - by [Carlos Rodriguez](http://cglevel.com/)
-
 = Get involved =
 
 Feel free to contribute to the source code on the [dFactory GitHub Repository](https://github.com/dfactoryplugins).
@@ -67,6 +57,18 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.2.4 =
+* New: Advanced crawler detection
+* Tweak: Chart.js script update to 2.4.0
+
+= 1.2.3 =
+* New: IP wildcard support
+* Tweak: Delete post_views database table on deactivation
+
+= 1.2.2 =
+* Fix: Notice undefined variable: post_ids, thanks to [zytzagoo](https://github.com/zytzagoo)
+* Tweak: Switched translation files storage, from local to WP repository
 
 = 1.2.1 =
 * New: Option to display post views on select page types
@@ -138,6 +140,6 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.2.1 =
-* New: Option to display post views on select page types
-* Tweak: Dashboard widget query optimization
+= 1.2.4 =
+* New: Advanced crawler detection
+* Tweak: Chart.js script update to 2.4.0

@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Query class.
+ * 
+ * @class Post_Views_Counter_Query
  */
 class Post_Views_Counter_Query {
 
@@ -56,48 +58,48 @@ class Post_Views_Counter_Query {
 
 		if ( ! empty( $query->query['views_query'] ) ) {
 			if ( isset( $query->query['views_query']['year'] ) )
-				$year = (int)$query->query['views_query']['year'];
+				$year = (int) $query->query['views_query']['year'];
 
 			if ( isset( $query->query['views_query']['month'] ) )
-				$month = (int)$query->query['views_query']['month'];
+				$month = (int) $query->query['views_query']['month'];
 
 			if ( isset( $query->query['views_query']['week'] ) )
-				$week = (int)$query->query['views_query']['week'];
+				$week = (int) $query->query['views_query']['week'];
 
 			if ( isset( $query->query['views_query']['day'] ) )
-				$day = (int)$query->query['views_query']['day'];
+				$day = (int) $query->query['views_query']['day'];
 
 			// year
 			if ( isset( $year ) ) {
 				// year, week
 				if ( isset( $week ) && $this->is_valid_date( 'yw', $year, 0, 0, $week ) ) {
 					$sql = " AND pvc.type = 1 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $week, 2, 0, STR_PAD_LEFT ) . "'";
-				// year, month
+					// year, month
 				} elseif ( isset( $month ) ) {
 					// year, month, day
 					if ( isset( $day ) && $this->is_valid_date( 'ymd', $year, $month, $day ) ) {
 						$sql = " AND pvc.type = 0 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $month, 2, 0, STR_PAD_LEFT ) . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
-					// year, month
+						// year, month
 					} elseif ( $this->is_valid_date( 'ym', $year, $month ) ) {
 						$sql = " AND pvc.type = 2 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $month, 2, 0, STR_PAD_LEFT ) . "'";
 					}
-				// year
+					// year
 				} elseif ( $this->is_valid_date( 'y', $year ) ) {
 					$sql = " AND pvc.type = 3 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . "'";
 				}
-			// month
+				// month
 			} elseif ( isset( $month ) ) {
 				// month, day
 				if ( isset( $day ) && $this->is_valid_date( 'md', 0, $month, $day ) ) {
 					$sql = " AND pvc.type = 0 AND RIGHT( pvc.period, 4 ) = '" . str_pad( $month, 2, 0, STR_PAD_LEFT ) . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
-				// month
+					// month
 				} elseif ( $this->is_valid_date( 'm', 0, $month ) ) {
 					$sql = " AND pvc.type = 2 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $month, 2, 0, STR_PAD_LEFT ) . "'";
 				}
-			// week
+				// week
 			} elseif ( isset( $week ) && $this->is_valid_date( 'w', 0, 0, 0, $week ) ) {
 				$sql = " AND pvc.type = 1 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $week, 2, 0, STR_PAD_LEFT ) . "'";
-			// day
+				// day
 			} elseif ( isset( $day ) && $this->is_valid_date( 'd', 0, 0, $day ) ) {
 				$sql = " AND pvc.type = 0 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
 			}
@@ -216,7 +218,7 @@ class Post_Views_Counter_Query {
 	 * @return bool
 	 */
 	private function is_valid_date( $type, $year = 0, $month = 0, $day = 0, $week = 0 ) {
-		switch( $type ) {
+		switch ( $type ) {
 			case 'y':
 				$bool = ( $year >= 1 && $year <= 32767 );
 				break;
@@ -252,4 +254,5 @@ class Post_Views_Counter_Query {
 
 		return $bool;
 	}
+
 }

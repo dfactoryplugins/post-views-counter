@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Frontend class.
+ * 
+ * @class Post_Views_Counter_Frontend
  */
 class Post_Views_Counter_Frontend {
 
@@ -37,22 +39,21 @@ class Post_Views_Counter_Frontend {
 
 		return pvc_post_views( $args['id'], false );
 	}
-	
+
 	/**
 	 * Set up plugin hooks.
 	 */
 	public function run() {
-		
+
 		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
 			return;
-		
+
 		$filter = apply_filters( 'pvc_shortcode_filter_hook', Post_Views_Counter()->options['display']['position'] );
-		
+
 		if ( ! empty( $filter ) && in_array( $filter, array( 'before', 'after' ) ) ) {
 			// post content
 			add_filter( 'the_content', array( $this, 'add_post_views_count' ) );
 			// add_filter( 'the_excerpt', array( $this, 'add_post_views_count' ) );
-
 			// bbpress
 			add_filter( 'bbp_get_topic_content', array( $this, 'add_post_views_count' ) );
 			add_filter( 'bbp_get_reply_content', array( $this, 'add_post_views_count' ) );
@@ -66,17 +67,19 @@ class Post_Views_Counter_Frontend {
 	/**
 	 * Add post views counter to content.
 	 * 
+	 * @global object $post
+	 * @global string $wp_current_filter
 	 * @param mixed $content
 	 * @return mixed
 	 */
 	public function add_post_views_count( $content = '' ) {
 		global $post, $wp_current_filter;
-		
+
 		$display = false;
 
 		// get post types
 		$post_types = Post_Views_Counter()->options['display']['post_types_display'];
-		
+
 		// get pages
 		$pages = Post_Views_Counter()->options['display']['page_types_display'];
 
@@ -85,16 +88,20 @@ class Post_Views_Counter_Frontend {
 			foreach ( $pages as $page ) {
 				switch ( $page ) {
 					case 'singular' :
-						if ( is_singular( $post_types ) ) $display = true;
+						if ( is_singular( $post_types ) )
+							$display = true;
 						break;
 					case 'archive' :
-						if ( is_archive() ) $display = true;
+						if ( is_archive() )
+							$display = true;
 						break;
 					case 'search' :
-						if ( is_search() ) $display = true;
+						if ( is_search() )
+							$display = true;
 						break;
 					case 'home' :
-						if ( is_home() || is_front_page() ) $display = true;
+						if ( is_home() || is_front_page() )
+							$display = true;
 						break;
 				}
 			}
@@ -115,15 +122,15 @@ class Post_Views_Counter_Frontend {
 		// exclude guests?
 		elseif ( in_array( 'guests', $groups, true ) )
 			$display = false;
-		
+
 		// we don't want to mess custom loops
 		if ( ! in_the_loop() )
 			$display = false;
-		
+
 		if ( apply_filters( 'pvc_display_views_count', $display ) === true ) {
 
 			$filter = apply_filters( 'pvc_shortcode_filter_hook', Post_Views_Counter()->options['display']['position'] );
-			
+
 			switch ( $filter ) {
 				case 'after':
 					$content = $content . do_shortcode( '[post-views]' );
@@ -148,11 +155,13 @@ class Post_Views_Counter_Frontend {
 	public function frontend_scripts_styles() {
 		$post_types = Post_Views_Counter()->options['display']['post_types_display'];
 
-		// load dashicons
-		wp_enqueue_style( 'dashicons' );
+		if ( (bool) apply_filters( 'pvc_enqueue_styles', true ) === true ) {
+			// load dashicons
+			wp_enqueue_style( 'dashicons' );
 
-		// load style
-		wp_enqueue_style( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/css/frontend.css' );
+			// load style
+			wp_enqueue_style( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/css/frontend.css' );
+		}
 
 		if ( Post_Views_Counter()->options['general']['counter_mode'] === 'js' ) {
 			$post_types = Post_Views_Counter()->options['general']['post_types_count'];
@@ -162,21 +171,20 @@ class Post_Views_Counter_Frontend {
 				return;
 
 			wp_register_script(
-				'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/js/frontend.js', array( 'jquery' )
+			'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/js/frontend.js', array( 'jquery' )
 			);
 
 			wp_enqueue_script( 'post-views-counter-frontend' );
 
 			wp_localize_script(
-				'post-views-counter-frontend',
-				'pvcArgsFrontend',
-				array(
-					'ajaxURL'	 => admin_url( 'admin-ajax.php' ),
-					'postID'	 => get_the_ID(),
-					'nonce'		 => wp_create_nonce( 'pvc-check-post' ),
-					'postType'	 => get_post_type()
-				)
+			'post-views-counter-frontend', 'pvcArgsFrontend', array(
+				'ajaxURL'	 => admin_url( 'admin-ajax.php' ),
+				'postID'	 => get_the_ID(),
+				'nonce'		 => wp_create_nonce( 'pvc-check-post' ),
+				'postType'	 => get_post_type()
+			)
 			);
 		}
 	}
+
 }

@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Columns class.
+ * 
+ * @class Post_Views_Counter_Columns
  */
 class Post_Views_Counter_Columns {
 
@@ -14,7 +16,7 @@ class Post_Views_Counter_Columns {
 		add_action( 'post_submitbox_misc_actions', array( $this, 'submitbox_views' ) );
 		add_action( 'save_post', array( $this, 'save_post' ), 10, 2 );
 		add_action( 'bulk_edit_custom_box', array( $this, 'quick_edit_custom_box' ), 10, 2 );
-		add_action( 'quick_edit_custom_box', array( $this, 'quick_edit_custom_box') , 10, 2 );
+		add_action( 'quick_edit_custom_box', array( $this, 'quick_edit_custom_box' ), 10, 2 );
 		add_action( 'wp_ajax_save_bulk_post_views', array( $this, 'save_bulk_post_views' ) );
 	}
 
@@ -22,8 +24,6 @@ class Post_Views_Counter_Columns {
 	 * Output post views for single post.
 	 * 
 	 * @global object $post
-	 * @global object $wpbd
-	 *
 	 * @return mixed 
 	 */
 	public function submitbox_views() {
@@ -33,21 +33,13 @@ class Post_Views_Counter_Columns {
 
 		if ( ! in_array( $post->post_type, (array) $post_types ) )
 			return;
-		
+
 		// break if current user can't edit this post
 		if ( ! current_user_can( 'edit_post', $post->ID ) )
 			return;
 
-		global $wpdb;
-
 		// get total post views
-		$count = $wpdb->get_var(
-			$wpdb->prepare( "
-				SELECT count
-				FROM " . $wpdb->prefix . "post_views
-				WHERE id = %d AND type = 4", absint( $post->ID )
-			)
-		);
+		$count = pvc_get_post_views( $post->ID );
 		?>
 
 		<div class="misc-pub-section" id="post-views">
@@ -55,20 +47,19 @@ class Post_Views_Counter_Columns {
 			<?php wp_nonce_field( 'post_views_count', 'pvc_nonce' ); ?>
 
 			<span id="post-views-display">
-
 				<?php echo __( 'Post Views', 'post-views-counter' ) . ': <b>' . number_format_i18n( (int) $count ) . '</b>'; ?>
-
 			</span>
-			
-			<?php // restrict editing
+
+			<?php
+			// restrict editing
 			$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
-			
+
 			if ( $restrict === false || ( $restrict === true && current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) ) ) {
 				?>
 				<a href="#post-views" class="edit-post-views hide-if-no-js"><?php _e( 'Edit', 'post-views-counter' ); ?></a>
-	
+
 				<div id="post-views-input-container" class="hide-if-js">
-	
+
 					<p><?php _e( 'Adjust the views count for this post.', 'post-views-counter' ); ?></p>
 					<input type="hidden" name="current_post_views" id="post-views-current" value="<?php echo (int) $count; ?>" />
 					<input type="text" name="post_views" id="post-views-input" value="<?php echo (int) $count; ?>"/><br />
@@ -76,7 +67,7 @@ class Post_Views_Counter_Columns {
 						<a href="#post-views" class="save-post-views hide-if-no-js button"><?php _e( 'OK', 'post-views-counter' ); ?></a>
 						<a href="#post-views" class="cancel-post-views hide-if-no-js"><?php _e( 'Cancel', 'post-views-counter' ); ?></a>
 					</p>
-	
+
 				</div>
 				<?php
 			}
@@ -111,13 +102,13 @@ class Post_Views_Counter_Columns {
 
 		if ( ! in_array( $post->post_type, (array) $post_types ) )
 			return $post_id;
-		
+
 		// break if views editing is restricted
 		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
-			
+
 		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			return $post_id;
-		
+
 		// validate data		
 		if ( ! isset( $_POST['pvc_nonce'] ) || ! wp_verify_nonce( $_POST['pvc_nonce'], 'post_views_count' ) )
 			return $post_id;
@@ -129,9 +120,9 @@ class Post_Views_Counter_Columns {
 		// insert or update db post views count
 		$wpdb->query(
 			$wpdb->prepare( "
-				INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
-				VALUES (%d, %d, %s, %d)
-				ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $count, $count
+			INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
+			VALUES (%d, %d, %s, %d)
+			ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $count, $count
 			)
 		);
 
@@ -143,7 +134,7 @@ class Post_Views_Counter_Columns {
 	 */
 	public function register_new_column() {
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
-		
+
 		if ( ! empty( $post_types ) ) {
 			foreach ( $post_types as $post_type ) {
 				// actions
@@ -205,78 +196,58 @@ class Post_Views_Counter_Columns {
 	/**
 	 * Add post views column content.
 	 * 
-	 * @global object $wpdb
 	 * @param string $column_name
 	 * @param int $id
 	 * @return muxed
 	 */
 	public function add_new_column_content( $column_name, $id ) {
-
 		if ( $column_name === 'post_views' ) {
-
-			global $wpdb;
-
 			// get total post views
-			$count = $wpdb->get_var(
-				$wpdb->prepare( "
-					SELECT count
-					FROM " . $wpdb->prefix . "post_views
-					WHERE id = %d AND type = 4", $id
-				)
-			);
+			$count = pvc_get_post_views( $id );
 
-			echo (int) $count;
+			echo $count;
 		}
 	}
-	
+
 	/**
 	 * Handle quick edit.
 	 * 
 	 * @global string $pagenow
-	 * @global object $wpdb
 	 * @param string $column_name
 	 * @return mixed
 	 */
-   function quick_edit_custom_box( $column_name, $post_type ) {
-	   global $pagenow, $post;
+	function quick_edit_custom_box( $column_name, $post_type ) {
+		global $pagenow, $post;
 
-	   if ( $pagenow !== 'edit.php' )
-		   return;
-	   
-	   if ( ! Post_Views_Counter()->options['general']['post_views_column'] || ! in_array( $post_type, Post_Views_Counter()->options['general']['post_types_count'] ) )
-		   return;
-	   
-	   // break if views editing is restricted
+		if ( $pagenow !== 'edit.php' )
+			return;
+		
+		if ( $column_name != 'post_views' )
+			return;
+
+		if ( ! Post_Views_Counter()->options['general']['post_views_column'] || ! in_array( $post_type, Post_Views_Counter()->options['general']['post_types_count'] ) )
+			return;
+
+		// break if views editing is restricted
 		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
-			
+
 		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			return;
 
-	   if ( $column_name != 'post_views' )
-		   return;
-	   
-	   global $wpdb;
-
 		// get total post views
-		$count = $wpdb->get_var(
-			$wpdb->prepare( "
-				SELECT count
-				FROM " . $wpdb->prefix . "post_views
-				WHERE id = %d AND type = 4", $post->ID
-			)
-		);
-	   ?>
-	   <fieldset class="inline-edit-col-left">
-		   <div id="inline-edit-post_views" class="inline-edit-col">
-			   <label class="inline-edit-group">
-				   <span class="title"><?php _e( 'Post Views', 'post-views-counter' ); ?></span>
-				   <span class="input-text-wrap"><input type="text" name="post_views" class="title text" value="<?php echo absint( $count ); ?>"></span>
-				   <?php wp_nonce_field( 'post_views_count', 'pvc_nonce' ); ?>
-			   </label>
-		   </div>
-	   </fieldset>
-	   <?php
-   }
+		$count = $count = pvc_get_post_views( $post->ID );
+		?>
+		<fieldset class="inline-edit-col-left">
+			<div id="inline-edit-post_views" class="inline-edit-col">
+				<label class="inline-edit-group">
+					<span class="title"><?php _e( 'Post Views', 'post-views-counter' ); ?></span>
+					<span class="input-text-wrap"><input type="text" name="post_views" class="title text" value="<?php echo absint( $count ); ?>"></span>
+						<?php wp_nonce_field( 'post_views_count', 'pvc_nonce' ); ?>
+				</label>
+			</div>
+		</fieldset>
+		<?php
+	}
 
 	/**
 	 * Bulk save post views.
@@ -285,23 +256,23 @@ class Post_Views_Counter_Columns {
 	 * @return type
 	 */
 	function save_bulk_post_views() {
-		
-		$post_ids = ( ! empty( $_POST[ 'post_ids' ] ) && is_array( $_POST['post_ids'] ) ) ? array_map( 'absint', $_POST[ 'post_ids' ] ) : array();
-		$count = ( ! empty( $_POST[ 'post_views' ] ) ) ? absint( $_POST[ 'post_views' ] ) : null;
-		
+
+		$post_ids = ( ! empty( $_POST['post_ids'] ) && is_array( $_POST['post_ids'] ) ) ? array_map( 'absint', $_POST['post_ids'] ) : array();
+		$count = ( ! empty( $_POST['post_views'] ) ) ? absint( $_POST['post_views'] ) : null;
+
 		// break if views editing is restricted
 		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
 
 		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			die();
-		
+
 		if ( ! empty( $post_ids ) ) {
 			foreach ( $post_ids as $post_id ) {
-				
+
 				// break if current user can't edit this post
 				if ( ! current_user_can( 'edit_post', $post_id ) )
 					continue;
-				
+
 				global $wpdb;
 
 				// insert or update db post views count

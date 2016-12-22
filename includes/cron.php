@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Cron class.
+ * 
+ * @class Post_Views_Counter_Cron
  */
 class Post_Views_Counter_Cron {
 
