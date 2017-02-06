@@ -55,6 +55,7 @@ class Post_Views_Counter_Dashboard {
 	/**
 	 * Dashboard widget chart data function.
 	 * 
+	 * @global $_wp_admin_css_colors
 	 * @return mixed
 	 */
 	public function dashboard_widget_chart() {
@@ -65,7 +66,7 @@ class Post_Views_Counter_Dashboard {
 		if ( ! check_ajax_referer( 'dashboard-chart', 'nonce' ) )
 			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
-		$period = isset( $_REQUEST['period'] ) ? esc_attr( $_REQUEST['period'] ) : 'this_month';
+		// $period = isset( $_REQUEST['period'] ) ? esc_attr( $_REQUEST['period'] ) : 'this_month';
 
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
@@ -81,11 +82,20 @@ class Post_Views_Counter_Dashboard {
 
 		// set range
 		$range = 'this_month';
-		$now = getdate( current_time( 'timestamp', get_option( 'gmt_offset' ) ) );
+
+		// $now = getdate( current_time( 'timestamp', get_option( 'gmt_offset' ) ) );
+		$now = getdate( current_time( 'timestamp', get_option( 'gmt_offset' ) ) - 2592000 );
+
+		// get admin color scheme
+		global $_wp_admin_css_colors;
+
+		$admin_color = get_user_option( 'admin_color' );
+		$colors = $_wp_admin_css_colors[$admin_color]->colors;
+		$color = $this->hex2rgb( $colors[2] );
 
 		// set chart labels
 		switch ( $range ) {
-			case 'this_week' :
+			case 'this_week':
 				$data = array(
 					'text' => array(
 						'xAxes'	 => date_i18n( 'F Y' ),
@@ -104,20 +114,19 @@ class Post_Views_Counter_Dashboard {
 				}
 				break;
 
-			case 'this month' :
-			default :
+			case 'this_year':
 				$data = array(
 					'text'	 => array(
-						'xAxes'	 => date_i18n( 'F Y' ),
+						'xAxes'	 => __( 'Year', 'post-views-counter' ) . date( ' Y' ),
 						'yAxes'	 => __( 'Post Views', 'post-views-counter' ),
 					),
 					'design' => array(
 						'fill'					 => true,
-						'backgroundColor'		 => 'rgba(50, 143, 186, 0.2)',
-						'borderColor'			 => 'rgba(50, 143, 186, 1)',
-						'borderWidth'			 => 2,
+						'backgroundColor'		 => 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
+						'borderColor'			 => 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'borderWidth'			 => 1.2,
 						'borderDash'			 => array(),
-						'pointBorderColor'		 => 'rgba(50, 143, 186, 1)',
+						'pointBorderColor'		 => 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
 						'pointBackgroundColor'	 => 'rgba(255, 255, 255, 1)',
 						'pointBorderWidth'		 => 1.2
 					)
@@ -131,54 +140,129 @@ class Post_Views_Counter_Dashboard {
 				// reindex post types
 				$post_types = array_combine( range( 1, count( $post_types ) ), array_values( $post_types ) );
 
+				$post_type_data = array();
+
 				foreach ( $post_types as $id => $post_type ) {
 					$empty_post_type_views[$post_type] = 0;
 					$post_type_obj = get_post_type_object( $post_type );
 
 					$data['data']['datasets'][$id]['label'] = $post_type_obj->labels->name;
 					$data['data']['datasets'][$id]['data'] = array();
+
+					// get month views
+					$post_type_data[$id] = array_values(
+					pvc_get_views(
+					array(
+						'fields'		 => 'date=>views',
+						'post_type'		 => $post_type,
+						'views_query'	 => array(
+							'year'	 => date( 'Y' ),
+							'month'	 => '',
+							'week'	 => '',
+							'day'	 => ''
+						)
+					)
+					)
+					);
 				}
 
-				// reverse post types
-				$rev_post_types = array_flip( $post_types );
+				$sum = array();
 
-				// this month day loop
-				for ( $i = 1; $i <= date( 't' ); $i ++ ) {
+				foreach ( $post_type_data as $post_type_id => $post_views ) {
+					foreach ( $post_views as $id => $views ) {
+						// generate chart data for specific post types
+						$data['data']['datasets'][$post_type_id]['data'][] = $views;
 
-					if ( $i <= $now['mday'] ) {
+						if ( ! array_key_exists( $id, $sum ) )
+							$sum[$id] = 0;
 
-						$query = new WP_Query( wp_parse_args( $query_args, array( 'views_query' => array( 'year' => date( 'Y' ), 'month' => date( 'n' ), 'day' => str_pad( $i, 2, '0', STR_PAD_LEFT ) ) ) ) );
-
-						// get data for specific post types
-						$post_type_views = $empty_post_type_views;
-
-						if ( ! empty( $query->posts ) ) {
-							foreach ( $query->posts as $index => $post ) {
-								$post_type_views[$post->post_type] += $post->post_views;
-							}
-						}
-					} else {
-
-						$post_type_views = $empty_post_type_views;
-
-						foreach ( $post_types as $id => $post_type ) {
-							$post_type_views[$post_type] = 0;
-						}
-
-						$query->total_views = 0;
+						$sum[$id] += $views;
 					}
+				}
 
+				// this month all days
+				for ( $i = 1; $i <= 12; $i ++ ) {
+					// generate chart data
+					$data['data']['labels'][] = $i;
+					$data['data']['dates'][] = date_i18n( 'F Y', strtotime( date( 'Y' ) . '-' . str_pad( $i, 2, '0', STR_PAD_LEFT ) . '-01' ) );
+					$data['data']['datasets'][0]['data'][] = $sum[$i - 1];
+				}
+				break;
+
+			case 'this_month':
+			default :
+				$data = array(
+					'text'	 => array(
+						'xAxes'	 => date_i18n( 'F Y' ),
+						'yAxes'	 => __( 'Post Views', 'post-views-counter' ),
+					),
+					'design' => array(
+						'fill'					 => true,
+						'backgroundColor'		 => 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
+						'borderColor'			 => 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'borderWidth'			 => 1.2,
+						'borderDash'			 => array(),
+						'pointBorderColor'		 => 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'pointBackgroundColor'	 => 'rgba(255, 255, 255, 1)',
+						'pointBorderWidth'		 => 1.2
+					)
+				);
+
+				$data['data']['datasets'][0]['label'] = __( 'Total Views', 'post-views-counter' );
+
+				// get data for specific post types
+				$empty_post_type_views = array();
+
+				// reindex post types
+				$post_types = array_combine( range( 1, count( $post_types ) ), array_values( $post_types ) );
+
+				$post_type_data = array();
+
+				foreach ( $post_types as $id => $post_type ) {
+					$empty_post_type_views[$post_type] = 0;
+					$post_type_obj = get_post_type_object( $post_type );
+
+					$data['data']['datasets'][$id]['label'] = $post_type_obj->labels->name;
+					$data['data']['datasets'][$id]['data'] = array();
+
+					// get month views
+					$post_type_data[$id] = array_values(
+					pvc_get_views(
+					array(
+						'fields'		 => 'date=>views',
+						'post_type'		 => $post_type,
+						'views_query'	 => array(
+							'year'	 => date( 'Y' ),
+							'month'	 => date( 'm' ),
+							'week'	 => '',
+							'day'	 => ''
+						)
+					)
+					)
+					);
+				}
+
+				$sum = array();
+
+				foreach ( $post_type_data as $post_type_id => $post_views ) {
+					foreach ( $post_views as $id => $views ) {
+						// generate chart data for specific post types
+						$data['data']['datasets'][$post_type_id]['data'][] = $views;
+
+						if ( ! array_key_exists( $id, $sum ) )
+							$sum[$id] = 0;
+
+						$sum[$id] += $views;
+					}
+				}
+
+				// this month all days
+				for ( $i = 1; $i <= date( 't' ); $i ++ ) {
 					// generate chart data
 					$data['data']['labels'][] = ( $i % 2 === 0 ? '' : $i );
-					$data['data']['dates'][] = date_i18n( get_option( 'date_format' ), strtotime( date( 'Y' ) . '-' . date( 'n' ) . '-' . str_pad( $i, 2, '0', STR_PAD_LEFT ) ) );
-					$data['data']['datasets'][0]['data'][] = $query->total_views;
-
-					// generate chart data for specific post types
-					foreach ( $post_type_views as $type_name => $type_views ) {
-						$data['data']['datasets'][$rev_post_types[$type_name]]['data'][] = $type_views;
-					}
+					$data['data']['dates'][] = date_i18n( get_option( 'date_format' ), strtotime( date( 'Y' ) . '-' . date( 'm' ) . '-' . str_pad( $i, 2, '0', STR_PAD_LEFT ) ) );
+					$data['data']['datasets'][0]['data'][] = $sum[$i - 1];
 				}
-
 				break;
 		}
 
@@ -226,6 +310,29 @@ class Post_Views_Counter_Dashboard {
 		wp_localize_script(
 		'pvc-admin-dashboard', 'pvcArgs', $ajax_args
 		);
+	}
+
+	/**
+	 * Convert hex to rgb color.
+	 * 
+	 * @param type $color
+	 * @return boolean
+	 */
+	public function hex2rgb( $color ) {
+		if ( $color[0] == '#' ) {
+			$color = substr( $color, 1 );
+		}
+		if ( strlen( $color ) == 6 ) {
+			list( $r, $g, $b ) = array( $color[0] . $color[1], $color[2] . $color[3], $color[4] . $color[5] );
+		} elseif ( strlen( $color ) == 3 ) {
+			list( $r, $g, $b ) = array( $color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2] );
+		} else {
+			return false;
+		}
+		$r = hexdec( $r );
+		$g = hexdec( $g );
+		$b = hexdec( $b );
+		return array( 'r' => $r, 'g' => $g, 'b' => $b );
 	}
 
 }

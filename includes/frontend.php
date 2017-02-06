@@ -13,7 +13,7 @@ class Post_Views_Counter_Frontend {
 	public function __construct() {
 		// actions
 		add_action( 'after_setup_theme', array( $this, 'register_shortcode' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'frontend_scripts_styles' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
 		add_action( 'wp', array( $this, 'run' ) );
 	}
 
@@ -116,7 +116,7 @@ class Post_Views_Counter_Frontend {
 			if ( in_array( 'users', $groups, true ) )
 				$display = false;
 			// exclude specific roles?
-			elseif ( in_array( 'roles', $groups, true ) && Post_Views_Counter()->counter->is_user_role_excluded( Post_Views_Counter()->options['display']['restrict_display']['roles'] ) )
+			elseif ( in_array( 'roles', $groups, true ) && Post_Views_Counter()->counter->is_user_role_excluded( get_current_user_id(), Post_Views_Counter()->options['display']['restrict_display']['roles'] ) )
 				$display = false;
 		}
 		// exclude guests?
@@ -152,37 +152,36 @@ class Post_Views_Counter_Frontend {
 	/**
 	 * Enqueue frontend scripts and styles.
 	 */
-	public function frontend_scripts_styles() {
-		$post_types = Post_Views_Counter()->options['display']['post_types_display'];
+	public function wp_enqueue_scripts() {
+		$mode = Post_Views_Counter()->options['general']['counter_mode'];
+		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
 		if ( (bool) apply_filters( 'pvc_enqueue_styles', true ) === true ) {
 			// load dashicons
 			wp_enqueue_style( 'dashicons' );
 
 			// load style
-			wp_enqueue_style( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/css/frontend.css' );
+			wp_enqueue_style( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/css/frontend.css', array(), Post_Views_Counter()->defaults['version'] );
 		}
 
-		if ( Post_Views_Counter()->options['general']['counter_mode'] === 'js' ) {
-			$post_types = Post_Views_Counter()->options['general']['post_types_count'];
-
+		if ( in_array( $mode, array( 'js', 'rest_api' ) ) ) {
 			// whether to count this post type or not
 			if ( empty( $post_types ) || ! is_singular( $post_types ) )
 				return;
 
 			wp_register_script(
-			'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/js/frontend.js', array( 'jquery' )
+				'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/js/frontend.js', array( 'jquery' ), Post_Views_Counter()->defaults['version'], true
 			);
 
 			wp_enqueue_script( 'post-views-counter-frontend' );
 
 			wp_localize_script(
-			'post-views-counter-frontend', 'pvcArgsFrontend', array(
-				'ajaxURL'	 => admin_url( 'admin-ajax.php' ),
-				'postID'	 => get_the_ID(),
-				'nonce'		 => wp_create_nonce( 'pvc-check-post' ),
-				'postType'	 => get_post_type()
-			)
+				'post-views-counter-frontend', 'pvcArgsFrontend', array(
+					'mode'			=> $mode,
+					'requestURL'	=> esc_url_raw( $mode == 'rest_api' ? rest_url( 'post-views-counter/view-post/') : admin_url( 'admin-ajax.php' ) ),
+					'postID'		=> get_the_ID(),
+					'nonce'			=> ( $mode == 'rest_api' ? wp_create_nonce( 'wp_rest' ) : wp_create_nonce( 'pvc-check-post' ) )
+				)
 			);
 		}
 	}

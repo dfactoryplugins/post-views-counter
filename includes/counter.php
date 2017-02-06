@@ -27,21 +27,7 @@ class Post_Views_Counter_Counter {
 		add_action( 'wp', array( $this, 'check_post_php' ) );
 		add_action( 'wp_ajax_pvc-check-post', array( $this, 'check_post_ajax' ) );
 		add_action( 'wp_ajax_nopriv_pvc-check-post', array( $this, 'check_post_ajax' ) );
-	}
-
-	/**
-	 * Check if IPv4 is in range.
-	 *
-	 * @param string $ip IP address
-	 * @param string $range IP range
-	 * @return boolean Whether IP is in range
-	 */
-	function ipv4_in_range( $ip, $range ) {
-		$start = str_replace( '*', '0', $range );
-		$end = str_replace( '*', '255', $range );
-		$ip = (float) sprintf( "%u", ip2long( $ip ) );
-
-		return ( $ip >= (float) sprintf( "%u", ip2long( $start ) ) && $ip <= (float) sprintf( "%u", ip2long( $end ) ) );
+		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
 	}
 
 	/**
@@ -52,6 +38,9 @@ class Post_Views_Counter_Counter {
 	public function check_post( $id = 0 ) {
 		// get post id
 		$id = (int) ( empty( $id ) ? get_the_ID() : $id );
+		
+		// get user id, from current user or static var in rest api request
+		$user_id = get_current_user_id();
 
 		// empty id?
 		if ( empty( $id ) )
@@ -78,12 +67,12 @@ class Post_Views_Counter_Counter {
 		$groups = Post_Views_Counter()->options['general']['exclude']['groups'];
 
 		// whether to count this user
-		if ( is_user_logged_in() ) {
+		if ( ! empty( $user_id ) ) {
 			// exclude logged in users?
 			if ( in_array( 'users', $groups, true ) )
 				return;
 			// exclude specific roles?
-			elseif ( in_array( 'roles', $groups, true ) && $this->is_user_role_excluded( Post_Views_Counter()->options['general']['exclude']['roles'] ) )
+			elseif ( in_array( 'roles', $groups, true ) && $this->is_user_role_excluded( $user_id, Post_Views_Counter()->options['general']['exclude']['roles'] ) )
 				return;
 		}
 		// exclude guests?
@@ -113,7 +102,9 @@ class Post_Views_Counter_Counter {
 
 		// count visit
 		if ( $count_visit )
-			$this->count_visit( $id );
+			return $this->count_visit( $id );
+		else
+			return;
 	}
 
 	/**
@@ -121,7 +112,7 @@ class Post_Views_Counter_Counter {
 	 */
 	public function check_post_php() {
 		// do not count admin entries
-		if ( is_admin() && ! (defined( 'DOING_AJAX' ) && DOING_AJAX) )
+		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
 			return;
 
 		// do we use PHP as counter?
@@ -141,7 +132,7 @@ class Post_Views_Counter_Counter {
 	 * Check whether to count visit via AJAX request.
 	 */
 	public function check_post_ajax() {
-		if ( isset( $_POST['action'], $_POST['post_id'], $_POST['pvc_nonce'], $_POST['post_type'] ) && $_POST['action'] === 'pvc-check-post' && ($post_id = (int) $_POST['post_id']) > 0 && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-check-post' ) !== false ) {
+		if ( isset( $_POST['action'], $_POST['id'], $_POST['pvc_nonce'] ) && $_POST['action'] === 'pvc-check-post' && ($post_id = (int) $_POST['id']) > 0 && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-check-post' ) !== false ) {
 
 			// do we use Ajax as counter?
 			if ( Post_Views_Counter()->options['general']['counter_mode'] != 'js' )
@@ -150,17 +141,47 @@ class Post_Views_Counter_Counter {
 			// get countable post types
 			$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
-			// get post type
-			$post_type = get_post_type( $post_id );
+			// check if post exists
+			$post = get_post( $post_id );
 
 			// whether to count this post type or not
-			if ( empty( $post_types ) || empty( $post_type ) || $post_type !== $_POST['post_type'] || ! in_array( $post_type, $post_types, true ) )
+			if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
 				exit;
 
 			$this->check_post( $post_id );
 		}
 
 		exit;
+	}
+
+	/**
+	 * Check whether to count visit via REST API request.
+	 * 
+	 * @param array $request
+	 * @return int|bool
+	 */
+	public function check_post_rest_api( $request ) {
+		$post_id = absint( $request['id'] );
+
+		// do we use REST API as counter?
+		if ( Post_Views_Counter()->options['general']['counter_mode'] != 'rest_api' )
+			return new WP_Error( 'pvc_rest_api_disabled', __( 'REST API method is disabled.', 'post-views-counter' ), array( 'status' => 404 ) );
+		
+		// @todo: get current user id in direct api endpoint calls
+
+		// check if post exists
+		$post = get_post( $post_id );
+
+		if ( ! $post )
+			return new WP_Error( 'pvc_post_invalid_id', __( 'Invalid post ID.', 'post-views-counter' ), array( 'status' => 404 ) );
+
+		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+
+		// whether to count this post type
+		if ( empty( $post_types ) || ! in_array( $post->post_type, $post_types ) )
+			return new WP_Error( 'pvc_post_type_excluded', __( 'Post type excluded.', 'post-views-counter' ), array( 'status' => 404 ) );
+
+		return $this->check_post( $post_id );
 	}
 
 	/**
@@ -283,7 +304,7 @@ class Post_Views_Counter_Counter {
 	 * 
 	 * @global object $wpdb
 	 * @param int $id
-	 * @return bool
+	 * @return int $id
 	 */
 	private function count_visit( $id ) {
 		global $wpdb;
@@ -321,7 +342,7 @@ class Post_Views_Counter_Counter {
 
 		do_action( 'pvc_after_count_visit', $id );
 
-		return true;
+		return $id;
 	}
 
 	/**
@@ -354,7 +375,7 @@ class Post_Views_Counter_Counter {
 			'years'		 => 946080000
 		);
 
-		return ( $timestamp ? current_time( 'timestamp', true ) : 0 ) + $number * $converter[$type];
+		return (int) ( ( $timestamp ? current_time( 'timestamp', true ) : 0 ) + $number * $converter[$type] );
 	}
 
 	/**
@@ -479,11 +500,11 @@ class Post_Views_Counter_Counter {
 		}
 
 		return $wpdb->query(
-		$wpdb->prepare( "
-		    INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
-		    VALUES (%d, %d, %s, %d)
-		    ON DUPLICATE KEY UPDATE count = count + %d", $id, $type, $period, $count, $count
-		)
+			$wpdb->prepare( "
+				INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
+				VALUES (%d, %d, %s, %d)
+				ON DUPLICATE KEY UPDATE count = count + %d", $id, $type, $period, $count, $count
+			)
 		);
 	}
 
@@ -493,8 +514,8 @@ class Post_Views_Counter_Counter {
 	 * @param string $option
 	 * @return bool
 	 */
-	public function is_user_role_excluded( $option ) {
-		$user = wp_get_current_user();
+	public function is_user_role_excluded( $user_id, $option ) {
+		$user = get_user_by( 'id', $user_id );
 
 		if ( empty( $user ) )
 			return false;
@@ -509,6 +530,77 @@ class Post_Views_Counter_Counter {
 		}
 
 		return false;
+	}
+	
+	/**
+	 * Check if IPv4 is in range.
+	 *
+	 * @param string $ip IP address
+	 * @param string $range IP range
+	 * @return boolean Whether IP is in range
+	 */
+	function ipv4_in_range( $ip, $range ) {
+		$start = str_replace( '*', '0', $range );
+		$end = str_replace( '*', '255', $range );
+		$ip = (float) sprintf( "%u", ip2long( $ip ) );
+
+		return ( $ip >= (float) sprintf( "%u", ip2long( $start ) ) && $ip <= (float) sprintf( "%u", ip2long( $end ) ) );
+	}
+	
+	/**
+	 * Register REST API endpoints.
+	 * 
+	 * @return void
+	 */
+	public function rest_api_init() {
+		// view post route
+		register_rest_route( 'post-views-counter', '/view-post/', array(
+			'methods'	 => array( 'GET', 'POST' ),
+			'callback'	 => array( $this, 'check_post_rest_api' ),
+			'args'		 => array(
+				'id' => array(
+					'default'			 => 0,
+					'sanitize_callback'	 => 'absint'
+				)
+			)
+		) );
+		// get views route
+		register_rest_route( 'post-views-counter', '/get-post-views/', array(
+			'methods'				=> array( 'GET', 'POST' ),
+			'callback'				=> array( $this, 'get_post_views_rest_api' ),
+			'permission_callback'	=> array( $this, 'get_post_views_permissions_check' ),
+			'args'					=> array(
+				'id' => array(
+					'default'			 => 0
+				)
+			)
+		) );
+	}
+	
+	/**
+	 * Get post views via REST API request.
+	 * 
+	 * @param array $request
+	 * @return int
+	 */
+	public function get_post_views_rest_api( $request ) {
+		$post_id = is_array( $request['id'] ) ? array_map( 'absint', $request['id'] ) : absint( $request['id'] );
+		
+		// do we use REST API as counter?
+		if ( Post_Views_Counter()->options['general']['counter_mode'] != 'rest_api' )
+			return new WP_Error( 'pvc_rest_api_disabled', __( 'REST API method is disabled.', 'post-views-counter' ), array( 'status' => 404 ) );
+		
+		return pvc_get_post_views( $post_id );
+	}
+	
+	/**
+	 * Check if a given request has access to get views
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 * @return WP_Error|bool
+	 */
+	public function get_post_views_permissions_check( $request ) {
+		return (bool) apply_filters( 'pvc_rest_api_get_post_views_check', current_user_can( 'read_posts' ), $request );
 	}
 
 }

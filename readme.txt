@@ -1,14 +1,14 @@
 === Post Views Counter ===
 Contributors: dfactory
 Donate link: http://www.dfactory.eu/
-Tags: counter, hits, postviews, post views, views, count
-Requires at least: 4.0.0
-Tested up to: 4.7
-Stable tag: 1.2.4
+Tags: counter, hits, posts, postviews, post views, views, count, statistics, stats, analytics, pageviews, tracking
+Requires at least: 4.0
+Tested up to: 4.7.2
+Stable tag: 1.2.7
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
-Forget WP-PostViews. Display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
+Post Views Counter allows you to display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
 
 == Description ==
 
@@ -19,11 +19,12 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 = Features include: =
 
 * Option to select post types for which post views will be counted and displayed.
-* 2 methods of collecting post views data: PHP and Javascript, for greater flexibility
+* 3 methods of collecting post views data: PHP, Javascript or REST API for greater flexibility
 * Possibility to manually set views count for each post
 * Dashboard post views stats widget
 * Capability to query posts according to its views count
-* Option to set time between counts
+* Custom REST API endpoints
+* Option to set counts interval
 * Excluding counts from visitors: bots, logged in users, selected user roles
 * Excluding users by IPs
 * Restricting display by user roles
@@ -57,6 +58,21 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.2.7 =
+* Fix: Chart data not updating for object cached installs due to missing expire parameter
+* Fix: Bug preventing hiding the counter based on user role.
+* Fix: Undefined notice in the admin dashboard request
+
+= 1.2.6 =
+* Fix: Hardcoded post_views database table prefix
+
+= 1.2.5 =
+* New: REST API counter mode
+* New: Adjust dashboard chart colors to admin color scheme
+* Tweak: Dashboard chart query optimization
+* Tweak: post_views database table optimization
+* Tweak: Added plugin documentation link
 
 = 1.2.4 =
 * New: Advanced crawler detection
@@ -140,6 +156,7 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.2.4 =
-* New: Advanced crawler detection
-* Tweak: Chart.js script update to 2.4.0
+= 1.2.7 =
+* Fix: Chart data not updating for object cached installs due to missing expire parameter
+* Fix: Bug preventing hiding the counter based on user role.
+* Fix: Undefined notice in admin dashboard request

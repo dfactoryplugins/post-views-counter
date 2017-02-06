@@ -13,6 +13,11 @@
 	    return confirm( pvcArgsSettings.resetToDefaults );
 	} );
 
+	// ask whether to reset views
+	$( document ).on( 'click', 'input[name="post_views_counter_reset_views"]', function () {
+	    return confirm( pvcArgsSettings.resetViews );
+	} );
+
 	// remove ip box
 	$( document ).on( 'click', '.remove-exclude-ip', function ( e ) {
 	    e.preventDefault();

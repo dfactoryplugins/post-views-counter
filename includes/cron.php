@@ -28,7 +28,14 @@ class Post_Views_Counter_Cron {
 	public function reset_counts() {
 		global $wpdb;
 
-		$wpdb->query( 'DELETE FROM ' . $wpdb->prefix . 'post_views WHERE type = 0' );
+		$counter = array(
+			'days'		 => 1,
+			'weeks'		 => 7,
+			'months'	 => 30,
+			'years'		 => 365
+		);
+
+		$wpdb->query( 'DELETE FROM ' . $wpdb->prefix . 'post_views WHERE type = 0 AND CAST( period AS SIGNED ) < CAST( ' . date( 'Ymd', strtotime( '-' . ( (int) ( $counter[Post_Views_Counter()->options['general']['reset_counts']['type']] * Post_Views_Counter()->options['general']['reset_counts']['number'] ) ) . ' days' ) ) . ' AS SIGNED)' );
 	}
 
 	/**
@@ -50,7 +57,7 @@ class Post_Views_Counter_Cron {
 	 */
 	public function cron_time_intervals( $schedules ) {
 		$schedules['post_views_counter_interval'] = array(
-			'interval'	 => Post_Views_Counter()->counter->get_timestamp( Post_Views_Counter()->options['general']['reset_counts']['type'], Post_Views_Counter()->options['general']['reset_counts']['number'], false ),
+			'interval'	 => 86400,
 			'display'	 => __( 'Post Views Counter reset daily counts interval', 'post-views-counter' )
 		);
 
@@ -89,7 +96,7 @@ class Post_Views_Counter_Cron {
 				}
 
 				// set schedule
-				wp_schedule_event( Post_Views_Counter()->counter->get_timestamp( Post_Views_Counter()->options['general']['reset_counts']['type'], Post_Views_Counter()->options['general']['reset_counts']['number'] ), 'post_views_counter_interval', 'pvc_reset_counts' );
+				wp_schedule_event( current_time( 'timestamp', true ) + 86400, 'post_views_counter_interval', 'pvc_reset_counts' );
 			}
 		} else {
 			// remove schedule

@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: Post Views Counter
-Description: Forget WP-PostViews. Display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
-Version: 1.2.4
+Description: Post Views Counter allows you to display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
+Version: 1.2.7
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/post-views-counter/
@@ -12,7 +12,7 @@ Text Domain: post-views-counter
 Domain Path: /languages
 
 Post Views Counter
-Copyright (C) 2014-2016, Digital Factory - info@digitalfactory.pl
+Copyright (C) 2014-2017, Digital Factory - info@digitalfactory.pl
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -31,7 +31,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 	 * Post Views Counter final class.
 	 *
 	 * @class Post_Views_Counter
-	 * @version	1.2.4
+	 * @version	1.2.7
 	 */
 	final class Post_Views_Counter {
 
@@ -80,7 +80,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 				'link_to_post'		 => true,
 				'icon_class'		 => 'dashicons-chart-bar'
 			),
-			'version'	 => '1.2.4'
+			'version'	 => '1.2.7'
 		);
 
 		/**
@@ -105,12 +105,14 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 */
 		public static function instance() {
 			if ( ! isset( self::$instance ) && ! ( self::$instance instanceof Post_Views_Counter ) ) {
+
 				self::$instance = new Post_Views_Counter;
 				self::$instance->define_constants();
 
 				add_action( 'plugins_loaded', array( self::$instance, 'load_textdomain' ) );
 
 				self::$instance->includes();
+
 				self::$instance->update = new Post_Views_Counter_Update();
 				self::$instance->settings = new Post_Views_Counter_Settings();
 				self::$instance->query = new Post_Views_Counter_Query();
@@ -170,12 +172,12 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 			);
 
 			// actions
-			add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts_styles' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 			add_action( 'wp_loaded', array( $this, 'load_pluggable_functions' ), 10 );
 
 			// filters
-			add_filter( 'plugin_row_meta', array( $this, 'plugin_extend_links' ), 10, 2 );
-			add_filter( 'plugin_action_links', array( $this, 'plugin_settings_link' ), 10, 2 );
+			add_filter( 'plugin_row_meta', array( $this, 'plugin_row_meta' ), 10, 2 );
+			add_filter( 'plugin_action_links', array( $this, 'plugin_action_links' ), 10, 2 );
 		}
 
 		/**
@@ -189,15 +191,15 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 			// create post views table
 			dbDelta( '
-		CREATE TABLE IF NOT EXISTS ' . $wpdb->prefix . 'post_views (
-		    id bigint unsigned NOT NULL,
-		    type tinyint(1) unsigned NOT NULL,
-		    period varchar(8) NOT NULL,
-		    count bigint unsigned NOT NULL,
-		    PRIMARY KEY  (type, period, id),
-		    UNIQUE INDEX id_period (id, period) USING BTREE,
-		    INDEX type_period_count (type, period, count) USING BTREE
-		) ' . $charset_collate . ';'
+				CREATE TABLE IF NOT EXISTS ' . $wpdb->prefix . 'post_views (
+					id bigint unsigned NOT NULL,
+					type tinyint(1) unsigned NOT NULL,
+					period varchar(8) NOT NULL,
+					count bigint unsigned NOT NULL,
+					PRIMARY KEY  (type, period, id),
+					UNIQUE INDEX id_type_period_count (id, type, period, count) USING BTREE,
+					INDEX type_period_count (type, period, count) USING BTREE
+				) ' . $charset_collate . ';'
 			);
 
 			// add default options
@@ -270,21 +272,21 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 * @global string $post_type
 		 * @param string $page
 		 */
-		public function admin_scripts_styles( $page ) {
+		public function admin_enqueue_scripts( $page ) {
 			wp_register_style(
-			'pvc-admin', POST_VIEWS_COUNTER_URL . '/css/admin.css'
+				'pvc-admin', POST_VIEWS_COUNTER_URL . '/css/admin.css'
 			);
 
 			wp_register_script(
-			'pvc-admin-settings', POST_VIEWS_COUNTER_URL . '/js/admin-settings.js', array( 'jquery' ), $this->defaults['version']
+				'pvc-admin-settings', POST_VIEWS_COUNTER_URL . '/js/admin-settings.js', array( 'jquery' ), $this->defaults['version']
 			);
 
 			wp_register_script(
-			'pvc-admin-post', POST_VIEWS_COUNTER_URL . '/js/admin-post.js', array( 'jquery' ), $this->defaults['version']
+				'pvc-admin-post', POST_VIEWS_COUNTER_URL . '/js/admin-post.js', array( 'jquery' ), $this->defaults['version']
 			);
 
 			wp_register_script(
-			'pvc-admin-quick-edit', POST_VIEWS_COUNTER_URL . '/js/admin-quick-edit.js', array( 'jquery', 'inline-edit-post' ), $this->defaults['version']
+				'pvc-admin-quick-edit', POST_VIEWS_COUNTER_URL . '/js/admin-quick-edit.js', array( 'jquery', 'inline-edit-post' ), $this->defaults['version']
 			);
 
 			// load on PVC settings page
@@ -293,9 +295,10 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 				wp_enqueue_script( 'pvc-admin-settings' );
 
 				wp_localize_script(
-				'pvc-admin-settings', 'pvcArgsSettings', array(
-					'resetToDefaults' => __( 'Are you sure you want to reset these settings to defaults?', 'post-views-counter' )
-				)
+					'pvc-admin-settings', 'pvcArgsSettings', array(
+						'resetToDefaults' => __( 'Are you sure you want to reset these settings to defaults?', 'post-views-counter' ),
+						'resetViews' => __( 'Are you sure you want to delete all existing data?', 'post-views-counter' )
+					)
 				);
 
 				wp_enqueue_style( 'pvc-admin' );
@@ -324,7 +327,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 				wp_enqueue_script( 'pvc-admin-quick-edit' );
 			}
 		}
-
+		
 		/**
 		 * Add links to plugin support forum.
 		 * 
@@ -332,7 +335,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 * @param string $file
 		 * @return array
 		 */
-		public function plugin_extend_links( $links, $file ) {
+		public function plugin_row_meta( $links, $file ) {
 
 			if ( ! current_user_can( 'install_plugins' ) )
 				return $links;
@@ -341,7 +344,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 			if ( $file == $plugin ) {
 				return array_merge(
-				$links, array( sprintf( '<a href="http://www.dfactory.eu/support/forum/post-views-counter/" target="_blank">%s</a>', __( 'Support', 'post-views-counter' ) ) )
+					$links, array( sprintf( '<a href="http://www.dfactory.eu/support/forum/post-views-counter/" target="_blank">%s</a>', __( 'Support', 'post-views-counter' ) ) )
 				);
 			}
 
@@ -356,7 +359,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 * @param string $file
 		 * @return array
 		 */
-		public function plugin_settings_link( $links, $file ) {
+		public function plugin_action_links( $links, $file ) {
 			if ( ! is_admin() || ! current_user_can( 'manage_options' ) )
 				return $links;
 
@@ -373,6 +376,32 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 			return $links;
 		}
 
+		/**
+		 * Add admin notices.
+		 */
+		public function add_notice( $html = '', $status = '', $paragraph = false ) {
+			$this->notices[] = array(
+				'html'		 => $html,
+				'status'	 => $status,
+				'paragraph'	 => $paragraph
+			);
+
+			add_action( 'admin_notices', array( $this, 'display_notice' ) );
+		}
+
+		/**
+		 * Print admin notices.
+		 */
+		public function display_notice() {
+			foreach ( $this->notices as $notice ) {
+				echo '
+				<div class="post-views-counter ' . $notice['status'] . '">
+					' . ( $notice['paragraph'] ? '<p>' : '' ) . '
+					' . $notice['html'] . '
+					' . ( $notice['paragraph'] ? '</p>' : '' ) . '
+				</div>';
+			}
+		}
 	}
 
 endif; // end if class_exists check

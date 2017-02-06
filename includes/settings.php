@@ -38,9 +38,13 @@ class Post_Views_Counter_Settings {
 			return;
 
 		$this->modes = array(
-			'php'	 => __( 'PHP', 'post-views-counter' ),
-			'js'	 => __( 'JavaScript', 'post-views-counter' )
+			'php'		=> __( 'PHP', 'post-views-counter' ),
+			'js'		=> __( 'JavaScript', 'post-views-counter' )
 		);
+		
+		if ( function_exists( 'register_rest_route' ) ) {
+			$this->modes['rest_api'] = __( 'REST API', 'post-views-counter' );
+		}
 
 		$this->time_types = array(
 			'minutes'	 => __( 'minutes', 'post-views-counter' ),
@@ -174,13 +178,13 @@ class Post_Views_Counter_Settings {
 			<h3 class="hndle">' . __( 'Post Views Counter', 'post-views-counter' ) . ' ' . Post_Views_Counter()->defaults['version'] . '</h3>
 			<div class="inside">
 			    <h4 class="inner">' . __( 'Need support?', 'post-views-counter' ) . '</h4>
-			    <p class="inner">' . __( 'If you are having problems with this plugin, please talk about them in the', 'post-views-counter' ) . ' <a href="http://www.dfactory.eu/support/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=support" target="_blank" title="' . __( 'Support forum', 'post-views-counter' ) . '">' . __( 'Support forum', 'post-views-counter' ) . '</a></p>
+			    <p class="inner">' . sprintf( __( 'If you are having problems with this plugin, please browse it\'s <a href="%s" target="_blank">Documentation</a> or talk about them in the <a href="%s" target="_blank">Support forum</a>', 'post-views-counter' ), 'https://www.dfactory.eu/docs/post-views-counter/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=docs', 'https://www.dfactory.eu/support/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=support' ) . '</p>
 			    <hr />
 			    <h4 class="inner">' . __( 'Do you like this plugin?', 'post-views-counter' ) . '</h4>
-			    <p class="inner"><a href="http://wordpress.org/support/view/plugin-reviews/post-views-counter" target="_blank" title="' . __( 'Rate it 5', 'post-views-counter' ) . '">' . __( 'Rate it 5', 'post-views-counter' ) . '</a> ' . __( 'on WordPress.org', 'post-views-counter' ) . '<br />' .
-		__( 'Blog about it & link to the', 'post-views-counter' ) . ' <a href="http://www.dfactory.eu/plugins/post-views-counter/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=blog-about" target="_blank" title="' . __( 'plugin page', 'post-views-counter' ) . '">' . __( 'plugin page', 'post-views-counter' ) . '</a><br/>' .
-		__( 'Check out our other', 'post-views-counter' ) . ' <a href="http://www.dfactory.eu/plugins/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=other-plugins" target="_blank" title="' . __( 'WordPress plugins', 'post-views-counter' ) . '">' . __( 'WordPress plugins', 'post-views-counter' ) . '</a>
-			    </p>
+				<p class="inner">' . sprintf( __( '<a href="%s" target="_blank">Rate it 5</a> on WordPress.org', 'post-views-counter' ), 'https://wordpress.org/support/plugin/post-views-counter/reviews/?filter=5' ) . '<br />' .
+				sprintf( __( 'Blog about it & link to the <a href="%s" target="_blank">plugin page</a>.', 'post-views-counter' ), 'https://dfactory.eu/plugins/post-views-counter/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=blog-about' ) . '<br />' .
+				sprintf( __( 'Check out our other <a href="%s" target="_blank">WordPress plugins</a>.', 'post-views-counter' ), 'https://dfactory.eu/plugins/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=other-plugins' ) . '
+				</p>
 			    <hr />
 			    <p class="df-link inner">' . __( 'Created by', 'post-views-counter' ) . ' <a href="http://www.dfactory.eu/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=created-by" target="_blank" title="dFactory - Quality plugins for WordPress"><img src="' . POST_VIEWS_COUNTER_URL . '/images/logo-dfactory.png' . '" title="dFactory - Quality plugins for WordPress" alt="dFactory - Quality plugins for WordPress" /></a></p>
 			</div>
@@ -224,7 +228,7 @@ class Post_Views_Counter_Settings {
 		add_settings_field( 'pvc_flush_interval', __( 'Flush Object Cache Interval', 'post-views-counter' ), array( $this, 'flush_interval' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
 		add_settings_field( 'pvc_exclude', __( 'Exclude Visitors', 'post-views-counter' ), array( $this, 'exclude' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
 		add_settings_field( 'pvc_exclude_ips', __( 'Exclude IPs', 'post-views-counter' ), array( $this, 'exclude_ips' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
-		add_settings_field( 'pvc_wp_postviews', __( 'WP-PostViews', 'post-views-counter' ), array( $this, 'wp_postviews' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
+		add_settings_field( 'pvc_wp_postviews', __( 'Tools', 'post-views-counter' ), array( $this, 'wp_postviews' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
 		add_settings_field( 'pvc_deactivation_delete', __( 'Deactivation', 'post-views-counter' ), array( $this, 'deactivation_delete' ), 'post_views_counter_settings_general', 'post_views_counter_settings_general' );
 
 		// display options
@@ -247,7 +251,7 @@ class Post_Views_Counter_Settings {
 	<div id="pvc_post_views_label">
 	    <fieldset>
 		<input type="text" class="large-text" name="post_views_counter_settings_display[label]" value="' . esc_attr( Post_Views_Counter()->options['display']['label'] ) . '" />
-		<p class="description">' . esc_html__( 'Enter the label for the post views counter field.', 'post-views-counter' ) . '</p>
+		<p class="description">' . __( 'Enter the label for the post views counter field.', 'post-views-counter' ) . '</p>
 	    </fieldset>
 	</div>';
 	}
@@ -265,7 +269,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		echo '
-	    <p class="description">' . esc_html__( 'Select post types for which post views will be counted.', 'post-views-counter' ) . '</p>
+	    <p class="description">' . __( 'Select post types for which post views will be counted.', 'post-views-counter' ) . '</p>
 	</div>';
 	}
 
@@ -282,7 +286,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		echo '
-	    <p class="description">' . esc_html__( 'Select post types for which the views count will be displayed.', 'post-views-counter' ) . '</p>
+	    <p class="description">' . __( 'Select post types for which the views count will be displayed.', 'post-views-counter' ) . '</p>
 	</div>';
 	}
 
@@ -301,7 +305,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		echo '
-	    <p class="description">' . esc_html__( 'Select the method of collecting post views data. If you are using any of the caching plugins select Javascript.', 'post-views-counter' ) . '</p>
+	    <p class="description">' . __( 'Select the method of collecting post views data. If you are using any of the caching plugins select Javascript or REST API (if available).', 'post-views-counter' ) . '</p>
 	</div>';
 	}
 
@@ -311,7 +315,7 @@ class Post_Views_Counter_Settings {
 	public function post_views_column() {
 		echo '
 	<div id="pvc_post_views_column">
-	    <label class="cb-checkbox"><input id="pvc-post-views-column-enable" type="checkbox" name="post_views_counter_settings_general[post_views_column]" value="1" ' . checked( true, Post_Views_Counter()->options['general']['post_views_column'], false ) . ' />' . esc_html__( 'Enable to display post views count column for each of the selected post types.', 'post-views-counter' ) . '</label>
+	    <label class="cb-checkbox"><input id="pvc-post-views-column-enable" type="checkbox" name="post_views_counter_settings_general[post_views_column]" value="1" ' . checked( true, Post_Views_Counter()->options['general']['post_views_column'], false ) . ' />' . __( 'Enable to display post views count column for each of the selected post types.', 'post-views-counter' ) . '</label>
 	</div>';
 	}
 
@@ -331,7 +335,7 @@ class Post_Views_Counter_Settings {
 
 		echo '
 	    </select>
-	    <p class="description">' . esc_html__( 'Enter the time between single user visit count.', 'post-views-counter' ) . '</p>
+	    <p class="description">' . __( 'Enter the time between single user visit count.', 'post-views-counter' ) . '</p>
 	</div>';
 	}
 
@@ -344,14 +348,14 @@ class Post_Views_Counter_Settings {
 	    <input size="4" type="text" name="post_views_counter_settings_general[reset_counts][number]" value="' . esc_attr( Post_Views_Counter()->options['general']['reset_counts']['number'] ) . '" />
 	    <select class="pvc-chosen-short" name="post_views_counter_settings_general[reset_counts][type]">';
 
-		foreach ( $this->time_types as $type => $type_name ) {
+		foreach ( array_slice( $this->time_types, 2, null, true ) as $type => $type_name ) {
 			echo '
 		<option value="' . esc_attr( $type ) . '" ' . selected( $type, Post_Views_Counter()->options['general']['reset_counts']['type'], false ) . '>' . esc_html( $type_name ) . '</option>';
 		}
 
 		echo '
 	    </select>
-	    <p class="description">' . esc_html__( 'Delete single day post views data older than specified above. Enter 0 (number zero) if you want to preserve your data regardless of its age.', 'post-views-counter' ) . '</p>
+	    <p class="description">' . __( 'Delete single day post views data older than specified above. Enter 0 (number zero) if you want to preserve your data regardless of its age.', 'post-views-counter' ) . '</p>
 	</div>';
 	}
 
@@ -389,7 +393,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		echo '
-		<p class="description">' . esc_html__( 'Use it to hide the post views counter from selected type of visitors.', 'post-views-counter' ) . '</p>
+		<p class="description">' . __( 'Use it to hide the post views counter from selected type of visitors.', 'post-views-counter' ) . '</p>
 		<div class="pvc_user_roles"' . (in_array( 'roles', Post_Views_Counter()->options['general']['exclude']['groups'], true ) ? '' : ' style="display: none;"') . '>';
 
 		foreach ( $this->user_roles as $role => $role_name ) {
@@ -397,7 +401,7 @@ class Post_Views_Counter_Settings {
 		    <label class="cb-checkbox"><input type="checkbox" name="post_views_counter_settings_general[exclude][roles][' . $role . ']" value="1" ' . checked( in_array( $role, Post_Views_Counter()->options['general']['exclude']['roles'], true ), true, false ) . '>' . esc_html( $role_name ) . '</label>';
 		}
 
-		echo '	    <p class="description">' . esc_html__( 'Use it to hide the post views counter from selected user roles.', 'post-views-counter' ) . '</p>
+		echo '	    <p class="description">' . __( 'Use it to hide the post views counter from selected user roles.', 'post-views-counter' ) . '</p>
 		</div>
 	    </fieldset>
 	</div>';
@@ -429,7 +433,7 @@ class Post_Views_Counter_Settings {
 
 		echo '
 	    <p><input type="button" class="button button-secondary add-exclude-ip" value="' . esc_attr__( 'Add new', 'post-views-counter' ) . '" /> <input type="button" class="button button-secondary add-current-ip" value="' . esc_attr__( 'Add my current IP', 'post-views-counter' ) . '" data-rel="' . esc_attr( $_SERVER['REMOTE_ADDR'] ) . '" /></p>
-	    <p class="description">' . esc_html__( 'Enter the IP addresses to be excluded from post views count.', 'post-views-counter' ) . '</p>
+	    <p class="description">' . __( 'Enter the IP addresses to be excluded from post views count.', 'post-views-counter' ) . '</p>
 	</div>';
 	}
 
@@ -440,9 +444,10 @@ class Post_Views_Counter_Settings {
 		echo '
 	<div id="pvc_wp_postviews">
 	    <fieldset>
-		<input type="submit" class="button button-secondary" name="post_views_counter_import_wp_postviews" value="' . __( 'Import', 'post-views-counter' ) . '"/>
-		<p class="description">' . esc_html__( 'Import post views data from WP-PostViews plugin.', 'post-views-counter' ) . '</p>
-		<label class="cb-checkbox"><input id="pvc-wp-postviews" type="checkbox" name="post_views_counter_import_wp_postviews_override" value="1" />' . esc_html__( 'Override existing Post Views Counter data.', 'post-views-counter' ) . '</label>
+			<input type="submit" class="button button-secondary" name="post_views_counter_import_wp_postviews" value="' . __( 'Import views', 'post-views-counter' ) . '"/> <label class="cb-checkbox"><input id="pvc-wp-postviews" type="checkbox" name="post_views_counter_import_wp_postviews_override" value="1" />' . __( 'Override existing views data.', 'post-views-counter' ) . '</label>
+			<p class="description">' . __( 'Import post views data from WP-PostViews plugin.', 'post-views-counter' ) . '</p>
+			<input type="submit" class="button button-secondary" name="post_views_counter_reset_views" value="' . __( 'Delete views', 'post-views-counter' ) . '"/>
+			<p class="description">' . __( 'Delete ALL the existing post views data.', 'post-views-counter' ) . '</p>
 	    </fieldset>
 	</div>';
 	}
@@ -453,7 +458,7 @@ class Post_Views_Counter_Settings {
 	public function restrict_edit_views() {
 		echo '
 	<div id="pvc_restrict_edit_views">
-	    <label class="cb-checkbox"><input type="checkbox" name="post_views_counter_settings_general[restrict_edit_views]" value="1" ' . checked( true, Post_Views_Counter()->options['general']['restrict_edit_views'], false ) . ' />' . esc_html__( 'Enable to restrict post views editing to admins only.', 'post-views-counter' ) . '</label>
+	    <label class="cb-checkbox"><input type="checkbox" name="post_views_counter_settings_general[restrict_edit_views]" value="1" ' . checked( true, Post_Views_Counter()->options['general']['restrict_edit_views'], false ) . ' />' . __( 'Enable to restrict post views editing to admins only.', 'post-views-counter' ) . '</label>
 	</div>';
 	}
 
@@ -463,7 +468,7 @@ class Post_Views_Counter_Settings {
 	public function deactivation_delete() {
 		echo '
 	<div id="pvc_deactivation_delete">
-	    <label class="cb-checkbox"><input type="checkbox" name="post_views_counter_settings_general[deactivation_delete]" value="1" ' . checked( true, Post_Views_Counter()->options['general']['deactivation_delete'], false ) . ' />' . esc_html__( 'Enable to delete all plugin data on deactivation.', 'post-views-counter' ) . '</label>
+	    <label class="cb-checkbox"><input type="checkbox" name="post_views_counter_settings_general[deactivation_delete]" value="1" ' . checked( true, Post_Views_Counter()->options['general']['deactivation_delete'], false ) . ' />' . __( 'Enable to delete all plugin data on deactivation.', 'post-views-counter' ) . '</label>
 	</div>';
 	}
 
@@ -480,7 +485,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		echo '
-	    <p class="description">' . esc_html__( 'Select page types where the views count will be displayed.', 'post-views-counter' ) . '</p>
+	    <p class="description">' . __( 'Select page types where the views count will be displayed.', 'post-views-counter' ) . '</p>
 	</div>';
 	}
 
@@ -499,7 +504,7 @@ class Post_Views_Counter_Settings {
 
 		echo '
 	    </select>
-	    <p class="description">' . esc_html__( 'Select where would you like to display the post views counter. Use [post-views] shortcode for manual display.', 'post-views-counter' ) . '</p>
+	    <p class="description">' . __( 'Select where would you like to display the post views counter. Use [post-views] shortcode for manual display.', 'post-views-counter' ) . '</p>
 	</div>';
 	}
 
@@ -518,7 +523,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		echo '
-	    <p class="description">' . esc_html__( 'Choose how to display the post views counter.', 'post-views-counter' ) . '</p>
+	    <p class="description">' . __( 'Choose how to display the post views counter.', 'post-views-counter' ) . '</p>
 	</div>';
 	}
 
@@ -551,7 +556,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		echo '
-		<p class="description">' . esc_html__( 'Use it to hide the post views counter from selected type of visitors.', 'post-views-counter' ) . '</p>
+		<p class="description">' . __( 'Use it to hide the post views counter from selected type of visitors.', 'post-views-counter' ) . '</p>
 		<div class="pvc_user_roles"' . (in_array( 'roles', Post_Views_Counter()->options['display']['restrict_display']['groups'], true ) ? '' : ' style="display: none;"') . '>';
 
 		foreach ( $this->user_roles as $role => $role_name ) {
@@ -560,7 +565,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		echo '
-		    <p class="description">' . esc_html__( 'Use it to hide the post views counter from selected user roles.', 'post-views-counter' ) . '</p>
+		    <p class="description">' . __( 'Use it to hide the post views counter from selected user roles.', 'post-views-counter' ) . '</p>
 		</div>
 	    </fieldset>
 	</div>';
@@ -575,9 +580,7 @@ class Post_Views_Counter_Settings {
 
 			$meta_key = esc_attr( apply_filters( 'pvc_import_meta_key', 'views' ) );
 
-			$views = $wpdb->get_results(
-			"SELECT post_id, meta_value FROM " . $wpdb->postmeta . " WHERE meta_key = '" . $meta_key . "'", ARRAY_A, 0
-			);
+			$views = $wpdb->get_results( "SELECT post_id, meta_value FROM " . $wpdb->postmeta . " WHERE meta_key = '" . $meta_key . "'", ARRAY_A, 0 );
 
 			if ( ! empty( $views ) ) {
 				$input = Post_Views_Counter()->defaults['general'];
@@ -595,6 +598,13 @@ class Post_Views_Counter_Settings {
 			} else {
 				add_settings_error( 'wp_postviews_import', 'wp_postviews_import', __( 'There was no post views data to import.', 'post-views-counter' ), 'updated' );
 			}
+		} elseif ( isset( $_POST['post_views_counter_reset_views'] ) ) {
+			global $wpdb;
+
+			if ( $wpdb->query( 'TRUNCATE TABLE ' . $wpdb->prefix . 'post_views' ) )
+				add_settings_error( 'reset_post_views', 'reset_post_views', __( 'All existing data deleted succesfully.', 'post-views-counter' ), 'updated' );
+			else
+				add_settings_error( 'reset_post_views', 'reset_post_views', __( 'Error occurred. All existing data were not deleted.', 'post-views-counter' ), 'error' );
 		} elseif ( isset( $_POST['save_pvc_general'] ) ) {
 			// post types count
 			if ( isset( $input['post_types_count'] ) ) {
