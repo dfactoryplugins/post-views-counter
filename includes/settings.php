@@ -586,7 +586,7 @@ class Post_Views_Counter_Settings {
 				$input = Post_Views_Counter()->defaults['general'];
 				$input['wp_postviews_import'] = true;
 
-				$sql = '';
+				$sql = array();
 
 				foreach ( $views as $view ) {
 					$sql[] = "(" . $view['post_id'] . ", 4, 'total', " . $view['meta_value'] . ")";
