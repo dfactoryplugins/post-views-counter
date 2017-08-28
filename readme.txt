@@ -3,8 +3,8 @@ Contributors: dfactory
 Donate link: http://www.dfactory.eu/
 Tags: counter, hits, posts, postviews, post views, views, count, statistics, stats, analytics, pageviews, tracking
 Requires at least: 4.0
-Tested up to: 4.7.2
-Stable tag: 1.2.7
+Tested up to: 4.8.1
+Stable tag: 1.2.8
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -32,6 +32,7 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 * One-click data import from WP-PostViews
 * Sortable admin column
 * Post views display position, automatic or manual via shortcode
+* Multisite compatibile
 * W3 Cache/WP SuperCache compatible
 * Optional object cache support
 * WPML and Polylang compatible
@@ -58,6 +59,11 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.2.8 =
+* New: Multisite compatibility
+* Fix: Undefined index post_views_column on post_views_counter/includes/settings.php
+* Tweak: Improved user IP handling
 
 = 1.2.7 =
 * Fix: Chart data not updating for object cached installs due to missing expire parameter
@@ -156,7 +162,7 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.2.7 =
-* Fix: Chart data not updating for object cached installs due to missing expire parameter
-* Fix: Bug preventing hiding the counter based on user role.
-* Fix: Undefined notice in admin dashboard request
+= 1.2.8 =
+* New: Multisite compatibility
+* Fix: Undefined index post_views_column on post_views_counter/includes/settings.php
+* Tweak: Improved user IP handling

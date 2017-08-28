@@ -159,7 +159,7 @@ class Post_Views_Counter_Settings {
 	 * @return mixed
 	 */
 	public function options_page() {
-		$tab_key = (isset( $_GET['tab'] ) ? $_GET['tab'] : 'general');
+		$tab_key = (isset( $_GET['tab'] ) ? esc_attr( $_GET['tab'] ) : 'general');
 
 		echo '
 	    <div class="wrap">' . screen_icon() . '
@@ -623,7 +623,7 @@ class Post_Views_Counter_Settings {
 			$input['counter_mode'] = isset( $input['counter_mode'], $this->modes[$input['counter_mode']] ) ? $input['counter_mode'] : Post_Views_Counter()->defaults['general']['counter_mode'];
 
 			// post views column
-			$input['post_views_column'] = $input['post_views_column'];
+			$input['post_views_column'] = isset( $input['post_views_column'] );
 
 			// time between counts
 			$input['time_between_counts']['number'] = (int) ( isset( $input['time_between_counts']['number'] ) ? $input['time_between_counts']['number'] : Post_Views_Counter()->defaults['general']['time_between_counts']['number'] );

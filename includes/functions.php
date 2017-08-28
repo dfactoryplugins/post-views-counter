@@ -67,7 +67,8 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 		$range = array();
 		$defaults = array(
 			'fields'		=> 'views',
-			'post_type'		=> 'post',
+			'post_id'		=> '',
+			'post_type'		=> '',
 			'views_query'	=> array(
 				'year'		=> '',
 				'month'		=> '',
@@ -78,9 +79,25 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 
 		$args = apply_filters( 'pvc_get_views_args', array_merge( $defaults, $args ) );
 
-		// check post type
-		if ( empty( $args['post_type'] ) )
+		// check post types
+		if ( is_array( $args['post_type'] ) && ! empty( $args['post_type'] ) ) {
+			$post_types = array();
+
+			foreach( $args['post_type'] as $post_type ) {
+				$post_types[] = "'" . $post_type . "'";
+			}
+
+			$args['post_type'] = implode( ', ', $post_types );
+		} elseif ( ! is_string( $args['post_type'] ) )
 			$args['post_type'] = $defaults['post_type'];
+		else
+			$args['post_type'] = "'" . $args['post_type'] . "'";
+
+		// check post ids
+		if ( is_array( $args['post_id'] ) && ! empty( $args['post_id'] ) )
+			$args['post_id'] = implode( ', ', array_unique( array_map( 'intval', $args['post_id'] ) ) );
+		else
+			$args['post_id'] = (int) $args['post_id'];
 
 		// check fields
 		if ( ! in_array( $args['fields'], array( 'views', 'date=>views' ), true ) )
@@ -105,6 +122,8 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 		// check views query day
 		if ( ! empty( $args['views_query']['day'] ) )
 			$day = str_pad( (int) $args['views_query']['day'], 2, 0, STR_PAD_LEFT );
+
+		$views_query = '';
 
 		// year
 		if ( isset( $year ) ) {
@@ -132,9 +151,9 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 					// get month of sunday
 					$sunday_month = $date->format( 'm' );
 
-					$query = " AND pvc.type = 0 AND pvc.period >= '" . $year . $monday_month . $monday . "' AND pvc.period <= " . $date->format( 'Y' ) . $sunday_month . $date->format( 'd' );
+					$views_query = " AND pvc.type = 0 AND pvc.period >= '" . $year . $monday_month . $monday . "' AND pvc.period <= '" . $date->format( 'Y' ) . $sunday_month . $date->format( 'd' ) . "'";
 				} else
-					$query = " AND pvc.type = 1 AND pvc.period = '" . $year . $week . "'";
+					$views_query = " AND pvc.type = 1 AND pvc.period = '" . $year . $week . "'";
 			// year, month
 			} elseif ( isset( $month ) ) {
 				// year, month, day
@@ -143,7 +162,7 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 						// prepare range
 						$range[(string) ( $year . $month . $day )] = 0;
 
-					$query = " AND pvc.type = 0 AND pvc.period = '" . $year . $month . $day . "'";
+					$views_query = " AND pvc.type = 0 AND pvc.period = '" . $year . $month . $day . "'";
 				// year, month
 				} else {
 					if ( $args['fields'] === 'date=>views' ) {
@@ -158,9 +177,9 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 							$range[(string) ( $year . $month . str_pad( $i, 2, 0, STR_PAD_LEFT ) )] = 0;
 						}
 
-						$query = " AND pvc.type = 0 AND pvc.period >= '" . $year . $month . "01' AND pvc.period <= " . $year . $month . $last;
+						$views_query = " AND pvc.type = 0 AND pvc.period >= '" . $year . $month . "01' AND pvc.period <= '" . $year . $month . $last . "'";
 					} else
-						$query = " AND pvc.type = 2 AND pvc.period = '" . $year . $month . "'";
+						$views_query = " AND pvc.type = 2 AND pvc.period = '" . $year . $month . "'";
 				}
 			// year
 			} else {
@@ -173,34 +192,34 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 					// create date
 					$date = new DateTime( $year . '-12-01' );
 
-					$query = " AND pvc.type = 2 AND pvc.period >= '" . $year . "01' AND pvc.period <= " . $year . "12";
+					$views_query = " AND pvc.type = 2 AND pvc.period >= '" . $year . "01' AND pvc.period <= '" . $year . "12'";
 				} else
-					$query = " AND pvc.type = 3 AND pvc.period = '" . $year . "'";
+					$views_query = " AND pvc.type = 3 AND pvc.period = '" . $year . "'";
 			}
 		// month
 		} elseif ( isset( $month ) ) {
 			// month, day
 			if ( isset( $day ) ) {
-				$query = " AND pvc.type = 0 AND RIGHT( pvc.period, 4 ) = '" . $month . $day . "'";
+				$views_query = " AND pvc.type = 0 AND RIGHT( pvc.period, 4 ) = '" . $month . $day . "'";
 			// month
 			} else {
-				$query = " AND pvc.type = 2 AND RIGHT( pvc.period, 2 ) = '" . $month . "'";
+				$views_query = " AND pvc.type = 2 AND RIGHT( pvc.period, 2 ) = '" . $month . "'";
 			}
 		// week
 		} elseif ( isset( $week ) ) {
-			$query = " AND pvc.type = 1 AND RIGHT( pvc.period, 2 ) = '" . $week . "'";
+			$views_query = " AND pvc.type = 1 AND RIGHT( pvc.period, 2 ) = '" . $week . "'";
 		// day
 		} elseif ( isset( $day ) ) {
-			$query = " AND pvc.type = 0 AND RIGHT( pvc.period, 2 ) = '" . $day . "'";
+			$views_query = " AND pvc.type = 0 AND RIGHT( pvc.period, 2 ) = '" . $day . "'";
 		}
 
 		global $wpdb;
 
 		$query = "SELECT " . ( $args['fields'] === 'date=>views' ? 'pvc.period, ' : '' ) . "SUM( IFNULL( pvc.count, 0 ) ) AS post_views
 		FROM " . $wpdb->prefix . "posts wpp
-		LEFT JOIN " . $wpdb->prefix . "post_views pvc ON pvc.id = wpp.ID " . $query . "
-		WHERE wpp.post_type = '" . $args['post_type'] . "'
-		GROUP BY pvc.period
+		LEFT JOIN " . $wpdb->prefix . "post_views pvc ON pvc.id = wpp.ID" . ( $views_query !== '' ? ' ' . $views_query : ' AND pvc.type = 4' ) . ( ! empty( $args['post_id'] ) ? ' AND pvc.id IN (' . $args['post_id'] . ')' : '' ) . "
+		" . ( $args['post_type'] !== '' ? "WHERE wpp.post_type IN (" . $args['post_type'] . ")" : '' ) . "
+		" . ( $views_query !== '' ? 'GROUP BY pvc.period' : '' ) . "
 		HAVING post_views > 0";
 
 		// get cached data
@@ -218,13 +237,12 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 				}
 
 				$post_views = $range;
-			} else {
+			} else
 				$post_views = (int) $wpdb->get_var( $query );
-			}
 
 			// set the cache expiration, 5 minutes by default
 			$expire = absint( apply_filters( 'pvc_object_cache_expire', 5 * 60 ) );
-			
+
 			wp_cache_add( md5( $query ), $post_views, 'pvc-get_views', $expire );
 		}
 
@@ -325,7 +343,9 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 			'show_post_views'		 => true,
 			'show_post_thumbnail'	 => false,
 			'show_post_excerpt'		 => false,
-			'no_posts_message'		 => __( 'No Posts', 'post-views-counter' )
+			'no_posts_message'		 => __( 'No Posts', 'post-views-counter' ),
+			'item_before'			 => '',
+			'item_after'			 => ''
 		);
 
 		$args = apply_filters( 'pvc_most_viewed_posts_args', wp_parse_args( $args, $defaults ) );
@@ -351,16 +371,18 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 
 				$html .= '
 		    <li>';
+				
+				$html .= apply_filters( 'pvc_most_viewed_posts_item_before', $args['item_before'], $post );
 
 				if ( $args['show_post_thumbnail'] && has_post_thumbnail( $post->ID ) ) {
 					$html .= '
-			<span class="post-thumbnail">
-			    ' . get_the_post_thumbnail( $post->ID, $args['thumbnail_size'] ) . '
-			</span>';
+					<span class="post-thumbnail">
+					' . get_the_post_thumbnail( $post->ID, $args['thumbnail_size'] ) . '
+					</span>';
 				}
 
 				$html .= '
-			<a class="post-title" href="' . get_permalink( $post->ID ) . '">' . get_the_title( $post->ID ) . '</a>' . ($args['show_post_views'] ? ' <span class="count">(' . number_format_i18n( pvc_get_post_views( $post->ID ) ) . ')</span>' : '');
+					<a class="post-title" href="' . get_permalink( $post->ID ) . '">' . get_the_title( $post->ID ) . '</a>' . ($args['show_post_views'] ? ' <span class="count">(' . number_format_i18n( pvc_get_post_views( $post->ID ) ) . ')</span>' : '');
 
 				$excerpt = '';
 
@@ -376,7 +398,10 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 
 				if ( ! empty( $excerpt ) )
 					$html .= '
-			<div class="post-excerpt">' . esc_html( $excerpt ) . '</div>';
+				
+				<div class="post-excerpt">' . esc_html( $excerpt ) . '</div>';
+				
+				$html .= apply_filters( 'pvc_most_viewed_posts_item_after', $args['item_after'], $post );
 
 				$html .= '
 		    </li>';

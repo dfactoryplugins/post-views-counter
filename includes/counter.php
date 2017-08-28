@@ -42,22 +42,27 @@ class Post_Views_Counter_Counter {
 		// get user id, from current user or static var in rest api request
 		$user_id = get_current_user_id();
 
+		// get user IP address
+		$user_ip = $this->get_user_ip();
+		
 		// empty id?
 		if ( empty( $id ) )
 			return;
+		
+		do_action( 'pvc_before_check_visit', $id, $user_id, $user_ip );
 
 		// get ips
 		$ips = Post_Views_Counter()->options['general']['exclude_ips'];
 
 		// whether to count this ip
-		if ( ! empty( $ips ) && filter_var( preg_replace( '/[^0-9a-fA-F:., ]/', '', $_SERVER['REMOTE_ADDR'] ), FILTER_VALIDATE_IP ) ) {
+		if ( ! empty( $ips ) && filter_var( preg_replace( '/[^0-9a-fA-F:., ]/', '', $user_ip ), FILTER_VALIDATE_IP ) ) {
 			// check ips
 			foreach ( $ips as $ip ) {
 				if ( strpos( $ip, '*' ) !== false ) {
-					if ( $this->ipv4_in_range( $_SERVER['REMOTE_ADDR'], $ip ) )
+					if ( $this->ipv4_in_range( $user_ip, $ip ) )
 						return;
 				} else {
-					if ( $_SERVER['REMOTE_ADDR'] === $ip )
+					if ( $user_ip === $ip )
 						return;
 				}
 			}
@@ -192,11 +197,14 @@ class Post_Views_Counter_Counter {
 		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
 			return;
 
+		// assign cookie name
+		$cookie_name = 'pvc_visits' . ( is_multisite() ? '_' . get_current_blog_id() : '' );
+
 		// is cookie set?
-		if ( isset( $_COOKIE['pvc_visits'] ) && ! empty( $_COOKIE['pvc_visits'] ) ) {
+		if ( isset( $_COOKIE[$cookie_name] ) && ! empty( $_COOKIE[$cookie_name] ) ) {
 			$visited_posts = $expirations = array();
 
-			foreach ( $_COOKIE['pvc_visits'] as $content ) {
+			foreach ( $_COOKIE[$cookie_name] as $content ) {
 				// is cookie valid?
 				if ( preg_match( '/^(([0-9]+b[0-9]+a?)+)$/', $content ) === 1 ) {
 					// get single id with expiration
@@ -229,10 +237,13 @@ class Post_Views_Counter_Counter {
 	private function save_cookie( $id, $cookie = array(), $expired = true ) {
 		$expiration = $this->get_timestamp( Post_Views_Counter()->options['general']['time_between_counts']['type'], Post_Views_Counter()->options['general']['time_between_counts']['number'] );
 
+		// assign cookie name
+		$cookie_name = 'pvc_visits' . ( is_multisite() ? '_' . get_current_blog_id() : '' );
+
 		// is this a new cookie?
 		if ( empty( $cookie ) ) {
 			// set cookie
-			setcookie( 'pvc_visits[0]', $expiration . 'b' . $id, $expiration, COOKIEPATH, COOKIE_DOMAIN, (isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ? true : false ), true );
+			setcookie( $cookie_name . '[0]', $expiration . 'b' . $id, $expiration, COOKIEPATH, COOKIE_DOMAIN, (isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ? true : false ), true );
 		} else {
 			if ( $expired ) {
 				// add new id or chang expiration date if id already exists
@@ -294,7 +305,7 @@ class Post_Views_Counter_Counter {
 
 			foreach ( $cookies as $key => $value ) {
 				// set cookie
-				setcookie( 'pvc_visits[' . $key . ']', $value, $cookie['expiration'], COOKIEPATH, COOKIE_DOMAIN, (isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ? true : false ), true );
+				setcookie( $cookie_name . '[' . $key . ']', $value, $cookie['expiration'], COOKIEPATH, COOKIE_DOMAIN, (isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ? true : false ), true );
 			}
 		}
 	}
@@ -539,7 +550,7 @@ class Post_Views_Counter_Counter {
 	 * @param string $range IP range
 	 * @return boolean Whether IP is in range
 	 */
-	function ipv4_in_range( $ip, $range ) {
+	public function ipv4_in_range( $ip, $range ) {
 		$start = str_replace( '*', '0', $range );
 		$end = str_replace( '*', '255', $range );
 		$ip = (float) sprintf( "%u", ip2long( $ip ) );
@@ -547,6 +558,41 @@ class Post_Views_Counter_Counter {
 		return ( $ip >= (float) sprintf( "%u", ip2long( $start ) ) && $ip <= (float) sprintf( "%u", ip2long( $end ) ) );
 	}
 	
+	/**
+	 * Get user real IP address.
+	 * 
+	 * @return string
+	 */
+	public function get_user_ip() {
+		$ip_keys = array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' );
+		foreach ( $ip_keys as $key ) {
+			if ( array_key_exists( $key, $_SERVER ) === true ) {
+				foreach ( explode( ',', $_SERVER[$key] ) as $ip ) {
+					// trim for safety measures
+					$ip = trim( $ip );
+					// attempt to validate IP
+					if ( $this->validate_user_ip( $ip ) ) {
+						return $ip;
+					}
+				}
+			}
+		}
+		return isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
+	}
+	
+	/**
+	 * Ensure an ip address is both a valid IP and does not fall within a private network range.
+	 * 
+	 * @param $ip
+	 * @return bool
+	 */
+	public function validate_user_ip( $ip ) {
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) === false ) {
+			return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Register REST API endpoints.
 	 * 

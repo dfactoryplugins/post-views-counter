@@ -2,7 +2,7 @@
 /*
 Plugin Name: Post Views Counter
 Description: Post Views Counter allows you to display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
-Version: 1.2.7
+Version: 1.2.8
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/post-views-counter/
@@ -31,7 +31,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 	 * Post Views Counter final class.
 	 *
 	 * @class Post_Views_Counter
-	 * @version	1.2.7
+	 * @version	1.2.8
 	 */
 	final class Post_Views_Counter {
 
@@ -80,7 +80,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 				'link_to_post'		 => true,
 				'icon_class'		 => 'dashicons-chart-bar'
 			),
-			'version'	 => '1.2.7'
+			'version'	 => '1.2.8'
 		);
 
 		/**
@@ -162,8 +162,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 * @return void
 		 */
 		public function __construct() {
-			register_activation_hook( __FILE__, array( $this, 'activation' ) );
-			register_deactivation_hook( __FILE__, array( $this, 'deactivation' ) );
+			register_activation_hook( __FILE__, array( $this, 'multisite_activation' ) );
+			register_deactivation_hook( __FILE__, array( $this, 'multisite_deactivation' ) );
 
 			// settings
 			$this->options = array(
@@ -181,9 +181,37 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		}
 
 		/**
-		 * Plugin activation function.
+		 * Multisite activation.
+		 * 
+		 * @global object $wpdb
+		 * @param bool $networkwide
 		 */
-		public function activation() {
+		public function multisite_activation( $networkwide ) {
+			if ( is_multisite() && $networkwide ) {
+				global $wpdb;
+
+				$activated_blogs = array();
+				$current_blog_id = $wpdb->blogid;
+				$blogs_ids = $wpdb->get_col( $wpdb->prepare( 'SELECT blog_id FROM ' . $wpdb->blogs, '' ) );
+
+				foreach ( $blogs_ids as $blog_id ) {
+					switch_to_blog( $blog_id );
+					$this->activate_single();
+					$activated_blogs[] = (int) $blog_id;
+				}
+
+				switch_to_blog( $current_blog_id );
+				update_site_option( 'post_views_counter_activated_blogs', $activated_blogs, array() );
+			} else
+				$this->activate_single();
+		}
+
+		/**
+		 * Single site activation.
+		 * 
+		 * @global array $wp_roles
+		 */
+		public function activate_single() {
 			global $wpdb, $charset_collate;
 
 			// required for dbdelta
@@ -212,11 +240,50 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		}
 
 		/**
-		 * Plugin deactivation function.
+		 * Multisite deactivation.
+		 * 
+		 * @global array $wpdb
+		 * @param bool $networkwide
 		 */
-		public function deactivation() {
+		public function multisite_deactivation( $networkwide ) {
+			if ( is_multisite() && $networkwide ) {
+				global $wpdb;
+
+				$current_blog_id = $wpdb->blogid;
+				$blogs_ids = $wpdb->get_col( $wpdb->prepare( 'SELECT blog_id FROM ' . $wpdb->blogs, '' ) );
+
+				if ( ! ($activated_blogs = get_site_option( 'post_views_counter_activated_blogs', false, false )) )
+					$activated_blogs = array();
+
+				foreach ( $blogs_ids as $blog_id ) {
+					switch_to_blog( $blog_id );
+					$this->deactivate_single( true );
+
+					if ( in_array( (int) $blog_id, $activated_blogs, true ) )
+						unset( $activated_blogs[array_search( $blog_id, $activated_blogs )] );
+				}
+
+				switch_to_blog( $current_blog_id );
+				update_site_option( 'post_views_counter_activated_blogs', $activated_blogs );
+			} else
+				$this->deactivate_single();
+		}
+
+		/**
+		 * Single site deactivation.
+		 * 
+		 * @global array $wp_roles
+		 * @param bool $multi
+		 */
+		public function deactivate_single( $multi = false ) {
+			if ( $multi ) {
+				$options = get_option( 'post_views_counter_settings_general' );
+				$check = $options['deactivation_delete'];
+			} else
+				$check = $this->options['general']['deactivation_delete'];
+
 			// delete default options
-			if ( $this->options['general']['deactivation_delete'] ) {
+			if ( $check ) {
 				delete_option( 'post_views_counter_settings_general' );
 				delete_option( 'post_views_counter_settings_display' );
 
