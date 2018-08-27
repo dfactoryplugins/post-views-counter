@@ -84,7 +84,6 @@ class Post_Views_Counter_Columns {
 	 * @param object $post
 	 */
 	public function save_post( $post_id, $post ) {
-
 		// break if doing autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $post_id;
@@ -118,13 +117,7 @@ class Post_Views_Counter_Columns {
 		$count = apply_filters( 'pvc_update_post_views_count', absint( $_POST['post_views'] ), $post_id );
 
 		// insert or update db post views count
-		$wpdb->query(
-			$wpdb->prepare( "
-			INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
-			VALUES (%d, %d, %s, %d)
-			ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $count, $count
-			)
-		);
+		$wpdb->query( $wpdb->prepare( "INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $count, $count ) );
 
 		do_action( 'pvc_after_update_post_views_count', $post_id );
 	}
@@ -234,14 +227,12 @@ class Post_Views_Counter_Columns {
 		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			return;
 
-		// get total post views
-		$count = $count = pvc_get_post_views( $post->ID );
 		?>
 		<fieldset class="inline-edit-col-left">
 			<div id="inline-edit-post_views" class="inline-edit-col">
 				<label class="inline-edit-group">
 					<span class="title"><?php _e( 'Post Views', 'post-views-counter' ); ?></span>
-					<span class="input-text-wrap"><input type="text" name="post_views" class="title text" value="<?php echo absint( $count ); ?>"></span>
+					<span class="input-text-wrap"><input type="text" name="post_views" class="title text" value=""></span>
 						<?php wp_nonce_field( 'post_views_count', 'pvc_nonce' ); ?>
 				</label>
 			</div>
@@ -256,15 +247,31 @@ class Post_Views_Counter_Columns {
 	 * @return type
 	 */
 	function save_bulk_post_views() {
+		if ( ! isset( $_POST['post_views'] ) ) {
+			$count = null;
+		} else {
+			$count = trim( $_POST['post_views'] );
+
+			if ( is_numeric( $_POST['post_views'] ) ) {
+				$count = (int) $_POST['post_views'];
+
+				if ( $count < 0 )
+					$count = 0;
+			} else {
+				$count = null;
+			}
+		}
 
 		$post_ids = ( ! empty( $_POST['post_ids'] ) && is_array( $_POST['post_ids'] ) ) ? array_map( 'absint', $_POST['post_ids'] ) : array();
-		$count = ( ! empty( $_POST['post_views'] ) ) ? absint( $_POST['post_views'] ) : null;
+
+		if ( is_null( $count ) )
+			exit;
 
 		// break if views editing is restricted
 		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
 
 		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
-			die();
+			exit;
 
 		if ( ! empty( $post_ids ) ) {
 			foreach ( $post_ids as $post_id ) {
@@ -285,7 +292,7 @@ class Post_Views_Counter_Columns {
 				);
 			}
 		}
-		die();
-	}
 
+		exit;
+	}
 }

@@ -2,7 +2,7 @@
 /*
 Plugin Name: Post Views Counter
 Description: Post Views Counter allows you to display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
-Version: 1.2.8
+Version: 1.2.13
 Author: dFactory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/post-views-counter/
@@ -12,7 +12,7 @@ Text Domain: post-views-counter
 Domain Path: /languages
 
 Post Views Counter
-Copyright (C) 2014-2017, Digital Factory - info@digitalfactory.pl
+Copyright (C) 2014-2018, Digital Factory - info@digitalfactory.pl
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -31,7 +31,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 	 * Post Views Counter final class.
 	 *
 	 * @class Post_Views_Counter
-	 * @version	1.2.8
+	 * @version	1.2.13
 	 */
 	final class Post_Views_Counter {
 
@@ -59,6 +59,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 					'roles'	 => array()
 				),
 				'exclude_ips'			 => array(),
+				'strict_counts'			 => false,
 				'restrict_edit_views'	 => false,
 				'deactivation_delete'	 => false,
 				'cron_run'				 => true,
@@ -80,7 +81,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 				'link_to_post'		 => true,
 				'icon_class'		 => 'dashicons-chart-bar'
 			),
-			'version'	 => '1.2.8'
+			'version'	 => '1.2.13'
 		);
 
 		/**
@@ -108,21 +109,31 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 				self::$instance = new Post_Views_Counter;
 				self::$instance->define_constants();
+				
+				// minimal setup for Fast AJAX
+				if ( defined( 'SHORTINIT' ) && SHORTINIT ) {
+					include_once( POST_VIEWS_COUNTER_PATH . 'includes/counter.php' );
+					include_once( POST_VIEWS_COUNTER_PATH . 'includes/crawler-detect.php' );
+					
+					self::$instance->counter = new Post_Views_Counter_Counter();
+					self::$instance->crawler_detect = new Post_Views_Counter_Crawler_Detect();
+				// regular setup
+				} else {
+					add_action( 'plugins_loaded', array( self::$instance, 'load_textdomain' ) );
 
-				add_action( 'plugins_loaded', array( self::$instance, 'load_textdomain' ) );
+					self::$instance->includes();
 
-				self::$instance->includes();
-
-				self::$instance->update = new Post_Views_Counter_Update();
-				self::$instance->settings = new Post_Views_Counter_Settings();
-				self::$instance->query = new Post_Views_Counter_Query();
-				self::$instance->cron = new Post_Views_Counter_Cron();
-				self::$instance->counter = new Post_Views_Counter_Counter();
-				self::$instance->columns = new Post_Views_Counter_Columns();
-				self::$instance->crawler_detect = new Post_Views_Counter_Crawler_Detect();
-				self::$instance->frontend = new Post_Views_Counter_Frontend();
-				self::$instance->dashboard = new Post_Views_Counter_Dashboard();
-				self::$instance->widgets = new Post_Views_Counter_Widgets();
+					self::$instance->update = new Post_Views_Counter_Update();
+					self::$instance->settings = new Post_Views_Counter_Settings();
+					self::$instance->query = new Post_Views_Counter_Query();
+					self::$instance->cron = new Post_Views_Counter_Cron();
+					self::$instance->counter = new Post_Views_Counter_Counter();
+					self::$instance->columns = new Post_Views_Counter_Columns();
+					self::$instance->crawler_detect = new Post_Views_Counter_Crawler_Detect();
+					self::$instance->frontend = new Post_Views_Counter_Frontend();
+					self::$instance->dashboard = new Post_Views_Counter_Dashboard();
+					self::$instance->widgets = new Post_Views_Counter_Widgets();
+				}
 			}
 			return self::$instance;
 		}
@@ -133,9 +144,13 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 * @return void
 		 */
 		private function define_constants() {
-			define( 'POST_VIEWS_COUNTER_URL', plugins_url( '', __FILE__ ) );
+			// fix plugin_basename empty $wp_plugin_paths var
+			if ( ! ( defined( 'SHORTINIT' ) && SHORTINIT ) ) {
+				define( 'POST_VIEWS_COUNTER_URL', plugins_url( '', __FILE__ ) );
+				define( 'POST_VIEWS_COUNTER_REL_PATH', dirname( plugin_basename( __FILE__ ) ) . '/' );
+			}
+			
 			define( 'POST_VIEWS_COUNTER_PATH', plugin_dir_path( __FILE__ ) );
-			define( 'POST_VIEWS_COUNTER_REL_PATH', dirname( plugin_basename( __FILE__ ) ) . '/' );
 		}
 
 		/**
@@ -162,22 +177,29 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 * @return void
 		 */
 		public function __construct() {
-			register_activation_hook( __FILE__, array( $this, 'multisite_activation' ) );
-			register_deactivation_hook( __FILE__, array( $this, 'multisite_deactivation' ) );
+			if ( defined( 'SHORTINIT' ) && SHORTINIT ) {
+				$this->options = array(
+					'general'	 => array_merge( $this->defaults['general'], get_option( 'post_views_counter_settings_general', $this->defaults['general'] ) ),
+					'display'	 => array_merge( $this->defaults['display'], get_option( 'post_views_counter_settings_display', $this->defaults['display'] ) )
+				);
+			} else {
+				register_activation_hook( __FILE__, array( $this, 'multisite_activation' ) );
+				register_deactivation_hook( __FILE__, array( $this, 'multisite_deactivation' ) );
 
-			// settings
-			$this->options = array(
-				'general'	 => array_merge( $this->defaults['general'], get_option( 'post_views_counter_settings_general', $this->defaults['general'] ) ),
-				'display'	 => array_merge( $this->defaults['display'], get_option( 'post_views_counter_settings_display', $this->defaults['display'] ) )
-			);
+				// settings
+				$this->options = array(
+					'general'	 => array_merge( $this->defaults['general'], get_option( 'post_views_counter_settings_general', $this->defaults['general'] ) ),
+					'display'	 => array_merge( $this->defaults['display'], get_option( 'post_views_counter_settings_display', $this->defaults['display'] ) )
+				);
 
-			// actions
-			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-			add_action( 'wp_loaded', array( $this, 'load_pluggable_functions' ), 10 );
+				// actions
+				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+				add_action( 'wp_loaded', array( $this, 'load_pluggable_functions' ), 10 );
 
-			// filters
-			add_filter( 'plugin_row_meta', array( $this, 'plugin_row_meta' ), 10, 2 );
-			add_filter( 'plugin_action_links', array( $this, 'plugin_action_links' ), 10, 2 );
+				// filters
+				add_filter( 'plugin_row_meta', array( $this, 'plugin_row_meta' ), 10, 2 );
+				add_filter( 'plugin_action_links', array( $this, 'plugin_action_links' ), 10, 2 );
+			}
 		}
 
 		/**
@@ -352,7 +374,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 				'pvc-admin-post', POST_VIEWS_COUNTER_URL . '/js/admin-post.js', array( 'jquery' ), $this->defaults['version']
 			);
 
-			wp_register_script(
+			wp_register_script( 
 				'pvc-admin-quick-edit', POST_VIEWS_COUNTER_URL . '/js/admin-quick-edit.js', array( 'jquery', 'inline-edit-post' ), $this->defaults['version']
 			);
 
@@ -391,7 +413,10 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 					return;
 
 				wp_enqueue_style( 'pvc-admin' );
-				wp_enqueue_script( 'pvc-admin-quick-edit' );
+
+				// woocommerce
+				if ( get_post_type() !== 'product' )
+					wp_enqueue_script( 'pvc-admin-quick-edit' );
 			}
 		}
 		

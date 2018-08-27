@@ -164,7 +164,7 @@ class Post_Views_Counter_Frontend {
 			wp_enqueue_style( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/css/frontend.css', array(), Post_Views_Counter()->defaults['version'] );
 		}
 
-		if ( in_array( $mode, array( 'js', 'rest_api' ) ) ) {
+		if ( in_array( $mode, array( 'js', 'ajax', 'rest_api' ) ) ) {
 			// whether to count this post type or not
 			if ( empty( $post_types ) || ! is_singular( $post_types ) )
 				return;
@@ -174,14 +174,28 @@ class Post_Views_Counter_Frontend {
 			);
 
 			wp_enqueue_script( 'post-views-counter-frontend' );
+			
+			$js_args = array(
+				'mode'			=> $mode,
+				'requestURL'	=> esc_url_raw( $mode == 'rest_api' ? rest_url( 'post-views-counter/view-post/') : admin_url( 'admin-ajax.php' ) ),
+				'postID'		=> get_the_ID(),
+				'nonce'			=> ( $mode == 'rest_api' ? wp_create_nonce( 'wp_rest' ) : wp_create_nonce( 'pvc-check-post' ) )
+			);
+			
+			switch ( $mode ) {
+				case 'rest_api' :
+					$js_args['requestURL'] = rest_url( 'post-views-counter/view-post/' );
+					break;
+				case 'ajax' :
+					$js_args['requestURL'] = POST_VIEWS_COUNTER_URL . '/includes/ajax.php';
+					break;
+				default :
+					$js_args['requestURL'] = admin_url( 'admin-ajax.php' );
+					break;
+			}
 
 			wp_localize_script(
-				'post-views-counter-frontend', 'pvcArgsFrontend', array(
-					'mode'			=> $mode,
-					'requestURL'	=> esc_url_raw( $mode == 'rest_api' ? rest_url( 'post-views-counter/view-post/') : admin_url( 'admin-ajax.php' ) ),
-					'postID'		=> get_the_ID(),
-					'nonce'			=> ( $mode == 'rest_api' ? wp_create_nonce( 'wp_rest' ) : wp_create_nonce( 'pvc-check-post' ) )
-				)
+				'post-views-counter-frontend', 'pvcArgsFrontend', apply_filters( 'pvc_frontend_script_args', $js_args )
 			);
 		}
 	}

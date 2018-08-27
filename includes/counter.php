@@ -25,8 +25,9 @@ class Post_Views_Counter_Counter {
 		add_action( 'plugins_loaded', array( $this, 'check_cookie' ), 1 );
 		add_action( 'deleted_post', array( $this, 'delete_post_views' ) );
 		add_action( 'wp', array( $this, 'check_post_php' ) );
-		add_action( 'wp_ajax_pvc-check-post', array( $this, 'check_post_ajax' ) );
-		add_action( 'wp_ajax_nopriv_pvc-check-post', array( $this, 'check_post_ajax' ) );
+		add_action( 'wp_ajax_pvc-check-post', array( $this, 'check_post_js' ) );
+		add_action( 'wp_ajax_nopriv_pvc-check-post', array( $this, 'check_post_js' ) );
+		add_action( 'pvc_ajax_pvc-check-post', array( $this, 'check_post_ajax' ) );
 		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
 	}
 
@@ -38,17 +39,17 @@ class Post_Views_Counter_Counter {
 	public function check_post( $id = 0 ) {
 		// get post id
 		$id = (int) ( empty( $id ) ? get_the_ID() : $id );
-		
+
 		// get user id, from current user or static var in rest api request
 		$user_id = get_current_user_id();
 
 		// get user IP address
-		$user_ip = $this->get_user_ip();
-		
+		$user_ip = (string) $this->get_user_ip();
+
 		// empty id?
 		if ( empty( $id ) )
 			return;
-		
+
 		do_action( 'pvc_before_check_visit', $id, $user_id, $user_ip );
 
 		// get ips
@@ -79,36 +80,43 @@ class Post_Views_Counter_Counter {
 			// exclude specific roles?
 			elseif ( in_array( 'roles', $groups, true ) && $this->is_user_role_excluded( $user_id, Post_Views_Counter()->options['general']['exclude']['roles'] ) )
 				return;
-		}
 		// exclude guests?
-		elseif ( in_array( 'guests', $groups, true ) )
+		} elseif ( in_array( 'guests', $groups, true ) )
 			return;
 
 		// whether to count robots
 		if ( in_array( 'robots', $groups, true ) && Post_Views_Counter()->crawler_detect->is_crawler() )
 			return;
 
+		$current_time = current_time( 'timestamp', true );
+
 		// cookie already existed?
 		if ( $this->cookie['exists'] ) {
 			// post already viewed but not expired?
-			if ( in_array( $id, array_keys( $this->cookie['visited_posts'] ), true ) && current_time( 'timestamp', true ) < $this->cookie['visited_posts'][$id] ) {
+			if ( in_array( $id, array_keys( $this->cookie['visited_posts'] ), true ) && $current_time < $this->cookie['visited_posts'][$id] ) {
 				// update cookie but do not count visit
 				$this->save_cookie( $id, $this->cookie, false );
 
 				return;
-			} else
 			// update cookie
+			} else
 				$this->save_cookie( $id, $this->cookie );
-		} else
-		// set new cookie
+		} else {
+			// set new cookie
 			$this->save_cookie( $id );
+		}
 
 		$count_visit = (bool) apply_filters( 'pvc_count_visit', true, $id );
 
 		// count visit
-		if ( $count_visit )
+		if ( $count_visit ) {
+			// strict counts?
+			if ( Post_Views_Counter()->options['general']['strict_counts'] ) {
+				$this->save_ip( $id );
+			}
+
 			return $this->count_visit( $id );
-		else
+		} else
 			return;
 	}
 
@@ -134,13 +142,39 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
-	 * Check whether to count visit via AJAX request.
+	 * Check whether to count visit via Javascript(Ajax) request.
 	 */
-	public function check_post_ajax() {
+	public function check_post_js() {
 		if ( isset( $_POST['action'], $_POST['id'], $_POST['pvc_nonce'] ) && $_POST['action'] === 'pvc-check-post' && ($post_id = (int) $_POST['id']) > 0 && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-check-post' ) !== false ) {
 
 			// do we use Ajax as counter?
 			if ( Post_Views_Counter()->options['general']['counter_mode'] != 'js' )
+				exit;
+
+			// get countable post types
+			$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+
+			// check if post exists
+			$post = get_post( $post_id );
+
+			// whether to count this post type or not
+			if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
+				exit;
+
+			$this->check_post( $post_id );
+		}
+
+		exit;
+	}
+	
+	/**
+	 * Check whether to count visit via Fast AJAX request.
+	 */
+	public function check_post_ajax() {
+		if ( isset( $_POST['action'], $_POST['id'], $_POST['pvc_nonce'] ) && $_POST['action'] === 'pvc-check-post' && ($post_id = (int) $_POST['id']) > 0 ) {
+
+			// do we use Ajax as counter?
+			if ( Post_Views_Counter()->options['general']['counter_mode'] != 'ajax' )
 				exit;
 
 			// get countable post types
@@ -235,6 +269,18 @@ class Post_Views_Counter_Counter {
 	 * @param bool $expired
 	 */
 	private function save_cookie( $id, $cookie = array(), $expired = true ) {
+		$set_cookie = apply_filters( 'pvc_maybe_set_cookie', true );
+		
+		// Cookie Notice compatibility
+		if ( function_exists( 'cn_cookies_accepted' ) ) {
+			if ( ! cn_cookies_accepted() ) {
+				$set_cookie = false;
+			}
+		}
+		
+		if ( $set_cookie != true )
+			return $id;
+		
 		$expiration = $this->get_timestamp( Post_Views_Counter()->options['general']['time_between_counts']['type'], Post_Views_Counter()->options['general']['time_between_counts']['number'] );
 
 		// assign cookie name
@@ -246,7 +292,7 @@ class Post_Views_Counter_Counter {
 			setcookie( $cookie_name . '[0]', $expiration . 'b' . $id, $expiration, COOKIEPATH, COOKIE_DOMAIN, (isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ? true : false ), true );
 		} else {
 			if ( $expired ) {
-				// add new id or chang expiration date if id already exists
+				// add new id or change expiration date if id already exists
 				$cookie['visited_posts'][$id] = $expiration;
 			}
 
@@ -309,6 +355,50 @@ class Post_Views_Counter_Counter {
 			}
 		}
 	}
+	
+	/**
+	 * Save user IP function.
+	 * 
+	 * @param int $id
+	 */
+	private function save_ip( $id ) {
+		$set_cookie = apply_filters( 'pvc_maybe_set_cookie', true );
+		
+		// Cookie Notice compatibility
+		if ( function_exists( 'cn_cookies_accepted' ) ) {
+			if ( ! cn_cookies_accepted() ) {
+				$set_cookie = false;
+			}
+		}
+		
+		if ( $set_cookie != true )
+			return $id;
+		
+		// get IP cached visits
+		$ip_cache = get_transient( 'post_views_counter_ip_cache' );
+
+		if ( ! $ip_cache )
+			$ip_cache = array();
+
+		// visit exists in transient?
+		if ( isset( $ip_cache[$id][$user_ip] ) ) {
+			if ( $current_time > $ip_cache[$id][$user_ip] + $this->get_timestamp( Post_Views_Counter()->options['general']['time_between_counts']['type'], Post_Views_Counter()->options['general']['time_between_counts']['number'], false ) )
+				$ip_cache[$id][$user_ip] = $current_time;
+			else
+				return;
+		} else
+			$ip_cache[$id][$user_ip] = $current_time;
+
+		// keep it light, only 10 records per post and maximum 100 post records (=> max. 1000 ip entries)
+		// also, the data gets deleted after a week if there's no activity during this time...
+		if ( count( $ip_cache[$id] ) > 10 )
+			$ip_cache[$id] = array_slice( $ip_cache[$id], -10, 10, true );
+
+		if ( count( $ip_cache ) > 100 )
+			$ip_cache = array_slice( $ip_cache, -100, 100, true );
+
+		set_transient( 'post_views_counter_ip_cache', $ip_cache, WEEK_IN_SECONDS );
+	}
 
 	/**
 	 * Count visit function.
@@ -341,7 +431,7 @@ class Post_Views_Counter_Counter {
 				$cache_key_names[] = $cache_key;
 			} else {
 				// hit the db directly
-				// @TODO: investigate queueing these queries on the 'shutdown' hook instead instead of running them instantly?
+				// @TODO: investigate queueing these queries on the 'shutdown' hook instead of running them instantly?
 				$this->db_insert( $id, $type, $period, $increment_amount );
 			}
 		}
@@ -564,19 +654,19 @@ class Post_Views_Counter_Counter {
 	 * @return string
 	 */
 	public function get_user_ip() {
-		$ip_keys = array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' );
-		foreach ( $ip_keys as $key ) {
+		foreach ( array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' ) as $key ) {
 			if ( array_key_exists( $key, $_SERVER ) === true ) {
 				foreach ( explode( ',', $_SERVER[$key] ) as $ip ) {
 					// trim for safety measures
 					$ip = trim( $ip );
+
 					// attempt to validate IP
-					if ( $this->validate_user_ip( $ip ) ) {
+					if ( $this->validate_user_ip( $ip ) )
 						return $ip;
-					}
 				}
 			}
 		}
+
 		return isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
 	}
 	

@@ -20,9 +20,9 @@
 				}
 			} );
 
-			// admin ajax request
+			// admin ajax or fast ajax request
 		} else {
-
+			
 			var request = {
 				action: 'pvc-check-post',
 				pvc_nonce: pvcArgsFrontend.nonce,

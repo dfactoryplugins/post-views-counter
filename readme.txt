@@ -3,8 +3,9 @@ Contributors: dfactory
 Donate link: http://www.dfactory.eu/
 Tags: counter, hits, posts, postviews, post views, views, count, statistics, stats, analytics, pageviews, tracking
 Requires at least: 4.0
-Tested up to: 4.8.1
-Stable tag: 1.2.8
+Requires PHP: 5.2.4
+Tested up to: 4.9.6
+Stable tag: 1.2.13
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -19,7 +20,8 @@ For more information, check out plugin page at [dFactory](http://www.dfactory.eu
 = Features include: =
 
 * Option to select post types for which post views will be counted and displayed.
-* 3 methods of collecting post views data: PHP, Javascript or REST API for greater flexibility
+* 4 methods of collecting post views data: PHP, Javascript, Fast AJAX and REST API for greater flexibility
+* GDPR compatibility with [Cookie Notice](https://wordpress.org/plugins/cookie-notice/) plugin
 * Possibility to manually set views count for each post
 * Dashboard post views stats widget
 * Capability to query posts according to its views count
@@ -59,6 +61,22 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.2.13 =
+* New: Experimental Fast AJAX counter method (10+ times faster)
+
+= 1.2.12 =
+* New: GDPR compatibility with Cookie Notice plugin
+
+= 1.2.11 =
+* Tweak: Additional IP expiration checks added as an option
+
+= 1.2.10 =
+* New: Additional transient based IP expiration checks
+* Tweak: Chart.js script update to 2.7.1
+
+= 1.2.9 =
+* Fix: WooCommerce products list table broken
 
 = 1.2.8 =
 * New: Multisite compatibility
@@ -162,7 +180,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.2.8 =
-* New: Multisite compatibility
-* Fix: Undefined index post_views_column on post_views_counter/includes/settings.php
-* Tweak: Improved user IP handling
+= 1.2.13 =
+* New: Experimental Fast AJAX counter method (10+ times faster)
