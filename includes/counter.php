@@ -188,6 +188,15 @@ class Post_Views_Counter_Counter {
 				exit;
 
 			$this->check_post( $post_id );
+
+			$count = pvc_get_post_views( $post_id );
+
+			$return = array(
+				'post_id'  => $post_id,
+				'count'       => $count
+			);
+
+			wp_send_json($return);
 		}
 
 		exit;
