@@ -18,9 +18,15 @@
 				beforeSend: function ( xhr ) {
 					xhr.setRequestHeader( 'X-WP-Nonce', pvcArgsFrontend.nonce );
 				}
+			} ).done( function( response ) {
+				// pass response to the event
+				event.detail = response;
+				
+				// trigger pvcCheckPost
+				document.dispatchEvent( event );
 			} );
 
-			// admin ajax or fast ajax request
+		// admin ajax or fast ajax request
 		} else {
 			
 			var request = {
@@ -35,9 +41,28 @@
 				async: true,
 				cache: false,
 				data: request
+			} ).done( function( response ) {
+				// pass response to the event
+				event.detail = response;
+				
+				// trigger pvcCheckPost
+				document.dispatchEvent( event );
 			} );
 
 		}
+		
+		// create the pvcCheckPost event
+		var event;
+
+		if ( document.createEvent ) {
+			event = document.createEvent( 'HTMLEvents' );
+			event.initEvent( 'pvcCheckPost', true, true );
+		} else {
+			event = document.createEventObject();
+			event.eventType = 'pvcCheckPost';
+		}
+		
+		event.eventName = 'pvcCheckPost';
 
 	} );
 

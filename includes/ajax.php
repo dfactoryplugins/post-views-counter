@@ -60,6 +60,22 @@ wp_ssl_constants();
 // include Post Views Counter core
 require_once( WP_PLUGIN_DIR . '/post-views-counter/post-views-counter.php' );
 
+// if PVC_SHORTINIT_INC is defined in wp-config.php load theme/pvc/includes.php file
+// this allows to perform custom actions, for example hook into pvc_after_count_visit
+if ( defined( 'PVC_SHORTINIT_INC' ) && PVC_SHORTINIT_INC ) {
+	require_once( ABSPATH . WPINC . '/plugin.php' );
+	require_once( ABSPATH . WPINC . '/theme.php' );
+	
+	// get the current theme path
+	$theme_path = get_theme_file_path();
+	// load custom pvc includes file
+	$pvc_file_path = $theme_path . DIRECTORY_SEPARATOR . 'pvc' . DIRECTORY_SEPARATOR . 'includes.php';
+	
+	if ( is_file( $pvc_file_path ) ) {
+		require_once( $pvc_file_path );
+	}
+}
+
 $action = esc_attr( trim( $_POST['action'] ) );
 
 // a bit of security
