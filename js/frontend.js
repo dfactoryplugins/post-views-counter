@@ -19,11 +19,11 @@
 					xhr.setRequestHeader( 'X-WP-Nonce', pvcArgsFrontend.nonce );
 				}
 			} ).done( function( response ) {
-				// pass response to the event
-				event.detail = response;
-				
-				// trigger pvcCheckPost
-				document.dispatchEvent( event );
+				// trigger pvcCheckPost event
+				$.event.trigger( {
+					type: 'pvcCheckPost',
+					detail: response
+				} );
 			} );
 
 		// admin ajax or fast ajax request
@@ -42,27 +42,14 @@
 				cache: false,
 				data: request
 			} ).done( function( response ) {
-				// pass response to the event
-				event.detail = response;
-				
-				// trigger pvcCheckPost
-				document.dispatchEvent( event );
+				// trigger pvcCheckPost event
+				$.event.trigger( {
+					type: 'pvcCheckPost',
+					detail: response
+				} );
 			} );
 
 		}
-		
-		// create the pvcCheckPost event
-		var event;
-
-		if ( document.createEvent ) {
-			event = document.createEvent( 'HTMLEvents' );
-			event.initEvent( 'pvcCheckPost', true, true );
-		} else {
-			event = document.createEventObject();
-			event.eventType = 'pvcCheckPost';
-		}
-		
-		event.eventName = 'pvcCheckPost';
 
 	} );
 
