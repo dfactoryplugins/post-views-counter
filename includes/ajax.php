@@ -59,6 +59,7 @@ wp_ssl_constants();
 
 // include Post Views Counter core
 require_once( WP_PLUGIN_DIR . '/post-views-counter/post-views-counter.php' );
+require_once( POST_VIEWS_COUNTER_PATH . 'includes/functions.php' );
 
 $action = esc_attr( trim( $_POST['action'] ) );
 
