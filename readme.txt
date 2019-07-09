@@ -4,8 +4,8 @@ Donate link: http://www.dfactory.eu/
 Tags: counter, hits, posts, postviews, post views, views, count, statistics, stats, analytics, pageviews, tracking
 Requires at least: 4.0
 Requires PHP: 5.2.4
-Tested up to: 4.9.6
-Stable tag: 1.2.13
+Tested up to: 5.2.2
+Stable tag: 1.3
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -61,6 +61,18 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3 =
+* New: Gutenberg compatibility
+* New: Additional options in widgets: post author and display style
+* Fix: Undefined variables when IP saving enabled
+* Fix: Check cookie not being triggered in Fast Ajax mode
+* Fix: Invalid arguments in implode function causing warning
+* Fix: Thumbnail size option did not show up after thumbnail checkbox was checked
+* Fix: Saving post (in quick edit mode too) did not update post views
+
+= 1.2.14 =
+* Fix: Bulk edit post views count reset issue
 
 = 1.2.13 =
 * New: Experimental Fast AJAX counter method (10+ times faster)
@@ -180,5 +192,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.2.13 =
-* New: Experimental Fast AJAX counter method (10+ times faster)
+= 1.3.0 =
+* New: Gutenberg compatibility

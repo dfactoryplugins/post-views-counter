@@ -18,6 +18,133 @@ class Post_Views_Counter_Columns {
 		add_action( 'bulk_edit_custom_box', array( $this, 'quick_edit_custom_box' ), 10, 2 );
 		add_action( 'quick_edit_custom_box', array( $this, 'quick_edit_custom_box' ), 10, 2 );
 		add_action( 'wp_ajax_save_bulk_post_views', array( $this, 'save_bulk_post_views' ) );
+		
+		// gutenberg
+		add_action( 'plugins_loaded', array( $this, 'init_gutemberg' ) );
+	}
+	
+	/**
+	 * Init Gutenberg
+	 */
+	public function init_gutemberg() {
+		$block_editor = has_action( 'enqueue_block_assets' );
+		$gutenberg = function_exists( 'gutenberg_can_edit_post_type' );
+		
+		if ( ! $block_editor && ! $gutenberg  ) {
+			return;
+		}
+		
+		add_action( 'add_meta_boxes', array( $this, 'gutenberg_add_meta_box' ) );
+		add_action( 'rest_api_init', array( $this, 'gutenberg_rest_api_init' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'gutenberg_enqueue_scripts' ) );
+	}
+	
+	/**
+	 * Register Gutenberg Metabox.
+	 */
+	public function gutenberg_add_meta_box() {
+		add_meta_box( 'post_views_meta_box', __( 'Post Views', 'post-views-counter' ), '', 'post', '', '', array(
+			'__back_compat_meta_box' => false,
+			'__block_editor_compatible_meta_box' => true
+		) );
+	}
+	
+	/**
+	 * Register REST API Gutenberg endpoints.
+	 */
+	public function gutenberg_rest_api_init() {
+		// get views route
+		register_rest_route( 'post-views-counter', '/update-post-views/', array(
+			'methods'				=> array( 'POST' ),
+			'callback'				=> array( $this, 'gutenberg_update_callback' ),
+			'args'					=> array(
+				'id' => array(
+					'sanitize_callback' => 'absint',
+				)
+			)
+		) );
+	}
+	
+	/**
+	 * REST API Callback for Gutenberg endpoint.
+	 * 
+	 * @param array $data
+	 * @return array|int
+	 */
+	public function gutenberg_update_callback( $data ) {
+		$post_id = ! empty( $data['id'] ) ? (int) $data['id'] : 0;
+		$post_views = ! empty( $data['post_views'] ) ? (int) $data['post_views'] : 0;
+
+		// get countable post types
+		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+
+		// check if post exists
+		$post = get_post( $post_id );
+
+		// whether to count this post type or not
+		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
+			return wp_send_json_error( __( 'Invalid post ID.', 'post-views-counter' ) );
+
+		// break if current user can't edit this post
+		if ( ! current_user_can( 'edit_post', $post_id ) )
+			return wp_send_json_error( __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
+
+		// break if views editing is restricted
+		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
+
+		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+			return wp_send_json_error( __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
+
+		global $wpdb;
+
+		$count = apply_filters( 'pvc_update_post_views_count', $post_views, $post_id );
+
+		// insert or update db post views count
+		$wpdb->query( $wpdb->prepare( "INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $count, $count ) );
+
+		do_action( 'pvc_after_update_post_views_count', $post_id );
+
+		return $post_id;
+	}
+	
+	/**
+	 * Enqueue front end and editor JavaScript and CSS
+	 */
+	public function gutenberg_enqueue_scripts() {
+		// enqueue the bundled block JS file
+		wp_enqueue_script(
+			'pvc-gutenberg', 
+			POST_VIEWS_COUNTER_URL . '/js/gutenberg.min.js', 
+			array( 'wp-i18n', 'wp-edit-post', 'wp-element', 'wp-editor', 'wp-components', 'wp-data', 'wp-plugins', 'wp-api' ), 
+			Post_Views_Counter()->defaults['version']
+		);
+
+		// restrict editing
+		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
+		$can_edit = $restrict === false || ( $restrict === true && current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) );
+		
+		$js_args = array(
+			'postID'			=> get_the_ID(),
+			'postViews'			=> pvc_get_post_views( get_the_ID() ),
+			'canEdit'			=> $can_edit,
+			'nonce'				=> wp_create_nonce( 'wp_rest' ),
+			'textPostViews'		=> __( 'Post Views', 'post-views-counter' ),
+			'textHelp' 			=> __( 'Adjust the views count for this post.', 'post-views-counter' ),
+			'textCancel' 		=> __( 'Cancel', 'post-views-counter' )
+		);
+		
+		wp_localize_script(
+			'pvc-gutenberg',
+			'pvcEditorArgs',
+			$js_args
+		);
+		
+		// enqueue frontend and editor block styles
+		wp_enqueue_style(
+			'pvc-gutenberg', 
+			POST_VIEWS_COUNTER_URL . '/css/gutenberg.min.css', '', 
+			Post_Views_Counter()->defaults['version']
+		);
 	}
 
 	/**
@@ -39,15 +166,14 @@ class Post_Views_Counter_Columns {
 			return;
 
 		// get total post views
-		$count = pvc_get_post_views( $post->ID );
-		?>
+		$count = (int) pvc_get_post_views( $post->ID ); ?>
 
 		<div class="misc-pub-section" id="post-views">
 
 			<?php wp_nonce_field( 'post_views_count', 'pvc_nonce' ); ?>
 
 			<span id="post-views-display">
-				<?php echo __( 'Post Views', 'post-views-counter' ) . ': <b>' . number_format_i18n( (int) $count ) . '</b>'; ?>
+				<?php echo __( 'Post Views', 'post-views-counter' ) . ': <b>' . number_format_i18n( $count ) . '</b>'; ?>
 			</span>
 
 			<?php
@@ -61,8 +187,8 @@ class Post_Views_Counter_Columns {
 				<div id="post-views-input-container" class="hide-if-js">
 
 					<p><?php _e( 'Adjust the views count for this post.', 'post-views-counter' ); ?></p>
-					<input type="hidden" name="current_post_views" id="post-views-current" value="<?php echo (int) $count; ?>" />
-					<input type="text" name="post_views" id="post-views-input" value="<?php echo (int) $count; ?>"/><br />
+					<input type="hidden" name="current_post_views" id="post-views-current" value="<?php echo $count; ?>" />
+					<input type="text" name="post_views" id="post-views-input" value="<?php echo $count; ?>"/><br />
 					<p>
 						<a href="#post-views" class="save-post-views hide-if-no-js button"><?php _e( 'OK', 'post-views-counter' ); ?></a>
 						<a href="#post-views" class="cancel-post-views hide-if-no-js"><?php _e( 'Cancel', 'post-views-counter' ); ?></a>
@@ -96,6 +222,13 @@ class Post_Views_Counter_Columns {
 		if ( ! isset( $_POST['post_views'] ) )
 			return $post_id;
 
+		// cast numeric post views
+		$post_views = (int) $_POST['post_views'];
+
+		// unchanged post views value?
+		if ( isset( $_POST['current_post_views'] ) && $post_views === (int) $_POST['current_post_views'] )
+			return $post_id;
+
 		// break if post views in not one of the selected
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
@@ -114,7 +247,7 @@ class Post_Views_Counter_Columns {
 
 		global $wpdb;
 
-		$count = apply_filters( 'pvc_update_post_views_count', absint( $_POST['post_views'] ), $post_id );
+		$count = apply_filters( 'pvc_update_post_views_count', $post_views, $post_id );
 
 		// insert or update db post views count
 		$wpdb->query( $wpdb->prepare( "INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $count, $count ) );
@@ -215,7 +348,7 @@ class Post_Views_Counter_Columns {
 		if ( $pagenow !== 'edit.php' )
 			return;
 		
-		if ( $column_name != 'post_views' )
+		if ( $column_name !== 'post_views' )
 			return;
 
 		if ( ! Post_Views_Counter()->options['general']['post_views_column'] || ! in_array( $post_type, Post_Views_Counter()->options['general']['post_types_count'] ) )
@@ -233,7 +366,8 @@ class Post_Views_Counter_Columns {
 				<label class="inline-edit-group">
 					<span class="title"><?php _e( 'Post Views', 'post-views-counter' ); ?></span>
 					<span class="input-text-wrap"><input type="text" name="post_views" class="title text" value=""></span>
-						<?php wp_nonce_field( 'post_views_count', 'pvc_nonce' ); ?>
+					<input type="hidden" name="current_post_views" value="" />
+					<?php wp_nonce_field( 'post_views_count', 'pvc_nonce' ); ?>
 				</label>
 			</div>
 		</fieldset>
@@ -247,9 +381,9 @@ class Post_Views_Counter_Columns {
 	 * @return type
 	 */
 	function save_bulk_post_views() {
-		if ( ! isset( $_POST['post_views'] ) ) {
+		if ( ! isset( $_POST['post_views'] ) )
 			$count = null;
-		} else {
+		else {
 			$count = trim( $_POST['post_views'] );
 
 			if ( is_numeric( $_POST['post_views'] ) ) {
@@ -257,9 +391,8 @@ class Post_Views_Counter_Columns {
 
 				if ( $count < 0 )
 					$count = 0;
-			} else {
+			} else
 				$count = null;
-			}
 		}
 
 		$post_ids = ( ! empty( $_POST['post_ids'] ) && is_array( $_POST['post_ids'] ) ) ? array_map( 'absint', $_POST['post_ids'] ) : array();

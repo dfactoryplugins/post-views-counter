@@ -40,14 +40,14 @@ class Post_Views_Counter_Crawler_Detect {
 	 *
 	 * @var object
 	 */
-	protected $crawlers;
+	protected $crawlers = array();
 
 	/**
 	 * Exclusions object.
 	 *
 	 * @var object
 	 */
-	protected $exclusions;
+	protected $exclusions = array();
 
 	/**
 	 * Headers object.
@@ -60,6 +60,9 @@ class Post_Views_Counter_Crawler_Detect {
 	 * Class constructor.
 	 */
 	public function __construct() {
+		$this->crawlers = $this->get_crawlers_list();
+		$this->exclusions = $this->get_exclusions_list();
+
 		add_action( 'after_setup_theme', array( $this, 'init' ) );
 	}
 
@@ -71,8 +74,6 @@ class Post_Views_Counter_Crawler_Detect {
 		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
 			return;
 
-		$this->crawlers = $this->get_crawlers_list();
-		$this->exclusions = $this->get_exclusions_list();
 		$this->ua_http_headers = $this->get_headers_list();
 		$this->set_http_headers();
 		$this->set_user_agent();

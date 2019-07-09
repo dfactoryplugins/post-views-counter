@@ -37,6 +37,10 @@ class Post_Views_Counter_Counter {
 	 * @param int $id
 	 */
 	public function check_post( $id = 0 ) {
+		// force check post in SHORTINIT mode
+		if ( defined( 'SHORTINIT' ) && SHORTINIT )
+			$this->check_cookie();
+
 		// get post id
 		$id = (int) ( empty( $id ) ? get_the_ID() : $id );
 
@@ -111,9 +115,8 @@ class Post_Views_Counter_Counter {
 		// count visit
 		if ( $count_visit ) {
 			// strict counts?
-			if ( Post_Views_Counter()->options['general']['strict_counts'] ) {
+			if ( Post_Views_Counter()->options['general']['strict_counts'] )
 				$this->save_ip( $id );
-			}
 
 			return $this->count_visit( $id );
 		} else
@@ -166,7 +169,7 @@ class Post_Views_Counter_Counter {
 
 		exit;
 	}
-	
+
 	/**
 	 * Check whether to count visit via Fast AJAX request.
 	 */
@@ -205,7 +208,7 @@ class Post_Views_Counter_Counter {
 		// do we use REST API as counter?
 		if ( Post_Views_Counter()->options['general']['counter_mode'] != 'rest_api' )
 			return new WP_Error( 'pvc_rest_api_disabled', __( 'REST API method is disabled.', 'post-views-counter' ), array( 'status' => 404 ) );
-		
+
 		// @todo: get current user id in direct api endpoint calls
 
 		// check if post exists
@@ -270,17 +273,14 @@ class Post_Views_Counter_Counter {
 	 */
 	private function save_cookie( $id, $cookie = array(), $expired = true ) {
 		$set_cookie = apply_filters( 'pvc_maybe_set_cookie', true );
-		
+
 		// Cookie Notice compatibility
-		if ( function_exists( 'cn_cookies_accepted' ) ) {
-			if ( ! cn_cookies_accepted() ) {
-				$set_cookie = false;
-			}
-		}
-		
-		if ( $set_cookie != true )
+		if ( function_exists( 'cn_cookies_accepted' ) && ! cn_cookies_accepted() )
+			$set_cookie = false;
+
+		if ( $set_cookie !== true )
 			return $id;
-		
+
 		$expiration = $this->get_timestamp( Post_Views_Counter()->options['general']['time_between_counts']['type'], Post_Views_Counter()->options['general']['time_between_counts']['number'] );
 
 		// assign cookie name
@@ -355,7 +355,7 @@ class Post_Views_Counter_Counter {
 			}
 		}
 	}
-	
+
 	/**
 	 * Save user IP function.
 	 * 
@@ -363,22 +363,25 @@ class Post_Views_Counter_Counter {
 	 */
 	private function save_ip( $id ) {
 		$set_cookie = apply_filters( 'pvc_maybe_set_cookie', true );
-		
+
 		// Cookie Notice compatibility
-		if ( function_exists( 'cn_cookies_accepted' ) ) {
-			if ( ! cn_cookies_accepted() ) {
-				$set_cookie = false;
-			}
-		}
-		
-		if ( $set_cookie != true )
+		if ( function_exists( 'cn_cookies_accepted' ) && ! cn_cookies_accepted() )
+			$set_cookie = false;
+
+		if ( $set_cookie !== true )
 			return $id;
-		
+
 		// get IP cached visits
 		$ip_cache = get_transient( 'post_views_counter_ip_cache' );
 
 		if ( ! $ip_cache )
 			$ip_cache = array();
+
+		// get user IP address
+		$user_ip = (string) $this->get_user_ip();
+
+		// get current time
+		$current_time = current_time( 'timestamp', true );
 
 		// visit exists in transient?
 		if ( isset( $ip_cache[$id][$user_ip] ) ) {
@@ -437,9 +440,8 @@ class Post_Views_Counter_Counter {
 		}
 
 		// update the list of cache keys to be flushed
-		if ( $using_object_cache && ! empty( $cache_key_names ) ) {
+		if ( $using_object_cache && ! empty( $cache_key_names ) )
 			$this->update_cached_keys_list_if_needed( $cache_key_names );
-		}
 
 		do_action( 'pvc_after_count_visit', $id );
 
@@ -513,9 +515,8 @@ class Post_Views_Counter_Counter {
 	 */
 	private function update_cached_keys_list_if_needed( $key_names = array() ) {
 		$existing_list = wp_cache_get( self::NAME_ALLKEYS, self::GROUP );
-		if ( ! $existing_list ) {
+		if ( ! $existing_list )
 			$existing_list = '';
-		}
 
 		$list_modified = false;
 
@@ -553,9 +554,9 @@ class Post_Views_Counter_Counter {
 
 		$key_names = wp_cache_get( self::NAME_ALLKEYS, self::GROUP );
 
-		if ( ! $key_names ) {
+		if ( ! $key_names )
 			$key_names = array();
-		} else {
+		else {
 			// create an array out of a string that's stored in the cache
 			$key_names = explode( '|', $key_names );
 		}
@@ -574,9 +575,8 @@ class Post_Views_Counter_Counter {
 		}
 
 		// delete the key holding the list itself after we've successfully flushed it
-		if ( ! empty( $key_names ) ) {
+		if ( ! empty( $key_names ) )
 			wp_cache_delete( self::NAME_ALLKEYS, self::GROUP );
-		}
 
 		return true;
 	}
@@ -632,7 +632,7 @@ class Post_Views_Counter_Counter {
 
 		return false;
 	}
-	
+
 	/**
 	 * Check if IPv4 is in range.
 	 *
@@ -647,7 +647,7 @@ class Post_Views_Counter_Counter {
 
 		return ( $ip >= (float) sprintf( "%u", ip2long( $start ) ) && $ip <= (float) sprintf( "%u", ip2long( $end ) ) );
 	}
-	
+
 	/**
 	 * Get user real IP address.
 	 * 
@@ -669,7 +669,7 @@ class Post_Views_Counter_Counter {
 
 		return isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
 	}
-	
+
 	/**
 	 * Ensure an ip address is both a valid IP and does not fall within a private network range.
 	 * 
@@ -677,9 +677,9 @@ class Post_Views_Counter_Counter {
 	 * @return bool
 	 */
 	public function validate_user_ip( $ip ) {
-		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) === false ) {
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) === false )
 			return false;
-		}
+
 		return true;
 	}
 
@@ -700,6 +700,7 @@ class Post_Views_Counter_Counter {
 				)
 			)
 		) );
+
 		// get views route
 		register_rest_route( 'post-views-counter', '/get-post-views/', array(
 			'methods'				=> array( 'GET', 'POST' ),
@@ -707,12 +708,13 @@ class Post_Views_Counter_Counter {
 			'permission_callback'	=> array( $this, 'get_post_views_permissions_check' ),
 			'args'					=> array(
 				'id' => array(
-					'default'			 => 0
+					'default'	=> 0,
+					'user_id'	=> get_current_user_id()
 				)
 			)
 		) );
 	}
-	
+
 	/**
 	 * Get post views via REST API request.
 	 * 
@@ -721,14 +723,10 @@ class Post_Views_Counter_Counter {
 	 */
 	public function get_post_views_rest_api( $request ) {
 		$post_id = is_array( $request['id'] ) ? array_map( 'absint', $request['id'] ) : absint( $request['id'] );
-		
-		// do we use REST API as counter?
-		if ( Post_Views_Counter()->options['general']['counter_mode'] != 'rest_api' )
-			return new WP_Error( 'pvc_rest_api_disabled', __( 'REST API method is disabled.', 'post-views-counter' ), array( 'status' => 404 ) );
-		
+
 		return pvc_get_post_views( $post_id );
 	}
-	
+
 	/**
 	 * Check if a given request has access to get views
 	 *
@@ -736,7 +734,7 @@ class Post_Views_Counter_Counter {
 	 * @return WP_Error|bool
 	 */
 	public function get_post_views_permissions_check( $request ) {
-		return (bool) apply_filters( 'pvc_rest_api_get_post_views_check', current_user_can( 'read_posts' ), $request );
+		return (bool) apply_filters( 'pvc_rest_api_get_post_views_check', true, $request );
 	}
 
 }
