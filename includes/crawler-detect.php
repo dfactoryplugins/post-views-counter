@@ -5,10 +5,10 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Crawler_Detect class.
- * 
+ *
  * Based on CrawlerDetect php class adjusted to PHP 5.2
  * https://github.com/JayBizzle/Crawler-Detect/blob/master/src/CrawlerDetect.php
- * 
+ *
  * @since 1.2.4
  * @class Post_Views_Counter_Crawler_Detect
  */
