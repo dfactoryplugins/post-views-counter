@@ -5,7 +5,7 @@ Tags: counter, hits, posts, postviews, post views, views, count, statistics, sta
 Requires at least: 4.0
 Requires PHP: 5.2.4
 Tested up to: 5.2.2
-Stable tag: 1.3
+Stable tag: 1.3.1
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -61,6 +61,10 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3.1 =
+* Fix: Gutenberg CSS file missing
+* Tweak: POT translation file update
 
 = 1.3 =
 * New: Gutenberg compatibility
@@ -192,5 +196,6 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.3.0 =
-* New: Gutenberg compatibility
+= 1.3.1 =
+* Fix: Gutenberg CSS file missing
+* Tweak: POT translation file update

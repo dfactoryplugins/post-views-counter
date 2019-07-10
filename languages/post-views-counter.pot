@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Views Counter\n"
-"POT-Creation-Date: 2018-06-11 18:34+0200\n"
+"POT-Creation-Date: 2019-07-10 10:32+0200\n"
 "PO-Revision-Date: 2015-04-08 18:59+0100\n"
 "Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
 "Language-Team: dFactory <info@dfactory.eu>\n"
@@ -10,7 +10,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.8\n"
+"X-Generator: Poedit 2.2.3\n"
 "X-Poedit-KeywordsList: gettext;gettext_noop;__;_e;esc_attr__;esc_attr_e;"
 "esc_html__;esc_html_e\n"
 "X-Poedit-Basepath: .\n"
@@ -18,39 +18,44 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../includes/columns.php:50 ../includes/columns.php:185
-#: ../includes/columns.php:191 ../includes/columns.php:243
+#: ../includes/columns.php:46 ../includes/columns.php:131
+#: ../includes/columns.php:176 ../includes/columns.php:311
+#: ../includes/columns.php:317 ../includes/columns.php:367
 #: ../includes/dashboard.php:30 ../includes/dashboard.php:102
 #: ../includes/dashboard.php:112 ../includes/dashboard.php:121
 #: ../includes/dashboard.php:197
 msgid "Post Views"
 msgstr ""
 
-#: ../includes/columns.php:59
-msgid "Edit"
-msgstr ""
-
-#: ../includes/columns.php:63
-msgid "Adjust the views count for this post."
-msgstr ""
-
-#: ../includes/columns.php:67
-msgid "OK"
-msgstr ""
-
-#: ../includes/columns.php:68
-msgid "Cancel"
-msgstr ""
-
-#: ../includes/counter.php:207 ../includes/counter.php:727
-msgid "REST API method is disabled."
-msgstr ""
-
-#: ../includes/counter.php:215
+#: ../includes/columns.php:86 ../includes/counter.php:218
 msgid "Invalid post ID."
 msgstr ""
 
-#: ../includes/counter.php:221
+#: ../includes/columns.php:90 ../includes/columns.php:96
+msgid "You are not allowed to edit this item."
+msgstr ""
+
+#: ../includes/columns.php:132 ../includes/columns.php:189
+msgid "Adjust the views count for this post."
+msgstr ""
+
+#: ../includes/columns.php:133 ../includes/columns.php:194
+msgid "Cancel"
+msgstr ""
+
+#: ../includes/columns.php:185
+msgid "Edit"
+msgstr ""
+
+#: ../includes/columns.php:193
+msgid "OK"
+msgstr ""
+
+#: ../includes/counter.php:210
+msgid "REST API method is disabled."
+msgstr ""
+
+#: ../includes/counter.php:224
 msgid "Post type excluded."
 msgstr ""
 
@@ -74,7 +79,7 @@ msgstr ""
 msgid "Total Views"
 msgstr ""
 
-#: ../includes/functions.php:346
+#: ../includes/functions.php:348
 msgid "No Posts"
 msgstr ""
 
@@ -300,7 +305,7 @@ msgstr ""
 msgid "Position"
 msgstr ""
 
-#: ../includes/settings.php:244
+#: ../includes/settings.php:244 ../includes/widgets.php:150
 msgid "Display Style"
 msgstr ""
 
@@ -477,74 +482,86 @@ msgstr ""
 msgid "Thank you! Datebase was succesfully updated."
 msgstr ""
 
-#: ../includes/widgets.php:41 ../includes/widgets.php:47
+#: ../includes/widgets.php:42 ../includes/widgets.php:48
 msgid "Most Viewed Posts"
 msgstr ""
 
-#: ../includes/widgets.php:42
+#: ../includes/widgets.php:43
 msgid "Displays a list of the most viewed posts"
 msgstr ""
 
-#: ../includes/widgets.php:55
+#: ../includes/widgets.php:58
 msgid "No Posts found"
 msgstr ""
 
-#: ../includes/widgets.php:59
+#: ../includes/widgets.php:62
 msgid "Ascending"
 msgstr ""
 
-#: ../includes/widgets.php:60
+#: ../includes/widgets.php:63
 msgid "Descending"
 msgstr ""
 
-#: ../includes/widgets.php:106
+#: ../includes/widgets.php:67
+msgid "Unordered list"
+msgstr ""
+
+#: ../includes/widgets.php:68
+msgid "Ordered list"
+msgstr ""
+
+#: ../includes/widgets.php:114
 msgid "Title"
 msgstr ""
 
-#: ../includes/widgets.php:110
+#: ../includes/widgets.php:118
 msgid "Post Types"
 msgstr ""
 
-#: ../includes/widgets.php:122
+#: ../includes/widgets.php:130
 msgid "Number of posts to show"
 msgstr ""
 
-#: ../includes/widgets.php:126
+#: ../includes/widgets.php:134
 msgid "No posts message"
 msgstr ""
 
-#: ../includes/widgets.php:130
+#: ../includes/widgets.php:138
 msgid "Order"
 msgstr ""
 
-#: ../includes/widgets.php:142
+#: ../includes/widgets.php:162
 msgid "Display post views?"
 msgstr ""
 
-#: ../includes/widgets.php:144
+#: ../includes/widgets.php:164
 msgid "Display post excerpt?"
 msgstr ""
 
-#: ../includes/widgets.php:146
+#: ../includes/widgets.php:166
+msgid "Display post author?"
+msgstr ""
+
+#: ../includes/widgets.php:168
 msgid "Display post thumbnail?"
 msgstr ""
 
-#: ../includes/widgets.php:149
+#: ../includes/widgets.php:171
 msgid "Thumbnail size"
 msgstr ""
 
-#: ../post-views-counter.php:384
+#: ../post-views-counter.php:387
 msgid "Are you sure you want to reset these settings to defaults?"
 msgstr ""
 
-#: ../post-views-counter.php:385
+#: ../post-views-counter.php:388
 msgid "Are you sure you want to delete all existing data?"
 msgstr ""
 
-#: ../post-views-counter.php:435
+#: ../post-views-counter.php:437
 msgid "Support"
 msgstr ""
 
-#: ../post-views-counter.php:459
+#: ../post-views-counter.php:461
 msgid "Settings"
 msgstr ""
