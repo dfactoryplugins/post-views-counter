@@ -279,7 +279,7 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 		$html = apply_filters(
 			'pvc_post_views_html', '<div class="post-views post-' . $post_id . ' entry-meta">
 			' . ($options['display_style']['icon'] && $icon_class !== '' ? $icon : '') . '
-			' . ($options['display_style']['text'] ? '<span class="post-views-label">' . $label . ' </span>' : '') . '
+			' . ($options['display_style']['text'] && $label !== '' ? '<span class="post-views-label">' . $label . ' </span>' : '') . '
 			<span class="post-views-count">' . number_format_i18n( $views ) . '</span>
 			</div>', $post_id, $views, $label, $icon
 		);
