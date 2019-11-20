@@ -120,6 +120,8 @@ class Post_Views_Counter_Settings {
 			$post_types[$key] = $post_type->labels->name;
 		}
 
+        $post_types = apply_filters('pvc_available_post_types', $post_types);
+
 		// sort post types alphabetically with their keys
 		asort( $post_types, SORT_STRING );
 
