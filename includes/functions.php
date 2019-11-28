@@ -261,7 +261,6 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 if ( ! function_exists( 'pvc_post_views' ) ) {
 
 	function pvc_post_views( $post_id = 0, $echo = true ) {
-
 		// get all data
 		$post_id = (int) ( empty( $post_id ) ? get_the_ID() : $post_id );
 		$options = Post_Views_Counter()->options['display'];
@@ -269,19 +268,27 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 
 		// prepare display
 		$label = apply_filters( 'pvc_post_views_label', ( function_exists( 'icl_t' ) ? icl_t( 'Post Views Counter', 'Post Views Label', $options['label'] ) : $options['label'] ), $post_id );
-		// get icon
+
+		// get icon class
 		$icon_class = ( $options['icon_class'] !== '' ? esc_attr( $options['icon_class'] ) : '' );
+
 		// add dashicons class if needed
 		$icon_class = strpos( $icon_class, 'dashicons' ) === 0 ? 'dashicons ' . $icon_class : $icon_class;
-		
+
+		// prepare icon output
 		$icon = apply_filters( 'pvc_post_views_icon', '<span class="post-views-icon ' . $icon_class . '"></span>', $post_id );
 
 		$html = apply_filters(
-			'pvc_post_views_html', '<div class="post-views post-' . $post_id . ' entry-meta">
-			' . ($options['display_style']['icon'] && $icon_class !== '' ? $icon : '') . '
-			' . ($options['display_style']['text'] && $label !== '' ? '<span class="post-views-label">' . $label . ' </span>' : '') . '
-			<span class="post-views-count">' . number_format_i18n( $views ) . '</span>
-			</div>', $post_id, $views, $label, $icon
+			'pvc_post_views_html',
+			'<div class="post-views post-' . $post_id . ' entry-meta">
+				' . ( $options['display_style']['icon'] && $icon_class !== '' ? $icon : '' ) . '
+				' . ( $options['display_style']['text'] && $label !== '' ? '<span class="post-views-label">' . $label . ' </span>' : '' ) . '
+				<span class="post-views-count">' . number_format_i18n( $views ) . '</span>
+			</div>',
+			$post_id,
+			$views,
+			$label,
+			$icon
 		);
 
 		if ( $echo )
@@ -423,6 +430,56 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 			return $html;
 	}
 
+}
+
+/**
+ * Update total number of post views for a post.
+ *
+ * @global $wpdb
+ * @param int $post_id Post ID
+ * @param int $post_views Number of post views
+ * @return true|string True on success, error string otherwise
+ */
+function pvc_update_post_views( $post_id = 0, $post_views = 0 ) {
+	// cast number of views
+	$post_views = (int) $post_views;
+
+	if ( $post_views < 0 )
+		return __( 'Negative number of post views.', 'post-views-counter' );
+
+	// cast post ID
+	$post_id = (int) $post_id;
+
+	// get post
+	$post = get_post( $post_id );
+
+	// check if post exists
+	if ( empty( $post ) )
+		return __( 'Invalid post ID.', 'post-views-counter' );
+
+	// break if current user can't edit this post
+	if ( ! current_user_can( 'edit_post', $post_id ) )
+		return __( 'You are not allowed to edit this item.', 'post-views-counter' );
+
+	// get restrict option
+	$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
+
+	// break if views editing is restricted
+	if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+		return __( 'You are not allowed to edit this item.', 'post-views-counter' );
+
+	global $wpdb;
+
+	// chnage post views?
+	$post_views = apply_filters( 'pvc_update_post_views_count', $post_views, $post_id );
+
+	// insert or update db post views count
+	$query = $wpdb->query( $wpdb->prepare( "INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $post_views, $post_views ) );
+
+	do_action( 'pvc_after_update_post_views_count', $post_id );
+
+	// query fails only if it returns false
+	return $query !== false ? __( 'SQL error.', 'post-views-counter' ) : true;
 }
 
 /**

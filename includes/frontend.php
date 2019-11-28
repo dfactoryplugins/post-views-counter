@@ -44,7 +44,6 @@ class Post_Views_Counter_Frontend {
 	 * Set up plugin hooks.
 	 */
 	public function run() {
-
 		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
 			return;
 
@@ -53,10 +52,10 @@ class Post_Views_Counter_Frontend {
 		if ( ! empty( $filter ) && in_array( $filter, array( 'before', 'after' ) ) ) {
 			// post content
 			add_filter( 'the_content', array( $this, 'add_post_views_count' ) );
-			// add_filter( 'the_excerpt', array( $this, 'add_post_views_count' ) );
-			// bbpress
-			add_filter( 'bbp_get_topic_content', array( $this, 'add_post_views_count' ) );
-			add_filter( 'bbp_get_reply_content', array( $this, 'add_post_views_count' ) );
+
+			// bbpress support
+			add_action( 'bbp_template_' . $filter . '_single_topic', array( $this, 'display_bbpress_post_views' ) );
+			add_action( 'bbp_template_' . $filter . '_single_forum', array( $this, 'display_bbpress_post_views' ) );
 		} else {
 			// custom
 			if ( $filter != 'manual' && is_string( $filter ) )
@@ -65,16 +64,25 @@ class Post_Views_Counter_Frontend {
 	}
 
 	/**
+	 * Add post views counter to forum/topic of bbPress.
+	 *
+	 * @return string
+	 */
+	public function display_bbpress_post_views() {
+		$post_id = get_the_ID();
+
+		// check only for forums and topics
+		if ( bbp_is_forum( $post_id ) || bbp_is_topic( $post_id ) )
+			echo $this->add_post_views_count( '' );
+	}
+
+	/**
 	 * Add post views counter to content.
-	 * 
-	 * @global object $post
-	 * @global string $wp_current_filter
-	 * @param mixed $content
+	 *
+	 * @param string $content
 	 * @return mixed
 	 */
 	public function add_post_views_count( $content = '' ) {
-		global $post, $wp_current_filter;
-
 		$display = false;
 
 		// get post types
@@ -87,19 +95,22 @@ class Post_Views_Counter_Frontend {
 		if ( $pages ) {
 			foreach ( $pages as $page ) {
 				switch ( $page ) {
-					case 'singular' :
+					case 'singular':
 						if ( is_singular( $post_types ) )
 							$display = true;
 						break;
-					case 'archive' :
+
+					case 'archive':
 						if ( is_archive() )
 							$display = true;
 						break;
-					case 'search' :
+
+					case 'search':
 						if ( is_search() )
 							$display = true;
 						break;
-					case 'home' :
+
+					case 'home':
 						if ( is_home() || is_front_page() )
 							$display = true;
 						break;
@@ -118,17 +129,15 @@ class Post_Views_Counter_Frontend {
 			// exclude specific roles?
 			elseif ( in_array( 'roles', $groups, true ) && Post_Views_Counter()->counter->is_user_role_excluded( get_current_user_id(), Post_Views_Counter()->options['display']['restrict_display']['roles'] ) )
 				$display = false;
-		}
 		// exclude guests?
-		elseif ( in_array( 'guests', $groups, true ) )
+		} elseif ( in_array( 'guests', $groups, true ) )
 			$display = false;
 
 		// we don't want to mess custom loops
-		if ( ! in_the_loop() )
+		if ( ! in_the_loop() && ! class_exists( 'bbPress' ) )
 			$display = false;
 
 		if ( apply_filters( 'pvc_display_views_count', $display ) === true ) {
-
 			$filter = apply_filters( 'pvc_shortcode_filter_hook', Post_Views_Counter()->options['display']['position'] );
 
 			switch ( $filter ) {
@@ -169,12 +178,9 @@ class Post_Views_Counter_Frontend {
 			if ( empty( $post_types ) || ! is_singular( $post_types ) )
 				return;
 
-			wp_register_script(
-				'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/js/frontend.js', array( 'jquery' ), Post_Views_Counter()->defaults['version'], true
-			);
-
+			wp_register_script( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/js/frontend.js', array( 'jquery' ), Post_Views_Counter()->defaults['version'], true );
 			wp_enqueue_script( 'post-views-counter-frontend' );
-			
+
 			$js_args = array(
 				'mode'			=> $mode,
 				'requestURL'	=> esc_url_raw( $mode == 'rest_api' ? rest_url( 'post-views-counter/view-post/') : admin_url( 'admin-ajax.php' ) ),
@@ -183,21 +189,20 @@ class Post_Views_Counter_Frontend {
 			);
 			
 			switch ( $mode ) {
-				case 'rest_api' :
+				case 'rest_api':
 					$js_args['requestURL'] = rest_url( 'post-views-counter/view-post/' );
 					break;
-				case 'ajax' :
+
+				case 'ajax':
 					$js_args['requestURL'] = POST_VIEWS_COUNTER_URL . '/includes/ajax.php';
 					break;
-				default :
+
+				default:
 					$js_args['requestURL'] = admin_url( 'admin-ajax.php' );
 					break;
 			}
 
-			wp_localize_script(
-				'post-views-counter-frontend', 'pvcArgsFrontend', apply_filters( 'pvc_frontend_script_args', $js_args )
-			);
+			wp_localize_script( 'post-views-counter-frontend', 'pvcArgsFrontend', apply_filters( 'pvc_frontend_script_args', $js_args ) );
 		}
 	}
-
 }

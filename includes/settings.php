@@ -33,7 +33,6 @@ class Post_Views_Counter_Settings {
 	 * Load default settings.
 	 */
 	public function load_defaults() {
-
 		if ( ! is_admin() )
 			return;
 
@@ -42,10 +41,9 @@ class Post_Views_Counter_Settings {
 			'js'		=> __( 'JavaScript', 'post-views-counter' ),
 			'ajax'		=> __( 'Fast AJAX', 'post-views-counter' )
 		);
-		
-		if ( function_exists( 'register_rest_route' ) ) {
+
+		if ( function_exists( 'register_rest_route' ) )
 			$this->modes['rest_api'] = __( 'REST API', 'post-views-counter' );
-		}
 
 		$this->time_types = array(
 			'minutes'	 => __( 'minutes', 'post-views-counter' ),
@@ -91,19 +89,21 @@ class Post_Views_Counter_Settings {
 
 		$this->user_roles = $this->get_user_roles();
 
-		$this->page_types = apply_filters( 'pvc_page_types_display_options', array(
-			'home'		 => __( 'Home', 'post-views-counter' ),
-			'archive'	 => __( 'Archives', 'post-views-counter' ),
-			'singular'	 => __( 'Single pages', 'post-views-counter' ),
-			'search'	 => __( 'Search results', 'post-views-counter' ),
-		) );
+		$this->page_types = apply_filters(
+			'pvc_page_types_display_options',
+			array(
+				'home'		 => __( 'Home', 'post-views-counter' ),
+				'archive'	 => __( 'Archives', 'post-views-counter' ),
+				'singular'	 => __( 'Single pages', 'post-views-counter' ),
+				'search'	 => __( 'Search results', 'post-views-counter' ),
+			)
+		);
 	}
 
 	/**
 	 * Get post types avaiable for counting.
 	 */
 	public function load_post_types() {
-
 		if ( ! is_admin() )
 			return;
 
@@ -120,7 +120,11 @@ class Post_Views_Counter_Settings {
 			$post_types[$key] = $post_type->labels->name;
 		}
 
-        $post_types = apply_filters('pvc_available_post_types', $post_types);
+		// remove bbPress replies
+		if ( class_exists( 'bbPress' ) && isset( $post_types['reply'] ) )
+			unset( $post_types['reply'] );
+
+        $post_types = apply_filters( 'pvc_available_post_types', $post_types );
 
 		// sort post types alphabetically with their keys
 		asort( $post_types, SORT_STRING );
@@ -130,8 +134,9 @@ class Post_Views_Counter_Settings {
 
 	/**
 	 * Get all user roles.
-	 * 
+	 *
 	 * @global object $wp_roles
+	 * @return array
 	 */
 	public function get_user_roles() {
 		global $wp_roles;
@@ -149,17 +154,17 @@ class Post_Views_Counter_Settings {
 
 	/**
 	 * Add options page.
+	 *
+	 * @return void
 	 */
 	public function admin_menu_options() {
-		add_options_page(
-		__( 'Post Views Counter', 'post-views-counter' ), __( 'Post Views Counter', 'post-views-counter' ), 'manage_options', 'post-views-counter', array( $this, 'options_page' )
-		);
+		add_options_page( __( 'Post Views Counter', 'post-views-counter' ), __( 'Post Views Counter', 'post-views-counter' ), 'manage_options', 'post-views-counter', array( $this, 'options_page' ) );
 	}
 
 	/**
 	 * Options page callback.
-	 * 
-	 * @return mixed
+	 *
+	 * @return void
 	 */
 	public function options_page() {
 		$tab_key = (isset( $_GET['tab'] ) ? esc_attr( $_GET['tab'] ) : 'general');
@@ -589,6 +594,9 @@ class Post_Views_Counter_Settings {
 	 * Validate general settings.
 	 */
 	public function validate_settings( $input ) {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
 		if ( isset( $_POST['post_views_counter_import_wp_postviews'] ) ) {
 			global $wpdb;
 
@@ -597,7 +605,7 @@ class Post_Views_Counter_Settings {
 			$views = $wpdb->get_results( "SELECT post_id, meta_value FROM " . $wpdb->postmeta . " WHERE meta_key = '" . $meta_key . "'", ARRAY_A, 0 );
 
 			if ( ! empty( $views ) ) {
-				$input = Post_Views_Counter()->defaults['general'];
+				$input = $pvc->defaults['general'];
 				$input['wp_postviews_import'] = true;
 
 				$sql = array();
@@ -634,37 +642,37 @@ class Post_Views_Counter_Settings {
 				$input['post_types_count'] = array();
 
 			// counter mode
-			$input['counter_mode'] = isset( $input['counter_mode'], $this->modes[$input['counter_mode']] ) ? $input['counter_mode'] : Post_Views_Counter()->defaults['general']['counter_mode'];
+			$input['counter_mode'] = isset( $input['counter_mode'], $this->modes[$input['counter_mode']] ) ? $input['counter_mode'] : $pvc->defaults['general']['counter_mode'];
 
 			// post views column
 			$input['post_views_column'] = isset( $input['post_views_column'] );
 
 			// time between counts
-			$input['time_between_counts']['number'] = (int) ( isset( $input['time_between_counts']['number'] ) ? $input['time_between_counts']['number'] : Post_Views_Counter()->defaults['general']['time_between_counts']['number'] );
-			$input['time_between_counts']['type'] = isset( $input['time_between_counts']['type'], $this->time_types[$input['time_between_counts']['type']] ) ? $input['time_between_counts']['type'] : Post_Views_Counter()->defaults['general']['time_between_counts']['type'];
+			$input['time_between_counts']['number'] = (int) ( isset( $input['time_between_counts']['number'] ) ? $input['time_between_counts']['number'] : $pvc->defaults['general']['time_between_counts']['number'] );
+			$input['time_between_counts']['type'] = isset( $input['time_between_counts']['type'], $this->time_types[$input['time_between_counts']['type']] ) ? $input['time_between_counts']['type'] : $pvc->defaults['general']['time_between_counts']['type'];
 
 			// flush interval
-			$input['flush_interval']['number'] = (int) ( isset( $input['flush_interval']['number'] ) ? $input['flush_interval']['number'] : Post_Views_Counter()->defaults['general']['flush_interval']['number'] );
-			$input['flush_interval']['type'] = isset( $input['flush_interval']['type'], $this->time_types[$input['flush_interval']['type']] ) ? $input['flush_interval']['type'] : Post_Views_Counter()->defaults['general']['flush_interval']['type'];
+			$input['flush_interval']['number'] = (int) ( isset( $input['flush_interval']['number'] ) ? $input['flush_interval']['number'] : $pvc->defaults['general']['flush_interval']['number'] );
+			$input['flush_interval']['type'] = isset( $input['flush_interval']['type'], $this->time_types[$input['flush_interval']['type']] ) ? $input['flush_interval']['type'] : $pvc->defaults['general']['flush_interval']['type'];
 
 			// Since the settings are about to be saved and cache flush interval could've changed,
 			// we want to make sure that any changes done on the settings page are in effect immediately
 			// (instead of having to wait for the previous schedule to occur).
 			// We achieve that by making sure to clear any previous cache flush schedules and
 			// schedule the new one if the specified interval is > 0
-			Post_Views_Counter()->remove_cache_flush();
+			$pvc->remove_cache_flush();
 
 			if ( $input['flush_interval']['number'] > 0 ) {
-				Post_Views_Counter()->schedule_cache_flush();
+				$pvc->schedule_cache_flush();
 			}
 
 			// reset counts
-			$input['reset_counts']['number'] = (int) ( isset( $input['reset_counts']['number'] ) ? $input['reset_counts']['number'] : Post_Views_Counter()->defaults['general']['reset_counts']['number'] );
-			$input['reset_counts']['type'] = isset( $input['reset_counts']['type'], $this->time_types[$input['reset_counts']['type']] ) ? $input['reset_counts']['type'] : Post_Views_Counter()->defaults['general']['reset_counts']['type'];
+			$input['reset_counts']['number'] = (int) ( isset( $input['reset_counts']['number'] ) ? $input['reset_counts']['number'] : $pvc->defaults['general']['reset_counts']['number'] );
+			$input['reset_counts']['type'] = isset( $input['reset_counts']['type'], $this->time_types[$input['reset_counts']['type']] ) ? $input['reset_counts']['type'] : $pvc->defaults['general']['reset_counts']['type'];
 
 			// run cron on next visit?
 			$input['cron_run'] = ($input['reset_counts']['number'] > 0 ? true : false);
-			$input['cron_update'] = ($input['cron_run'] && (Post_Views_Counter()->options['general']['reset_counts']['number'] !== $input['reset_counts']['number'] || Post_Views_Counter()->options['general']['reset_counts']['type'] !== $input['reset_counts']['type']) ? true : false);
+			$input['cron_update'] = ($input['cron_run'] && ( $pvc->options['general']['reset_counts']['number'] !== $input['reset_counts']['number'] || $pvc->options['general']['reset_counts']['type'] !== $input['reset_counts']['type'] ) ? true : false);
 
 			// exclude
 			if ( isset( $input['exclude']['groups'] ) ) {
@@ -717,26 +725,29 @@ class Post_Views_Counter_Settings {
 
 			// deactivation delete
 			$input['deactivation_delete'] = isset( $input['deactivation_delete'] );
+
+			$input['update_version'] = $pvc->options['general']['update_version'];
+			$input['update_notice'] = $pvc->options['general']['update_notice'];
 		} elseif ( isset( $_POST['save_pvc_display'] ) ) {
 
 			// post views label
-			$input['label'] = isset( $input['label'] ) ? $input['label'] : Post_Views_Counter()->defaults['general']['label'];
+			$input['label'] = isset( $input['label'] ) ? $input['label'] : $pvc->defaults['general']['label'];
 
 			if ( function_exists( 'icl_register_string' ) )
 				icl_register_string( 'Post Views Counter', 'Post Views Label', $input['label'] );
 
 			// position
-			$input['position'] = isset( $input['position'], $this->positions[$input['position']] ) ? $input['position'] : Post_Views_Counter()->defaults['general']['position'];
+			$input['position'] = isset( $input['position'], $this->positions[$input['position']] ) ? $input['position'] : $pvc->defaults['general']['position'];
 
 			// display style
 			$input['display_style']['icon'] = isset( $input['display_style']['icon'] );
 			$input['display_style']['text'] = isset( $input['display_style']['text'] );
 
 			// link to post
-			$input['link_to_post'] = isset( $input['link_to_post'] ) ? $input['link_to_post'] : Post_Views_Counter()->defaults['display']['link_to_post'];
+			$input['link_to_post'] = isset( $input['link_to_post'] ) ? $input['link_to_post'] : $pvc->defaults['display']['link_to_post'];
 
 			// icon class
-			$input['icon_class'] = isset( $input['icon_class'] ) ? trim( $input['icon_class'] ) : Post_Views_Counter()->defaults['general']['icon_class'];
+			$input['icon_class'] = isset( $input['icon_class'] ) ? trim( $input['icon_class'] ) : $pvc->defaults['general']['icon_class'];
 
 			// post types display
 			if ( isset( $input['post_types_display'] ) ) {
@@ -792,11 +803,11 @@ class Post_Views_Counter_Settings {
 			} else
 				$input['restrict_display']['roles'] = array();
 		} elseif ( isset( $_POST['reset_pvc_general'] ) ) {
-			$input = Post_Views_Counter()->defaults['general'];
+			$input = $pvc->defaults['general'];
 
 			add_settings_error( 'reset_general_settings', 'settings_reset', __( 'General settings restored to defaults.', 'post-views-counter' ), 'updated' );
 		} elseif ( isset( $_POST['reset_pvc_display'] ) ) {
-			$input = Post_Views_Counter()->defaults['display'];
+			$input = $pvc->defaults['display'];
 
 			add_settings_error( 'reset_general_settings', 'settings_reset', __( 'Display settings restored to defaults.', 'post-views-counter' ), 'updated' );
 		}

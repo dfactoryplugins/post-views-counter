@@ -132,7 +132,7 @@ class Post_Views_Counter_Counter {
 			return;
 
 		// do we use PHP as counter?
-		if ( Post_Views_Counter()->options['general']['counter_mode'] != 'php' )
+		if ( Post_Views_Counter()->options['general']['counter_mode'] !== 'php' )
 			return;
 
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];

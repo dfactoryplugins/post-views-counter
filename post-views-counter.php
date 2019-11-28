@@ -63,7 +63,10 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 				'restrict_edit_views'	 => false,
 				'deactivation_delete'	 => false,
 				'cron_run'				 => true,
-				'cron_update'			 => true
+				'cron_update'			 => true,
+				'update_version'		=> 1,
+				'update_notice'			=> true,
+				'update_delay_date'		=> 0
 			),
 			'display'	 => array(
 				'label'				 => 'Post Views:',
@@ -87,16 +90,12 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		/**
 		 * Disable object clone.
 		 */
-		private function __clone() {
-			
-		}
+		private function __clone() {}
 
 		/**
 		 * Disable unserializing of the class.
 		 */
-		private function __wakeup() {
-			
-		}
+		private function __wakeup() {}
 
 		/**
 		 * Main plugin instance,
@@ -106,10 +105,9 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 */
 		public static function instance() {
 			if ( ! isset( self::$instance ) && ! ( self::$instance instanceof Post_Views_Counter ) ) {
-
 				self::$instance = new Post_Views_Counter;
 				self::$instance->define_constants();
-				
+
 				// minimal setup for Fast AJAX
 				if ( defined( 'SHORTINIT' ) && SHORTINIT ) {
 					include_once( POST_VIEWS_COUNTER_PATH . 'includes/counter.php' );
@@ -123,7 +121,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 					add_action( 'plugins_loaded', array( self::$instance, 'load_textdomain' ) );
 
 					self::$instance->includes();
-
 					self::$instance->update = new Post_Views_Counter_Update();
 					self::$instance->settings = new Post_Views_Counter_Settings();
 					self::$instance->query = new Post_Views_Counter_Query();
@@ -136,6 +133,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 					self::$instance->widgets = new Post_Views_Counter_Widgets();
 				}
 			}
+
 			return self::$instance;
 		}
 
@@ -197,11 +195,160 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 				add_action( 'wp_loaded', array( $this, 'load_pluggable_functions' ), 10 );
 				// add_action( 'init', array( $this, 'gutenberg_blocks' ) );
+				add_action( 'admin_init', array( $this, 'update_notice' ) );
+				add_action( 'wp_ajax_pvc_dismiss_notice', array( $this, 'dismiss_notice' ) );
 
 				// filters
 				add_filter( 'plugin_row_meta', array( $this, 'plugin_row_meta' ), 10, 2 );
 				add_filter( 'plugin_action_links', array( $this, 'plugin_action_links' ), 10, 2 );
 			}
+		}
+
+		/**
+		 * Update notice.
+		 *
+		 * @return void
+		 */
+		public function update_notice() {
+			if ( ! current_user_can( 'install_plugins' ) )
+				return;
+
+			$current_update = 2;
+
+			// get current time
+			$current_time = time();
+
+			if ( $this->options['general']['update_version'] < $current_update ) {
+				// check version, if update version is lower than plugin version, set update notice to true
+				$this->options['general'] = array_merge( $this->options['general'], array( 'update_version' => $current_update, 'update_notice' => true ) );
+
+				update_option( 'post_views_counter_settings_general', $this->options['general'] );
+
+				// set activation date
+				$activation_date = get_option( 'post_views_counter_activation_date' );
+
+				if ( $activation_date === false )
+					update_option( 'post_views_counter_activation_date', $current_time );
+			}
+
+			// display current version notice
+			if ( $this->options['general']['update_notice'] === true ) {
+				// include notice js, only if needed
+				add_action( 'admin_print_scripts', array( $this, 'admin_inline_js' ), 999 );
+
+				// get activation date
+				$activation_date = get_option( 'post_views_counter_activation_date' );
+
+				if ( (int) $this->options['general']['update_delay_date'] === 0 ) {
+					if ( $activation_date + 1209600 > $current_time )
+						$this->options['general']['update_delay_date'] = $activation_date + 1209600;
+					else
+						$this->options['general']['update_delay_date'] = $current_time;
+
+					update_option( 'post_views_counter_settings_general', $this->options['general'] );
+				}
+
+				if ( ( ! empty( $this->options['general']['update_delay_date'] ) ? (int) $this->options['general']['update_delay_date'] : $current_time ) <= $current_time )
+					$this->add_notice( sprintf( __( "Hey, you've been using <strong>Post Views Counter</strong> for more than %s.", 'post-views-counter' ), human_time_diff( $activation_date, $current_time ) ) . '<br />' . __( 'Could you please do me a BIG favor and give it a 5-star rating on WordPress to help us spread the word and boost our motivation.', 'post-views-counter' ) . '<br /><br />' . __( 'Your help is much appreciated. Thank you very much', 'post-views-counter' ) . ' ~ <strong>Bartosz Arendt</strong>, ' . sprintf( __( 'founder of <a href="%s" target="_blank">dFactory</a> plugins.', 'post-views-counter' ), 'https://dfactory.eu/' ) . '<br /><br />' . sprintf( __( '<a href="%s" class="pvc-dismissible-notice" target="_blank" rel="noopener">Ok, you deserve it</a><br /><a href="javascript:void(0);" class="pvc-dismissible-notice pvc-delay-notice" rel="noopener">Nope, maybe later</a><br /><a href="javascript:void(0);" class="pvc-dismissible-notice" rel="noopener">I already did</a>', 'post-views-counter' ), 'https://wordpress.org/support/plugin/post-views-counter/reviews/?filter=5#new-post' ), 'notice notice-info is-dismissible pvc-notice' );
+			}
+		}
+
+		/**
+		 * Add admin notices.
+		 * 
+		 * @param string $html
+		 * @param string $status
+		 * @param bool $paragraph
+		 */
+		public function add_notice( $html = '', $status = 'error', $paragraph = true ) {
+			$this->notices[] = array(
+				'html' 		=> $html,
+				'status' 	=> $status,
+				'paragraph' => $paragraph
+			);
+
+			add_action( 'admin_notices', array( $this, 'display_notice' ) );
+		}
+
+		/**
+		 * Print admin notices.
+		 * 
+		 * @return mixed
+		 */
+		public function display_notice() {
+			foreach( $this->notices as $notice ) {
+				echo '
+				<div class="' . $notice['status'] . '">
+					' . ( $notice['paragraph'] ? '<p>' : '' ) . '
+					' . $notice['html'] . '
+					' . ( $notice['paragraph'] ? '</p>' : '' ) . '
+				</div>';
+			}
+		}
+
+		/**
+		 * Print admin scripts.
+		 * 
+		 * @return mixed
+		 */
+		public function admin_inline_js() {
+			if ( ! current_user_can( 'install_plugins' ) )
+				return;
+			?>
+			<script type="text/javascript">
+				( function ( $ ) {
+					$( document ).ready( function () {
+						// save dismiss state
+						$( '.pvc-notice.is-dismissible' ).on( 'click', '.notice-dismiss, .pvc-dismissible-notice', function ( e ) {
+							var notice_action = 'hide';
+							
+							if ( $( e.currentTarget ).hasClass( 'pvc-delay-notice' ) ) {
+								notice_action = 'delay'
+							}
+
+							$.post( ajaxurl, {
+								action: 'pvc_dismiss_notice',
+								notice_action: notice_action,
+								url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+								nonce: '<?php echo wp_create_nonce( 'pvc_dismiss_notice' ); ?>'
+							} );
+
+							$( e.delegateTarget ).slideUp( 'fast' );
+						} );
+					} );
+				} )( jQuery );
+			</script>
+			<?php
+		}
+
+		/**
+		 * Dismiss notice.
+		 */
+		public function dismiss_notice() {
+			if ( ! current_user_can( 'install_plugins' ) )
+				return;
+
+			if ( wp_verify_nonce( esc_attr( $_REQUEST['nonce'] ), 'pvc_dismiss_notice' ) ) {
+				$notice_action = empty( $_REQUEST['notice_action'] ) || $_REQUEST['notice_action'] === 'hide' ? 'hide' : esc_attr( $_REQUEST['notice_action'] );
+
+				switch ( $notice_action ) {
+					// delay notice
+					case 'delay':
+						// set delay period to 1 week from now
+						$this->options['general'] = array_merge( $this->options['general'], array( 'update_delay_date' => time() + 1209600 ) );
+						update_option( 'post_views_counter_settings_general', $this->options['general'] );
+						break;
+
+					// hide notice
+					default:
+						$this->options['general'] = array_merge( $this->options['general'], array( 'update_notice' => false ) );
+						$this->options['general'] = array_merge( $this->options['general'], array( 'update_delay_date' => 0 ) );
+
+						update_option( 'post_views_counter_settings_general', $this->options['general'] );
+				}
+			}
+
+			exit;
 		}
 
 		/**
@@ -464,33 +611,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 			}
 
 			return $links;
-		}
-
-		/**
-		 * Add admin notices.
-		 */
-		public function add_notice( $html = '', $status = '', $paragraph = false ) {
-			$this->notices[] = array(
-				'html'		 => $html,
-				'status'	 => $status,
-				'paragraph'	 => $paragraph
-			);
-
-			add_action( 'admin_notices', array( $this, 'display_notice' ) );
-		}
-
-		/**
-		 * Print admin notices.
-		 */
-		public function display_notice() {
-			foreach ( $this->notices as $notice ) {
-				echo '
-				<div class="post-views-counter ' . $notice['status'] . '">
-					' . ( $notice['paragraph'] ? '<p>' : '' ) . '
-					' . $notice['html'] . '
-					' . ( $notice['paragraph'] ? '</p>' : '' ) . '
-				</div>';
-			}
 		}
 	}
 

@@ -281,34 +281,25 @@ class Post_Views_Counter_Dashboard {
 			return;
 
 		// filter user_can_see_stats
-		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) ) {
+		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) )
 			return;
-		}
 
-		wp_register_style(
-		'pvc-admin-dashboard', POST_VIEWS_COUNTER_URL . '/css/admin-dashboard.css'
-		);
+		wp_register_style( 'pvc-admin-dashboard', POST_VIEWS_COUNTER_URL . '/css/admin-dashboard.css' );
 		wp_enqueue_style( 'pvc-admin-dashboard' );
+		wp_enqueue_style( 'pvc-chart-css', POST_VIEWS_COUNTER_URL . '/assets/chartjs/chart.min.css' );
 
-		wp_register_script(
-		'pvc-admin-dashboard', POST_VIEWS_COUNTER_URL . '/js/admin-dashboard.js', array( 'jquery', 'pvc-chart' ), Post_Views_Counter()->defaults['version'], true
-		);
-
-		wp_register_script(
-		'pvc-chart', POST_VIEWS_COUNTER_URL . '/js/chart.min.js', array( 'jquery' ), Post_Views_Counter()->defaults['version'], true
-		);
-
-		// set ajax args
-		$ajax_args = array(
-			'ajaxURL'	 => admin_url( 'admin-ajax.php' ),
-			'nonce'		 => wp_create_nonce( 'dashboard-chart' )
-		);
+		wp_register_script( 'pvc-chart', POST_VIEWS_COUNTER_URL . '/assets/chartjs/chart.min.js', array( 'jquery' ), Post_Views_Counter()->defaults['version'], true );
+		wp_register_script( 'pvc-admin-dashboard', POST_VIEWS_COUNTER_URL . '/js/admin-dashboard.js', array( 'jquery', 'pvc-chart' ), Post_Views_Counter()->defaults['version'], true );
 
 		wp_enqueue_script( 'pvc-admin-dashboard' );
-		// wp_enqueue_script( 'pvc-chart' );
 
 		wp_localize_script(
-		'pvc-admin-dashboard', 'pvcArgs', $ajax_args
+			'pvc-admin-dashboard',
+			'pvcArgs',
+			array(
+				'ajaxURL'	 => admin_url( 'admin-ajax.php' ),
+				'nonce'		 => wp_create_nonce( 'dashboard-chart' )
+			)
 		);
 	}
 
