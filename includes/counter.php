@@ -418,11 +418,11 @@ class Post_Views_Counter_Counter {
 		$increment_amount = (int) apply_filters( 'pvc_views_increment_amount', 1, $id );
 
 		// get day, week, month and year
-		$date = explode( '-', date( 'W-d-m-Y', current_time( 'timestamp' ) ) );
+		$date = explode( '-', date( 'W-d-m-Y-o', current_time( 'timestamp' ,true ) ) );
 
 		foreach ( array(
 			0	 => $date[3] . $date[2] . $date[1], // day like 20140324
-			1	 => $date[3] . $date[0], // week like 201439
+			1	 => $date[4] . $date[0], // week like 201439
 			2	 => $date[3] . $date[2], // month like 201405
 			3	 => $date[3], // year like 2014
 			4	 => 'total'   // total views
