@@ -444,8 +444,7 @@ function pvc_update_post_views( $post_id = 0, $post_views = 0 ) {
 	// cast number of views
 	$post_views = (int) $post_views;
 
-	if ( $post_views < 0 )
-		return __( 'Negative number of post views.', 'post-views-counter' );
+	$post_views = $post_views < 0 ? 0 : $post_views;
 
 	// cast post ID
 	$post_id = (int) $post_id;
@@ -455,18 +454,7 @@ function pvc_update_post_views( $post_id = 0, $post_views = 0 ) {
 
 	// check if post exists
 	if ( empty( $post ) )
-		return __( 'Invalid post ID.', 'post-views-counter' );
-
-	// break if current user can't edit this post
-	if ( ! current_user_can( 'edit_post', $post_id ) )
-		return __( 'You are not allowed to edit this item.', 'post-views-counter' );
-
-	// get restrict option
-	$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
-
-	// break if views editing is restricted
-	if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
-		return __( 'You are not allowed to edit this item.', 'post-views-counter' );
+		return false;
 
 	global $wpdb;
 
@@ -476,10 +464,8 @@ function pvc_update_post_views( $post_id = 0, $post_views = 0 ) {
 	// insert or update db post views count
 	$query = $wpdb->query( $wpdb->prepare( "INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $post_views, $post_views ) );
 
-	do_action( 'pvc_after_update_post_views_count', $post_id );
-
 	// query fails only if it returns false
-	return $query !== false ? __( 'SQL error.', 'post-views-counter' ) : true;
+	return apply_filters( 'pvc_update_post_views', $post_id );
 }
 
 /**
