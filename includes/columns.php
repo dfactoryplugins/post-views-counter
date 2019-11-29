@@ -89,13 +89,23 @@ class Post_Views_Counter_Columns {
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
 			return wp_send_json_error( __( 'Invalid post ID.', 'post-views-counter' ) );
 
-		// update total post views
-		$val = pvc_update_post_views( $pos_id, $post_views );
+		// break if current user can't edit this post
+		if ( ! current_user_can( 'edit_post', $post_id ) )
+			return wp_send_json_error( __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
 
-		if ( $val === true )
-			return $post_id;
-		else
-			return wp_send_json_error( $val );
+		// break if views editing is restricted
+		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
+
+		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+			return wp_send_json_error( __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
+
+		global $wpdb;
+
+		pvc_update_post_views( $post_id, $post_views );
+
+		do_action( 'pvc_after_update_post_views_count', $post_id );
+
+		return $post_id;
 	}
 	
 	/**
@@ -205,6 +215,10 @@ class Post_Views_Counter_Columns {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $post_id;
 
+		// break if current user can't edit this post
+		if ( ! current_user_can( 'edit_post', $post_id ) )
+			return $post_id;
+
 		// is post views set			
 		if ( ! isset( $_POST['post_views'] ) )
 			return $post_id;
@@ -222,12 +236,19 @@ class Post_Views_Counter_Columns {
 		if ( ! in_array( $post->post_type, (array) $post_types ) )
 			return $post_id;
 
+		// break if views editing is restricted
+		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
+
+		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+			return $post_id;
+
 		// validate data		
 		if ( ! isset( $_POST['pvc_nonce'] ) || ! wp_verify_nonce( $_POST['pvc_nonce'], 'post_views_count' ) )
 			return $post_id;
 
-		if ( pvc_update_post_views( $post_id, $post_views ) !== true )
-			return $post_id;
+		pvc_update_post_views( $post_id, $post_views );
+
+		do_action( 'pvc_after_update_post_views_count', $post_id );
 	}
 
 	/**

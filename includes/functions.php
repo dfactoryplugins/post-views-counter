@@ -441,11 +441,6 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
  * @return true|string True on success, error string otherwise
  */
 function pvc_update_post_views( $post_id = 0, $post_views = 0 ) {
-	// cast number of views
-	$post_views = (int) $post_views;
-
-	$post_views = $post_views < 0 ? 0 : $post_views;
-
 	// cast post ID
 	$post_id = (int) $post_id;
 
@@ -456,13 +451,17 @@ function pvc_update_post_views( $post_id = 0, $post_views = 0 ) {
 	if ( empty( $post ) )
 		return false;
 
+	// cast number of views
+	$post_views = (int) $post_views;
+	$post_views = $post_views < 0 ? 0 : $post_views;
+
 	global $wpdb;
 
 	// chnage post views?
 	$post_views = apply_filters( 'pvc_update_post_views_count', $post_views, $post_id );
 
 	// insert or update db post views count
-	$query = $wpdb->query( $wpdb->prepare( "INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $post_views, $post_views ) );
+	$wpdb->query( $wpdb->prepare( "INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $post_views, $post_views ) );
 
 	// query fails only if it returns false
 	return apply_filters( 'pvc_update_post_views', $post_id );
