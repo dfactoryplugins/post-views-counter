@@ -418,7 +418,7 @@ class Post_Views_Counter_Counter {
 		$increment_amount = (int) apply_filters( 'pvc_views_increment_amount', 1, $id );
 
 		// get day, week, month and year
-		$date = explode( '-', date( 'W-d-m-Y-o', current_time( 'timestamp' ,true ) ) );
+		$date = explode( '-', date( 'W-d-m-Y-o', current_time( 'timestamp', true ) ) );
 
 		foreach ( array(
 			0	 => $date[3] . $date[2] . $date[1], // day like 20140324
@@ -596,9 +596,8 @@ class Post_Views_Counter_Counter {
 
 		$count = (int) $count;
 
-		if ( ! $count ) {
+		if ( ! $count )
 			$count = 1;
-		}
 
 		return $wpdb->query(
 			$wpdb->prepare( "

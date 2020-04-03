@@ -18,3 +18,12 @@
 	padding-bottom: 3px;
 	border-bottom: 1px solid #ececec;
 }
+#pvc_dashboard_container .pvc_months {
+	margin: 6px 10px 0 10px;
+}
+#pvc_dashboard_container .pvc_months a.prev {
+	float: left;
+}
+#pvc_dashboard_container .pvc_months a.next {
+	float: right;
+}

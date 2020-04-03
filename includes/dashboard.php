@@ -39,8 +39,35 @@ class Post_Views_Counter_Dashboard {
 		?>
 		<div id="pvc_dashboard_container">
 			<canvas id="pvc_chart" height="175"></canvas>
+			<div class="pvc_months">
+
+			<?php echo $this->generate_months( current_time( 'timestamp', false ) ); ?>
+
+			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Generate months.
+	 *
+	 * @param string $timestamp
+	 * @return string
+	 */
+	public function generate_months( $timestamp ) {
+		$dates = array(
+			explode( ' ', date( "m F Y", strtotime( "-1 months", $timestamp ) ) ),
+			explode( ' ', date( "F Y", $timestamp ) ),
+			explode( ' ', date( "m F Y", strtotime( "+1 months", $timestamp ) ) )
+		);
+
+		$dates = array(
+			'prev'		=> '<a class="prev" href="#" data-date="' . ( $dates[0][0] . '|' . $dates[0][2] ) . '">‹ ' . $dates[0][1] . ' ' . $dates[0][2] . '</a>',
+			'current'	=> $dates[1][0] . ' ' . $dates[1][1],
+			'next'		=> '<a class="next" href="#" data-date="' . ( $dates[2][0] . '|' . $dates[2][2] ) . '">' . $dates[2][1] . ' ' . $dates[2][2] . ' ›</a>',
+		);
+
+		return $dates['prev'] . $dates['current'] . $dates['next'];
 	}
 
 	/**
@@ -59,15 +86,16 @@ class Post_Views_Counter_Dashboard {
 	 * @return mixed
 	 */
 	public function dashboard_widget_chart() {
-
 		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) )
 			wp_die( _( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
 		if ( ! check_ajax_referer( 'dashboard-chart', 'nonce' ) )
 			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
-		// $period = isset( $_REQUEST['period'] ) ? esc_attr( $_REQUEST['period'] ) : 'this_month';
+		// get period
+		$period = isset( $_POST['period'] ) ? esc_attr( $_POST['period'] ) : 'this_month';
 
+		// get post types
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
 		// get stats
@@ -80,9 +108,6 @@ class Post_Views_Counter_Dashboard {
 			'no_found_rows'		 => true
 		);
 
-		// set range
-		$range = 'this_month';
-
 		// $now = getdate( current_time( 'timestamp', get_option( 'gmt_offset' ) ) );
 		$now = getdate( current_time( 'timestamp', get_option( 'gmt_offset' ) ) - 2592000 );
 
@@ -94,7 +119,7 @@ class Post_Views_Counter_Dashboard {
 		$color = $this->hex2rgb( $colors[2] );
 
 		// set chart labels
-		switch ( $range ) {
+		switch ( $period ) {
 			case 'this_week':
 				$data = array(
 					'text' => array(
@@ -104,7 +129,6 @@ class Post_Views_Counter_Dashboard {
 				);
 
 				for ( $day = 0; $day <= 6; $day ++ ) {
-
 					$date = strtotime( $now['mday'] . '-' . $now['mon'] . '-' . $now['year'] . ' + ' . $day . ' days - ' . $now['wday'] . ' days' );
 					$query = new WP_Query( wp_parse_args( $query_args, array( 'views_query' => array( 'year' => date( 'Y', $date ), 'month' => date( 'n', $date ), 'day' => date( 'd', $date ) ) ) ) );
 
@@ -151,18 +175,18 @@ class Post_Views_Counter_Dashboard {
 
 					// get month views
 					$post_type_data[$id] = array_values(
-					pvc_get_views(
-					array(
-						'fields'		 => 'date=>views',
-						'post_type'		 => $post_type,
-						'views_query'	 => array(
-							'year'	 => date( 'Y' ),
-							'month'	 => '',
-							'week'	 => '',
-							'day'	 => ''
+						pvc_get_views(
+							array(
+								'fields'		 => 'date=>views',
+								'post_type'		 => $post_type,
+								'views_query'	 => array(
+									'year'	 => date( 'Y' ),
+									'month'	 => '',
+									'week'	 => '',
+									'day'	 => ''
+								)
+							)
 						)
-					)
-					)
 					);
 				}
 
@@ -190,21 +214,31 @@ class Post_Views_Counter_Dashboard {
 				break;
 
 			case 'this_month':
-			default :
+			default:
+				if ( $period !== 'this_month' ) {
+					$date = explode( '|', $period, 2 );
+					$months = strtotime( (string) $date[1] . '-' . (string) $date[0] . '-13' );
+				} else
+					$months = current_time( 'timestamp', false );
+
+				// get date chunks
+				$date = explode( ' ', date( "m Y t F", $months ) );
+
 				$data = array(
-					'text'	 => array(
-						'xAxes'	 => date_i18n( 'F Y' ),
-						'yAxes'	 => __( 'Post Views', 'post-views-counter' ),
+					'months'	=> $this->generate_months( $months ),
+					'text'		=> array(
+						'xAxes'	=> $date[3] . ' ' . $date[1],
+						'yAxes'	=> __( 'Post Views', 'post-views-counter' ),
 					),
-					'design' => array(
-						'fill'					 => true,
-						'backgroundColor'		 => 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
-						'borderColor'			 => 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
-						'borderWidth'			 => 1.2,
-						'borderDash'			 => array(),
-						'pointBorderColor'		 => 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
-						'pointBackgroundColor'	 => 'rgba(255, 255, 255, 1)',
-						'pointBorderWidth'		 => 1.2
+					'design'	=> array(
+						'fill'					=> true,
+						'backgroundColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
+						'borderColor'			=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'borderWidth'			=> 1.2,
+						'borderDash'			=> array(),
+						'pointBorderColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'pointBackgroundColor'	=> 'rgba(255, 255, 255, 1)',
+						'pointBorderWidth'		=> 1.2
 					)
 				);
 
@@ -227,18 +261,18 @@ class Post_Views_Counter_Dashboard {
 
 					// get month views
 					$post_type_data[$id] = array_values(
-					pvc_get_views(
-					array(
-						'fields'		 => 'date=>views',
-						'post_type'		 => $post_type,
-						'views_query'	 => array(
-							'year'	 => date( 'Y' ),
-							'month'	 => date( 'm' ),
-							'week'	 => '',
-							'day'	 => ''
+						pvc_get_views(
+							array(
+								'fields'		 => 'date=>views',
+								'post_type'		 => $post_type,
+								'views_query'	 => array(
+									'year'	 => $date[1],
+									'month'	 => $date[0],
+									'week'	 => '',
+									'day'	 => ''
+								)
+							)
 						)
-					)
-					)
 					);
 				}
 
@@ -257,10 +291,10 @@ class Post_Views_Counter_Dashboard {
 				}
 
 				// this month all days
-				for ( $i = 1; $i <= date( 't' ); $i ++ ) {
+				for ( $i = 1; $i <= $date[2]; $i ++ ) {
 					// generate chart data
 					$data['data']['labels'][] = ( $i % 2 === 0 ? '' : $i );
-					$data['data']['dates'][] = date_i18n( get_option( 'date_format' ), strtotime( date( 'Y' ) . '-' . date( 'm' ) . '-' . str_pad( $i, 2, '0', STR_PAD_LEFT ) ) );
+					$data['data']['dates'][] = date_i18n( get_option( 'date_format' ), strtotime( $date[1] . '-' . $date[0] . '-' . str_pad( $i, 2, '0', STR_PAD_LEFT ) ) );
 					$data['data']['datasets'][0]['data'][] = $sum[$i - 1];
 				}
 				break;
