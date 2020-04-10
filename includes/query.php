@@ -55,53 +55,159 @@ class Post_Views_Counter_Query {
 	 */
 	public function posts_join( $join, $query ) {
 		$sql = '';
+		$query_chunks = array();
 
 		if ( ! empty( $query->query['views_query'] ) ) {
-			if ( isset( $query->query['views_query']['year'] ) )
-				$year = (int) $query->query['views_query']['year'];
+			if ( isset( $query->query['views_query']['inclusive'] ) )
+				$query->query['views_query']['inclusive'] = (bool) $query->query['views_query']['inclusive'];
+			else
+				$query->query['views_query']['inclusive'] = true;
 
-			if ( isset( $query->query['views_query']['month'] ) )
-				$month = (int) $query->query['views_query']['month'];
+			// check after and before dates
+			foreach ( array( 'after' => '>', 'before' => '<' ) as $date => $type ) {
+				$year_ = null;
+				$month_ = null;
+				$week_ = null;
+				$day_ = null;
 
-			if ( isset( $query->query['views_query']['week'] ) )
-				$week = (int) $query->query['views_query']['week'];
+				// check views query date
+				if ( ! empty( $query->query['views_query'][$date] ) ) {
+					// is it a date array?
+					if ( is_array( $query->query['views_query'][$date] ) ) {
+						// check views query $date date year
+						if ( ! empty( $query->query['views_query'][$date]['year'] ) )
+							$year_ = str_pad( (int) $query->query['views_query'][$date]['year'], 4, 0, STR_PAD_LEFT );
 
-			if ( isset( $query->query['views_query']['day'] ) )
-				$day = (int) $query->query['views_query']['day'];
+						// check views query date month
+						if ( ! empty( $query->query['views_query'][$date]['month'] ) )
+							$month_ = str_pad( (int) $query->query['views_query'][$date]['month'], 2, 0, STR_PAD_LEFT );
 
-			// year
-			if ( isset( $year ) ) {
-				// year, week
-				if ( isset( $week ) && $this->is_valid_date( 'yw', $year, 0, 0, $week ) ) {
-					$sql = " AND pvc.type = 1 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $week, 2, 0, STR_PAD_LEFT ) . "'";
-					// year, month
-				} elseif ( isset( $month ) ) {
-					// year, month, day
-					if ( isset( $day ) && $this->is_valid_date( 'ymd', $year, $month, $day ) ) {
-						$sql = " AND pvc.type = 0 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $month, 2, 0, STR_PAD_LEFT ) . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
-						// year, month
-					} elseif ( $this->is_valid_date( 'ym', $year, $month ) ) {
-						$sql = " AND pvc.type = 2 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $month, 2, 0, STR_PAD_LEFT ) . "'";
+						// check views query date week
+						if ( ! empty( $query->query['views_query'][$date]['week'] ) )
+							$week_ = str_pad( (int) $query->query['views_query'][$date]['week'], 2, 0, STR_PAD_LEFT );
+
+						// check views query date day
+						if ( ! empty( $query->query['views_query'][$date]['day'] ) )
+							$day_ = str_pad( (int) $query->query['views_query'][$date]['day'], 2, 0, STR_PAD_LEFT );
+					// is it a date string?
+					} elseif ( is_string( $query->query['views_query'][$date] ) ) {
+						$time_ = strtotime( $query->query['views_query'][$date] );
+
+						// valid datetime?
+						if ( $time_ !== false ) {
+							// week does not exists here, string dates are always treated as year + month + day
+							list( $day_, $month_, $year_ ) = explode( ' ', date( "d m Y", $time_ ) );
+						}
 					}
-					// year
-				} elseif ( $this->is_valid_date( 'y', $year ) ) {
-					$sql = " AND pvc.type = 3 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . "'";
+
+					// valid date?
+					if ( ! ( $year_ === null && $month_ === null && $week_ === null && $day_ === null ) ) {
+						$query_chunks[] = array(
+							'year'	=> $year_,
+							'month'	=> $month_,
+							'day'	=> $day_,
+							'week'	=> $week_,
+							'type'	=> $type . ( $query->query['views_query']['inclusive'] ? '=' : '' )
+						);
+					}
 				}
-				// month
-			} elseif ( isset( $month ) ) {
-				// month, day
-				if ( isset( $day ) && $this->is_valid_date( 'md', 0, $month, $day ) ) {
-					$sql = " AND pvc.type = 0 AND RIGHT( pvc.period, 4 ) = '" . str_pad( $month, 2, 0, STR_PAD_LEFT ) . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
+			}
+
+			if ( ! empty( $query_chunks ) ) {
+				$valid_dates = true;
+
+				// after and before?
+				if ( count( $query_chunks ) === 2 ) {
+					// before and after dates should be the same
+					foreach ( array( 'year', 'month', 'day', 'week' ) as $date_type ) {
+						if ( ! ( ( $query_chunks[0][$date_type] !== null && $query_chunks[1][$date_type] !== null ) || ( $query_chunks[0][$date_type] === null && $query_chunks[1][$date_type] === null ) ) )
+							$valid_dates = false;
+					}
+				}
+
+				if ( $valid_dates ) {
+					foreach ( $query_chunks as $chunk ) {
+						// year
+						if ( isset( $chunk['year'] ) ) {
+							// year, week
+							if ( isset( $chunk['week'] ) )
+								$sql .= " AND pvc.type = 1 AND pvc.period " . $chunk['type'] . " '" . $chunk['year'] . $chunk['week'] . "'";
+							// year, month
+							elseif ( isset( $chunk['month'] ) ) {
+								// year, month, day
+								if ( isset( $chunk['day'] ) )
+									$sql .= " AND pvc.type = 0 AND pvc.period " . $chunk['type'] . " '" . $chunk['year'] . $chunk['month'] . $chunk['day'] . "'";
+								// year, month
+								else
+									$sql .= " AND pvc.type = 2 AND pvc.period " . $chunk['type'] . " '" . $chunk['year'] . $chunk['month'] . "'";
+							// year
+							} else
+								$sql .= " AND pvc.type = 3 AND pvc.period " . $chunk['type'] . " '" . $chunk['year'] . "'";
+						// month
+						} elseif ( isset( $chunk['month'] ) ) {
+							// month, day
+							if ( isset( $chunk['day'] ) ) {
+								$sql .= " AND pvc.type = 0 AND RIGHT( pvc.period, 4 ) " . $chunk['type'] . " '" . $chunk['month'] . $chunk['day'] . "'";
+							// month
+							} else
+								$sql .= " AND pvc.type = 2 AND RIGHT( pvc.period, 2 ) " . $chunk['type'] . " '" . $chunk['month'] . "'";
+						// week
+						} elseif ( isset( $chunk['week'] ) )
+							$sql .= " AND pvc.type = 1 AND RIGHT( pvc.period, 2 ) " . $chunk['type'] . " '" . $chunk['week'] . "'";
+						// day
+						elseif ( isset( $chunk['day'] ) )
+							$sql .= " AND pvc.type = 0 AND RIGHT( pvc.period, 2 ) " . $chunk['type'] . " '" . $chunk['day'] . "'";
+					}
+				}
+			}
+
+			if ( $sql === '' ) {
+				if ( isset( $query->query['views_query']['year'] ) )
+					$year = (int) $query->query['views_query']['year'];
+
+				if ( isset( $query->query['views_query']['month'] ) )
+					$month = (int) $query->query['views_query']['month'];
+
+				if ( isset( $query->query['views_query']['week'] ) )
+					$week = (int) $query->query['views_query']['week'];
+
+				if ( isset( $query->query['views_query']['day'] ) )
+					$day = (int) $query->query['views_query']['day'];
+
+				// year
+				if ( isset( $year ) ) {
+					// year, week
+					if ( isset( $week ) && $this->is_valid_date( 'yw', $year, 0, 0, $week ) ) {
+						$sql = " AND pvc.type = 1 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $week, 2, 0, STR_PAD_LEFT ) . "'";
+						// year, month
+					} elseif ( isset( $month ) ) {
+						// year, month, day
+						if ( isset( $day ) && $this->is_valid_date( 'ymd', $year, $month, $day ) ) {
+							$sql = " AND pvc.type = 0 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $month, 2, 0, STR_PAD_LEFT ) . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
+							// year, month
+						} elseif ( $this->is_valid_date( 'ym', $year, $month ) ) {
+							$sql = " AND pvc.type = 2 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $month, 2, 0, STR_PAD_LEFT ) . "'";
+						}
+						// year
+					} elseif ( $this->is_valid_date( 'y', $year ) ) {
+						$sql = " AND pvc.type = 3 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . "'";
+					}
 					// month
-				} elseif ( $this->is_valid_date( 'm', 0, $month ) ) {
-					$sql = " AND pvc.type = 2 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $month, 2, 0, STR_PAD_LEFT ) . "'";
+				} elseif ( isset( $month ) ) {
+					// month, day
+					if ( isset( $day ) && $this->is_valid_date( 'md', 0, $month, $day ) ) {
+						$sql = " AND pvc.type = 0 AND RIGHT( pvc.period, 4 ) = '" . str_pad( $month, 2, 0, STR_PAD_LEFT ) . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
+						// month
+					} elseif ( $this->is_valid_date( 'm', 0, $month ) ) {
+						$sql = " AND pvc.type = 2 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $month, 2, 0, STR_PAD_LEFT ) . "'";
+					}
+					// week
+				} elseif ( isset( $week ) && $this->is_valid_date( 'w', 0, 0, 0, $week ) ) {
+					$sql = " AND pvc.type = 1 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $week, 2, 0, STR_PAD_LEFT ) . "'";
+					// day
+				} elseif ( isset( $day ) && $this->is_valid_date( 'd', 0, 0, $day ) ) {
+					$sql = " AND pvc.type = 0 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
 				}
-				// week
-			} elseif ( isset( $week ) && $this->is_valid_date( 'w', 0, 0, 0, $week ) ) {
-				$sql = " AND pvc.type = 1 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $week, 2, 0, STR_PAD_LEFT ) . "'";
-				// day
-			} elseif ( isset( $day ) && $this->is_valid_date( 'd', 0, 0, $day ) ) {
-				$sql = " AND pvc.type = 0 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
 			}
 
 			if ( $sql !== '' )

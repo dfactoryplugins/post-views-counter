@@ -73,11 +73,24 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 				'year'		=> '',
 				'month'		=> '',
 				'week'		=> '',
-				'day'		=> ''
+				'day'		=> '',
+				'after'		=> '',	// string or array
+				'before'	=> '',	// string or array
+				'inclusive'	=> true
 			)
 		);
 
-		$args = apply_filters( 'pvc_get_views_args', array_merge( $defaults, $args ) );
+		// merge default options with new arguments
+		$args = array_merge( $defaults, $args );
+
+		// check views query
+		if ( ! is_array( $args['views_query'] ) )
+			$args['views_query'] = $defaults['views_query'];
+
+		// merge views query too
+		$args['views_query'] = array_merge( $defaults['views_query'], $args['views_query'] );
+
+		$args = apply_filters( 'pvc_get_views_args', $args );
 
 		// check post types
 		if ( is_array( $args['post_type'] ) && ! empty( $args['post_type'] ) ) {
@@ -103,114 +116,222 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 		if ( ! in_array( $args['fields'], array( 'views', 'date=>views' ), true ) )
 			$args['fields'] = $defaults['fields'];
 
-		// check views query
-		if ( ! is_array( $args['views_query'] ) )
-			$args['views_query'] = $defaults['views_query'];
-
-		// check views query year
-		if ( ! empty( $args['views_query']['year'] ) )
-			$year = str_pad( (int) $args['views_query']['year'], 4, 0, STR_PAD_LEFT );
-
-		// check views query month
-		if ( ! empty( $args['views_query']['month'] ) )
-			$month = str_pad( (int) $args['views_query']['month'], 2, 0, STR_PAD_LEFT );
-
-		// check views query week
-		if ( ! empty( $args['views_query']['week'] ) )
-			$week = str_pad( (int) $args['views_query']['week'], 2, 0, STR_PAD_LEFT );
-
-		// check views query day
-		if ( ! empty( $args['views_query']['day'] ) )
-			$day = str_pad( (int) $args['views_query']['day'], 2, 0, STR_PAD_LEFT );
-
+		$query_chunks = array();
 		$views_query = '';
 
-		// year
-		if ( isset( $year ) ) {
-			// year, week
-			if ( isset( $week ) ) {
-				if ( $args['fields'] === 'date=>views' ) {
-					// create date based on week number
-					$date = new DateTime( $year . 'W' . $week );
+		// views query after/before parameters work only when fields == views
+		if ( $args['fields'] === 'views' ) {
+			// check views query inclusive
+			if ( ! isset( $args['views_query']['inclusive'] ) ) {
+				$args['views_query']['inclusive'] = $defaults['views_query']['inclusive'];
+			} else
+				$args['views_query']['inclusive'] = (bool) $args['views_query']['inclusive'];
 
-					// get monday
-					$monday = $date->format( 'd' );
+			// check after and before dates
+			foreach ( array( 'after' => '>', 'before' => '<' ) as $date => $type ) {
+				$year_ = null;
+				$month_ = null;
+				$week_ = null;
+				$day_ = null;
 
-					// get month of monday
-					$monday_month = $date->format( 'm' );
+				// check views query date
+				if ( ! empty( $args['views_query'][$date] ) ) {
+					// is it a date array?
+					if ( is_array( $args['views_query'][$date] ) ) {
+						// check views query $date date year
+						if ( ! empty( $args['views_query'][$date]['year'] ) )
+							$year_ = str_pad( (int) $args['views_query'][$date]['year'], 4, 0, STR_PAD_LEFT );
 
-					// prepare range
-					for( $i = 1; $i <= 6; $i++ ) {
-						$range[(string) ( $date->format( 'Y' ) . $date->format( 'm' ) . $date->format( 'd' ) )] = 0;
+						// check views query date month
+						if ( ! empty( $args['views_query'][$date]['month'] ) )
+							$month_ = str_pad( (int) $args['views_query'][$date]['month'], 2, 0, STR_PAD_LEFT );
 
-						$date->modify( '+1days' );
+						// check views query date week
+						if ( ! empty( $args['views_query'][$date]['week'] ) )
+							$week_ = str_pad( (int) $args['views_query'][$date]['week'], 2, 0, STR_PAD_LEFT );
+
+						// check views query date day
+						if ( ! empty( $args['views_query'][$date]['day'] ) )
+							$day_ = str_pad( (int) $args['views_query'][$date]['day'], 2, 0, STR_PAD_LEFT );
+					// is it a date string?
+					} elseif ( is_string( $args['views_query'][$date] ) ) {
+						$time_ = strtotime( $args['views_query'][$date] );
+
+						// valid datetime?
+						if ( $time_ !== false ) {
+							// week does not exists here, string dates are always treated as year + month + day
+							list( $day_, $month_, $year_ ) = explode( ' ', date( "d m Y", $time_ ) );
+						}
 					}
 
-					$range[(string) ( $date->format( 'Y' ) . $date->format( 'm' ) . $date->format( 'd' ) )] = 0;
+					// valid date?
+					if ( ! ( $year_ === null && $month_ === null && $week_ === null && $day_ === null ) ) {
+						$query_chunks[] = array(
+							'year'	=> $year_,
+							'month'	=> $month_,
+							'day'	=> $day_,
+							'week'	=> $week_,
+							'type'	=> $type . ( $args['views_query']['inclusive'] ? '=' : '' )
+						);
+					}
+				}
+			}
 
-					// get month of sunday
-					$sunday_month = $date->format( 'm' );
+			if ( ! empty( $query_chunks ) ) {
+				$valid_dates = true;
 
-					$views_query = " AND pvc.type = 0 AND pvc.period >= '" . $year . $monday_month . $monday . "' AND pvc.period <= '" . $date->format( 'Y' ) . $sunday_month . $date->format( 'd' ) . "'";
-				} else
-					$views_query = " AND pvc.type = 1 AND pvc.period = '" . $year . $week . "'";
-			// year, month
-			} elseif ( isset( $month ) ) {
-				// year, month, day
-				if ( isset( $day ) ) {
-					if ( $args['fields'] === 'date=>views' )
-						// prepare range
-						$range[(string) ( $year . $month . $day )] = 0;
+				// after and before?
+				if ( count( $query_chunks ) === 2 ) {
+					// before and after dates should be the same
+					foreach ( array( 'year', 'month', 'day', 'week' ) as $date_type ) {
+						if ( ! ( ( $query_chunks[0][$date_type] !== null && $query_chunks[1][$date_type] !== null ) || ( $query_chunks[0][$date_type] === null && $query_chunks[1][$date_type] === null ) ) )
+							$valid_dates = false;
+					}
+				}
 
-					$views_query = " AND pvc.type = 0 AND pvc.period = '" . $year . $month . $day . "'";
-				// year, month
-				} else {
+				if ( $valid_dates ) {
+					foreach ( $query_chunks as $chunk ) {
+						// year
+						if ( isset( $chunk['year'] ) ) {
+							// year, week
+							if ( isset( $chunk['week'] ) )
+								$views_query .= " AND pvc.type = 1 AND pvc.period " . $chunk['type'] . " '" . $chunk['year'] . $chunk['week'] . "'";
+							// year, month
+							elseif ( isset( $chunk['month'] ) ) {
+								// year, month, day
+								if ( isset( $chunk['day'] ) )
+									$views_query .= " AND pvc.type = 0 AND pvc.period " . $chunk['type'] . " '" . $chunk['year'] . $chunk['month'] . $chunk['day'] . "'";
+								// year, month
+								else
+									$views_query .= " AND pvc.type = 2 AND pvc.period " . $chunk['type'] . " '" . $chunk['year'] . $chunk['month'] . "'";
+							// year
+							} else
+								$views_query .= " AND pvc.type = 3 AND pvc.period " . $chunk['type'] . " '" . $chunk['year'] . "'";
+						// month
+						} elseif ( isset( $chunk['month'] ) ) {
+							// month, day
+							if ( isset( $chunk['day'] ) ) {
+								$views_query .= " AND pvc.type = 0 AND RIGHT( pvc.period, 4 ) " . $chunk['type'] . " '" . $chunk['month'] . $chunk['day'] . "'";
+							// month
+							} else
+								$views_query .= " AND pvc.type = 2 AND RIGHT( pvc.period, 2 ) " . $chunk['type'] . " '" . $chunk['month'] . "'";
+						// week
+						} elseif ( isset( $chunk['week'] ) )
+							$views_query .= " AND pvc.type = 1 AND RIGHT( pvc.period, 2 ) " . $chunk['type'] . " '" . $chunk['week'] . "'";
+						// day
+						elseif ( isset( $chunk['day'] ) )
+							$views_query .= " AND pvc.type = 0 AND RIGHT( pvc.period, 2 ) " . $chunk['type'] . " '" . $chunk['day'] . "'";
+					}
+				}
+			}
+		}
+
+		$special_views_query = ( $views_query !== '' );
+
+		if ( $args['fields'] === 'date=>views' || $views_query === '' ) {
+			// check views query year
+			if ( ! empty( $args['views_query']['year'] ) )
+				$year = str_pad( (int) $args['views_query']['year'], 4, 0, STR_PAD_LEFT );
+
+			// check views query month
+			if ( ! empty( $args['views_query']['month'] ) )
+				$month = str_pad( (int) $args['views_query']['month'], 2, 0, STR_PAD_LEFT );
+
+			// check views query week
+			if ( ! empty( $args['views_query']['week'] ) )
+				$week = str_pad( (int) $args['views_query']['week'], 2, 0, STR_PAD_LEFT );
+
+			// check views query day
+			if ( ! empty( $args['views_query']['day'] ) )
+				$day = str_pad( (int) $args['views_query']['day'], 2, 0, STR_PAD_LEFT );
+
+			// year
+			if ( isset( $year ) ) {
+				// year, week
+				if ( isset( $week ) ) {
 					if ( $args['fields'] === 'date=>views' ) {
-						// create date
-						$date = new DateTime( $year . '-' . $month . '-01' );
+						// create date based on week number
+						$date = new DateTime( $year . 'W' . $week );
 
-						// get last day
-						$last = $date->format( 't' );
+						// get monday
+						$monday = $date->format( 'd' );
+
+						// get month of monday
+						$monday_month = $date->format( 'm' );
 
 						// prepare range
-						for( $i = 1; $i <= $last; $i++ ) {
-							$range[(string) ( $year . $month . str_pad( $i, 2, 0, STR_PAD_LEFT ) )] = 0;
+						for( $i = 1; $i <= 6; $i++ ) {
+							$range[(string) ( $date->format( 'Y' ) . $date->format( 'm' ) . $date->format( 'd' ) )] = 0;
+
+							$date->modify( '+1days' );
 						}
 
-						$views_query = " AND pvc.type = 0 AND pvc.period >= '" . $year . $month . "01' AND pvc.period <= '" . $year . $month . $last . "'";
+						$range[(string) ( $date->format( 'Y' ) . $date->format( 'm' ) . $date->format( 'd' ) )] = 0;
+
+						// get month of sunday
+						$sunday_month = $date->format( 'm' );
+
+						$views_query = " AND pvc.type = 0 AND pvc.period >= '" . $year . $monday_month . $monday . "' AND pvc.period <= '" . $date->format( 'Y' ) . $sunday_month . $date->format( 'd' ) . "'";
 					} else
-						$views_query = " AND pvc.type = 2 AND pvc.period = '" . $year . $month . "'";
-				}
-			// year
-			} else {
-				if ( $args['fields'] === 'date=>views' ) {
-					// prepare range
-					for( $i = 1; $i <= 12; $i++ ) {
-						$range[(string) ( $year . str_pad( $i, 2, 0, STR_PAD_LEFT ) )] = 0;
+						$views_query = " AND pvc.type = 1 AND pvc.period = '" . $year . $week . "'";
+				// year, month
+				} elseif ( isset( $month ) ) {
+					// year, month, day
+					if ( isset( $day ) ) {
+						if ( $args['fields'] === 'date=>views' )
+							// prepare range
+							$range[(string) ( $year . $month . $day )] = 0;
+
+						$views_query = " AND pvc.type = 0 AND pvc.period = '" . $year . $month . $day . "'";
+					// year, month
+					} else {
+						if ( $args['fields'] === 'date=>views' ) {
+							// create date
+							$date = new DateTime( $year . '-' . $month . '-01' );
+
+							// get last day
+							$last = $date->format( 't' );
+
+							// prepare range
+							for( $i = 1; $i <= $last; $i++ ) {
+								$range[(string) ( $year . $month . str_pad( $i, 2, 0, STR_PAD_LEFT ) )] = 0;
+							}
+
+							$views_query = " AND pvc.type = 0 AND pvc.period >= '" . $year . $month . "01' AND pvc.period <= '" . $year . $month . $last . "'";
+						} else
+							$views_query = " AND pvc.type = 2 AND pvc.period = '" . $year . $month . "'";
 					}
+				// year
+				} else {
+					if ( $args['fields'] === 'date=>views' ) {
+						// prepare range
+						for( $i = 1; $i <= 12; $i++ ) {
+							$range[(string) ( $year . str_pad( $i, 2, 0, STR_PAD_LEFT ) )] = 0;
+						}
 
-					// create date
-					$date = new DateTime( $year . '-12-01' );
+						// create date
+						$date = new DateTime( $year . '-12-01' );
 
-					$views_query = " AND pvc.type = 2 AND pvc.period >= '" . $year . "01' AND pvc.period <= '" . $year . "12'";
-				} else
-					$views_query = " AND pvc.type = 3 AND pvc.period = '" . $year . "'";
-			}
-		// month
-		} elseif ( isset( $month ) ) {
-			// month, day
-			if ( isset( $day ) ) {
-				$views_query = " AND pvc.type = 0 AND RIGHT( pvc.period, 4 ) = '" . $month . $day . "'";
+						$views_query = " AND pvc.type = 2 AND pvc.period >= '" . $year . "01' AND pvc.period <= '" . $year . "12'";
+					} else
+						$views_query = " AND pvc.type = 3 AND pvc.period = '" . $year . "'";
+				}
 			// month
-			} else {
-				$views_query = " AND pvc.type = 2 AND RIGHT( pvc.period, 2 ) = '" . $month . "'";
+			} elseif ( isset( $month ) ) {
+				// month, day
+				if ( isset( $day ) ) {
+					$views_query = " AND pvc.type = 0 AND RIGHT( pvc.period, 4 ) = '" . $month . $day . "'";
+				// month
+				} else {
+					$views_query = " AND pvc.type = 2 AND RIGHT( pvc.period, 2 ) = '" . $month . "'";
+				}
+			// week
+			} elseif ( isset( $week ) ) {
+				$views_query = " AND pvc.type = 1 AND RIGHT( pvc.period, 2 ) = '" . $week . "'";
+			// day
+			} elseif ( isset( $day ) ) {
+				$views_query = " AND pvc.type = 0 AND RIGHT( pvc.period, 2 ) = '" . $day . "'";
 			}
-		// week
-		} elseif ( isset( $week ) ) {
-			$views_query = " AND pvc.type = 1 AND RIGHT( pvc.period, 2 ) = '" . $week . "'";
-		// day
-		} elseif ( isset( $day ) ) {
-			$views_query = " AND pvc.type = 0 AND RIGHT( pvc.period, 2 ) = '" . $day . "'";
 		}
 
 		global $wpdb;
@@ -219,7 +340,7 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 		FROM " . $wpdb->prefix . "posts wpp
 		LEFT JOIN " . $wpdb->prefix . "post_views pvc ON pvc.id = wpp.ID" . ( $views_query !== '' ? ' ' . $views_query : ' AND pvc.type = 4' ) . ( ! empty( $args['post_id'] ) ? ' AND pvc.id IN (' . $args['post_id'] . ')' : '' ) . "
 		" . ( $args['post_type'] !== '' ? "WHERE wpp.post_type IN (" . $args['post_type'] . ")" : '' ) . "
-		" . ( $views_query !== '' ? 'GROUP BY pvc.period' : '' ) . "
+		" . ( $views_query !== '' && $special_views_query === false ? 'GROUP BY pvc.period' : '' ) . "
 		HAVING post_views > 0";
 
 		// get cached data
@@ -241,7 +362,7 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 				$post_views = (int) $wpdb->get_var( $query );
 
 			// set the cache expiration, 5 minutes by default
-			$expire = absint( apply_filters( 'pvc_object_cache_expire', 5 * 60 ) );
+			$expire = absint( apply_filters( 'pvc_object_cache_expire', 300 ) );
 
 			wp_cache_add( md5( $query ), $post_views, 'pvc-get_views', $expire );
 		}
