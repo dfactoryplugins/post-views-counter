@@ -111,8 +111,7 @@ class Post_Views_Counter_Settings {
 
 		// built in public post types
 		foreach ( get_post_types( array( '_builtin' => true, 'public' => true ), 'objects', 'and' ) as $key => $post_type ) {
-			if ( $key !== 'attachment' )
-				$post_types[$key] = $post_type->labels->name;
+			$post_types[$key] = $post_type->labels->name;
 		}
 
 		// public custom post types

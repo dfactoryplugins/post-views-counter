@@ -239,6 +239,12 @@ class Post_Views_Counter_Query {
 	public function posts_groupby( $groupby, $query ) {
 		// is it sorted by post views or views_query is used?
 		if ( ( isset( $query->pvc_orderby ) && $query->pvc_orderby ) || ( isset( $query->pvc_query ) && $query->pvc_query ) || apply_filters( 'pvc_extend_post_object', false, $query ) === true ) {
+			global $pagenow;
+
+			// needed only for sorting
+			if ( $pagenow === 'upload.php' || $pagenow === 'edit.php' )
+				$query->query['views_query']['hide_empty'] = false;
+
 			global $wpdb;
 
 			$groupby = trim( $groupby );

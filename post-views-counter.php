@@ -538,7 +538,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 				wp_enqueue_style( 'pvc-admin' );
 
-				// load on single post page
+			// load on single post page
 			} elseif ( $page === 'post.php' || $page === 'post-new.php' ) {
 				$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
@@ -549,6 +549,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 				wp_enqueue_style( 'pvc-admin' );
 				wp_enqueue_script( 'pvc-admin-post' );
+			// edit post
 			} elseif ( $page === 'edit.php' ) {
 				$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
@@ -562,8 +563,12 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 				// woocommerce
 				if ( get_post_type() !== 'product' )
 					wp_enqueue_script( 'pvc-admin-quick-edit' );
+			// widgets
 			} elseif ( $page === 'widgets.php' )
 				wp_enqueue_script( 'pvc-admin-widgets', POST_VIEWS_COUNTER_URL . '/js/admin-widgets.js', array( 'jquery' ), $this->defaults['version'] );
+			// media
+			elseif ( $page === 'upload.php' )
+				wp_enqueue_style( 'pvc-admin' );
 		}
 
 		/**

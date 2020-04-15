@@ -89,7 +89,7 @@
 	font-size: 1.1em;
 	vertical-align: middle;
 }
-.edit-php .widefat th .dash-title {
+.edit-php .widefat th .dash-title, .upload-php .widefat th .dash-title {
 	display:none;
 }
 .edit-php .metabox-prefs .dash-icon {
