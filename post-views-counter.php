@@ -423,7 +423,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 				$current_blog_id = $wpdb->blogid;
 				$blogs_ids = $wpdb->get_col( $wpdb->prepare( 'SELECT blog_id FROM ' . $wpdb->blogs, '' ) );
 
-				if ( ! ($activated_blogs = get_site_option( 'post_views_counter_activated_blogs', false, false )) )
+				if ( ! ( $activated_blogs = get_site_option( 'post_views_counter_activated_blogs', false, false ) ) )
 					$activated_blogs = array();
 
 				foreach ( $blogs_ids as $blog_id ) {

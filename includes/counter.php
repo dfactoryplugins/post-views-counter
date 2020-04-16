@@ -13,7 +13,9 @@ class Post_Views_Counter_Counter {
 	const GROUP = 'pvc';
 	const NAME_ALLKEYS = 'cached_key_names';
 	const CACHE_KEY_SEPARATOR = '.';
+	const MAX_INSERT_STRING_LENGTH = 25000;
 
+	private $db_insert_values = '';
 	private $cookie = array(
 		'exists'		 => false,
 		'visited_posts'	 => array(),
@@ -564,15 +566,22 @@ class Post_Views_Counter_Counter {
 		foreach ( $key_names as $key_name ) {
 			// get values stored within the key name itself
 			list( $id, $type, $period ) = explode( self::CACHE_KEY_SEPARATOR, $key_name );
+
 			// get the cached count value
 			$count = wp_cache_get( $key_name, self::GROUP );
 
 			// store cached value in the db
-			$this->db_insert( $id, $type, $period, $count );
+			$this->db_prepare_insert( $id, $type, $period, $count );
 
 			// clear the cache key we just flushed
 			wp_cache_delete( $key_name, self::GROUP );
 		}
+
+		// actually flush values to db (if any left)
+		$this->db_commit_insert();
+
+		// remember last flush to db time
+		wp_cache_set( 'last-flush', time(), self::GROUP );
 
 		// delete the key holding the list itself after we've successfully flushed it
 		if ( ! empty( $key_names ) )
@@ -606,6 +615,53 @@ class Post_Views_Counter_Counter {
 				ON DUPLICATE KEY UPDATE count = count + %d", $id, $type, $period, $count, $count
 			)
 		);
+	}
+
+	/**
+	 * Prepare bulk insert or update views count.
+	 *
+	 * @param int $id
+	 * @param string $type
+	 * @param string $period
+	 * @param int $count
+	 * @return void
+	 */
+	private function db_prepare_insert( $id, $type, $period, $count = 1 ) {
+		$count = (int) $count;
+
+		if ( ! $count )
+			$count = 1;
+
+		if ( ! empty( $this->db_insert_values ) )
+			$this->db_insert_values .= ', ';
+
+		$this->db_insert_values .= sprintf( '(%d, %d, "%s", %d)', $id, $type, $period, $count );
+
+		if ( strlen( $this->db_insert_values ) > self::MAX_INSERT_STRING_LENGTH )
+			$this->db_commit_insert();
+	}
+
+	/**
+	 * Insert accumulated values to database.
+	 *
+	 * @global object $wpdb
+	 * @return bool
+	 */
+	private function db_commit_insert() {
+		if ( empty( $this->db_insert_values ) )
+			return false;
+
+		global $wpdb;
+
+		// $result = $wpdb->query( "
+			// INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
+			// VALUES " . $this->db_insert_values . "
+			// ON DUPLICATE KEY UPDATE count = count + VALUES(count)"
+		// );
+
+		$this->db_insert_values = '';
+
+		// return $result;
 	}
 
 	/**
