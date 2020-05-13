@@ -1,11 +1,11 @@
 === Post Views Counter ===
 Contributors: dfactory
-Donate link: http://www.dfactory.eu/
+Donate link: http://dfactory.eu/
 Tags: counter, hits, posts, postviews, post views, views, count, statistics, stats, analytics, pageviews, tracking
 Requires at least: 4.0
 Requires PHP: 5.2.4
-Tested up to: 5.2.2
-Stable tag: 1.3.1
+Tested up to: 5.4.1
+Stable tag: 1.3.2
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -15,7 +15,7 @@ Post Views Counter allows you to display how many times a post, page or custom p
 
 [Post Views Counter](http://www.dfactory.eu/plugins/post-views-counter/) allows you to display how many times a post, page or custom post type had been viewed with this simple, fast and easy to use plugin.
 
-For more information, check out plugin page at [dFactory](http://www.dfactory.eu/) or plugin [support forum](http://www.dfactory.eu/support/forum/post-views-counter/).
+For more information, check out plugin page at [dFactory](http://dfactory.eu/) or plugin [support forum](http://www.dfactory.eu/support/forum/post-views-counter/).
 
 = Features include: =
 
@@ -61,6 +61,11 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3.2 =
+* New: Introducing dashboard widget navigation
+* New: Counter support for Media (attachments)
+* Tweak: Extended views query for handling complex date/time requests
 
 = 1.3.1 =
 * Fix: Gutenberg CSS file missing
@@ -196,6 +201,6 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.3.1 =
-* Fix: Gutenberg CSS file missing
-* Tweak: POT translation file update
+= 1.3.2 =
+* New: Introducing dashboard widget navigation
+* New: Counter support for Media (attachments)

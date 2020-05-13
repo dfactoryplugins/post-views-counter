@@ -193,10 +193,10 @@ class Post_Views_Counter_Settings {
 				sprintf( __( 'Check out our other <a href="%s" target="_blank">WordPress plugins</a>.', 'post-views-counter' ), 'https://dfactory.eu/plugins/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=other-plugins' ) . '
 				</p>
 			    <hr />
-			    <p class="df-link inner">' . __( 'Created by', 'post-views-counter' ) . ' <a href="http://www.dfactory.eu/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=created-by" target="_blank" title="dFactory - Quality plugins for WordPress"><img src="' . POST_VIEWS_COUNTER_URL . '/images/logo-dfactory.png' . '" title="dFactory - Quality plugins for WordPress" alt="dFactory - Quality plugins for WordPress" /></a></p>
+			    <p class="df-link inner"><a href="http://www.dfactory.eu/?utm_source=post-views-counter-settings&utm_medium=link&utm_campaign=created-by" target="_blank" title="Digital Factory"><img src="//pvc-53eb.kxcdn.com/df-black-sm.png' . '" alt="Digital Factory" /></a></p>
 			</div>
-		    </div>
-		    <form action="options.php" method="post">';
+		</div>
+		<form action="options.php" method="post">';
 
 		wp_nonce_field( 'update-options' );
 		settings_fields( $this->tabs[$tab_key]['key'] );
