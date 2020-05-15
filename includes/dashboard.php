@@ -15,6 +15,7 @@ class Post_Views_Counter_Dashboard {
 		add_action( 'wp_dashboard_setup', array( $this, 'wp_dashboard_setup' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts_styles' ) );
 		add_action( 'wp_ajax_pvc_dashboard_chart', array( $this, 'dashboard_widget_chart' ) );
+		add_action( 'wp_ajax_pvc_dashboard_chart_user_post_types', array( $this, 'dashboard_widget_chart_user_post_types' ) );
 	}
 
 	/**
@@ -27,7 +28,7 @@ class Post_Views_Counter_Dashboard {
 		}
 
 		// add dashboard widget
-		wp_add_dashboard_widget( 'pvc_dashboard', __( 'Post Views', 'post-views-counter' ), array( $this, 'dashboard_widget' ) /* , array( $this, 'dashboard_widget_control' ) */ );
+		wp_add_dashboard_widget( 'pvc_dashboard', __( 'Post Views', 'post-views-counter' ), array( $this, 'dashboard_widget' ) );
 	}
 
 	/**
@@ -57,33 +58,78 @@ class Post_Views_Counter_Dashboard {
 	public function generate_months( $timestamp ) {
 		$dates = array(
 			explode( ' ', date( "m F Y", strtotime( "-1 months", $timestamp ) ) ),
-			explode( ' ', date( "F Y", $timestamp ) ),
+			explode( ' ', date( "m F Y", $timestamp ) ),
 			explode( ' ', date( "m F Y", strtotime( "+1 months", $timestamp ) ) )
 		);
 
+		$current = date( "Ym", current_time( 'timestamp', false ) );
+
+		if ( (int) $current <= (int) ( $dates[1][2] . $dates[1][0] ) )
+			$next = '<span class="next">' . $dates[2][1] . ' ' . $dates[2][2] . ' ›</span>';
+		else
+			$next = '<a class="next" href="#" data-date="' . ( $dates[2][0] . '|' . $dates[2][2] ) . '">' . $dates[2][1] . ' ' . $dates[2][2] . ' ›</a>';
+
 		$dates = array(
 			'prev'		=> '<a class="prev" href="#" data-date="' . ( $dates[0][0] . '|' . $dates[0][2] ) . '">‹ ' . $dates[0][1] . ' ' . $dates[0][2] . '</a>',
-			'current'	=> $dates[1][0] . ' ' . $dates[1][1],
-			'next'		=> '<a class="next" href="#" data-date="' . ( $dates[2][0] . '|' . $dates[2][2] ) . '">' . $dates[2][1] . ' ' . $dates[2][2] . ' ›</a>',
+			'current'	=> $dates[1][1] . ' ' . $dates[1][2],
+			'next'		=> $next
 		);
 
 		return $dates['prev'] . $dates['current'] . $dates['next'];
 	}
 
 	/**
-	 * Dashboard widget settings.
-	 *
-	 * @return mixed
+	 * Dashboard widget chart user post types.
+	 * 
+	 * @return void
 	 */
-	public function dashboard_widget_control() {
-		
+	public function dashboard_widget_chart_user_post_types() {
+		if ( ! check_ajax_referer( 'dashboard-chart-user-post-types', 'nonce' ) )
+			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
+
+		// get post types
+		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+
+		// simulate total views as post type
+		$post_types[] = '_pvc_total_views';
+
+		// valid data?
+		if ( isset( $_POST['nonce'], $_POST['hidden'], $_POST['post_type'] ) && ( in_array( $_POST['post_type'], $post_types, true ) ) ) {
+			// get user ID
+			$user_id = get_current_user_id();
+
+			// get user dashboard data
+			$userdata = get_user_meta( $user_id, 'pvc_dashboard', true );
+
+			// empty userdata?
+			if ( ! is_array( $userdata ) || empty( $userdata ) )
+				$userdata = array();
+
+			// empty post types?
+			if ( ! array_key_exists( 'post_types', $userdata ) || ! is_array( $userdata['post_types'] ) )
+				$userdata['post_types'] = array();
+
+			// hide post type?
+			if ( $_POST['hidden'] === 'true' ) {
+				if ( ! in_array( $_POST['post_type'], $userdata['post_types'], true ) )
+					$userdata['post_types'][] = $_POST['post_type'];
+			} else {
+				if ( ( $key = array_search( $_POST['post_type'], $userdata['post_types'] ) ) !== false )
+					unset( $userdata['post_types'][$key] );
+			}
+
+			// update userdata
+			update_user_meta( $user_id, 'pvc_dashboard', $userdata );
+		}
+
+		exit;
 	}
 
 	/**
 	 * Dashboard widget chart data function.
 	 * 
 	 * @global $_wp_admin_css_colors
-	 * @return mixed
+	 * @return void
 	 */
 	public function dashboard_widget_chart() {
 		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) )
@@ -140,26 +186,24 @@ class Post_Views_Counter_Dashboard {
 
 			case 'this_year':
 				$data = array(
-					'text'	 => array(
-						'xAxes'	 => __( 'Year', 'post-views-counter' ) . date( ' Y' ),
-						'yAxes'	 => __( 'Post Views', 'post-views-counter' ),
+					'text'		=> array(
+						'xAxes'	=> __( 'Year', 'post-views-counter' ) . date( ' Y' ),
+						'yAxes'	=> __( 'Post Views', 'post-views-counter' ),
 					),
-					'design' => array(
-						'fill'					 => true,
-						'backgroundColor'		 => 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
-						'borderColor'			 => 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
-						'borderWidth'			 => 1.2,
-						'borderDash'			 => array(),
-						'pointBorderColor'		 => 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
-						'pointBackgroundColor'	 => 'rgba(255, 255, 255, 1)',
-						'pointBorderWidth'		 => 1.2
+					'design'	=> array(
+						'fill'					=> true,
+						'backgroundColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
+						'borderColor'			=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'borderWidth'			=> 1.2,
+						'borderDash'			=> array(),
+						'pointBorderColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'pointBackgroundColor'	=> 'rgba(255, 255, 255, 1)',
+						'pointBorderWidth'		=> 1.2
 					)
 				);
 
 				$data['data']['datasets'][0]['label'] = __( 'Total Views', 'post-views-counter' );
-
-				// get data for specific post types
-				$empty_post_type_views = array();
+				$data['data']['datasets'][0]['post_type'] = '_pvc_total_views';
 
 				// reindex post types
 				$post_types = array_combine( range( 1, count( $post_types ) ), array_values( $post_types ) );
@@ -167,10 +211,10 @@ class Post_Views_Counter_Dashboard {
 				$post_type_data = array();
 
 				foreach ( $post_types as $id => $post_type ) {
-					$empty_post_type_views[$post_type] = 0;
 					$post_type_obj = get_post_type_object( $post_type );
 
 					$data['data']['datasets'][$id]['label'] = $post_type_obj->labels->name;
+					$data['data']['datasets'][$id]['post_type'] = $post_type_obj->name;
 					$data['data']['datasets'][$id]['data'] = array();
 
 					// get month views
@@ -215,6 +259,8 @@ class Post_Views_Counter_Dashboard {
 
 			case 'this_month':
 			default:
+				$userdata = $this->get_dashboard_user_data( get_current_user_id(), 'post_types' );
+
 				if ( $period !== 'this_month' ) {
 					$date = explode( '|', $period, 2 );
 					$months = strtotime( (string) $date[1] . '-' . (string) $date[0] . '-13' );
@@ -243,9 +289,8 @@ class Post_Views_Counter_Dashboard {
 				);
 
 				$data['data']['datasets'][0]['label'] = __( 'Total Views', 'post-views-counter' );
-
-				// get data for specific post types
-				$empty_post_type_views = array();
+				$data['data']['datasets'][0]['post_type'] = '_pvc_total_views';
+				$data['data']['datasets'][0]['hidden'] = in_array( '_pvc_total_views', $userdata, true );
 
 				// reindex post types
 				$post_types = array_combine( range( 1, count( $post_types ) ), array_values( $post_types ) );
@@ -253,10 +298,11 @@ class Post_Views_Counter_Dashboard {
 				$post_type_data = array();
 
 				foreach ( $post_types as $id => $post_type ) {
-					$empty_post_type_views[$post_type] = 0;
 					$post_type_obj = get_post_type_object( $post_type );
 
 					$data['data']['datasets'][$id]['label'] = $post_type_obj->labels->name;
+					$data['data']['datasets'][$id]['post_type'] = $post_type_obj->name;
+					$data['data']['datasets'][$id]['hidden'] = in_array( $post_type_obj->name, $userdata, true );
 					$data['data']['datasets'][$id]['data'] = array();
 
 					// get month views
@@ -306,6 +352,24 @@ class Post_Views_Counter_Dashboard {
 	}
 
 	/**
+	 * Get user dashboard data.
+	 *
+	 * @param string $data_type
+	 * @return array
+	 */
+	public function get_dashboard_user_data( $user_id, $data_type ) {
+		$userdata = get_user_meta( $user_id, 'pvc_dashboard', true );
+
+		if ( ! is_array( $userdata ) || empty( $userdata ) )
+			$userdata = array();
+
+		if ( ! array_key_exists( $data_type, $userdata ) || ! is_array( $userdata[$data_type] ) )
+			$userdata[$data_type] = array();
+
+		return $userdata[$data_type];
+	}
+
+	/**
 	 * Enqueue admin scripts and styles.
 	 * 
 	 * @param string $pagenow
@@ -332,7 +396,8 @@ class Post_Views_Counter_Dashboard {
 			'pvcArgs',
 			array(
 				'ajaxURL'	 => admin_url( 'admin-ajax.php' ),
-				'nonce'		 => wp_create_nonce( 'dashboard-chart' )
+				'nonce'		 => wp_create_nonce( 'dashboard-chart' ),
+				'nonceUser'	 => wp_create_nonce( 'dashboard-chart-user-post-types' )
 			)
 		);
 	}

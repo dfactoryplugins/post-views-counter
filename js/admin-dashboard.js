@@ -1,14 +1,10 @@
 ( function ( $ ) {
 
-	// set global options
-	// Chart.defaults.global.tooltips.titleMarginBottom = 0;
-	// Chart.defaults.global.tooltips.footerMarginTop = 4;
-
 	window.onload = function () {
 		updateChart( 'this_month' );
 	};
 
-	function runAjax( initial, period, container ) {
+	function ajaxGetChartData( init, period, container ) {
 		$.ajax( {
 			url: pvcArgs.ajaxURL,
 			type: 'POST',
@@ -20,7 +16,7 @@
 			},
 			success: function ( args ) {
 				// first call?
-				if ( initial ) {
+				if ( init ) {
 					container.removeClass( 'loading' );
 					container.find( '.spinner' ).removeClass( 'is-active' );
 
@@ -31,9 +27,22 @@
 							legend: {
 								display: true,
 								position: 'bottom',
+								onClick: function( e, element ) {
+									var index = element.datasetIndex,
+										ci = this.chart,
+										meta = ci.getDatasetMeta( index );
+
+									// set new hidden value
+									meta.hidden = ( meta.hidden === null ? ! ci.data.datasets[index].hidden : null );
+
+									// rerender the chart
+									ci.update();
+
+									ajaxUpdateChartPostTypes( ci.data.datasets[index].post_type, meta.hidden === null ? false : meta.hidden );
+								},
 								labels: {
 									boxWidth: 0,
-									fontSize: 14,
+									fontSize: 12,
 									padding: 10,
 									usePointStyle: false
 								}
@@ -43,9 +52,7 @@
 									display: true,
 									scaleLabel: {
 										display: false,
-										labelString: args.text.xAxes,
-										fontSize: 14,
-										fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif'
+										labelString: args.text.xAxes
 									}
 								} ],
 								yAxes: [ {
@@ -72,6 +79,21 @@
 					window.chartPVC.update();
 				}
 			}
+		} );
+	}
+
+	function ajaxUpdateChartPostTypes( post_type, hidden ) {
+		$.ajax( {
+			url: pvcArgs.ajaxURL,
+			type: 'POST',
+			dataType: 'json',
+			data: {
+				action: 'pvc_dashboard_chart_user_post_types',
+				nonce: pvcArgs.nonceUser,
+				post_type: post_type,
+				hidden: hidden
+			},
+			success: function ( ) {}
 		} );
 	}
 
@@ -115,7 +137,7 @@
 
 			$( container ).addClass( 'loading' ).append( '<span class="spinner is-active"></span>' );
 
-			runAjax( true, period, $( container ) );
+			ajaxGetChartData( true, period, $( container ) );
 		}
 	}
 
@@ -130,13 +152,16 @@
 		var next = months[0].getElementsByClassName( 'next' );
 
 		prev[0].addEventListener( 'click', loadChartData );
-		next[0].addEventListener( 'click', loadChartData );
+
+		// skip span
+		if ( next[0].tagName === 'A' )
+			next[0].addEventListener( 'click', loadChartData );
 	}
 
 	function loadChartData( e ) {
 		e.preventDefault();
 
-		runAjax( false, e.target.dataset.date );
+		ajaxGetChartData( false, e.target.dataset.date );
 	}
 
 } )( jQuery );

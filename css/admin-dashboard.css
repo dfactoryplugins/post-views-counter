@@ -24,6 +24,6 @@
 #pvc_dashboard_container .pvc_months a.prev {
 	float: left;
 }
-#pvc_dashboard_container .pvc_months a.next {
+#pvc_dashboard_container .pvc_months a.next, #pvc_dashboard_container .pvc_months span.next {
 	float: right;
 }
