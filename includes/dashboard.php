@@ -71,7 +71,7 @@ class Post_Views_Counter_Dashboard {
 
 		$dates = array(
 			'prev'		=> '<a class="prev" href="#" data-date="' . ( $dates[0][0] . '|' . $dates[0][2] ) . '">‹ ' . $dates[0][1] . ' ' . $dates[0][2] . '</a>',
-			'current'	=> $dates[1][1] . ' ' . $dates[1][2],
+			'current'	=> '<span class="current">' . $dates[1][1] . ' ' . $dates[1][2] . '</span>',
 			'next'		=> $next
 		);
 
