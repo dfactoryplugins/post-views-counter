@@ -50,7 +50,7 @@ class Post_Views_Counter_Columns {
 			'__block_editor_compatible_meta_box' => true
 		) );
 	}
-	
+
 	/**
 	 * Register REST API Gutenberg endpoints.
 	 */
@@ -60,9 +60,10 @@ class Post_Views_Counter_Columns {
 			'post-views-counter',
 			'/update-post-views/',
 			array(
-				'methods'	=> array( 'POST' ),
-				'callback'	=> array( $this, 'gutenberg_update_callback' ),
-				'args'		=> array(
+				'methods'				=> array( 'POST' ),
+				'callback'				=> array( $this, 'gutenberg_update_callback' ),
+				'permission_callback'	=> array( $this, 'check_rest_route_permissions' ),
+				'args'					=> array(
 					'id' => array(
 						'sanitize_callback' => 'absint',
 					)
@@ -70,7 +71,25 @@ class Post_Views_Counter_Columns {
 			)
 		);
 	}
-	
+
+	/**
+	 * Check whether user has permissions to perform post views update in Gutenberg editor.
+	 *
+	 * @param object $request WP_REST_Request
+	 * @return bool|WP_Error
+	 */
+	public function check_rest_route_permissions( $request ) {
+		// break if current user can't edit this post
+		if ( ! current_user_can( 'edit_post', (int) $request->get_param( 'id' ) ) )
+			return new WP_Error( 'pvc-user-not-allowed', __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
+
+		// break if views editing is restricted
+		if ( (bool) Post_Views_Counter()->options['general']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+			return new WP_Error( 'pvc-user-not-allowed', __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
+
+		return true;
+	}
+
 	/**
 	 * REST API Callback for Gutenberg endpoint.
 	 * 
@@ -96,9 +115,7 @@ class Post_Views_Counter_Columns {
 			return wp_send_json_error( __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
 
 		// break if views editing is restricted
-		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
-
-		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+		if ( (bool) Post_Views_Counter()->options['general']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			return wp_send_json_error( __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
 
 		global $wpdb;

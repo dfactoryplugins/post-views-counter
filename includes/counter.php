@@ -727,8 +727,8 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Ensure an ip address is both a valid IP and does not fall within a private network range.
-	 * 
-	 * @param $ip
+	 *
+	 * @param $ip string IP address
 	 * @return bool
 	 */
 	public function validate_user_ip( $ip ) {
@@ -740,15 +740,16 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Register REST API endpoints.
-	 * 
+	 *
 	 * @return void
 	 */
 	public function rest_api_init() {
 		// view post route
 		register_rest_route( 'post-views-counter', '/view-post/', array(
-			'methods'	 => array( 'GET', 'POST' ),
-			'callback'	 => array( $this, 'check_post_rest_api' ),
-			'args'		 => array(
+			'methods'				=> array( 'GET', 'POST' ),
+			'callback'				=> array( $this, 'check_post_rest_api' ),
+			'permission_callback'	=> array( $this, 'post_views_permissions_check' ),
+			'args'					=> array(
 				'id' => array(
 					'default'			 => 0,
 					'sanitize_callback'	 => 'absint'
@@ -772,7 +773,7 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Get post views via REST API request.
-	 * 
+	 *
 	 * @param array $request
 	 * @return int
 	 */
@@ -783,7 +784,17 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
-	 * Check if a given request has access to get views
+	 * Check if a given request has access to get views.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 * @return WP_Error|bool
+	 */
+	public function post_views_permissions_check( $request ) {
+		return (bool) apply_filters( 'pvc_rest_api_post_views_check', true, $request );
+	}
+
+	/**
+	 * Check if a given request has access to get views.
 	 *
 	 * @param WP_REST_Request $request Full data about the request.
 	 * @return WP_Error|bool
@@ -791,5 +802,4 @@ class Post_Views_Counter_Counter {
 	public function get_post_views_permissions_check( $request ) {
 		return (bool) apply_filters( 'pvc_rest_api_get_post_views_check', true, $request );
 	}
-
 }
