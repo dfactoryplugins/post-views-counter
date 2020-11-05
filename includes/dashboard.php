@@ -157,12 +157,26 @@ class Post_Views_Counter_Dashboard {
 		// $now = getdate( current_time( 'timestamp', get_option( 'gmt_offset' ) ) );
 		$now = getdate( current_time( 'timestamp', get_option( 'gmt_offset' ) ) - 2592000 );
 
-		// get admin color scheme
+		// get color scheme global
 		global $_wp_admin_css_colors;
 
-		$admin_color = get_user_option( 'admin_color' );
-		$colors = $_wp_admin_css_colors[$admin_color]->colors;
-		$color = $this->hex2rgb( $colors[2] );
+		// set default color;
+		$color = array(
+			'r'	=> 105,
+			'g'	=> 168,
+			'b'	=> 187
+		);
+
+		if ( ! empty( $_wp_admin_css_colors ) ) {
+			// get current admin color scheme name
+			$current_color_scheme = get_user_option( 'admin_color' );
+
+			if ( empty( $current_color_scheme ) )
+				$current_color_scheme = 'fresh';
+
+			if ( isset( $_wp_admin_css_colors[$current_color_scheme] ) )
+				$color = $this->hex2rgb( $_wp_admin_css_colors[$current_color_scheme]->colors[2] );
+		}
 
 		// set chart labels
 		switch ( $period ) {
