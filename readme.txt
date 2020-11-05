@@ -4,8 +4,8 @@ Donate link: http://dfactory.eu/
 Tags: counter, hits, posts, postviews, post views, views, count, statistics, stats, analytics, pageviews, tracking
 Requires at least: 4.0
 Requires PHP: 5.2.4
-Tested up to: 5.4.1
-Stable tag: 1.3.2
+Tested up to: 5.5.3
+Stable tag: 1.3.3
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -61,6 +61,10 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3.3 =
+* Fix: PHP Notice: Trying to get property 'colors' of non-object
+* Fix: PHP Notice: register_rest_route was called incorrectly
 
 = 1.3.2 =
 * New: Introducing dashboard widget navigation
@@ -201,6 +205,6 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.3.2 =
-* New: Introducing dashboard widget navigation
-* New: Counter support for Media (attachments)
+= 1.3.3 =
+* Fix: PHP Notice: Trying to get property 'colors' of non-object
+* Fix: PHP Notice: register_rest_route was called incorrectly
