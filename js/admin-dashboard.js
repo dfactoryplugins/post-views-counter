@@ -1,6 +1,6 @@
-( function ( $ ) {
+( function( $ ) {
 
-	window.onload = function () {
+	window.onload = function() {
 		updateChart( 'this_month' );
 	};
 
@@ -14,7 +14,7 @@
 				nonce: pvcArgs.nonce,
 				period: period
 			},
-			success: function ( args ) {
+			success: function( args ) {
 				// first call?
 				if ( init ) {
 					container.removeClass( 'loading' );
@@ -93,7 +93,7 @@
 				post_type: post_type,
 				hidden: hidden
 			},
-			success: function ( ) {}
+			success: function( ) {}
 		} );
 	}
 
@@ -104,7 +104,7 @@
 		// update tooltips with new dates
 		config.options.tooltips = {
 			callbacks: {
-				title: function ( tooltip ) {
+				title: function( tooltip ) {
 					return args.data.dates[tooltip[0].index];
 				}
 			}
@@ -115,7 +115,7 @@
 		config.options.scales.yAxes[0].scaleLabel.labelString = args.text.yAxes;
 
 		// update colors
-		$.each( config.data.datasets, function ( i, dataset ) {
+		$.each( config.data.datasets, function( i, dataset ) {
 			dataset.fill = args.design.fill;
 			dataset.borderColor = args.design.borderColor;
 			dataset.backgroundColor = args.design.backgroundColor;

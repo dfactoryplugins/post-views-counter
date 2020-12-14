@@ -23,6 +23,7 @@ class PostViews extends Component {
 		this.handleCancel = this.handleCancel.bind( this );
 		this.handleSetViews = this.handleSetViews.bind( this );
 	}
+
 	// show/hide popover on button click
     handleClick( e ) {
 		if ( e.target.classList.contains( 'edit-post-post-views-toggle-link' ) ) {
@@ -31,6 +32,7 @@ class PostViews extends Component {
 			) )
 		}
 	}
+
 	// show/hide popover on outside click
 	handleClickOutside( e ) {
 		if ( ! e.target.classList.contains( 'edit-post-post-views-toggle-link' ) ) {
@@ -39,6 +41,7 @@ class PostViews extends Component {
 			) )
 		}
 	}
+
 	// reset views on cancel click
 	handleCancel( e ) {
 		this.setState( ( prevState ) => ( 
@@ -48,6 +51,7 @@ class PostViews extends Component {
 			}
 		) )
 	}
+
 	// reset post views on change
 	handleSetViews( value ) {
 		// force update button to be clickable
@@ -59,6 +63,7 @@ class PostViews extends Component {
 			}
 		} );
 	}
+
 	// save the post views
 	static getDerivedStateFromProps( nextProps, state ) {
 		// bail if autosave
@@ -75,6 +80,7 @@ class PostViews extends Component {
 			)
 		}
 	}
+
 	render() {
 		return (
 			<PostViewsComponent 
@@ -143,6 +149,7 @@ const Plugin = withSelect( ( select, { forceIsSaving } ) => {
 		isPublishingPost,
 		isAutosavingPost,
 	} = select( 'core/editor' );
+
 	return {
 		postId: getCurrentPostId(),
 		isSaving: forceIsSaving || isSavingPost(),

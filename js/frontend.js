@@ -1,10 +1,9 @@
-( function ( $ ) {
+( function( $ ) {
 
-	$( document ).ready( function () {
-
+	// ready event
+	$( function() {
 		// rest api request
 		if ( pvcArgsFrontend.mode == 'rest_api' ) {
-
 			var request = {
 				id: pvcArgsFrontend.postID
 			};
@@ -15,7 +14,7 @@
 				async: true,
 				cache: false,
 				data: request,
-				beforeSend: function ( xhr ) {
+				beforeSend: function( xhr ) {
 					xhr.setRequestHeader( 'X-WP-Nonce', pvcArgsFrontend.nonce );
 				}
 			} ).done( function( response ) {
@@ -25,10 +24,8 @@
 					detail: response
 				} );
 			} );
-
 		// admin ajax or fast ajax request
 		} else {
-			
 			var request = {
 				action: 'pvc-check-post',
 				pvc_nonce: pvcArgsFrontend.nonce,
@@ -48,9 +45,7 @@
 					detail: response
 				} );
 			} );
-
 		}
-
 	} );
 
 } )( jQuery );

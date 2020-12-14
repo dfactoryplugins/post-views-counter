@@ -5,9 +5,7 @@
 
 	// and then we overwrite the function with our own code
 	inlineEditPost.edit = function( id ) {
-		console.log( 'edit' );
-		// call the original WP edit function
-		// we don't want to leave WordPress hanging
+		// call the original WP edit function, we don't want to leave WordPress hanging
 		$wp_inline_edit.apply( this, arguments );
 
 		// get the post ID
@@ -33,7 +31,6 @@
 	};
 
 	$( document ).on( 'click', '#bulk_edit', function() {
-		console.log( 'bulk edit' );
 		// define the bulk edit row
 		var $bulk_row = $( '#bulk-edit' );
 

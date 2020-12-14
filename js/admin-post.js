@@ -1,8 +1,9 @@
 ( function( $ ) {
 
-	$( document ).ready( function() {
+	// ready event
+	$( function() {
 		// post views input
-		$( '#post-views .edit-post-views' ).click( function() {
+		$( '#post-views .edit-post-views' ).on( 'click', function() {
 			if ( $( '#post-views-input-container' ).is( ":hidden" ) ) {
 				$( '#post-views-input-container' ).slideDown( 'fast' );
 				$( this ).hide();
@@ -12,8 +13,8 @@
 		} );
 
 		// save post views
-		$( '#post-views .save-post-views' ).click( function() {
-			var views = $.trim( $( '#post-views-display b' ).text() );
+		$( '#post-views .save-post-views' ).on( 'click', function() {
+			var views = ( $( '#post-views-display b' ).text() ).trim();
 
 			$( '#post-views-input-container' ).slideUp( 'fast' );
 			$( '#post-views .edit-post-views' ).show();
@@ -28,8 +29,8 @@
 		} );
 
 		// cancel post views
-		$( '#post-views .cancel-post-views' ).click( function() {
-			var views = $.trim( $( '#post-views-display b' ).text() );
+		$( '#post-views .cancel-post-views' ).on( 'click', function() {
+			var views = ( $( '#post-views-display b' ).text() ).trim();
 
 			$( '#post-views-input-container' ).slideUp( 'fast' );
 			$( '#post-views .edit-post-views' ).show();

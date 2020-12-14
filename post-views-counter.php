@@ -88,14 +88,14 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		);
 
 		/**
-		 * Disable object clone.
+		 * Disable object cloning.
 		 */
-		private function __clone() {}
+		public function __clone() {}
 
 		/**
 		 * Disable unserializing of the class.
 		 */
-		private function __wakeup() {}
+		public function __wakeup() {}
 
 		/**
 		 * Main plugin instance,
