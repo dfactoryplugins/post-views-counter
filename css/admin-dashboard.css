@@ -1,29 +1,116 @@
-#pvc_dashboard_container {
-    color: #aaa;
-    min-height: 240px;
+.pvc-dashboard-container {
+    min-height: 260px;
     margin: 0 -4px;
     text-align: center;
     position: relative;
+	display: flex;
+	flex-direction: column;
 }
-#pvc_dashboard_container .spinner {
+.pvc-dashboard-container .spinner {
 	position: absolute;
 	left: 50%;
 	top: 40%;
 	margin-left: -10px;
+	z-index: 10;
 }
-#pvc_dashboard p.sub {
+.pvc-dashboard-container.loading {
+	pointer-events: none;
+}
+.pvc-dashboard-container.loading:after {
+	position: absolute;
+	content: '';
+	display: block;
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
+	background-color: rgba(255,255,255,0.8);
+	z-index: 1;
+	transition: all 0.2s;
+}
+.pvc-dashboard p.sub {
     color: #8f8f8f;
     font-size: 14px;
 	text-align: left;
 	padding-bottom: 3px;
 	border-bottom: 1px solid #ececec;
 }
-#pvc_dashboard_container .pvc_months {
+.pvc-dashboard-container .pvc-months {
+	display: flex;
+	justify-content: space-between;
 	margin: 6px 10px 0 10px;
+	color: #aaa;
 }
-#pvc_dashboard_container .pvc_months a.prev {
-	float: left;
+.pvc-dashboard-container .pvc-months .current {
+	color: #212529;
 }
-#pvc_dashboard_container .pvc_months a.next, #pvc_dashboard_container .pvc_months span.next {
-	float: right;
+#pvc-chart-container {
+	min-height: 230px;
+}
+
+.pvc-data-container {
+	min-height: 230px;
+}
+
+.pvc-table-responsive {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.pvc-table {
+	caption-side: bottom;
+	border-collapse: collapse;
+	width: 100%;
+	margin-bottom: 1rem;
+	color: inherit;
+	vertical-align: top;
+	border-color: #dee2e6;
+	text-align: left;
+}
+
+.pvc-table > thead {
+    vertical-align: bottom;
+	color: #212529;
+}
+
+.pvc-table > tbody {
+    vertical-align: inherit;
+}
+
+.pvc-table tbody, 
+.pvc-table td, 
+.pvc-table tfoot, 
+.pvc-table th, 
+.pvc-table thead, 
+.pvc-table tr {
+    border-color: inherit;
+    border-style: solid;
+    border-width: 0;
+}
+
+.pvc-table th,
+.pvc-table td {
+	text-align: inherit;
+	text-align: -webkit-match-parent;
+}
+
+.pvc-table th:first-child,
+.pvc-table td:first-child {
+	width: 1px;
+    white-space: nowrap;
+}
+
+.pvc-table th:last-child,
+.pvc-table td:last-child {
+	text-align: right;
+}
+
+.pvc-table .no-posts :last-child {
+	text-align: left;
+}
+
+.pvc-table > :not(caption) > * > * {
+    padding: .5rem .5rem;
+    background-color: transparent;
+    border-bottom-width: 1px;
+    box-shadow: inset 0 0 0 9999px transparent;
 }

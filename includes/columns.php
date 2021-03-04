@@ -530,7 +530,7 @@ class Post_Views_Counter_Columns {
 				foreach ( $ranges as $index => $range ) {
 					if ( $count <= $range ) {
 						$count_class = $index;
-						continue;
+						break;
 					}
 				}
 			}

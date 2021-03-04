@@ -55,7 +55,7 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 			'show_post_thumbnail'	=> false,
 			'show_post_excerpt'		=> false,
 			'show_post_author'		=> false,
-			'no_posts_message'		=> __( 'No Posts found', 'post-views-counter' )
+			'no_posts_message'		=> __( 'No most viewed posts found', 'post-views-counter' )
 		);
 
 		$this->pvc_order_types = array(

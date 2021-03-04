@@ -1,10 +1,44 @@
-( function( $ ) {
+( function ( $ ) {
 
-	window.onload = function() {
-		updateChart( 'this_month' );
+	window.onload = function () {
+		pvcUpdateChart( 'this_month' );
+		pvcUpdateMostViewed( 'this_month' );
 	};
+	
+	function pvcGetViewedData( init, period, container ) {
+		$( container ).addClass( 'loading' ).find( '.spinner' ).addClass( 'is-active' );
+		
+		console.log( container );
+		
+		$.ajax( {
+			url: pvcArgs.ajaxURL,
+			type: 'POST',
+			dataType: 'json',
+			data: {
+				action: 'pvc_dashboard_most_viewed',
+				nonce: pvcArgs.nonce,
+				period: period
+			},
+			success: function ( response ) {		
+				// remove loader
+				$( container ).removeClass( 'loading' );
+				$( container ).find( '.spinner' ).removeClass( 'is-active' );
 
-	function ajaxGetChartData( init, period, container ) {
+				// first call?
+				if ( init ) {
+					$( container ).find( '#pvc-viewed' ).html( response.html );
+				} else {
+					pvcBindMonthEvents( response.months, container );
+					
+					$( container ).find( '#pvc-viewed' ).html( response.html );
+				}
+			}
+		} );
+	}
+
+	function pvcGetChartData( init, period, container ) {
+		$( container ).addClass( 'loading' ).find( '.spinner' ).addClass( 'is-active' );
+		
 		$.ajax( {
 			url: pvcArgs.ajaxURL,
 			type: 'POST',
@@ -14,12 +48,13 @@
 				nonce: pvcArgs.nonce,
 				period: period
 			},
-			success: function( args ) {
+			success: function ( response ) {		
+				// remove loader
+				$( container ).removeClass( 'loading' );
+				$( container ).find( '.spinner' ).removeClass( 'is-active' );
+					
 				// first call?
 				if ( init ) {
-					container.removeClass( 'loading' );
-					container.find( '.spinner' ).removeClass( 'is-active' );
-
 					var config = {
 						type: 'line',
 						options: {
@@ -38,7 +73,7 @@
 									// rerender the chart
 									ci.update();
 
-									ajaxUpdateChartPostTypes( ci.data.datasets[index].post_type, meta.hidden === null ? false : meta.hidden );
+									pvcUpdateChartPostTypes( ci.data.datasets[index].post_type, meta.hidden === null ? false : meta.hidden );
 								},
 								labels: {
 									boxWidth: 0,
@@ -52,14 +87,14 @@
 									display: true,
 									scaleLabel: {
 										display: false,
-										labelString: args.text.xAxes
+										labelString: response.text.xAxes
 									}
 								} ],
 								yAxes: [ {
 									display: true,
 									scaleLabel: {
 										display: false,
-										labelString: args.text.yAxes
+										labelString: response.text.yAxes
 									}
 								} ]
 							},
@@ -69,20 +104,20 @@
 						}
 					};
 
-					config = updateConfig( config, args );
+					config = pvcUpdateConfig( config, response );
 
-					window.chartPVC = new Chart( document.getElementById( 'pvc_chart' ).getContext( '2d' ), config );
+					window.chartPVC = new Chart( document.getElementById( 'pvc-chart' ).getContext( '2d' ), config );
 				} else {
-					bindMonthEvents( args.months );
+					pvcBindMonthEvents( response.months, container );
 
-					window.chartPVC.config = updateConfig( window.chartPVC.config, args );
+					window.chartPVC.config = pvcUpdateConfig( window.chartPVC.config, response );
 					window.chartPVC.update();
 				}
 			}
 		} );
 	}
 
-	function ajaxUpdateChartPostTypes( post_type, hidden ) {
+	function pvcUpdateChartPostTypes( post_type, hidden ) {
 		$.ajax( {
 			url: pvcArgs.ajaxURL,
 			type: 'POST',
@@ -93,18 +128,18 @@
 				post_type: post_type,
 				hidden: hidden
 			},
-			success: function( ) {}
+			success: function ( ) {}
 		} );
 	}
 
-	function updateConfig( config, args ) {
+	function pvcUpdateConfig( config, args ) {
 		// update datasets
 		config.data = args.data;
 
 		// update tooltips with new dates
 		config.options.tooltips = {
 			callbacks: {
-				title: function( tooltip ) {
+				title: function ( tooltip ) {
 					return args.data.dates[tooltip[0].index];
 				}
 			}
@@ -115,7 +150,7 @@
 		config.options.scales.yAxes[0].scaleLabel.labelString = args.text.yAxes;
 
 		// update colors
-		$.each( config.data.datasets, function( i, dataset ) {
+		$.each( config.data.datasets, function ( i, dataset ) {
 			dataset.fill = args.design.fill;
 			dataset.borderColor = args.design.borderColor;
 			dataset.backgroundColor = args.design.backgroundColor;
@@ -129,20 +164,28 @@
 		return config;
 	}
 
-	function updateChart( period ) {
-		var container = document.getElementById( 'pvc_dashboard_container' );
+	function pvcUpdateChart( period ) {
+		var container = document.getElementById( 'pvc-post-views' );
 
 		if ( $( container ).length > 0 ) {
-			bindMonthEvents( false );
+			pvcBindMonthEvents( false, container );
 
-			$( container ).addClass( 'loading' ).append( '<span class="spinner is-active"></span>' );
+			pvcGetChartData( true, period, container );
+		}
+	}
+	
+	function pvcUpdateMostViewed( period ) {
+		var container = document.getElementById( 'pvc-most-viewed' );
 
-			ajaxGetChartData( true, period, $( container ) );
+		if ( $( container ).length > 0 ) {
+			pvcBindMonthEvents( false, container );
+
+			pvcGetViewedData( true, period, container );
 		}
 	}
 
-	function bindMonthEvents( newMonths ) {
-		var months = document.getElementsByClassName( 'pvc_months' );
+	function pvcBindMonthEvents( newMonths, container ) {
+		var months = $( container ).find( '.pvc-months' );
 
 		// replace months?
 		if ( newMonths !== false )
@@ -151,17 +194,36 @@
 		var prev = months[0].getElementsByClassName( 'prev' );
 		var next = months[0].getElementsByClassName( 'next' );
 
-		prev[0].addEventListener( 'click', loadChartData );
+		if ( $( container ).attr( 'id' ) === 'pvc-most-viewed' ) {
+			prev[0].addEventListener( 'click', pvcLoadMostViewedData );
+		} else {
+			prev[0].addEventListener( 'click', pvcLoadChartData );
+		}
 
 		// skip span
-		if ( next[0].tagName === 'A' )
-			next[0].addEventListener( 'click', loadChartData );
+		if ( next[0].tagName === 'A' ) {
+			if ( $( container ).attr( 'id' ) === 'pvc-most-viewed' ) {
+				next[0].addEventListener( 'click', pvcLoadMostViewedData );
+			} else {
+				next[0].addEventListener( 'click', pvcLoadChartData );
+			}
+		}
 	}
 
-	function loadChartData( e ) {
+	function pvcLoadChartData( e ) {
 		e.preventDefault();
+		
+		var container = document.getElementById( 'pvc-post-views' );
 
-		ajaxGetChartData( false, e.target.dataset.date );
+		pvcGetChartData( false, e.target.dataset.date, container );
+	}
+	
+	function pvcLoadMostViewedData( e ) {
+		e.preventDefault();
+		
+		var container = document.getElementById( 'pvc-most-viewed' );
+
+		pvcGetViewedData( false, e.target.dataset.date, container );
 	}
 
 } )( jQuery );

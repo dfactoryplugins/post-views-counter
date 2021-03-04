@@ -12,9 +12,10 @@ class Post_Views_Counter_Dashboard {
 
 	public function __construct() {
 		// actions
-		add_action( 'wp_dashboard_setup', array( $this, 'wp_dashboard_setup' ) );
+		add_action( 'wp_dashboard_setup', array( $this, 'wp_dashboard_setup' ), 1 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts_styles' ) );
-		add_action( 'wp_ajax_pvc_dashboard_chart', array( $this, 'dashboard_widget_chart' ) );
+		add_action( 'wp_ajax_pvc_dashboard_most_viewed', array( $this, 'dashboard_get_most_viewed' ) );
+		add_action( 'wp_ajax_pvc_dashboard_chart', array( $this, 'dashboard_get_chart' ) );
 		add_action( 'wp_ajax_pvc_dashboard_chart_user_post_types', array( $this, 'dashboard_widget_chart_user_post_types' ) );
 	}
 
@@ -27,8 +28,10 @@ class Post_Views_Counter_Dashboard {
 			return;
 		}
 
-		// add dashboard widget
-		wp_add_dashboard_widget( 'pvc_dashboard', __( 'Post Views', 'post-views-counter' ), array( $this, 'dashboard_widget' ) );
+		// add dashboard post views chart widget
+		wp_add_dashboard_widget( 'pvc_dashboard_post_views', __( 'Post Views', 'post-views-counter' ), array( $this, 'dashboard_post_views_widget' ) );
+		// add dashboard most viewed widget
+		wp_add_dashboard_widget( 'pvc_dashboard_most_viewed', __( 'Most Viewed', 'post-views-counter' ), array( $this, 'dashboard_most_viewed_widget' ) );
 	}
 
 	/**
@@ -36,15 +39,41 @@ class Post_Views_Counter_Dashboard {
 	 *
 	 * @return mixed
 	 */
-	public function dashboard_widget() {
+	public function dashboard_post_views_widget() {
 		?>
-		<div id="pvc_dashboard_container">
-			<canvas id="pvc_chart" height="175"></canvas>
-			<div class="pvc_months">
-
-			<?php echo $this->generate_months( current_time( 'timestamp', false ) ); ?>
-
+		<div id="pvc-post-views" class="pvc-dashboard-container loading">
+			
+			<div id="pvc-chart-container" class="pvc-data-container">
+				<canvas id="pvc-chart" height="175"></canvas>
+				<span class="spinner"></span>
 			</div>
+			
+			<div class="pvc-months">
+				<?php echo $this->generate_months( current_time( 'timestamp', false ) ); ?>
+			</div>
+			
+		</div>
+		<?php
+	}
+	
+	/**
+	 * Render dashboard widget.
+	 *
+	 * @return mixed
+	 */
+	public function dashboard_most_viewed_widget() {
+		?>
+		<div id="pvc-most-viewed" class="pvc-dashboard-container loading">
+			
+			<div class="pvc-data-container">
+				<div id="pvc-viewed" class="pvc-table-responsive"></div>
+				<span class="spinner"></span>
+			</div>
+			
+			<div class="pvc-months">
+				<?php echo $this->generate_months( current_time( 'timestamp', false ) ); ?>
+			</div>
+			
 		</div>
 		<?php
 	}
@@ -124,6 +153,95 @@ class Post_Views_Counter_Dashboard {
 
 		exit;
 	}
+	
+	/**
+	 * Dashboard widget chart data function.
+	 * 
+	 * @global $_wp_admin_css_colors
+	 * @return void
+	 */
+	public function dashboard_get_most_viewed() {
+		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) )
+			wp_die( _( 'You do not have permission to access this page.', 'post-views-counter' ) );
+
+		if ( ! check_ajax_referer( 'dashboard-chart', 'nonce' ) )
+			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
+
+		// get period
+		$period = isset( $_POST['period'] ) ? esc_attr( $_POST['period'] ) : 'this_month';
+
+		// get post types
+		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+		
+		if ( $period !== 'this_month' ) {
+			$date = explode( '|', $period, 2 );
+			$months = strtotime( (string) $date[1] . '-' . (string) $date[0] . '-13' );
+		} else
+			$months = current_time( 'timestamp', false );
+
+		// get date chunks
+		$date = explode( ' ', date( "m Y t F", $months ) );
+
+		// get stats
+		$query_args = array(
+			'post_type'			 => $post_types,
+			'posts_per_page'	 => 10,
+			'paged'				 => false,
+			'suppress_filters'	 => false,
+			'no_found_rows'		 => true,
+			'views_query'	 => array(
+				'year'	 => $date[1],
+				'month'	 => $date[0],
+			)
+		);
+		
+		$posts = pvc_get_most_viewed_posts( $query_args );
+		
+		$data = array(
+			'months'	=> $this->generate_months( $months ),
+			'html'		=> '',
+		);
+		
+		$html = '<table id="pvc-most-viewed-table" class="pvc-table pvc-table-hover">';
+		$html .=	'<thead>';
+		$html .=	'<tr>';
+		$html .=		'<th scope="col">#</th>';
+		$html .=		'<th scope="col">' . __( 'Post', 'post-views-counter' ) . '</th>';
+		$html .=		'<th scope="col">' . __( 'Post Views', 'post-views-counter' ) . '</th>';
+		$html .=	'</tr>';
+		$html .=	'</thead>';
+		$html .=	'<tbody>';
+		
+		if ( $posts ) {
+			foreach ( $posts as $index => $post ) {
+				setup_postdata( $post );
+				
+				$html .= '<tr>';
+				$html .= '<th scope="col">' . ( $index + 1 ) . '</th>';
+				
+				if ( current_user_can( 'edit_post', $post->ID ) ) {
+					$html .= '<td><a href="' . get_edit_post_link( $post->ID ) . '">' . get_the_title( $post ) . '</a></td>';
+				} else {
+					$html .= '<td>' . get_the_title( $post ). '</td>';
+				}
+				
+				$html .= '<td>' . number_format_i18n( $post->post_views ) . '</td>';
+				$html .= '</tr>';
+			}
+		} else {
+			$html .= '<tr class="no-posts">';
+			$html .= '<td colspan="3">' . __( 'No most viewed posts found', 'post-views-counter' ) . '</td>';
+			$html .= '</tr>';
+		}
+		
+		$html .=	'</tbody>';
+		$html .='</table>';
+		
+		$data['html'] = $html;
+		
+		echo json_encode( $data );
+		exit;
+	}
 
 	/**
 	 * Dashboard widget chart data function.
@@ -131,7 +249,7 @@ class Post_Views_Counter_Dashboard {
 	 * @global $_wp_admin_css_colors
 	 * @return void
 	 */
-	public function dashboard_widget_chart() {
+	public function dashboard_get_chart() {
 		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) )
 			wp_die( _( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
