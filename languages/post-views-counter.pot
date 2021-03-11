@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Views Counter\n"
-"POT-Creation-Date: 2021-03-03 16:12+0100\n"
+"POT-Creation-Date: 2021-03-11 16:50+0100\n"
 "PO-Revision-Date: 2015-04-08 18:59+0100\n"
 "Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
 "Language-Team: dFactory <info@dfactory.eu>\n"
@@ -21,9 +21,9 @@ msgstr ""
 #: ../includes/columns.php:51 ../includes/columns.php:154
 #: ../includes/columns.php:197 ../includes/columns.php:348
 #: ../includes/columns.php:354 ../includes/columns.php:404
-#: ../includes/dashboard.php:32 ../includes/dashboard.php:210
-#: ../includes/dashboard.php:305 ../includes/dashboard.php:314
-#: ../includes/dashboard.php:323 ../includes/dashboard.php:409
+#: ../includes/dashboard.php:60 ../includes/dashboard.php:252
+#: ../includes/dashboard.php:347 ../includes/dashboard.php:356
+#: ../includes/dashboard.php:365 ../includes/dashboard.php:451
 msgid "Post Views"
 msgstr ""
 
@@ -68,29 +68,43 @@ msgstr ""
 msgid "Post Views Counter cache flush interval"
 msgstr ""
 
-#: ../includes/dashboard.php:34
-msgid "Most Viewed"
+#: ../includes/dashboard.php:32 ../includes/settings.php:160
+#: ../includes/settings.php:173 ../includes/settings.php:185
+msgid "Post Views Counter"
 msgstr ""
 
-#: ../includes/dashboard.php:117 ../includes/dashboard.php:165
-#: ../includes/dashboard.php:168 ../includes/dashboard.php:254
-#: ../includes/dashboard.php:257
+#: ../includes/dashboard.php:60
+msgid ""
+"Displays the chart of most viewed post types for a selected time period."
+msgstr ""
+
+#: ../includes/dashboard.php:79
+msgid "Top Posts"
+msgstr ""
+
+#: ../includes/dashboard.php:79
+msgid "Displays the list of most viewed posts and pages on your website."
+msgstr ""
+
+#: ../includes/dashboard.php:136 ../includes/dashboard.php:207
+#: ../includes/dashboard.php:210 ../includes/dashboard.php:296
+#: ../includes/dashboard.php:299
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: ../includes/dashboard.php:209
+#: ../includes/dashboard.php:251
 msgid "Post"
 msgstr ""
 
-#: ../includes/dashboard.php:233 ../includes/widgets.php:58
+#: ../includes/dashboard.php:275 ../includes/widgets.php:58
 msgid "No most viewed posts found"
 msgstr ""
 
-#: ../includes/dashboard.php:322
+#: ../includes/dashboard.php:364
 msgid "Year"
 msgstr ""
 
-#: ../includes/dashboard.php:337 ../includes/dashboard.php:423
+#: ../includes/dashboard.php:379 ../includes/dashboard.php:465
 msgid "Total Views"
 msgstr ""
 
@@ -196,11 +210,6 @@ msgstr ""
 
 #: ../includes/settings.php:98
 msgid "Search results"
-msgstr ""
-
-#: ../includes/settings.php:160 ../includes/settings.php:173
-#: ../includes/settings.php:185
-msgid "Post Views Counter"
 msgstr ""
 
 #: ../includes/settings.php:187
