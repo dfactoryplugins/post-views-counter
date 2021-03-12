@@ -7,7 +7,7 @@
 	
 	// ready event
 	$( function() {
-		$( '.pvc-accordion-toggle' ).on( 'click', function( e ) {
+		$( '.pvc-accordion-header' ).on( 'click', function( e ) {
 			$( this ).closest( '.pvc-accordion-item' ).toggleClass( 'pvc-collapsed' );
 			
 			var items = $( '#pvc-dashboard-accordion' ).find( '.pvc-accordion-item' ),
