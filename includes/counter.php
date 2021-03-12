@@ -74,6 +74,27 @@ class Post_Views_Counter_Counter {
 				}
 			}
 		}
+		
+		// strict counts?
+		if ( Post_Views_Counter()->options['general']['strict_counts'] ) {
+			// get IP cached visits
+			$ip_cache = get_transient( 'post_views_counter_ip_cache' );
+
+			if ( ! $ip_cache )
+				$ip_cache = array();
+
+			// get user IP address
+			$user_ip = $this->encrypt_ip( $this->get_user_ip() );
+
+			// get current time
+			$current_time = current_time( 'timestamp', true );
+			
+			// visit exists in transient?
+			if ( isset( $ip_cache[$id][$user_ip] ) ) {
+				if ( $current_time < $ip_cache[$id][$user_ip] + $this->get_timestamp( Post_Views_Counter()->options['general']['time_between_counts']['type'], Post_Views_Counter()->options['general']['time_between_counts']['number'], false ) )
+					return;
+			}
+		}
 
 		// get groups to check them faster
 		$groups = Post_Views_Counter()->options['general']['exclude']['groups'];
@@ -365,6 +386,10 @@ class Post_Views_Counter_Counter {
 	 */
 	private function save_ip( $id ) {
 		$set_cookie = apply_filters( 'pvc_maybe_set_cookie', true );
+		
+		// Cookie Notice compatibility
+		if ( function_exists( 'cn_cookies_accepted' ) && ! cn_cookies_accepted() )
+			$set_cookie = false;
 
 		if ( $set_cookie !== true )
 			return $id;
@@ -376,7 +401,7 @@ class Post_Views_Counter_Counter {
 			$ip_cache = array();
 
 		// get user IP address
-		$user_ip = $this->get_user_ip();
+		$user_ip = $this->encrypt_ip( $this->get_user_ip() );
 
 		// get current time
 		$current_time = current_time( 'timestamp', true );
