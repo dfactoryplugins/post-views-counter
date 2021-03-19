@@ -2,10 +2,10 @@
 Contributors: dfactory
 Donate link: http://dfactory.eu/
 Tags: counter, hits, posts, postviews, post views, views, count, statistics, stats, analytics, pageviews, tracking
-Requires at least: 4.0
+Requires at least: 5.0
 Requires PHP: 5.2.4
-Tested up to: 5.5.3
-Stable tag: 1.3.3
+Tested up to: 5.7
+Stable tag: 1.3.4
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -21,7 +21,7 @@ For more information, check out plugin page at [dFactory](http://dfactory.eu/) o
 
 * Option to select post types for which post views will be counted and displayed.
 * 4 methods of collecting post views data: PHP, Javascript, Fast AJAX and REST API for greater flexibility
-* GDPR compatibility with [Cookie Notice](https://wordpress.org/plugins/cookie-notice/) plugin
+* Compatible with data privacy regulations
 * Possibility to manually set views count for each post
 * Dashboard post views stats widget
 * Capability to query posts according to its views count
@@ -61,6 +61,12 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3.4 =
+* New: Post Views stats preview in the admin bar
+* New: Top Posts data available in the dashboard widget
+* Tweak: Improved privacy using IP encrypting
+* Tweak: PHP 8.x compatibility
 
 = 1.3.3 =
 * Fix: PHP Notice: Trying to get property 'colors' of non-object
@@ -205,6 +211,8 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.3.3 =
-* Fix: PHP Notice: Trying to get property 'colors' of non-object
-* Fix: PHP Notice: register_rest_route was called incorrectly
+= 1.3.4 =
+* New: Post Views stats preview in the admin bar
+* New: Top Posts data available in the dashboard widget
+* Tweak: Improved privacy using IP encrypting
+* Tweak: PHP 8.x compatibility
