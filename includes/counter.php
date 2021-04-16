@@ -674,15 +674,15 @@ class Post_Views_Counter_Counter {
 
 		global $wpdb;
 
-		// $result = $wpdb->query( "
-			// INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
-			// VALUES " . $this->db_insert_values . "
-			// ON DUPLICATE KEY UPDATE count = count + VALUES(count)"
-		// );
+		$result = $wpdb->query( "
+			INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
+			VALUES " . $this->db_insert_values . "
+			ON DUPLICATE KEY UPDATE count = count + VALUES(count)"
+		);
 
 		$this->db_insert_values = '';
 
-		// return $result;
+		return $result;
 	}
 
 	/**
