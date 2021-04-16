@@ -464,7 +464,7 @@ class Post_Views_Counter_Settings {
 	    <fieldset>
 			<input type="submit" class="button button-secondary" name="post_views_counter_import_wp_postviews" value="' . __( 'Import views', 'post-views-counter' ) . '"/> <label><input id="pvc-wp-postviews" type="checkbox" name="post_views_counter_import_wp_postviews_override" value="1" />' . __( 'Override existing views data.', 'post-views-counter' ) . '</label>
 			<p class="description">' . __( 'Import post views data from WP-PostViews plugin.', 'post-views-counter' ) . '</p>
-			<input type="submit" class="button button-secondary" name="post_views_counter_reset_views" value="' . __( 'Delete views', 'post-views-counter' ) . '"/>
+			<br /><input type="submit" class="button button-secondary" name="post_views_counter_reset_views" value="' . __( 'Delete views', 'post-views-counter' ) . '"/>
 			<p class="description">' . __( 'Delete ALL the existing post views data.', 'post-views-counter' ) . '</p>
 	    </fieldset>
 	</div>';
@@ -596,7 +596,11 @@ class Post_Views_Counter_Settings {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
+		// import post views data from another plugin
 		if ( isset( $_POST['post_views_counter_import_wp_postviews'] ) ) {
+			// make sure we do not change anything in the settings
+			$input = $pvc->options['general'];
+
 			global $wpdb;
 
 			$meta_key = esc_attr( apply_filters( 'pvc_import_meta_key', 'views' ) );
@@ -604,28 +608,30 @@ class Post_Views_Counter_Settings {
 			$views = $wpdb->get_results( "SELECT post_id, meta_value FROM " . $wpdb->postmeta . " WHERE meta_key = '" . $meta_key . "'", ARRAY_A, 0 );
 
 			if ( ! empty( $views ) ) {
-				$input = $pvc->defaults['general'];
-				$input['wp_postviews_import'] = true;
-
 				$sql = array();
 
 				foreach ( $views as $view ) {
 					$sql[] = "(" . $view['post_id'] . ", 4, 'total', " . $view['meta_value'] . ")";
 				}
 
-				$wpdb->query( "INSERT INTO " . $wpdb->prefix . "post_views(id, type, period, count) VALUES " . implode( ',', $sql ) . " ON DUPLICATE KEY UPDATE count = " . (isset( $_POST['post_views_counter_import_wp_postviews_override'] ) ? '' : 'count + ') . "VALUES(count)" );
+				$wpdb->query( "INSERT INTO " . $wpdb->prefix . "post_views(id, type, period, count) VALUES " . implode( ',', $sql ) . " ON DUPLICATE KEY UPDATE count = " . ( isset( $_POST['post_views_counter_import_wp_postviews_override'] ) ? '' : 'count + ' ) . "VALUES(count)" );
 
 				add_settings_error( 'wp_postviews_import', 'wp_postviews_import', __( 'Post views data imported succesfully.', 'post-views-counter' ), 'updated' );
 			} else {
 				add_settings_error( 'wp_postviews_import', 'wp_postviews_import', __( 'There was no post views data to import.', 'post-views-counter' ), 'updated' );
 			}
+		// delete all post views data
 		} elseif ( isset( $_POST['post_views_counter_reset_views'] ) ) {
+			// make sure we do not change anything in the settings
+			$input = $pvc->options['general'];
+
 			global $wpdb;
 
 			if ( $wpdb->query( 'TRUNCATE TABLE ' . $wpdb->prefix . 'post_views' ) )
 				add_settings_error( 'reset_post_views', 'reset_post_views', __( 'All existing data deleted succesfully.', 'post-views-counter' ), 'updated' );
 			else
 				add_settings_error( 'reset_post_views', 'reset_post_views', __( 'Error occurred. All existing data were not deleted.', 'post-views-counter' ), 'error' );
+		// save general settings
 		} elseif ( isset( $_POST['save_pvc_general'] ) ) {
 			// post types count
 			if ( isset( $input['post_types_count'] ) ) {
@@ -661,17 +667,16 @@ class Post_Views_Counter_Settings {
 			// schedule the new one if the specified interval is > 0
 			$pvc->remove_cache_flush();
 
-			if ( $input['flush_interval']['number'] > 0 ) {
+			if ( $input['flush_interval']['number'] > 0 )
 				$pvc->schedule_cache_flush();
-			}
 
 			// reset counts
 			$input['reset_counts']['number'] = (int) ( isset( $input['reset_counts']['number'] ) ? $input['reset_counts']['number'] : $pvc->defaults['general']['reset_counts']['number'] );
 			$input['reset_counts']['type'] = isset( $input['reset_counts']['type'], $this->time_types[$input['reset_counts']['type']] ) ? $input['reset_counts']['type'] : $pvc->defaults['general']['reset_counts']['type'];
 
 			// run cron on next visit?
-			$input['cron_run'] = ($input['reset_counts']['number'] > 0 ? true : false);
-			$input['cron_update'] = ($input['cron_run'] && ( $pvc->options['general']['reset_counts']['number'] !== $input['reset_counts']['number'] || $pvc->options['general']['reset_counts']['type'] !== $input['reset_counts']['type'] ) ? true : false);
+			$input['cron_run'] = ( $input['reset_counts']['number'] > 0 );
+			$input['cron_update'] = ( $input['cron_run'] && ( $pvc->options['general']['reset_counts']['number'] !== $input['reset_counts']['number'] || $pvc->options['general']['reset_counts']['type'] !== $input['reset_counts']['type'] ) );
 
 			// exclude
 			if ( isset( $input['exclude']['groups'] ) ) {
@@ -727,6 +732,7 @@ class Post_Views_Counter_Settings {
 
 			$input['update_version'] = $pvc->options['general']['update_version'];
 			$input['update_notice'] = $pvc->options['general']['update_notice'];
+		// save display settings
 		} elseif ( isset( $_POST['save_pvc_display'] ) ) {
 
 			// post views label
@@ -801,10 +807,12 @@ class Post_Views_Counter_Settings {
 				$input['restrict_display']['roles'] = array_unique( $roles );
 			} else
 				$input['restrict_display']['roles'] = array();
+		// reset general settings
 		} elseif ( isset( $_POST['reset_pvc_general'] ) ) {
 			$input = $pvc->defaults['general'];
 
 			add_settings_error( 'reset_general_settings', 'settings_reset', __( 'General settings restored to defaults.', 'post-views-counter' ), 'updated' );
+		// reset display settings
 		} elseif ( isset( $_POST['reset_pvc_display'] ) ) {
 			$input = $pvc->defaults['display'];
 
