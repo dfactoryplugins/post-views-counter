@@ -38,53 +38,54 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		private static $instance;
 		public $options;
 		public $defaults = array(
-			'general'	 => array(
-				'post_types_count'		 => array( 'post' ),
-				'counter_mode'			 => 'php',
-				'post_views_column'		 => true,
-				'time_between_counts'	 => array(
+			'general'	=> array(
+				'post_types_count'		=> array( 'post' ),
+				'counter_mode'			=> 'php',
+				'post_views_column'		=> true,
+				'time_between_counts'	=> array(
 					'number' => 24,
 					'type'	 => 'hours'
 				),
-				'reset_counts'			 => array(
+				'reset_counts'			=> array(
 					'number' => 30,
 					'type'	 => 'days'
 				),
-				'flush_interval'		 => array(
+				'flush_interval'		=> array(
 					'number' => 0,
 					'type'	 => 'minutes'
 				),
-				'exclude'				 => array(
+				'exclude'				=> array(
 					'groups' => array(),
 					'roles'	 => array()
 				),
-				'exclude_ips'			 => array(),
-				'strict_counts'			 => false,
-				'restrict_edit_views'	 => false,
-				'deactivation_delete'	 => false,
-				'cron_run'				 => true,
-				'cron_update'			 => true,
+				'exclude_ips'			=> array(),
+				'strict_counts'			=> false,
+				'restrict_edit_views'	=> false,
+				'deactivation_delete'	=> false,
+				'cron_run'				=> true,
+				'cron_update'			=> true,
 				'update_version'		=> 1,
 				'update_notice'			=> true,
 				'update_delay_date'		=> 0
 			),
-			'display'	 => array(
-				'label'				 => 'Post Views:',
-				'post_types_display' => array( 'post' ),
-				'page_types_display' => array( 'singular' ),
-				'restrict_display'	 => array(
+			'display'	=> array(
+				'label'					=> 'Post Views:',
+				'post_types_display'	=> array( 'post' ),
+				'page_types_display'	=> array( 'singular' ),
+				'restrict_display'		=> array(
 					'groups' => array(),
 					'roles'	 => array()
 				),
-				'position'			 => 'after',
-				'display_style'		 => array(
+				'position'				=> 'after',
+				'display_style'			=> array(
 					'icon'	 => true,
 					'text'	 => true
 				),
-				'link_to_post'		 => true,
-				'icon_class'		 => 'dashicons-chart-bar'
+				'link_to_post'			=> true,
+				'icon_class'			=> 'dashicons-chart-bar',
+				'toolbar_statistics'	=> true
 			),
-			'version'	 => '1.3.4'
+			'version'	=> '1.3.4'
 		);
 
 		/**

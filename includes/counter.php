@@ -760,9 +760,9 @@ class Post_Views_Counter_Counter {
 
 		return true;
 	}
-	
+
 	/**
-	 * Encrypt user IP
+	 * Encrypt user IP.
 	 * 
 	 * @param int $ip
 	 * @return string $encrypted_ip
@@ -772,7 +772,7 @@ class Post_Views_Counter_Counter {
 		$auth_iv = defined( 'NONCE_KEY' ) ? NONCE_KEY : '';
 
 		// mcrypt strong encryption
-		if ( function_exists( 'mcrypt_encrypt' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
+		if ( function_exists( 'mcrypt_encrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
 			// get max key size of the mcrypt mode
 			$max_key_size = mcrypt_get_key_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
 			$max_iv_size = mcrypt_get_iv_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
@@ -781,7 +781,7 @@ class Post_Views_Counter_Counter {
 			$encrypt_iv = mb_strimwidth( $auth_iv, 0, $max_iv_size );
 
 			$encrypted_ip = strtr( base64_encode( mcrypt_encrypt( MCRYPT_BLOWFISH, $encrypt_key, $ip, MCRYPT_MODE_CBC, $encrypt_iv ) ), '+/=', '-_,' );
-			// simple encryption
+		// simple encryption
 		} elseif ( function_exists( 'gzdeflate' ) )
 			$encrypted_ip = base64_encode( convert_uuencode( gzdeflate( $ip ) ) );
 		// no encryption
@@ -792,7 +792,7 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
-	 * Decrypt user IP
+	 * Decrypt user IP.
 	 * 
 	 * @param int $encrypted_ip
 	 * @return string $ip
@@ -802,7 +802,7 @@ class Post_Views_Counter_Counter {
 		$auth_iv = defined( 'NONCE_KEY' ) ? NONCE_KEY : '';
 
 		// mcrypt strong encryption
-		if ( function_exists( 'mcrypt_decrypt' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
+		if ( function_exists( 'mcrypt_decrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
 			// get max key size of the mcrypt mode
 			$max_key_size = mcrypt_get_key_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
 			$max_iv_size = mcrypt_get_iv_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
@@ -811,13 +811,12 @@ class Post_Views_Counter_Counter {
 			$encrypt_iv = mb_strimwidth( $auth_iv, 0, $max_iv_size );
 
 			$ip = mcrypt_decrypt( MCRYPT_BLOWFISH, $encrypt_key, base64_decode( strtr( $encrypted_ip, '-_,', '+/=' ) ), MCRYPT_MODE_CBC, $encrypt_iv );
-			// simple encryption
-		} elseif ( function_exists( 'gzinflate' ) ) {
+		// simple encryption
+		} elseif ( function_exists( 'gzinflate' ) )
 			$ip = gzinflate( convert_uudecode( base64_decode( $encrypted_ip ) ) );
-			// no encryption
-		} else {
+		// no encryption
+		else
 			$ip = convert_uudecode( base64_decode( strtr( $encrypted_ip, '-_,', '+/=' ) ) );
-		}
 
 		return $ip;
 	}
