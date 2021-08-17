@@ -394,7 +394,7 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 		$icon_class = ( $options['icon_class'] !== '' ? esc_attr( $options['icon_class'] ) : '' );
 
 		// add dashicons class if needed
-		$icon_class = strpos( $icon_class, 'dashicons' ) === 0 ? 'dashicons ' . $icon_class : $icon_class;
+		$icon_class = strpos( $icon_class, 'dashicons ' ) === 0 ? $icon_class : 'dashicons ' . $icon_class;
 
 		// prepare icon output
 		$icon = apply_filters( 'pvc_post_views_icon', '<span class="post-views-icon ' . $icon_class . '"></span>', $post_id );
@@ -403,7 +403,7 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 			'pvc_post_views_html',
 			'<div class="post-views post-' . $post_id . ' entry-meta">
 				' . ( $options['display_style']['icon'] && $icon_class !== '' ? $icon : '' ) . '
-				' . ( $options['display_style']['text'] && $label !== '' ? '<span class="post-views-label">' . $label . ' </span>' : '' ) . '
+				' . ( $options['display_style']['text'] && $label !== '' ? '<span class="post-views-label">' . esc_html( $label ) . '</span>' : '' ) . '
 				<span class="post-views-count">' . number_format_i18n( $views ) . '</span>
 			</div>',
 			$post_id,
