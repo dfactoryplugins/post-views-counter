@@ -249,7 +249,7 @@ class Post_Views_Counter_Settings {
 		add_settings_field( 'pvc_position', __( 'Position', 'post-views-counter' ), array( $this, 'position' ), 'post_views_counter_settings_display', 'post_views_counter_settings_display' );
 		add_settings_field( 'pvc_display_style', __( 'Display Style', 'post-views-counter' ), array( $this, 'display_style' ), 'post_views_counter_settings_display', 'post_views_counter_settings_display' );
 		add_settings_field( 'pvc_icon_class', __( 'Icon Class', 'post-views-counter' ), array( $this, 'icon_class' ), 'post_views_counter_settings_display', 'post_views_counter_settings_display' );
-		add_settings_field( 'pvc_toolbar_statistics', __( 'Toolbar Statistics', 'post-views-counter' ), array( $this, 'toolbar_statistics' ), 'post_views_counter_settings_display', 'post_views_counter_settings_display' );
+		add_settings_field( 'pvc_toolbar_statistics', __( 'Toolbar Chart', 'post-views-counter' ), array( $this, 'toolbar_statistics' ), 'post_views_counter_settings_display', 'post_views_counter_settings_display' );
 	}
 
 	/**
@@ -564,8 +564,8 @@ class Post_Views_Counter_Settings {
 	public function toolbar_statistics() {
 		echo '
 		<div id="pvc_toolbar_statistics">
-			<label><input type="checkbox" name="post_views_counter_settings_display[toolbar_statistics]" value="1" ' . checked( true, Post_Views_Counter()->options['display']['toolbar_statistics'], false ) . ' />' . __( 'Enable to display graph statistics at the toolbar.', 'post-views-counter' ) . '</label>
-			<p class="description">' . __( 'The statistics will be displayed on the pages in the admin and frontend for which the post types are counted.', 'post-views-counter' ) . '</p>
+			<label><input type="checkbox" name="post_views_counter_settings_display[toolbar_statistics]" value="1" ' . checked( true, Post_Views_Counter()->options['display']['toolbar_statistics'], false ) . ' />' . __( 'Enable to display the post views chart at the toolbar.', 'post-views-counter' ) . '</label>
+			<p class="description">' . __( 'The post views chart will be displayed for the post types that are being counted.', 'post-views-counter' ) . '</p>
 		</div>';
 	}
 

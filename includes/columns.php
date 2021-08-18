@@ -474,7 +474,7 @@ class Post_Views_Counter_Columns {
 		$pvc = Post_Views_Counter();
 
 		// statistics enabled?
-		if ( ! $pvc->options['display']['toolbar_statistics'] )
+		if ( ! apply_filters( 'pvc_display_toolbar_statistics', $pvc->options['display']['toolbar_statistics'] ) )
 			return;
 
 		$post = null;

@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Views Counter\n"
-"POT-Creation-Date: 2021-03-11 16:50+0100\n"
+"POT-Creation-Date: 2021-08-18 09:35+0200\n"
 "PO-Revision-Date: 2015-04-08 18:59+0100\n"
 "Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
 "Language-Team: dFactory <info@dfactory.eu>\n"
@@ -21,9 +21,9 @@ msgstr ""
 #: ../includes/columns.php:51 ../includes/columns.php:154
 #: ../includes/columns.php:197 ../includes/columns.php:348
 #: ../includes/columns.php:354 ../includes/columns.php:404
-#: ../includes/dashboard.php:60 ../includes/dashboard.php:252
-#: ../includes/dashboard.php:347 ../includes/dashboard.php:356
-#: ../includes/dashboard.php:365 ../includes/dashboard.php:451
+#: ../includes/dashboard.php:94 ../includes/dashboard.php:198
+#: ../includes/dashboard.php:207 ../includes/dashboard.php:216
+#: ../includes/dashboard.php:302 ../includes/dashboard.php:432
 msgid "Post Views"
 msgstr ""
 
@@ -32,7 +32,7 @@ msgstr ""
 msgid "You are not allowed to edit this item."
 msgstr ""
 
-#: ../includes/columns.php:114 ../includes/counter.php:220
+#: ../includes/columns.php:114 ../includes/counter.php:241
 msgid "Invalid post ID."
 msgstr ""
 
@@ -52,11 +52,11 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: ../includes/counter.php:212
+#: ../includes/counter.php:233
 msgid "REST API method is disabled."
 msgstr ""
 
-#: ../includes/counter.php:226
+#: ../includes/counter.php:247
 msgid "Post type excluded."
 msgstr ""
 
@@ -73,39 +73,39 @@ msgstr ""
 msgid "Post Views Counter"
 msgstr ""
 
-#: ../includes/dashboard.php:60
+#: ../includes/dashboard.php:94
 msgid ""
 "Displays the chart of most viewed post types for a selected time period."
 msgstr ""
 
-#: ../includes/dashboard.php:79
+#: ../includes/dashboard.php:118
 msgid "Top Posts"
 msgstr ""
 
-#: ../includes/dashboard.php:79
+#: ../includes/dashboard.php:118
 msgid "Displays the list of most viewed posts and pages on your website."
 msgstr ""
 
-#: ../includes/dashboard.php:136 ../includes/dashboard.php:207
-#: ../includes/dashboard.php:210 ../includes/dashboard.php:296
-#: ../includes/dashboard.php:299
+#: ../includes/dashboard.php:147 ../includes/dashboard.php:150
+#: ../includes/dashboard.php:387 ../includes/dashboard.php:390
+#: ../includes/dashboard.php:504
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: ../includes/dashboard.php:251
-msgid "Post"
-msgstr ""
-
-#: ../includes/dashboard.php:275 ../includes/widgets.php:58
-msgid "No most viewed posts found"
-msgstr ""
-
-#: ../includes/dashboard.php:364
+#: ../includes/dashboard.php:215
 msgid "Year"
 msgstr ""
 
-#: ../includes/dashboard.php:379 ../includes/dashboard.php:465
+#: ../includes/dashboard.php:230 ../includes/dashboard.php:316
 msgid "Total Views"
+msgstr ""
+
+#: ../includes/dashboard.php:431
+msgid "Post"
+msgstr ""
+
+#: ../includes/dashboard.php:455 ../includes/widgets.php:58
+msgid "No most viewed posts found"
 msgstr ""
 
 #: ../includes/functions.php:476
@@ -333,47 +333,51 @@ msgstr ""
 msgid "Icon Class"
 msgstr ""
 
-#: ../includes/settings.php:262
+#: ../includes/settings.php:252
+msgid "Toolbar Chart"
+msgstr ""
+
+#: ../includes/settings.php:263
 msgid "Enter the label for the post views counter field."
 msgstr ""
 
-#: ../includes/settings.php:280
+#: ../includes/settings.php:281
 msgid "Select post types for which post views will be counted."
 msgstr ""
 
-#: ../includes/settings.php:297
+#: ../includes/settings.php:298
 msgid "Select post types for which the views count will be displayed."
 msgstr ""
 
-#: ../includes/settings.php:316
+#: ../includes/settings.php:317
 msgid ""
 "Select the method of collecting post views data. If you are using any of the "
 "caching plugins select Javascript or REST API (if available)."
 msgstr ""
 
-#: ../includes/settings.php:316
+#: ../includes/settings.php:317
 msgid ""
 "Optionally try the Fast AJAX experimental method, usually 10+ times faster "
 "than Javascript or REST API."
 msgstr ""
 
-#: ../includes/settings.php:326
+#: ../includes/settings.php:327
 msgid ""
 "Enable to display post views count column for each of the selected post "
 "types."
 msgstr ""
 
-#: ../includes/settings.php:346
+#: ../includes/settings.php:347
 msgid "Enter the time between single user visit count."
 msgstr ""
 
-#: ../includes/settings.php:366
+#: ../includes/settings.php:367
 msgid ""
 "Delete single day post views data older than specified above. Enter 0 "
 "(number zero) if you want to preserve your data regardless of its age."
 msgstr ""
 
-#: ../includes/settings.php:386
+#: ../includes/settings.php:387
 msgid ""
 "How often to flush cached view counts from the object cache into the "
 "database. This feature is used only if a persistent object cache is detected "
@@ -385,106 +389,116 @@ msgid ""
 "interval."
 msgstr ""
 
-#: ../includes/settings.php:404 ../includes/settings.php:577
+#: ../includes/settings.php:405 ../includes/settings.php:590
 msgid "Use it to hide the post views counter from selected type of visitors."
 msgstr ""
 
-#: ../includes/settings.php:412 ../includes/settings.php:586
+#: ../includes/settings.php:414 ../includes/settings.php:599
 msgid "Use it to hide the post views counter from selected user roles."
 msgstr ""
 
-#: ../includes/settings.php:432 ../includes/settings.php:438
+#: ../includes/settings.php:434 ../includes/settings.php:440
 msgid "Remove"
 msgstr ""
 
-#: ../includes/settings.php:443
+#: ../includes/settings.php:445
 msgid "Add new"
 msgstr ""
 
-#: ../includes/settings.php:443
+#: ../includes/settings.php:445
 msgid "Add my current IP"
 msgstr ""
 
-#: ../includes/settings.php:444
+#: ../includes/settings.php:446
 msgid "Enter the IP addresses to be excluded from post views count."
 msgstr ""
 
-#: ../includes/settings.php:454
+#: ../includes/settings.php:456
 msgid ""
 "Enable to prevent bypassing the counts interval (for e.g. using incognito "
 "browser window or by clearing cookies)."
 msgstr ""
 
-#: ../includes/settings.php:465
+#: ../includes/settings.php:467
 msgid "Import views"
 msgstr ""
 
-#: ../includes/settings.php:465
+#: ../includes/settings.php:467
 msgid "Override existing views data."
 msgstr ""
 
-#: ../includes/settings.php:466
+#: ../includes/settings.php:468
 msgid "Import post views data from WP-PostViews plugin."
 msgstr ""
 
-#: ../includes/settings.php:467
+#: ../includes/settings.php:469
 msgid "Delete views"
 msgstr ""
 
-#: ../includes/settings.php:468
+#: ../includes/settings.php:470
 msgid "Delete ALL the existing post views data."
 msgstr ""
 
-#: ../includes/settings.php:479
+#: ../includes/settings.php:481
 msgid "Enable to restrict post views editing to admins only."
 msgstr ""
 
-#: ../includes/settings.php:489
+#: ../includes/settings.php:491
 msgid "Enable to delete all plugin data on deactivation."
 msgstr ""
 
-#: ../includes/settings.php:506
+#: ../includes/settings.php:508
 msgid "Select page types where the views count will be displayed."
 msgstr ""
 
-#: ../includes/settings.php:525
+#: ../includes/settings.php:527
 msgid ""
 "Select where would you like to display the post views counter. Use [post-"
 "views] shortcode for manual display."
 msgstr ""
 
-#: ../includes/settings.php:544
+#: ../includes/settings.php:546
 msgid "Choose how to display the post views counter."
 msgstr ""
 
-#: ../includes/settings.php:555
+#: ../includes/settings.php:557
 #, php-format
 msgid ""
 "Enter the post views icon class. Any of the <a href=\"%s\" target=\"_blank"
 "\">Dashicons</a> classes are available."
 msgstr ""
 
-#: ../includes/settings.php:618
+#: ../includes/settings.php:567
+msgid "Enable to display the post views chart at the toolbar."
+msgstr ""
+
+#: ../includes/settings.php:568
+msgid ""
+"The post views chart will be displayed for the post types that are being "
+"counted."
+msgstr ""
+
+#: ../includes/settings.php:632
 msgid "Post views data imported succesfully."
 msgstr ""
 
-#: ../includes/settings.php:620
+#: ../includes/settings.php:634
 msgid "There was no post views data to import."
 msgstr ""
 
-#: ../includes/settings.php:626
+#: ../includes/settings.php:644
 msgid "All existing data deleted succesfully."
 msgstr ""
 
-#: ../includes/settings.php:628
+#: ../includes/settings.php:646
 msgid "Error occurred. All existing data were not deleted."
 msgstr ""
 
-#: ../includes/settings.php:807
+#: ../includes/settings.php:829
 msgid "General settings restored to defaults."
 msgstr ""
 
-#: ../includes/settings.php:811
+#: ../includes/settings.php:834
 msgid "Display settings restored to defaults."
 msgstr ""
 
@@ -566,28 +580,28 @@ msgstr ""
 msgid "Thumbnail size"
 msgstr ""
 
-#: ../post-views-counter.php:252
+#: ../post-views-counter.php:253
 #, php-format
 msgid ""
 "Hey, you've been using <strong>Post Views Counter</strong> for more than %s."
 msgstr ""
 
-#: ../post-views-counter.php:252
+#: ../post-views-counter.php:253
 msgid ""
 "Could you please do me a BIG favor and give it a 5-star rating on WordPress "
 "to help us spread the word and boost our motivation."
 msgstr ""
 
-#: ../post-views-counter.php:252
+#: ../post-views-counter.php:253
 msgid "Your help is much appreciated. Thank you very much"
 msgstr ""
 
-#: ../post-views-counter.php:252
+#: ../post-views-counter.php:253
 #, php-format
 msgid "founder of <a href=\"%s\" target=\"_blank\">dFactory</a> plugins."
 msgstr ""
 
-#: ../post-views-counter.php:252
+#: ../post-views-counter.php:253
 #, php-format
 msgid ""
 "<a href=\"%s\" class=\"pvc-dismissible-notice\" target=\"_blank\" rel="
@@ -597,18 +611,18 @@ msgid ""
 "notice\" rel=\"noopener\">I already did</a>"
 msgstr ""
 
-#: ../post-views-counter.php:534
+#: ../post-views-counter.php:535
 msgid "Are you sure you want to reset these settings to defaults?"
 msgstr ""
 
-#: ../post-views-counter.php:535
+#: ../post-views-counter.php:536
 msgid "Are you sure you want to delete all existing data?"
 msgstr ""
 
-#: ../post-views-counter.php:589
+#: ../post-views-counter.php:590
 msgid "Support"
 msgstr ""
 
-#: ../post-views-counter.php:613
+#: ../post-views-counter.php:614
 msgid "Settings"
 msgstr ""
