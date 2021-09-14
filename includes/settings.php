@@ -747,7 +747,6 @@ class Post_Views_Counter_Settings {
 			$input['update_notice'] = $pvc->options['general']['update_notice'];
 		// save display settings
 		} elseif ( isset( $_POST['save_pvc_display'] ) ) {
-
 			// post views label
 			$input['label'] = isset( $input['label'] ) ? $input['label'] : $pvc->defaults['display']['label'];
 
@@ -767,7 +766,8 @@ class Post_Views_Counter_Settings {
 			// icon class
 			$input['icon_class'] = isset( $input['icon_class'] ) ? trim( $input['icon_class'] ) : $pvc->defaults['display']['icon_class'];
 
-			$input['toolbar_statistics'] = isset( $input['toolbar_statistics'] ) ? trim( $input['toolbar_statistics'] ) : $pvc->defaults['display']['toolbar_statistics'];
+			// toolbar statistics
+			$input['toolbar_statistics'] = isset( $input['toolbar_statistics'] );
 
 			// post types display
 			if ( isset( $input['post_types_display'] ) ) {
