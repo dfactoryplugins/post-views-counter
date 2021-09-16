@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Views Counter\n"
-"POT-Creation-Date: 2021-08-18 09:35+0200\n"
+"POT-Creation-Date: 2021-09-16 11:46+0200\n"
 "PO-Revision-Date: 2015-04-08 18:59+0100\n"
 "Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
 "Language-Team: dFactory <info@dfactory.eu>\n"
@@ -389,12 +389,12 @@ msgid ""
 "interval."
 msgstr ""
 
-#: ../includes/settings.php:405 ../includes/settings.php:590
-msgid "Use it to hide the post views counter from selected type of visitors."
+#: ../includes/settings.php:405
+msgid "Use it exclude specific user groups from post views count."
 msgstr ""
 
-#: ../includes/settings.php:414 ../includes/settings.php:599
-msgid "Use it to hide the post views counter from selected user roles."
+#: ../includes/settings.php:414
+msgid "Use it exclude specific user roles from post views count."
 msgstr ""
 
 #: ../includes/settings.php:434 ../includes/settings.php:440
@@ -476,6 +476,14 @@ msgstr ""
 msgid ""
 "The post views chart will be displayed for the post types that are being "
 "counted."
+msgstr ""
+
+#: ../includes/settings.php:590
+msgid "Use it to hide the post views counter from selected type of visitors."
+msgstr ""
+
+#: ../includes/settings.php:599
+msgid "Use it to hide the post views counter from selected user roles."
 msgstr ""
 
 #: ../includes/settings.php:632
