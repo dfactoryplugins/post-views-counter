@@ -160,6 +160,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 */
 		private function includes() {
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/update.php' );
+			// include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-api.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/settings.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/columns.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/query.php' );

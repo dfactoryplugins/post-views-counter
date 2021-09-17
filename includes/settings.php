@@ -27,6 +27,213 @@ class Post_Views_Counter_Settings {
 		add_action( 'admin_menu', array( $this, 'admin_menu_options' ) );
 		add_action( 'after_setup_theme', array( $this, 'load_defaults' ) );
 		add_action( 'wp_loaded', array( $this, 'load_post_types' ) );
+
+		// filters
+		// add_filter( 'imagein_settings_data', array( $this, 'settings_data' ) );
+		// add_filter( 'imagein_settings_pages', array( $this, 'settings_page' ) );
+	}
+
+	/**
+	 * Add settings data.
+	 *
+	 * @param array $settings
+	 * @return array
+	 */
+	public function settings_data( $settings ) {
+		$settings['watermark'] = array(
+			'label' => __( 'Post Views Counter Settings', 'imagein' ),
+			'option_name' => 'imagein_watermark_settings',
+			'validate' => array( $this, 'validate_settings' ),
+			'dashboard' => array(
+				'menu_icon'		=> 'dashicons-embed-photo',
+				'title'			=> __( 'Watermark', 'imagein' ),
+				'description'	=> __( 'Suspendisse consequat interdum tincidunt. Mauris metus eros, pulvinar vel gravida eu, tincidunt at velit. Sed faucibus nulla a placerat suscipit.', 'imagein' )
+			),
+			'sections' => array(
+				'imagein_watermark_general_settings' => array(
+					'title'		=> __( 'General Settings', 'imagein' ),
+					'callback'	=> null
+				),
+				'imagein_watermark_position_settings' => array(
+					'title'		=> __( 'Position Settings', 'imagein' ),
+					'callback'	=> null
+				),
+				'imagein_watermark_image_settings' => array(
+					'title'		=> __( 'Image Settings', 'imagein' ),
+					'callback'	=> null
+				)
+			),
+			'fields' => array(
+				'php_extension' => array(
+					'title'			=> __( 'PHP library', 'imagein' ),
+					'section'		=> 'imagein_watermark_general_settings',
+					'type'			=> 'info',
+					'description'	=> '',
+					'text'			=> $extension,
+					'short_text'	=> $short_ext,
+					'in_dashboard'	=> true
+				),
+				'automatic' => array(
+					'title'			=> __( 'Automatic', 'imagein' ),
+					'section'		=> 'imagein_watermark_general_settings',
+					'type'			=> 'boolean',
+					'description'	=> '',
+					'label'			=> __( 'Enable watermark for uploaded images.', 'imagein' ),
+					'in_dashboard'	=> true
+				),
+				'manual' => array(
+					'title'			=> __( 'Manual', 'imagein' ),
+					'section'		=> 'imagein_watermark_general_settings',
+					'type'			=> 'boolean',
+					'description'	=> '',
+					'label'			=> __( 'Enable "Apply Watermark" option for Media Library images.', 'imagein' ),
+					'in_dashboard'	=> true
+				),
+				'frontend_upload' => array(
+					'title'			=> __( 'Frontend', 'imagein' ),
+					'section'		=> 'imagein_watermark_general_settings',
+					'type'			=> 'boolean',
+					'description'	=> __( 'Uploading script is not included, but you may use a plugin or custom code. This functionality works only if uploaded images are processed using WordPress native upload methods.', 'imagein' ),
+					'label'			=> __( 'Enable frontend image uploading.', 'imagein' ),
+					'in_dashboard'	=> true
+				),
+				'post_types_type' => array(
+					'title'			=> __( 'Post types', 'imagein' ),
+					'section'		=> 'imagein_watermark_general_settings',
+					'type'			=> 'custom',
+					'description'	=> '',
+					'callback'		=> array( $this, 'setting_post_types_type' ),
+					'sanitize'		=> array( $this, 'sanitize_post_types_type' ),
+					'custom_fields'	=> array(
+						'post_types_type'	=> false,
+						'post_types'		=> false
+					)
+				),
+				'image_sizes' => array(
+					'title'			=> __( 'Image sizes', 'imagein' ),
+					'section'		=> 'imagein_watermark_general_settings',
+					'type'			=> 'custom',
+					'description'	=> '',
+					'callback'		=> array( $this, 'setting_image_sizes' ),
+					'sanitize'		=> array( $this, 'sanitize_image_sizes' ),
+					'reset'			=> array( $this, 'reset_image_sizes' ),
+					'class'			=> 'imagein-image-sizes-table',
+					'custom_fields'	=> array(
+						'image_sizes'	=> false
+					)
+				),
+				'position' => array(
+					'title'			=> __( 'Alignment', 'imagein' ),
+					'section'		=> 'imagein_watermark_position_settings',
+					'type'			=> 'custom',
+					'description'	=> '',
+					'callback'		=> array( $this, 'setting_position' ),
+					'sanitize'		=> array( $this, 'sanitize_position' ),
+					'custom_fields'	=> array(
+						'position'	=> false
+					)
+				),
+				'offset' => array(
+					'title'			=> __( 'Offset', 'imagein' ),
+					'section'		=> 'imagein_watermark_position_settings',
+					'type'			=> 'custom',
+					'description'	=> '',
+					'callback'		=> array( $this, 'setting_offset' ),
+					'sanitize'		=> array( $this, 'sanitize_offset' ),
+					'custom_fields'	=> array(
+						'offset_width'	=> false,
+						'offset_height'	=> false
+					)
+				),
+				'offset_unit' => array(
+					'title'			=> __( 'Offset unit', 'imagein' ),
+					'section'		=> 'imagein_watermark_position_settings',
+					'type'			=> 'radio',
+					'description'	=> __( 'Select the watermark offset unit.', 'imagein' ),
+					'options'		=> $this->units
+				),
+				'image' => array(
+					'title'			=> __( 'Image', 'imagein' ),
+					'section'		=> 'imagein_watermark_image_settings',
+					'type'			=> 'custom',
+					'description'	=> '',
+					'callback'		=> array( $this, 'setting_image' ),
+					'sanitize'		=> array( $this, 'sanitize_image' ),
+					'in_dashboard'	=> array( $this, 'dashboard_image' ),
+					'custom_fields'	=> array(
+						'image_id'	=> false
+					)
+				),
+				'image_preview' => array(
+					'title'			=> __( 'Preview', 'imagein' ),
+					'section'		=> 'imagein_watermark_image_settings',
+					'type'			=> 'custom',
+					'description'	=> '',
+					'callback'		=> array( $this, 'setting_image_preview' ),
+					'skip_saving'	=> true
+				),
+				'size' => array(
+					'title'			=> __( 'Size', 'imagein' ),
+					'section'		=> 'imagein_watermark_image_settings',
+					'type'			=> 'custom',
+					'description'	=> '',
+					'callback'		=> array( $this, 'setting_size' ),
+					'sanitize'		=> array( $this, 'sanitize_size' ),
+					'custom_fields'	=> array(
+						'size'			=> false,
+						'custom_width'	=> false,
+						'custom_height'	=> false,
+						'scale'			=> false
+					)
+				),
+				'transparency' => array(
+					'title'			=> __( 'Transparency', 'imagein' ),
+					'section'		=> 'imagein_watermark_image_settings',
+					'type'			=> 'range',
+					'description'	=> sprintf( __( 'Zero makes watermark image completely transparent, %s shows it as is.', 'imagein' ), '<code>100</code>' ),
+					'min'			=> 0,
+					'max'			=> 100
+				),
+				'format' => array(
+					'title'			=> __( 'Image format', 'imagein' ),
+					'section'		=> 'imagein_watermark_image_settings',
+					'type'			=> 'radio',
+					'description'	=> __( 'Select image format.', 'imagein' ),
+					'options'		=> $this->image_formats
+				)
+			)
+		);
+
+		return $settings;
+	}
+
+	/**
+	 * Add settings page.
+	 *
+	 * @param array $pages
+	 * @return array
+	 */
+	public function settings_page( $pages ) {
+		$pages['global'] = [
+			'type'			=> 'settings',
+			'menu_slug'		=> 'post-views-counter',
+			'page_title'	=> __( 'Post Views Counter Settings', 'imagein' ),
+			'menu_title'	=> __( 'Post Views Counter', 'imagein' ),
+			'capability'	=> apply_filters( 'pvc_settings_capability', 'manage_options' ),
+			'callback'		=> null,
+			'tabs'			=> [
+				'general'	 => [
+					'label'			=> __( 'General', 'post-views-counter' ),
+					'option_name'	=> 'post_views_counter_settings_general'
+				],
+				'display'	 => [
+					'label'			=> __( 'Display', 'post-views-counter' ),
+					'option_name'	=> 'post_views_counter_settings_display'
+				]
+			]
+		];
+
+		return $pages;
 	}
 
 	/**
@@ -157,7 +364,7 @@ class Post_Views_Counter_Settings {
 	 * @return void
 	 */
 	public function admin_menu_options() {
-		add_options_page( __( 'Post Views Counter', 'post-views-counter' ), __( 'Post Views Counter', 'post-views-counter' ), 'manage_options', 'post-views-counter', array( $this, 'options_page' ) );
+		// add_options_page( __( 'Post Views Counter', 'post-views-counter' ), __( 'Post Views Counter', 'post-views-counter' ), 'manage_options', 'post-views-counter', array( $this, 'options_page' ) );
 	}
 
 	/**
@@ -165,7 +372,13 @@ class Post_Views_Counter_Settings {
 	 *
 	 * @return void
 	 */
-	public function options_page() {
+	public function options_page( $page ) {
+		global $pagenow;
+		echo '<pre>';
+		var_dump( $page );
+		var_dump( $pagenow );
+		var_dump( get_current_screen() );
+		echo '</pre>';
 		$tab_key = (isset( $_GET['tab'] ) ? esc_attr( $_GET['tab'] ) : 'general');
 
 		echo '
