@@ -2,9 +2,9 @@
 
 	// ready event
 	$( function() {
-		var ip_boxes = $( '#pvc_exclude_ips' ).find( '.ip-box' ).length;
+		var ip_boxes = $( '#post_views_counter_general_exclude_ips_setting' ).find( '.ip-box' ).length;
 
-		$( '#pvc_exclude_ips .ip-box:first' ).find( '.remove-exclude-ip' ).hide();
+		$( '#post_views_counter_general_exclude_ips_setting .ip-box:first' ).find( '.remove-exclude-ip' ).hide();
 
 		// ask whether to reset options to defaults
 		$( document ).on( 'click', '.reset_pvc_settings', function() {
@@ -34,7 +34,7 @@
 		$( document ).on( 'click', '.add-exclude-ip', function() {
 			ip_boxes++;
 
-			var parent = $( this ).parents( '#pvc_exclude_ips' ),
+			var parent = $( this ).parents( '#post_views_counter_general_exclude_ips_setting' ),
 				new_ip_box = parent.find( '.ip-box:last' ).clone().hide();
 
 			// clear value
@@ -51,7 +51,7 @@
 		// add current ip
 		$( document ).on( 'click', '.add-current-ip', function() {
 			// fill input with user's current ip
-			$( this ).parents( '#pvc_exclude_ips' ).find( '.ip-box' ).last().find( 'input' ).val( $( this ).attr( 'data-rel' ) );
+			$( this ).parents( '#post_views_counter_general_exclude_ips_setting' ).find( '.ip-box' ).last().find( 'input' ).val( $( this ).attr( 'data-rel' ) );
 		} );
 
 		// toggle user roles

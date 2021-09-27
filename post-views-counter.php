@@ -122,6 +122,19 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 					add_action( 'plugins_loaded', array( self::$instance, 'load_textdomain' ) );
 
 					self::$instance->includes();
+
+					// create settings API
+					self::$instance->settings_api = new Post_Views_Counter_Settings_API(
+						array(
+							'object'		=> self::$instance,
+							'prefix'		=> 'post_views_counter',
+							'slug'			=> 'post-views-counter',
+							'domain'		=> 'post-views-counter',
+							'plugin'		=> 'Post Views Counter',
+							'plugin_url'	=> 'POST_VIEWS_COUNTER_URL'
+						)
+					);
+
 					self::$instance->update = new Post_Views_Counter_Update();
 					self::$instance->settings = new Post_Views_Counter_Settings();
 					self::$instance->query = new Post_Views_Counter_Query();
@@ -160,7 +173,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 */
 		private function includes() {
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/update.php' );
-			// include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-api.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/settings-api.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/settings.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/columns.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/query.php' );
