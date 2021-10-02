@@ -42,17 +42,18 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 				'post_types_count'		=> array( 'post' ),
 				'counter_mode'			=> 'php',
 				'post_views_column'		=> true,
+				'restrict_edit_views'	=> false,
 				'time_between_counts'	=> array(
-					'number' => 24,
-					'type'	 => 'hours'
+					'number'	=> 24,
+					'type'		=> 'hours'
 				),
 				'reset_counts'			=> array(
-					'number' => 30,
-					'type'	 => 'days'
+					'number'	=> 30,
+					'type'		=> 'days'
 				),
 				'flush_interval'		=> array(
-					'number' => 0,
-					'type'	 => 'minutes'
+					'number'	=> 0,
+					'type'		=> 'minutes'
 				),
 				'exclude'				=> array(
 					'groups' => array(),
@@ -60,7 +61,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 				),
 				'exclude_ips'			=> array(),
 				'strict_counts'			=> false,
-				'restrict_edit_views'	=> false,
 				'deactivation_delete'	=> false,
 				'cron_run'				=> true,
 				'cron_update'			=> true,
@@ -81,7 +81,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 					'icon'	 => true,
 					'text'	 => true
 				),
-				'link_to_post'			=> true,
 				'icon_class'			=> 'dashicons-chart-bar',
 				'toolbar_statistics'	=> true
 			),
@@ -90,18 +89,22 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 		/**
 		 * Disable object cloning.
+		 *
+		 * @return void
 		 */
 		public function __clone() {}
 
 		/**
 		 * Disable unserializing of the class.
+		 *
+		 * @return void
 		 */
 		public function __wakeup() {}
 
 		/**
 		 * Main plugin instance,
 		 * Insures that only one instance of the plugin exists in memory at one time.
-		 * 
+		 *
 		 * @return object
 		 */
 		public static function instance() {
@@ -274,6 +277,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 * @param string $html
 		 * @param string $status
 		 * @param bool $paragraph
+		 * @return void
 		 */
 		public function add_notice( $html = '', $status = 'error', $paragraph = true ) {
 			$this->notices[] = array(
@@ -287,8 +291,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 		/**
 		 * Print admin notices.
-		 * 
-		 * @return mixed
+		 *
+		 * @return void
 		 */
 		public function display_notice() {
 			foreach( $this->notices as $notice ) {
@@ -303,8 +307,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 		/**
 		 * Print admin scripts.
-		 * 
-		 * @return mixed
+		 *
+		 * @return void
 		 */
 		public function admin_inline_js() {
 			if ( ! current_user_can( 'install_plugins' ) )
@@ -338,6 +342,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 		/**
 		 * Dismiss notice.
+		 *
+		 * @return void
 		 */
 		public function dismiss_notice() {
 			if ( ! current_user_can( 'install_plugins' ) )
@@ -371,6 +377,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 * 
 		 * @global object $wpdb
 		 * @param bool $networkwide
+		 * @return void
 		 */
 		public function multisite_activation( $networkwide ) {
 			if ( is_multisite() && $networkwide ) {
@@ -396,6 +403,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 * Single site activation.
 		 * 
 		 * @global array $wp_roles
+		 * @return void
 		 */
 		public function activate_single() {
 			global $wpdb, $charset_collate;
@@ -430,6 +438,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 * 
 		 * @global array $wpdb
 		 * @param bool $networkwide
+		 * @return void
 		 */
 		public function multisite_deactivation( $networkwide ) {
 			if ( is_multisite() && $networkwide ) {
@@ -460,6 +469,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 * 
 		 * @global array $wp_roles
 		 * @param bool $multi
+		 * @return void
 		 */
 		public function deactivate_single( $multi = false ) {
 			if ( $multi ) {
@@ -490,6 +500,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 * Schedule cache flushing if it's not already scheduled.
 		 * 
 		 * @param bool $forced
+		 * @return void
 		 */
 		public function schedule_cache_flush( $forced = true ) {
 			if ( $forced || ! wp_next_scheduled( 'pvc_flush_cached_counts' ) )
@@ -498,6 +509,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 		/**
 		 * Remove scheduled cache flush and the corresponding action.
+		 *
+		 * @return void
 		 */
 		public function remove_cache_flush() {
 			wp_clear_scheduled_hook( 'pvc_flush_cached_counts' );
@@ -505,21 +518,27 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		}
 
 		/**
-		 * Load text domain.
+		 * Load text domain..
+		 *
+		 * @return void
 		 */
 		public function load_textdomain() {
 			load_plugin_textdomain( 'post-views-counter', false, POST_VIEWS_COUNTER_REL_PATH . 'languages/' );
 		}
 
 		/**
-		 * Load pluggable template functions.
+		 * Load pluggable template functions..
+		 *
+		 * @return void
 		 */
 		public function load_pluggable_functions() {
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/functions.php' );
 		}
 
 		/**
-		 * Add Gutenberg blocks.
+		 * Add Gutenberg blocks..
+		 *
+		 * @return void
 		 */
 		public function gutenberg_blocks() {
 			wp_register_script( 'pvc-admin-block-views', POST_VIEWS_COUNTER_URL . '/js/admin-block.js', array( 'wp-blocks', 'wp-element', 'wp-i18n' ) );
@@ -531,7 +550,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 * Enqueue admin scripts and styles.
 		 * 
 		 * @global string $post_type
-		 * @param string $page
+		 * @param string $page.
+		 * @return void
 		 */
 		public function admin_enqueue_scripts( $page ) {
 			wp_register_style( 'pvc-admin', POST_VIEWS_COUNTER_URL . '/css/admin.css' );

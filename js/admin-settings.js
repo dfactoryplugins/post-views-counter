@@ -40,9 +40,8 @@
 			// clear value
 			new_ip_box.find( 'input' ).val( '' );
 
-			if ( ip_boxes > 1 ) {
+			if ( ip_boxes > 1 )
 				new_ip_box.find( '.remove-exclude-ip' ).show();
-			}
 
 			// add and display new ip box
 			parent.find( '.ip-box:last' ).after( new_ip_box ).next().slideDown( 'fast' );

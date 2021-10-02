@@ -93,7 +93,7 @@ class Post_Views_Counter_Settings_API {
 		// set page types
 		$this->page_types = $types;
 	}
-// settings_page_post-views-counter
+
 	/**
 	 * Render settings.
 	 *
@@ -215,13 +215,13 @@ class Post_Views_Counter_Settings_API {
 
 		// check settings
 		foreach ( $this->settings as $setting_id => $setting ) {
+			// tabs?
 			if ( is_array( $setting['option_name'] ) ) {
 				foreach ( $setting['option_name'] as $tab => $option_name ) {
 					$this->register_setting_fields( $tab, $setting, $option_name );
 				}
-			} else {
+			} else
 				$this->register_setting_fields( $setting_id, $setting );
-			}
 		}
 	}
 
@@ -467,16 +467,36 @@ class Post_Views_Counter_Settings_API {
 
 		// try to get setting name and ID
 		foreach ( $this->settings as $id => $setting ) {
-			// found valid setting?
-			if ( $setting['option_name'] === $_POST['option_page'] ) {
-				// assign setting ID
-				$setting_id = $id;
+			// tabs?
+			if ( is_array( $setting['option_name'] ) ) {
+				foreach ( $setting['option_name'] as $tab => $option_name ) {
+					// found valid setting?
+					if ( $option_name === $_POST['option_page'] ) {
+						// assign setting ID
+						$setting_id = $tab;
 
-				// assign setting name
-				$setting_name = $setting['option_name'];
+						// assign setting name
+						$setting_name = $option_name;
 
-				// already found setting, no need to check the rest
-				break;
+						// assign setting key
+						$setting_key = $id;
+
+						// already found setting, no need to check the rest
+						break 2;
+					}
+				}
+			} else {
+				// found valid setting?
+				if ( $setting['option_name'] === $_POST['option_page'] ) {
+					// assign setting ID and key
+					$setting_key = $setting_id = $id;
+
+					// assign setting name
+					$setting_name = $setting['option_name'];
+
+					// already found setting, no need to check the rest
+					break;
+				}
 			}
 		}
 
@@ -484,10 +504,21 @@ class Post_Views_Counter_Settings_API {
 		if ( empty( $setting_id ) )
 			return $input;
 
+// $old = $input;
+// echo '<pre>';
+// var_dump( $setting_id );
+// var_dump( $setting_name );
+// var_dump( stripslashes_deep( true ) );
+// var_dump( stripslashes_deep( false ) );
+// var_dump( $input );
 		// save settings
 		if ( isset( $_POST['save_' . $setting_name] ) ) {
-			$input = $this->validate_input_settings( $setting_id, $input );
+			$input = $this->validate_input_settings( $setting_id, $setting_key, $input );
 
+// var_dump( $input );
+// var_dump( $input === $old );
+// echo '</pre>';
+// exit;
 			add_settings_error( $setting_name, 'settings_saved', __( 'Settings saved.', $this->domain ), 'updated' );
 		// reset settings
 		} elseif ( isset( $_POST['reset_' . $setting_name] ) ) {
@@ -495,8 +526,8 @@ class Post_Views_Counter_Settings_API {
 			$input = $this->object->defaults[$setting_id];
 
 			// check custom reset functions
-			if ( ! empty( $this->settings[$setting_id]['fields'] ) ) {
-				foreach ( $this->settings[$setting_id]['fields'] as $field_id => $field ) {
+			if ( ! empty( $this->settings[$setting_key]['fields'] ) ) {
+				foreach ( $this->settings[$setting_key]['fields'] as $field_id => $field ) {
 					if ( ! empty( $field['reset'] ) ) {
 						// valid function? no need to check "else" since all default values are set
 						if ( $this->callback_function_exists( $field['reset'] ) ) {
@@ -522,11 +553,15 @@ class Post_Views_Counter_Settings_API {
 	 * @param array $input
 	 * @return array
 	 */
-	public function validate_input_settings( $setting_id, $input ) {
-		if ( ! empty( $this->settings[$setting_id]['fields'] ) ) {
-			foreach ( $this->settings[$setting_id]['fields'] as $field_id => $field ) {
+	public function validate_input_settings( $setting_id, $setting_key, $input ) {
+		if ( ! empty( $this->settings[$setting_key]['fields'] ) ) {
+			foreach ( $this->settings[$setting_key]['fields'] as $field_id => $field ) {
 				// skip saving this field?
 				if ( ! empty( $field['skip_saving'] ) )
+					continue;
+
+				// skip invalid tab field if any
+				if ( ! empty( $field['tab'] ) && $field['tab'] !== $setting_id )
 					continue;
 
 				// custom validate function?
