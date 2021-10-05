@@ -191,7 +191,8 @@ class Post_Views_Counter_Settings {
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'input',
 					'description'	=> __( 'Enter the label for the post views counter field.', 'post-views-counter' ),
-					'class'			=> 'regular-text'
+					'subclass'		=> 'regular-text',
+					'validate'		=> [ $this, 'validate_label' ]
 				],
 				'post_types_display' => [
 					'tab'			=> 'display',
@@ -245,7 +246,7 @@ class Post_Views_Counter_Settings {
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'input',
 					'description'	=> sprintf( __( 'Enter the post views icon class. Any of the <a href="%s" target="_blank">Dashicons</a> classes are available.', 'post-views-counter' ), 'https://developer.wordpress.org/resource/dashicons/' ),
-					'class'			=> 'regular-text'
+					'subclass'		=> 'regular-text'
 				],
 				'toolbar_statistics' => [
 					'tab'			=> 'display',
@@ -288,6 +289,30 @@ class Post_Views_Counter_Settings {
 		];
 
 		return $pages;
+	}
+
+	
+	/**
+	 * Validate label.
+	 *
+	 * @param array $input Input POST data
+	 * @param array $field Field options
+	 * @return array
+	 */
+	public function validate_label( $input, $field ) {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		if ( ! isset( $input ) )
+			$input = $pvc->defaults['display']['label'];
+
+		// use internal settings API to validate settings first
+		$input = $pvc->settings_api->validate_field( $input, 'input', $field );
+
+		if ( function_exists( 'icl_register_string' ) )
+			icl_register_string( 'Post Views Counter', 'Post Views Label', $input );
+
+		return $input;
 	}
 
 	/**
@@ -817,89 +842,11 @@ class Post_Views_Counter_Settings {
 				add_settings_error( 'reset_post_views', 'reset_post_views', __( 'Error occurred. All existing data were not deleted.', 'post-views-counter' ), 'error' );
 		// save general settings
 		} elseif ( isset( $_POST['save_pvc_general'] ) ) {
-			// post types count
-			if ( isset( $input['post_types_count'] ) ) {
-				$post_types = [];
-
-				foreach ( $input['post_types_count'] as $post_type => $set ) {
-					if ( isset( $this->post_types[$post_type] ) )
-						$post_types[] = $post_type;
-				}
-
-				$input['post_types_count'] = array_unique( $post_types );
-			} else
-				$input['post_types_count'] = [];
-
-			// counter mode
-			$input['counter_mode'] = isset( $input['counter_mode'], $this->modes[$input['counter_mode']] ) ? $input['counter_mode'] : $pvc->defaults['general']['counter_mode'];
-
-			// post views column
-			$input['post_views_column'] = isset( $input['post_views_column'] );
-
-						
-
-			
-
-			
-
-			// restrict edit views
-			$input['restrict_edit_views'] = isset( $input['restrict_edit_views'] );
-
-			// strict counts
-			$input['strict_counts'] = isset( $input['strict_counts'] );
-
-			// deactivation delete
-			$input['deactivation_delete'] = isset( $input['deactivation_delete'] );
 
 			$input['update_version'] = $pvc->options['general']['update_version'];
 			$input['update_notice'] = $pvc->options['general']['update_notice'];
 		// save display settings
 		} elseif ( isset( $_POST['save_pvc_display'] ) ) {
-			// post views label
-			$input['label'] = isset( $input['label'] ) ? $input['label'] : $pvc->defaults['display']['label'];
-
-			if ( function_exists( 'icl_register_string' ) )
-				icl_register_string( 'Post Views Counter', 'Post Views Label', $input['label'] );
-
-			// position
-			$input['position'] = isset( $input['position'], $this->positions[$input['position']] ) ? $input['position'] : $pvc->defaults['display']['position'];
-
-			// display style
-			$input['display_style']['icon'] = isset( $input['display_style']['icon'] );
-			$input['display_style']['text'] = isset( $input['display_style']['text'] );
-
-			// icon class
-			$input['icon_class'] = isset( $input['icon_class'] ) ? trim( $input['icon_class'] ) : $pvc->defaults['display']['icon_class'];
-
-			// toolbar statistics
-			$input['toolbar_statistics'] = isset( $input['toolbar_statistics'] );
-
-			// post types display
-			if ( isset( $input['post_types_display'] ) ) {
-				$post_types = [];
-
-				foreach ( $input['post_types_display'] as $post_type => $set ) {
-					if ( isset( $this->post_types[$post_type] ) )
-						$post_types[] = $post_type;
-				}
-
-				$input['post_types_display'] = array_unique( $post_types );
-			} else
-				$input['post_types_display'] = [];
-
-			// page types display
-			if ( isset( $input['page_types_display'] ) ) {
-				$page_types = [];
-
-				foreach ( $input['page_types_display'] as $page_type => $set ) {
-					if ( isset( $this->page_types[$page_type] ) )
-						$page_types[] = $page_type;
-				}
-
-				$input['page_types_display'] = array_unique( $page_types );
-			} else
-				$input['page_types_display'] = [];
-
 			
 		// reset general settings
 		} elseif ( isset( $_POST['reset_pvc_general'] ) ) {

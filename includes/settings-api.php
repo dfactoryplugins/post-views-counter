@@ -16,6 +16,7 @@ class Post_Views_Counter_Settings_API {
 	private $prefix;
 	private $slug;
 	private $domain;
+	private $short;
 	private $object;
 	private $plugin;
 	private $plugin_url;
@@ -28,8 +29,30 @@ class Post_Views_Counter_Settings_API {
 	public function __construct( $args ) {
 		// set initial data
 		$this->prefix = $args['prefix'];
-		$this->slug = $args['slug'];
 		$this->domain = $args['domain'];
+
+		// empty slug?
+		if ( empty( $args['slug'] ) )
+			$this->slug = $args['domain'];
+		else
+			$this->slug = $args['slug'];
+
+		// empty short name?
+		if ( empty( $args['short'] ) ) {
+			$short = '';
+
+			// prepare short name based on prefix
+			$parts = explode( '_', $this->prefix );
+
+			foreach ( $parts as $string ) {
+				$short .= substr( $string, 0, 1 );
+			}
+
+			// set short name
+			$this->short = $short;
+		} else
+			$this->short = $args['short'];
+
 		$this->object = $args['object'];
 		$this->plugin = $args['plugin'];
 		$this->plugin_url = $args['plugin_url'];
@@ -127,7 +150,7 @@ class Post_Views_Counter_Settings_API {
 
 		echo '
 		<div class="wrap">
-			<h2>' . $this->settings[$matches[1]]['label'] . '</h2>';
+			<h2>' . esc_html( $this->settings[$matches[1]]['label'] ) . '</h2>';
 
 		// any tabs?
 		if ( array_key_exists( 'tabs', $this->pages[$this->page_types[$page_type][$matches[1]]] ) ) {
@@ -143,19 +166,21 @@ class Post_Views_Counter_Settings_API {
 			// get current tab
 			$tab_key = ! empty( $_GET['tab'] ) && array_key_exists( $_GET['tab'], $tabs ) ? $_GET['tab'] : $first_tab;
 
-			echo
-			'<h2 class="nav-tab-wrapper">';
+			echo '
+			<h2 class="nav-tab-wrapper">';
 
 			foreach ( $tabs as $key => $tab ) {
 				echo '
-				<a class="nav-tab ' . ( $tab_key === $key ? 'nav-tab-active' : '' ) . '" href="' . esc_url( admin_url( $url_page . '?page=' . $matches[1] . '&tab=' . $key ) ) . '">' . $tab['label'] . '</a>';
+				<a class="nav-tab ' . ( $tab_key === $key ? 'nav-tab-active' : '' ) . '" href="' . esc_url( admin_url( $url_page . '?page=' . $matches[1] . '&tab=' . $key ) ) . '">' . esc_html( $tab['label'] ) . '</a>';
 			}
 
 			echo '
 			</h2>';
 		}
 
-		settings_errors();
+		// skip for internal options page
+		if ( $page_type !== 'settings_page' )
+			settings_errors();
 
 		echo '
 			<div class="' . $this->slug . '-settings">
@@ -195,7 +220,7 @@ class Post_Views_Counter_Settings_API {
 
 		echo ' ';
 
-		submit_button( __( 'Reset to defaults', $this->domain ), 'secondary reset_' . $setting, 'reset_' . $setting, false );
+		submit_button( __( 'Reset to defaults', $this->domain ), 'secondary reset_' . $setting . ' reset_' . $this->short . '_settings', 'reset_' . $setting, false );
 
 		echo '
 					</p>
@@ -364,13 +389,13 @@ class Post_Views_Counter_Settings_API {
 				break;
 
 			case 'info':
-				$html .= '<span class="' . esc_attr( $args['class'] ) . '">' . esc_html( $args['text'] ) . '</span>';
+				$html .= '<span' . ( ! empty( $args['subclass'] ) ? ' class="' . esc_attr( $args['subclass'] ) . '"' : '' ) . '>' . esc_html( $args['text'] ) . '</span>';
 				break;
 
 			case 'input':
 			default:
 				$html .= ( ! empty( $args['prepend'] ) ? '<span>' . esc_html( $args['prepend'] ) . '</span> ' : '' );
-				$html .= '<input id="' . $args['id'] . '" class="' . esc_attr( $args['class'] ) . '" type="text" value="' . esc_attr( $args['value'] ) . '" name="' . esc_attr( $args['name'] ) . '" />';
+				$html .= '<input id="' . $args['id'] . '"' . ( ! empty( $args['subclass'] ) ? ' class="' . esc_attr( $args['subclass'] ) . '"' : '' ) . ' type="text" value="' . esc_attr( $args['value'] ) . '" name="' . esc_attr( $args['name'] ) . '" />';
 				$html .= ( ! empty( $args['append'] ) ? ' <span>' . esc_html( $args['append'] ) . '</span>' : '' );
 		}
 
@@ -504,21 +529,10 @@ class Post_Views_Counter_Settings_API {
 		if ( empty( $setting_id ) )
 			return $input;
 
-// $old = $input;
-// echo '<pre>';
-// var_dump( $setting_id );
-// var_dump( $setting_name );
-// var_dump( stripslashes_deep( true ) );
-// var_dump( stripslashes_deep( false ) );
-// var_dump( $input );
 		// save settings
 		if ( isset( $_POST['save_' . $setting_name] ) ) {
 			$input = $this->validate_input_settings( $setting_id, $setting_key, $input );
 
-// var_dump( $input );
-// var_dump( $input === $old );
-// echo '</pre>';
-// exit;
 			add_settings_error( $setting_name, 'settings_saved', __( 'Settings saved.', $this->domain ), 'updated' );
 		// reset settings
 		} elseif ( isset( $_POST['reset_' . $setting_name] ) ) {
@@ -529,7 +543,7 @@ class Post_Views_Counter_Settings_API {
 			if ( ! empty( $this->settings[$setting_key]['fields'] ) ) {
 				foreach ( $this->settings[$setting_key]['fields'] as $field_id => $field ) {
 					if ( ! empty( $field['reset'] ) ) {
-						// valid function? no need to check "else" since all default values are set
+						// valid function? no need to check "else" since all default values are already set
 						if ( $this->callback_function_exists( $field['reset'] ) ) {
 							if ( $field['type'] === 'custom' )
 								$input = call_user_func( $field['reset'], $input, $field );
