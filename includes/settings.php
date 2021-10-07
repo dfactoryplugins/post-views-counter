@@ -27,6 +27,97 @@ class Post_Views_Counter_Settings {
 	}
 
 	/**
+	 * Load default settings.
+	 *
+	 * @return void
+	 */
+	public function load_defaults() {
+		if ( ! is_admin() )
+			return;
+
+		$this->time_types = [
+			'minutes'	=> __( 'minutes', 'post-views-counter' ),
+			'hours'		=> __( 'hours', 'post-views-counter' ),
+			'days'		=> __( 'days', 'post-views-counter' ),
+			'weeks'		=> __( 'weeks', 'post-views-counter' ),
+			'months'	=> __( 'months', 'post-views-counter' ),
+			'years'	=> __( 'years', 'post-views-counter' )
+		];
+
+		$this->groups = [
+			'robots'	=> __( 'robots', 'post-views-counter' ),
+			'users'		=> __( 'logged in users', 'post-views-counter' ),
+			'guests'	=> __( 'guests', 'post-views-counter' ),
+			'roles'		=> __( 'selected user roles', 'post-views-counter' )
+		];
+
+		$this->user_roles = $this->get_user_roles();
+
+		$this->page_types = apply_filters(
+			'pvc_page_types_display_options',
+			[
+				'home'		=> __( 'Home', 'post-views-counter' ),
+				'archive'	=> __( 'Archives', 'post-views-counter' ),
+				'singular'	=> __( 'Single pages', 'post-views-counter' ),
+				'search'	=> __( 'Search results', 'post-views-counter' ),
+			]
+		);
+	}
+
+	/**
+	 * Get post types avaiable for counting.
+	 *
+	 * @return void
+	 */
+	public function load_post_types() {
+		if ( ! is_admin() )
+			return;
+
+		$post_types = [];
+
+		// built in public post types
+		foreach ( get_post_types( [ '_builtin' => true, 'public' => true ], 'objects', 'and' ) as $key => $post_type ) {
+			$post_types[$key] = $post_type->labels->name;
+		}
+
+		// public custom post types
+		foreach ( get_post_types( [ '_builtin' => false, 'public' => true ], 'objects', 'and' ) as $key => $post_type ) {
+			$post_types[$key] = $post_type->labels->name;
+		}
+
+		// remove bbPress replies
+		if ( class_exists( 'bbPress' ) && isset( $post_types['reply'] ) )
+			unset( $post_types['reply'] );
+
+		$post_types = apply_filters( 'pvc_available_post_types', $post_types );
+
+		// sort post types alphabetically with their keys
+		asort( $post_types, SORT_STRING );
+
+		$this->post_types = $post_types;
+	}
+
+	/**
+	 * Get all user roles.
+	 *
+	 * @global object $wp_roles
+	 * @return array
+	 */
+	public function get_user_roles() {
+		global $wp_roles;
+
+		$roles = [];
+
+		foreach ( apply_filters( 'editable_roles', $wp_roles->roles ) as $role => $details ) {
+			$roles[$role] = translate_user_role( $details['name'] );
+		}
+
+		asort( $roles, SORT_STRING );
+
+		return $roles;
+	}
+
+	/**
 	 * Add settings data.
 	 *
 	 * @param array $settings
@@ -39,19 +130,9 @@ class Post_Views_Counter_Settings {
 			'ajax'	=> __( 'Fast AJAX', 'post-views-counter' )
 		];
 
+		// WordPress 4.4+?
 		if ( function_exists( 'register_rest_route' ) )
 			$modes['rest_api'] = __( 'REST API', 'post-views-counter' );
-
-		$positions = [
-			'before'	=> __( 'before the content', 'post-views-counter' ),
-			'after'		=> __( 'after the content', 'post-views-counter' ),
-			'manual'	=> __( 'manual', 'post-views-counter' )
-		];
-
-		$display_styles = [
-			'icon'	=> __( 'icon', 'post-views-counter' ),
-			'text'	=> __( 'label', 'post-views-counter' )
-		];
 
 		$settings['post-views-counter'] = [
 			'label' => __( 'Post Views Counter Settings', 'post-views-counter' ),
@@ -59,8 +140,7 @@ class Post_Views_Counter_Settings {
 				'general'	=> 'post_views_counter_settings_general',
 				'display'	=> 'post_views_counter_settings_display'
 			],
-			// 'validate' => [ $this, 'validate_settings' ],
-			'validate' => null,
+			'validate' => [ $this, 'validate_settings' ],
 			'sections' => [
 				'post_views_counter_general_settings' => [],
 				'post_views_counter_display_settings' => []
@@ -108,9 +188,7 @@ class Post_Views_Counter_Settings {
 					'min'			=> 0,
 					'max'			=> 999999,
 					'callback'		=> [ $this, 'setting_time_between_counts' ],
-					'validate'		=> [ $this, 'validate_time_between_counts' ],
-					// 'reset'			=> [ $this, 'reset_time_between_counts' ],
-					'custom_fields'	=> []
+					'validate'		=> [ $this, 'validate_time_between_counts' ]
 				],
 				'reset_counts' => [
 					'tab'			=> 'general',
@@ -121,9 +199,7 @@ class Post_Views_Counter_Settings {
 					'min'			=> 0,
 					'max'			=> 999999,
 					'callback'		=> [ $this, 'setting_reset_counts' ],
-					'validate'		=> [ $this, 'validate_reset_counts' ],
-					// 'reset'			=> [ $this, 'reset_reset_counts' ],
-					'custom_fields'	=> []
+					'validate'		=> [ $this, 'validate_reset_counts' ]
 				],
 				'flush_interval' => [
 					'tab'			=> 'general',
@@ -134,9 +210,7 @@ class Post_Views_Counter_Settings {
 					'min'			=> 0,
 					'max'			=> 999999,
 					'callback'		=> [ $this, 'setting_flush_interval' ],
-					'validate'		=> [ $this, 'validate_flush_interval' ],
-					// 'reset'			=> [ $this, 'reset_flush_interval' ],
-					'custom_fields'	=> []
+					'validate'		=> [ $this, 'validate_flush_interval' ]
 				],
 				'exclude' => [
 					'tab'			=> 'general',
@@ -145,9 +219,7 @@ class Post_Views_Counter_Settings {
 					'type'			=> 'custom',
 					'description'	=> '',
 					'callback'		=> [ $this, 'setting_exclude' ],
-					'validate'		=> [ $this, 'validate_exclude' ],
-					// 'reset'			=> [ $this, 'reset_exclude' ],
-					'custom_fields'	=> []
+					'validate'		=> [ $this, 'validate_exclude' ]
 				],
 				'exclude_ips' => [
 					'tab'			=> 'general',
@@ -156,9 +228,7 @@ class Post_Views_Counter_Settings {
 					'type'			=> 'custom',
 					'description'	=> '',
 					'callback'		=> [ $this, 'setting_exclude_ips' ],
-					'validate'		=> [ $this, 'validate_exclude_ips' ],
-					// 'reset'			=> [ $this, 'reset_exclude_ips' ],
-					'custom_fields'	=> []
+					'validate'		=> [ $this, 'validate_exclude_ips' ]
 				],
 				'strict_counts' => [
 					'tab'			=> 'general',
@@ -175,7 +245,7 @@ class Post_Views_Counter_Settings {
 					'type'			=> 'custom',
 					'description'	=> '',
 					'skip_saving'	=> true,
-					'callback'		=> [ $this, 'setting_wp_post_views' ]
+					'callback'		=> [ $this, 'setting_wp_postviews' ]
 				],
 				'deactivation_delete' => [
 					'tab'			=> 'general',
@@ -192,7 +262,8 @@ class Post_Views_Counter_Settings {
 					'type'			=> 'input',
 					'description'	=> __( 'Enter the label for the post views counter field.', 'post-views-counter' ),
 					'subclass'		=> 'regular-text',
-					'validate'		=> [ $this, 'validate_label' ]
+					'validate'		=> [ $this, 'validate_label' ],
+					'reset'			=> [ $this, 'reset_label' ]
 				],
 				'post_types_display' => [
 					'tab'			=> 'display',
@@ -219,9 +290,7 @@ class Post_Views_Counter_Settings {
 					'type'			=> 'custom',
 					'description'	=> '',
 					'callback'		=> [ $this, 'setting_restrict_display' ],
-					'validate'		=> [ $this, 'validate_restrict_display' ],
-					// 'reset'			=> [ $this, 'reset_restrict_display' ],
-					'custom_fields'	=> []
+					'validate'		=> [ $this, 'validate_restrict_display' ]
 				],
 				'position' => [
 					'tab'			=> 'display',
@@ -229,16 +298,24 @@ class Post_Views_Counter_Settings {
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'select',
 					'description'	=> __( 'Select where would you like to display the post views counter. Use [post-views] shortcode for manual display.', 'post-views-counter' ),
-					'options'		=> $positions
+					'options'		=> [
+						'before'	=> __( 'before the content', 'post-views-counter' ),
+						'after'		=> __( 'after the content', 'post-views-counter' ),
+						'manual'	=> __( 'manual', 'post-views-counter' )
+					]
 				],
 				'display_style' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Display Style', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_display_settings',
-					'type'			=> 'checkbox',
-					'display_type'	=> 'horizontal',
+					'type'			=> 'custom',
 					'description'	=> __( 'Choose how to display the post views counter.', 'post-views-counter' ),
-					'options'		=> $display_styles
+					'callback'		=> [ $this, 'setting_display_style' ],
+					'validate'		=> [ $this, 'validate_display_style' ],
+					'options'		=> [
+						'icon'	=> __( 'icon', 'post-views-counter' ),
+						'text'	=> __( 'label', 'post-views-counter' )
+					]
 				],
 				'icon_class' => [
 					'tab'			=> 'display',
@@ -291,7 +368,75 @@ class Post_Views_Counter_Settings {
 		return $pages;
 	}
 
-	
+	/**
+	 * Validate options.
+	 *
+	 * @param array $input Settings data
+	 * @return array
+	 */
+	public function validate_settings( $input ) {
+		// check capability
+		if ( ! current_user_can( 'manage_options' ) )
+			return $input;
+
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		// use internal settings API to validate settings first
+		$input = $pvc->settings_api->validate_settings( $input );
+
+		// import post views data from another plugin
+		if ( isset( $_POST['post_views_counter_import_wp_postviews'] ) ) {
+			// make sure we do not change anything in the settings
+			$input = $pvc->options['general'];
+
+			global $wpdb;
+
+			// get views key
+			$meta_key = esc_attr( apply_filters( 'pvc_import_meta_key', 'views' ) );
+
+			// get views
+			$views = $wpdb->get_results( "SELECT post_id, meta_value FROM " . $wpdb->postmeta . " WHERE meta_key = '" . $meta_key . "'", ARRAY_A, 0 );
+
+			// any views?
+			if ( ! empty( $views ) ) {
+				$sql = [];
+
+				foreach ( $views as $view ) {
+					$sql[] = "(" . $view['post_id'] . ", 4, 'total', " . ( (int) $view['meta_value'] ) . ")";
+				}
+
+				$wpdb->query( "INSERT INTO " . $wpdb->prefix . "post_views(id, type, period, count) VALUES " . implode( ',', $sql ) . " ON DUPLICATE KEY UPDATE count = " . ( isset( $_POST['post_views_counter_import_wp_postviews_override'] ) ? '' : 'count + ' ) . "VALUES(count)" );
+
+				add_settings_error( 'wp_postviews_import', 'wp_postviews_import', __( 'Post views data imported succesfully.', 'post-views-counter' ), 'updated' );
+			} else
+				add_settings_error( 'wp_postviews_import', 'wp_postviews_import', __( 'There was no post views data to import.', 'post-views-counter' ), 'updated' );
+		// delete all post views data
+		} elseif ( isset( $_POST['post_views_counter_reset_views'] ) ) {
+			// make sure we do not change anything in the settings
+			$input = $pvc->options['general'];
+
+			global $wpdb;
+
+			if ( $wpdb->query( 'TRUNCATE TABLE ' . $wpdb->prefix . 'post_views' ) )
+				add_settings_error( 'reset_post_views', 'reset_post_views', __( 'All existing data deleted succesfully.', 'post-views-counter' ), 'updated' );
+			else
+				add_settings_error( 'reset_post_views', 'reset_post_views', __( 'Error occurred. All existing data were not deleted.', 'post-views-counter' ), 'error' );
+		// save general settings
+		} elseif ( isset( $_POST['save_post_views_counter_settings_general'] ) ) {
+			$input['update_version'] = $pvc->options['general']['update_version'];
+			$input['update_notice'] = $pvc->options['general']['update_notice'];
+			$input['update_delay_date'] = $pvc->options['general']['update_delay_date'];
+		// reset general settings
+		} elseif ( isset( $_POST['reset_post_views_counter_settings_general'] ) ) {
+			$input['update_version'] = $pvc->options['general']['update_version'];
+			$input['update_notice'] = $pvc->options['general']['update_notice'];
+			$input['update_delay_date'] = $pvc->options['general']['update_delay_date'];
+		}
+
+		return $input;
+	}
+
 	/**
 	 * Validate label.
 	 *
@@ -311,6 +456,71 @@ class Post_Views_Counter_Settings {
 
 		if ( function_exists( 'icl_register_string' ) )
 			icl_register_string( 'Post Views Counter', 'Post Views Label', $input );
+
+		return $input;
+	}
+
+	/**
+	 * Restore post views label to default value.
+	 *
+	 * @param array $default Default value
+	 * @param array $field Field options
+	 * @return array
+	 */
+	public function reset_label( $default, $field ) {
+		if ( function_exists( 'icl_register_string' ) )
+			icl_register_string( 'Post Views Counter', 'Post Views Label', $default );
+
+		return $default;
+	}
+
+	/**
+	 * Setting: display style.
+	 *
+	 * @param array $field Field options
+	 * @return string
+	 */
+	public function setting_display_style( $field ) {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		$html = '
+		<input type="hidden" name="post_views_counter_settings_display[display_style]" value="empty" />';
+
+		foreach ( $field['options'] as $key => $label ) {
+			$html .= '
+			<label><input id="post_views_counter_display_display_style_' . esc_attr( $key ) . '" type="checkbox" name="post_views_counter_settings_display[display_style][]" value="' . esc_attr( $key ) . '" ' . checked( ! empty( $pvc->options['display']['display_style'][$key] ), true, false ) . ' />' . esc_html( $label ) . '</label> ';
+		}
+
+		return $html;
+	}
+
+	/**
+	 * Validate display style.
+	 *
+	 * @param array $input Input POST data
+	 * @param array $field Field options
+	 * @return array
+	 */
+	public function validate_display_style( $input, $field ) {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		$data = [];
+
+		foreach ( $field['options'] as $value => $label ) {
+			$data[$value] = false;
+		}
+
+		// any data?
+		if ( ! empty( $input['display_style'] && $input['display_style'] !== 'empty' && is_array( $input['display_style'] ) ) ) {
+			foreach ( $input['display_style'] as $value ) {
+				if ( array_key_exists( $value, $field['options'] ) )
+					$data[$value] = true;
+			}
+		}
+
+		$input['display_style'] = $data;
 
 		return $input;
 	}
@@ -617,7 +827,7 @@ class Post_Views_Counter_Settings {
 	 *
 	 * @return string
 	 */
-	public function setting_wp_post_views() {
+	public function setting_wp_postviews() {
 		$html = '
 		<input type="submit" class="button button-secondary" name="post_views_counter_import_wp_postviews" value="' . __( 'Import views', 'post-views-counter' ) . '"/> <label><input id="pvc-wp-postviews" type="checkbox" name="post_views_counter_import_wp_postviews_override" value="1" />' . __( 'Override existing views data.', 'post-views-counter' ) . '</label>
 		<p class="description">' . __( 'Import post views data from WP-PostViews plugin.', 'post-views-counter' ) . '</p>
@@ -701,164 +911,6 @@ class Post_Views_Counter_Settings {
 			$input['restrict_display']['roles'] = array_unique( $roles );
 		} else
 			$input['restrict_display']['roles'] = [];
-
-		return $input;
-	}
-
-	/**
-	 * Load default settings.
-	 *
-	 * @return void
-	 */
-	public function load_defaults() {
-		if ( ! is_admin() )
-			return;
-
-		$this->time_types = [
-			'minutes'	=> __( 'minutes', 'post-views-counter' ),
-			'hours'		=> __( 'hours', 'post-views-counter' ),
-			'days'		=> __( 'days', 'post-views-counter' ),
-			'weeks'		=> __( 'weeks', 'post-views-counter' ),
-			'months'	=> __( 'months', 'post-views-counter' ),
-			'years'	=> __( 'years', 'post-views-counter' )
-		];
-
-		$this->groups = [
-			'robots'	=> __( 'robots', 'post-views-counter' ),
-			'users'		=> __( 'logged in users', 'post-views-counter' ),
-			'guests'	=> __( 'guests', 'post-views-counter' ),
-			'roles'		=> __( 'selected user roles', 'post-views-counter' )
-		];
-
-		$this->user_roles = $this->get_user_roles();
-
-		$this->page_types = apply_filters(
-			'pvc_page_types_display_options',
-			[
-				'home'		=> __( 'Home', 'post-views-counter' ),
-				'archive'	=> __( 'Archives', 'post-views-counter' ),
-				'singular'	=> __( 'Single pages', 'post-views-counter' ),
-				'search'	=> __( 'Search results', 'post-views-counter' ),
-			]
-		);
-	}
-
-	/**
-	 * Get post types avaiable for counting.
-	 *
-	 * @return void
-	 */
-	public function load_post_types() {
-		if ( ! is_admin() )
-			return;
-
-		$post_types = [];
-
-		// built in public post types
-		foreach ( get_post_types( [ '_builtin' => true, 'public' => true ], 'objects', 'and' ) as $key => $post_type ) {
-			$post_types[$key] = $post_type->labels->name;
-		}
-
-		// public custom post types
-		foreach ( get_post_types( [ '_builtin' => false, 'public' => true ], 'objects', 'and' ) as $key => $post_type ) {
-			$post_types[$key] = $post_type->labels->name;
-		}
-
-		// remove bbPress replies
-		if ( class_exists( 'bbPress' ) && isset( $post_types['reply'] ) )
-			unset( $post_types['reply'] );
-
-		$post_types = apply_filters( 'pvc_available_post_types', $post_types );
-
-		// sort post types alphabetically with their keys
-		asort( $post_types, SORT_STRING );
-
-		$this->post_types = $post_types;
-	}
-
-	/**
-	 * Get all user roles.
-	 *
-	 * @global object $wp_roles
-	 * @return array
-	 */
-	public function get_user_roles() {
-		global $wp_roles;
-
-		$roles = [];
-
-		foreach ( apply_filters( 'editable_roles', $wp_roles->roles ) as $role => $details ) {
-			$roles[$role] = translate_user_role( $details['name'] );
-		}
-
-		asort( $roles, SORT_STRING );
-
-		return $roles;
-	}
-
-	/**
-	 * Validate settings.
-	 *
-	 * @return array
-	 */
-	public function validate_settings2( $input ) {
-		// get main instance
-		$pvc = Post_Views_Counter();
-
-		// import post views data from another plugin
-		if ( isset( $_POST['post_views_counter_import_wp_postviews'] ) ) {
-			// make sure we do not change anything in the settings
-			$input = $pvc->options['general'];
-
-			global $wpdb;
-
-			$meta_key = esc_attr( apply_filters( 'pvc_import_meta_key', 'views' ) );
-
-			$views = $wpdb->get_results( "SELECT post_id, meta_value FROM " . $wpdb->postmeta . " WHERE meta_key = '" . $meta_key . "'", ARRAY_A, 0 );
-
-			if ( ! empty( $views ) ) {
-				$sql = [];
-
-				foreach ( $views as $view ) {
-					$sql[] = "(" . $view['post_id'] . ", 4, 'total', " . $view['meta_value'] . ")";
-				}
-
-				$wpdb->query( "INSERT INTO " . $wpdb->prefix . "post_views(id, type, period, count) VALUES " . implode( ',', $sql ) . " ON DUPLICATE KEY UPDATE count = " . ( isset( $_POST['post_views_counter_import_wp_postviews_override'] ) ? '' : 'count + ' ) . "VALUES(count)" );
-
-				add_settings_error( 'wp_postviews_import', 'wp_postviews_import', __( 'Post views data imported succesfully.', 'post-views-counter' ), 'updated' );
-			} else {
-				add_settings_error( 'wp_postviews_import', 'wp_postviews_import', __( 'There was no post views data to import.', 'post-views-counter' ), 'updated' );
-			}
-		// delete all post views data
-		} elseif ( isset( $_POST['post_views_counter_reset_views'] ) ) {
-			// make sure we do not change anything in the settings
-			$input = $pvc->options['general'];
-
-			global $wpdb;
-
-			if ( $wpdb->query( 'TRUNCATE TABLE ' . $wpdb->prefix . 'post_views' ) )
-				add_settings_error( 'reset_post_views', 'reset_post_views', __( 'All existing data deleted succesfully.', 'post-views-counter' ), 'updated' );
-			else
-				add_settings_error( 'reset_post_views', 'reset_post_views', __( 'Error occurred. All existing data were not deleted.', 'post-views-counter' ), 'error' );
-		// save general settings
-		} elseif ( isset( $_POST['save_pvc_general'] ) ) {
-
-			$input['update_version'] = $pvc->options['general']['update_version'];
-			$input['update_notice'] = $pvc->options['general']['update_notice'];
-		// save display settings
-		} elseif ( isset( $_POST['save_pvc_display'] ) ) {
-			
-		// reset general settings
-		} elseif ( isset( $_POST['reset_pvc_general'] ) ) {
-			$input = $pvc->defaults['general'];
-
-			add_settings_error( 'reset_general_settings', 'settings_reset', __( 'General settings restored to defaults.', 'post-views-counter' ), 'updated' );
-		// reset display settings
-		} elseif ( isset( $_POST['reset_pvc_display'] ) ) {
-			$input = $pvc->defaults['display'];
-
-			add_settings_error( 'reset_general_settings', 'settings_reset', __( 'Display settings restored to defaults.', 'post-views-counter' ), 'updated' );
-		}
 
 		return $input;
 	}

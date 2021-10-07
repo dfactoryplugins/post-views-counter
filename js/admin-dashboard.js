@@ -125,6 +125,11 @@
 									scaleLabel: {
 										display: false,
 										labelString: response.text.yAxes
+									},
+									ticks: {
+										precision: 0,
+										beginAtZero: true,
+										maxTicksLimit: 12
 									}
 								} ]
 							},

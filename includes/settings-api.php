@@ -437,7 +437,22 @@ class Post_Views_Counter_Settings_API {
 
 			case 'checkbox':
 				// possible value: 'empty' or array
-				$value = is_array( $value ) && ! empty( $value ) ? array_map( 'sanitize_text_field', $value ) : [];
+				if ( $value === 'empty' )
+					$value = [];
+				else {
+					if ( is_array( $value ) && ! empty( $value ) ) {
+						$value = array_map( 'sanitize_text_field', $value );
+						$values = [];
+
+						foreach ( $value as $single_value ) {
+							if ( array_key_exists( $single_value, $args['options'] ) )
+								$values[] = $single_value;
+						}
+
+						$value = $values;
+					} else
+						$value = [];
+				}
 				break;
 
 			case 'number':
@@ -542,6 +557,11 @@ class Post_Views_Counter_Settings_API {
 			// check custom reset functions
 			if ( ! empty( $this->settings[$setting_key]['fields'] ) ) {
 				foreach ( $this->settings[$setting_key]['fields'] as $field_id => $field ) {
+					// skip invalid tab field if any
+					if ( ! empty( $field['tab'] ) && $field['tab'] !== $setting_id )
+						continue;
+
+					// custom reset function?
 					if ( ! empty( $field['reset'] ) ) {
 						// valid function? no need to check "else" since all default values are already set
 						if ( $this->callback_function_exists( $field['reset'] ) ) {
@@ -591,7 +611,7 @@ class Post_Views_Counter_Settings_API {
 				} else {
 					// field data?
 					if ( isset( $input[$field_id] ) )
-						$input[$field_id] = $this->validate_field( $input[$field_id], $field['type'] );
+						$input[$field_id] = $this->validate_field( $input[$field_id], $field['type'], $field );
 					else
 						$input[$field_id] = $this->object->defaults[$setting_id][$field_id];
 				}

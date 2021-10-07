@@ -238,8 +238,14 @@ class Post_Views_Counter_Dashboard {
 				foreach ( $post_types as $id => $post_type ) {
 					$post_type_obj = get_post_type_object( $post_type );
 
-					$data['data']['datasets'][$id]['label'] = $post_type_obj->labels->name;
-					$data['data']['datasets'][$id]['post_type'] = $post_type_obj->name;
+					// unrecognized post type? (mainly from deactivated plugins)
+					if ( empty( $post_type_obj ) )
+						$label = __( 'Unknown', 'post-views-counter' ) . ' #' . $id;
+					else
+						$label = $post_type_obj->labels->name;
+
+					$data['data']['datasets'][$id]['label'] = $label;
+					$data['data']['datasets'][$id]['post_type'] = $post_type;
 					$data['data']['datasets'][$id]['data'] = array();
 
 					// get month views
@@ -325,9 +331,15 @@ class Post_Views_Counter_Dashboard {
 				foreach ( $post_types as $id => $post_type ) {
 					$post_type_obj = get_post_type_object( $post_type );
 
-					$data['data']['datasets'][$id]['label'] = $post_type_obj->labels->name;
-					$data['data']['datasets'][$id]['post_type'] = $post_type_obj->name;
-					$data['data']['datasets'][$id]['hidden'] = in_array( $post_type_obj->name, $user_options, true );
+					// unrecognized post type? (mainly from deactivated plugins)
+					if ( empty( $post_type_obj ) )
+						$label = __( 'Unknown', 'post-views-counter' ) . ' #' . $id;
+					else
+						$label = $post_type_obj->labels->name;
+
+					$data['data']['datasets'][$id]['label'] = $label;
+					$data['data']['datasets'][$id]['post_type'] = $post_type;
+					$data['data']['datasets'][$id]['hidden'] = in_array( $post_type, $user_options, true );
 					$data['data']['datasets'][$id]['data'] = array();
 
 					// get month views
