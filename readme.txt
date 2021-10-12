@@ -5,7 +5,7 @@ Tags: counter, hits, posts, postviews, post views, views, count, statistics, sta
 Requires at least: 5.0
 Requires PHP: 5.2.4
 Tested up to: 5.8.1
-Stable tag: 1.3.6
+Stable tag: 1.3.7
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -61,6 +61,9 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3.7 =
+* Tweak: Implemented internal settings API
 
 = 1.3.6 =
 * Fix: Option to hide admin bar chart
@@ -219,5 +222,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.3.6 =
-* Fix: Option to hide admin bar chart
+= 1.3.7 =
+* Tweak: Implemented internal settings API
