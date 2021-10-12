@@ -26,28 +26,28 @@ class Post_Views_Counter_Crawler_Detect {
 	 *
 	 * @var array
 	 */
-	protected $http_headers = array();
+	protected $http_headers = [];
 
 	/**
 	 * Store regex matches.
 	 *
 	 * @var array
 	 */
-	protected $matches = array();
+	protected $matches = [];
 
 	/**
 	 * Crawlers object.
 	 *
 	 * @var object
 	 */
-	protected $crawlers = array();
+	protected $crawlers = [];
 
 	/**
 	 * Exclusions object.
 	 *
 	 * @var object
 	 */
-	protected $exclusions = array();
+	protected $exclusions = [];
 
 	/**
 	 * Headers object.
@@ -58,16 +58,20 @@ class Post_Views_Counter_Crawler_Detect {
 
 	/**
 	 * Class constructor.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->crawlers = $this->get_crawlers_list();
 		$this->exclusions = $this->get_exclusions_list();
 
-		add_action( 'after_setup_theme', array( $this, 'init' ) );
+		add_action( 'after_setup_theme', [ $this, 'init' ] );
 	}
 
 	/**
 	 * Initialize class.
+	 *
+	 * @return void
 	 */
 	public function init() {
 		// break on admin side
@@ -83,19 +87,20 @@ class Post_Views_Counter_Crawler_Detect {
 	 * Set HTTP headers.
 	 *
 	 * @param array $http_headers
+	 * @return void
 	 */
 	public function set_http_headers( $http_headers = null ) {
 		// use global _SERVER if $http_headers aren't defined
-		if ( ! is_array( $http_headers ) || ! count( $http_headers ) ) {
+		if ( ! is_array( $http_headers ) || ! count( $http_headers ) )
 			$http_headers = $_SERVER;
-		}
+
 		// clear existing headers
-		$this->http_headers = array();
+		$this->http_headers = [];
+
 		// only save HTTP headers - in PHP land, that means only _SERVER vars that start with HTTP_.
 		foreach ( $http_headers as $key => $value ) {
-			if ( substr( $key, 0, 5 ) === 'HTTP_' ) {
+			if ( substr( $key, 0, 5 ) === 'HTTP_' )
 				$this->http_headers[$key] = $value;
-			}
 		}
 	}
 
@@ -121,17 +126,19 @@ class Post_Views_Counter_Crawler_Detect {
 	 * Set the user agent.
 	 *
 	 * @param string $user_agent
+	 * @return string
 	 */
 	public function set_user_agent( $user_agent = null ) {
-		if ( false === empty( $user_agent ) ) {
+		if ( false === empty( $user_agent ) )
 			return $this->user_agent = $user_agent;
-		} else {
+		else {
 			$this->user_agent = null;
+
 			foreach ( $this->get_ua_http_headers() as $alt_header ) {
-				if ( false === empty( $this->http_headers[$alt_header] ) ) { // @todo: should use get_http_header(), but it would be slow.
+				if ( false === empty( $this->http_headers[$alt_header] ) ) // @todo: should use get_http_header(), but it would be slow.
 					$this->user_agent .= $this->http_headers[$alt_header] . ' ';
-				}
 			}
+
 			return $this->user_agent = ( ! empty( $this->user_agent ) ? trim( $this->user_agent ) : null);
 		}
 	}
@@ -158,20 +165,20 @@ class Post_Views_Counter_Crawler_Detect {
 	 * Check user agent string against the regex.
 	 *
 	 * @param string $user_agent
-	 *
 	 * @return bool
 	 */
 	public function is_crawler( $user_agent = null ) {
 		$agent = is_null( $user_agent ) ? $this->user_agent : $user_agent;
 		$agent = preg_replace( '/' . $this->get_exclusions() . '/i', '', $agent );
-		if ( strlen( trim( $agent ) ) == 0 ) {
+
+		if ( strlen( trim( $agent ) ) == 0 )
 			return false;
-		} else {
+		else
 			$result = preg_match( '/' . $this->get_regex() . '/i', trim( $agent ), $matches );
-		}
-		if ( $matches ) {
+
+		if ( $matches )
 			$this->matches = $matches;
-		}
+
 		return (bool) $result;
 	}
 
@@ -190,7 +197,7 @@ class Post_Views_Counter_Crawler_Detect {
 	 * @return array
 	 */
 	protected function get_crawlers_list() {
-		$data = array(
+		return [
 			'.*Java.*outbrain',
 			'008\/',
 			'192.comAgent',
@@ -883,9 +890,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'ZnajdzFoto',
 			'ZyBorg',
 			'[a-z0-9\-_]*((?<!cu)bot|crawler|archiver|transcoder|spider|uptime|validator|fetcher)',
-		);
-
-		return $data;
+		];
 	}
 
 	/**
@@ -894,7 +899,7 @@ class Post_Views_Counter_Crawler_Detect {
 	 * @return array
 	 */
 	public function get_exclusions_list() {
-		$data = array(
+		return [
 			'Safari.[\d\.]*',
 			'Firefox.[\d\.]*',
 			'Chrome.[\d\.]*',
@@ -936,9 +941,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'Opera',
 			' \.NET[\d\.]*',
 			'\(|\)|;|,', // remove the following characters ( ) : ,
-		);
-
-		return $data;
+		];
 	}
 
 	/**
@@ -947,7 +950,7 @@ class Post_Views_Counter_Crawler_Detect {
 	 * @return array
 	 */
 	public function get_headers_list() {
-		$data = array(
+		return [
 			// the default User-Agent string.
 			'HTTP_USER_AGENT',
 			// header can occur on devices using Opera Mini.
@@ -961,9 +964,6 @@ class Post_Views_Counter_Crawler_Detect {
 			'HTTP_X_UCBROWSER_DEVICE_UA',
 			// sometimes, bots (especially Google) use a genuine user agent, but fill this header in with their email address
 			'HTTP_FROM',
-		);
-
-		return $data;
+		];
 	}
-
 }

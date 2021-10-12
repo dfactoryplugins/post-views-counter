@@ -138,6 +138,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 						]
 					);
 
+					self::$instance->functions = new Post_Views_Counter_Functions();
 					self::$instance->update = new Post_Views_Counter_Update();
 					self::$instance->settings = new Post_Views_Counter_Settings();
 					self::$instance->query = new Post_Views_Counter_Query();
@@ -175,17 +176,18 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		 * @return void
 		 */
 		private function includes() {
-			include_once( POST_VIEWS_COUNTER_PATH . 'includes/update.php' );
-			include_once( POST_VIEWS_COUNTER_PATH . 'includes/settings-api.php' );
-			include_once( POST_VIEWS_COUNTER_PATH . 'includes/settings.php' );
-			include_once( POST_VIEWS_COUNTER_PATH . 'includes/columns.php' );
-			include_once( POST_VIEWS_COUNTER_PATH . 'includes/query.php' );
-			include_once( POST_VIEWS_COUNTER_PATH . 'includes/cron.php' );
-			include_once( POST_VIEWS_COUNTER_PATH . 'includes/counter.php' );
-			include_once( POST_VIEWS_COUNTER_PATH . 'includes/crawler-detect.php' );
-			include_once( POST_VIEWS_COUNTER_PATH . 'includes/frontend.php' );
-			include_once( POST_VIEWS_COUNTER_PATH . 'includes/dashboard.php' );
-			include_once( POST_VIEWS_COUNTER_PATH . 'includes/widgets.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-functions.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-update.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-api.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-columns.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-query.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-cron.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-ounter.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-crawler-detect.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-frontend.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-dashboard.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-widgets.php' );
 		}
 
 		/**

@@ -10,13 +10,20 @@ if ( ! defined( 'ABSPATH' ) )
  */
 class Post_Views_Counter_Update {
 
+	/**
+	 * Class constructor.
+	 *
+	 * @return void
+	 */
 	public function __construct() {
 		// actions
 		add_action( 'init', array( $this, 'check_update' ) );
 	}
 
 	/**
-	 * Check if there's a db update required
+	 * Check if there's a database update required.
+	 *
+	 * @return void
 	 */
 	public function check_update() {
 		if ( ! current_user_can( 'manage_options' ) )
@@ -92,6 +99,8 @@ class Post_Views_Counter_Update {
 
 	/**
 	 * Database update for 1.2.4 and below.
+	 *
+	 * @return void
 	 */
 	public function update_1() {
 		global $wpdb;

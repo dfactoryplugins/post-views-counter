@@ -10,17 +10,22 @@ if ( ! defined( 'ABSPATH' ) )
  */
 class Post_Views_Counter_Query {
 
+	/**
+	 * Class constructor.
+	 *
+	 * @return void
+	 */
 	public function __construct() {
 		// actions
-		add_action( 'pre_get_posts', array( $this, 'extend_pre_query' ), 1 );
+		add_action( 'pre_get_posts', [ $this, 'extend_pre_query' ], 1 );
 
 		// filters
-		add_filter( 'query_vars', array( $this, 'query_vars' ) );
-		add_filter( 'posts_join', array( $this, 'posts_join' ), 10, 2 );
-		add_filter( 'posts_groupby', array( $this, 'posts_groupby' ), 10, 2 );
-		add_filter( 'posts_orderby', array( $this, 'posts_orderby' ), 10, 2 );
-		add_filter( 'posts_fields', array( $this, 'posts_fields' ), 10, 2 );
-		add_filter( 'the_posts', array( $this, 'the_posts' ), 10, 2 );
+		add_filter( 'query_vars', [ $this, 'query_vars' ] );
+		add_filter( 'posts_join', [ $this, 'posts_join' ], 10, 2 );
+		add_filter( 'posts_groupby', [ $this, 'posts_groupby' ], 10, 2 );
+		add_filter( 'posts_orderby', [ $this, 'posts_orderby' ], 10, 2 );
+		add_filter( 'posts_fields', [ $this, 'posts_fields' ], 10, 2 );
+		add_filter( 'the_posts', [ $this, 'the_posts' ], 10, 2 );
 	}
 
 	/**
@@ -39,6 +44,7 @@ class Post_Views_Counter_Query {
 	 * Extend query with post_views orderby parameter.
 	 *
 	 * @param object $query
+	 * @return void
 	 */
 	public function extend_pre_query( $query ) {
 		if ( isset( $query->query_vars['orderby'] ) && $query->query_vars['orderby'] === 'post_views' )
@@ -46,8 +52,8 @@ class Post_Views_Counter_Query {
 	}
 
 	/**
-	 * Modify the db query to use post_views parameter.
-	 * 
+	 * Modify the database query to use post_views parameter.
+	 *
 	 * @global object $wpdb
 	 * @param string $join
 	 * @param object $query
@@ -55,7 +61,7 @@ class Post_Views_Counter_Query {
 	 */
 	public function posts_join( $join, $query ) {
 		$sql = '';
-		$query_chunks = array();
+		$query_chunks = [];
 
 		// views query?
 		if ( ! empty( $query->query['views_query'] ) ) {
@@ -65,7 +71,7 @@ class Post_Views_Counter_Query {
 				$query->query['views_query']['inclusive'] = true;
 
 			// check after and before dates
-			foreach ( array( 'after' => '>', 'before' => '<' ) as $date => $type ) {
+			foreach ( [ 'after' => '>', 'before' => '<' ] as $date => $type ) {
 				$year_ = null;
 				$month_ = null;
 				$week_ = null;
@@ -103,13 +109,13 @@ class Post_Views_Counter_Query {
 
 					// valid date?
 					if ( ! ( $year_ === null && $month_ === null && $week_ === null && $day_ === null ) ) {
-						$query_chunks[] = array(
+						$query_chunks[] = [
 							'year'	=> $year_,
 							'month'	=> $month_,
 							'day'	=> $day_,
 							'week'	=> $week_,
 							'type'	=> $type . ( $query->query['views_query']['inclusive'] ? '=' : '' )
-						);
+						];
 					}
 				}
 			}
@@ -121,7 +127,7 @@ class Post_Views_Counter_Query {
 				// check only if both dates are in query
 				if ( count( $query_chunks ) === 2 ) {
 					// before and after dates should be the same
-					foreach ( array( 'year', 'month', 'day', 'week' ) as $date_type ) {
+					foreach ( [ 'year', 'month', 'day', 'week' ] as $date_type ) {
 						if ( ! ( ( $query_chunks[0][$date_type] !== null && $query_chunks[1][$date_type] !== null ) || ( $query_chunks[0][$date_type] === null && $query_chunks[1][$date_type] === null ) ) )
 							$valid_dates = false;
 					}
@@ -185,32 +191,32 @@ class Post_Views_Counter_Query {
 				// year
 				if ( isset( $year ) ) {
 					// year, week
-					if ( isset( $week ) && $this->is_valid_date( 'yw', $year, 0, 0, $week ) )
+					if ( isset( $week ) && $this->is_date_valid( 'yw', $year, 0, 0, $week ) )
 						$sql = " AND pvc.type = 1 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $week, 2, 0, STR_PAD_LEFT ) . "'";
 					// year, month
 					elseif ( isset( $month ) ) {
 						// year, month, day
-						if ( isset( $day ) && $this->is_valid_date( 'ymd', $year, $month, $day ) )
+						if ( isset( $day ) && $this->is_date_valid( 'ymd', $year, $month, $day ) )
 							$sql = " AND pvc.type = 0 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $month, 2, 0, STR_PAD_LEFT ) . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
 						// year, month
-						elseif ( $this->is_valid_date( 'ym', $year, $month ) )
+						elseif ( $this->is_date_valid( 'ym', $year, $month ) )
 							$sql = " AND pvc.type = 2 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . str_pad( $month, 2, 0, STR_PAD_LEFT ) . "'";
 					// year
-					} elseif ( $this->is_valid_date( 'y', $year ) )
+					} elseif ( $this->is_date_valid( 'y', $year ) )
 						$sql = " AND pvc.type = 3 AND pvc.period = '" . str_pad( $year, 4, 0, STR_PAD_LEFT ) . "'";
 				// month
 				} elseif ( isset( $month ) ) {
 					// month, day
-					if ( isset( $day ) && $this->is_valid_date( 'md', 0, $month, $day ) ) {
+					if ( isset( $day ) && $this->is_date_valid( 'md', 0, $month, $day ) ) {
 						$sql = " AND pvc.type = 0 AND RIGHT( pvc.period, 4 ) = '" . str_pad( $month, 2, 0, STR_PAD_LEFT ) . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
 					// month
-					} elseif ( $this->is_valid_date( 'm', 0, $month ) )
+					} elseif ( $this->is_date_valid( 'm', 0, $month ) )
 						$sql = " AND pvc.type = 2 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $month, 2, 0, STR_PAD_LEFT ) . "'";
 				// week
-				} elseif ( isset( $week ) && $this->is_valid_date( 'w', 0, 0, 0, $week ) )
+				} elseif ( isset( $week ) && $this->is_date_valid( 'w', 0, 0, 0, $week ) )
 					$sql = " AND pvc.type = 1 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $week, 2, 0, STR_PAD_LEFT ) . "'";
 				// day
-				elseif ( isset( $day ) && $this->is_valid_date( 'd', 0, 0, $day ) )
+				elseif ( isset( $day ) && $this->is_date_valid( 'd', 0, 0, $day ) )
 					$sql = " AND pvc.type = 0 AND RIGHT( pvc.period, 2 ) = '" . str_pad( $day, 2, 0, STR_PAD_LEFT ) . "'";
 			}
 
@@ -234,7 +240,7 @@ class Post_Views_Counter_Query {
 
 	/**
 	 * Group posts using the post ID.
-	 * 
+	 *
 	 * @global object $wpdb
 	 * @param string $groupby
 	 * @param object $query
@@ -285,7 +291,7 @@ class Post_Views_Counter_Query {
 
 	/**
 	 * Return post views in queried post objects.
-	 * 
+	 *
 	 * @param string $fields
 	 * @param object $query
 	 * @return string
@@ -324,7 +330,7 @@ class Post_Views_Counter_Query {
 	}
 
 	/**
-	 * Validate date helper function.
+	 * Check whether date is valid.
 	 *
 	 * @param string $type
 	 * @param int $year
@@ -333,7 +339,7 @@ class Post_Views_Counter_Query {
 	 * @param int $week
 	 * @return bool
 	 */
-	private function is_valid_date( $type, $year = 0, $month = 0, $day = 0, $week = 0 ) {
+	private function is_date_valid( $type, $year = 0, $month = 0, $day = 0, $week = 0 ) {
 		switch ( $type ) {
 			case 'y':
 				$bool = ( $year >= 1 && $year <= 32767 );
@@ -370,5 +376,4 @@ class Post_Views_Counter_Query {
 
 		return $bool;
 	}
-
 }

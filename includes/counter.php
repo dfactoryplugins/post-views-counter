@@ -22,6 +22,11 @@ class Post_Views_Counter_Counter {
 		'expiration'	 => 0
 	);
 
+	/**
+	 * Class constructor.
+	 *
+	 * @return void
+	 */
 	public function __construct() {
 		// actions
 		add_action( 'plugins_loaded', array( $this, 'check_cookie' ), 1 );
@@ -35,8 +40,9 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Check whether to count visit.
-	 * 
+	 *
 	 * @param int $id
+	 * @return void
 	 */
 	public function check_post( $id = 0 ) {
 		// force check post in SHORTINIT mode
@@ -142,12 +148,13 @@ class Post_Views_Counter_Counter {
 				$this->save_ip( $id );
 
 			return $this->count_visit( $id );
-		} else
-			return;
+		}
 	}
 
 	/**
 	 * Check whether to count visit via PHP request.
+	 *
+	 * @return void
 	 */
 	public function check_post_php() {
 		// do not count admin entries
@@ -158,6 +165,7 @@ class Post_Views_Counter_Counter {
 		if ( Post_Views_Counter()->options['general']['counter_mode'] !== 'php' )
 			return;
 
+		// get post types
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
 		// whether to count this post type
@@ -169,10 +177,11 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Check whether to count visit via Javascript(Ajax) request.
+	 *
+	 * @return void
 	 */
 	public function check_post_js() {
 		if ( isset( $_POST['action'], $_POST['id'], $_POST['pvc_nonce'] ) && $_POST['action'] === 'pvc-check-post' && ($post_id = (int) $_POST['id']) > 0 && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-check-post' ) !== false ) {
-
 			// do we use Ajax as counter?
 			if ( Post_Views_Counter()->options['general']['counter_mode'] != 'js' )
 				exit;
@@ -195,10 +204,11 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Check whether to count visit via Fast AJAX request.
+	 *
+	 * @return void
 	 */
 	public function check_post_ajax() {
 		if ( isset( $_POST['action'], $_POST['id'], $_POST['pvc_nonce'] ) && $_POST['action'] === 'pvc-check-post' && ($post_id = (int) $_POST['id']) > 0 ) {
-
 			// do we use Ajax as counter?
 			if ( Post_Views_Counter()->options['general']['counter_mode'] != 'ajax' )
 				exit;
@@ -221,9 +231,9 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Check whether to count visit via REST API request.
-	 * 
+	 *
 	 * @param array $request
-	 * @return int|bool
+	 * @return array|int
 	 */
 	public function check_post_rest_api( $request ) {
 		$post_id = absint( $request['id'] );
@@ -251,6 +261,8 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Initialize cookie session.
+	 *
+	 * @return void
 	 */
 	public function check_cookie() {
 		// do not run in admin except for ajax requests
@@ -289,10 +301,11 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Save cookie function.
-	 * 
+	 *
 	 * @param int $id
 	 * @param array $cookie
 	 * @param bool $expired
+	 * @return void|int
 	 */
 	private function save_cookie( $id, $cookie = array(), $expired = true ) {
 		$set_cookie = apply_filters( 'pvc_maybe_set_cookie', true );
@@ -381,8 +394,9 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Save user IP function.
-	 * 
+	 *
 	 * @param int $id
+	 * @return int|void
 	 */
 	private function save_ip( $id ) {
 		$set_cookie = apply_filters( 'pvc_maybe_set_cookie', true );
@@ -428,10 +442,10 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Count visit function.
-	 * 
+	 *
 	 * @global object $wpdb
 	 * @param int $id
-	 * @return int $id
+	 * @return int
 	 */
 	private function count_visit( $id ) {
 		global $wpdb;
@@ -473,9 +487,10 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Remove post views from database when post is deleted.
-	 * 
+	 *
 	 * @global object $wpdb
 	 * @param int $post_id
+	 * @return void
 	 */
 	public function delete_post_views( $post_id ) {
 		global $wpdb;
@@ -485,10 +500,10 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Get timestamp convertion.
-	 * 
+	 *
 	 * @param string $type
 	 * @param int $number
-	 * @param int $timestamp
+	 * @param bool $timestamp
 	 * @return string
 	 */
 	public function get_timestamp( $type, $number, $timestamp = true ) {
@@ -506,7 +521,7 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Check if object cache is in use.
-	 * 
+	 *
 	 * @param bool $using
 	 * @return bool
 	 */
@@ -533,11 +548,13 @@ class Post_Views_Counter_Counter {
 	 * A single key is `62053.0.20150327` and that key's data is: $id = 62053, $type = 0, $period = 20150327
 	 *
 	 * This data format proved more efficient (avoids the (un)serialization overhead completely + duplicates filtering is a string search now)
-	 * 
+	 *
 	 * @param array $key_names
+	 * @return void
 	 */
 	private function update_cached_keys_list_if_needed( $key_names = array() ) {
 		$existing_list = wp_cache_get( self::NAME_ALLKEYS, self::GROUP );
+
 		if ( ! $existing_list )
 			$existing_list = '';
 
@@ -560,21 +577,17 @@ class Post_Views_Counter_Counter {
 		}
 
 		// save modified list back in cache
-		if ( $list_modified ) {
+		if ( $list_modified )
 			wp_cache_set( self::NAME_ALLKEYS, $existing_list, self::GROUP );
-		}
 	}
 
 	/**
 	 * Flush views data stored in the persistent object cache into
 	 * our custom table and clear the object cache keys when done.
 	 * 
-	 * @global object $wpdb
 	 * @return bool
 	 */
 	public function flush_cache_to_db() {
-		global $wpdb;
-
 		$key_names = wp_cache_get( self::NAME_ALLKEYS, self::GROUP );
 
 		if ( ! $key_names )
@@ -613,13 +626,13 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Insert or update views count.
-	 * 
+	 *
 	 * @global object $wpdb
 	 * @param int $id
 	 * @param string $type
 	 * @param string $period
 	 * @param int $count
-	 * @return bool
+	 * @return int|bool
 	 */
 	private function db_insert( $id, $type, $period, $count = 1 ) {
 		global $wpdb;
@@ -648,14 +661,17 @@ class Post_Views_Counter_Counter {
 	 * @return void
 	 */
 	private function db_prepare_insert( $id, $type, $period, $count = 1 ) {
+		// cast count
 		$count = (int) $count;
 
 		if ( ! $count )
 			$count = 1;
 
+		// any queries?
 		if ( ! empty( $this->db_insert_values ) )
 			$this->db_insert_values .= ', ';
 
+		// append insert queries
 		$this->db_insert_values .= sprintf( '(%d, %d, "%s", %d)', $id, $type, $period, $count );
 
 		if ( strlen( $this->db_insert_values ) > self::MAX_INSERT_STRING_LENGTH )
@@ -666,7 +682,7 @@ class Post_Views_Counter_Counter {
 	 * Insert accumulated values to database.
 	 *
 	 * @global object $wpdb
-	 * @return bool
+	 * @return int|bool
 	 */
 	private function db_commit_insert() {
 		if ( empty( $this->db_insert_values ) )
@@ -687,7 +703,8 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Check whether user has excluded roles.
-	 * 
+	 *
+	 * @param int $user_id
 	 * @param string $option
 	 * @return bool
 	 */
@@ -697,6 +714,7 @@ class Post_Views_Counter_Counter {
 		if ( empty( $user ) )
 			return false;
 
+		// get user roles
 		$roles = (array) $user->roles;
 
 		if ( ! empty( $roles ) ) {
@@ -714,7 +732,7 @@ class Post_Views_Counter_Counter {
 	 *
 	 * @param string $ip IP address
 	 * @param string $range IP range
-	 * @return boolean Whether IP is in range
+	 * @return bool
 	 */
 	public function ipv4_in_range( $ip, $range ) {
 		$start = str_replace( '*', '0', $range );
@@ -726,12 +744,12 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Get user real IP address.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function get_user_ip() {
 		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
-		
+
 		foreach ( array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' ) as $key ) {
 			if ( array_key_exists( $key, $_SERVER ) === true ) {
 				foreach ( explode( ',', $_SERVER[$key] ) as $ip ) {
@@ -763,9 +781,9 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Encrypt user IP.
-	 * 
+	 *
 	 * @param int $ip
-	 * @return string $encrypted_ip
+	 * @return string
 	 */
 	public function encrypt_ip( $ip ) {
 		$auth_key = defined( 'AUTH_KEY' ) ? AUTH_KEY : '';
@@ -793,9 +811,9 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Decrypt user IP.
-	 * 
+	 *
 	 * @param int $encrypted_ip
-	 * @return string $ip
+	 * @return string
 	 */
 	public function decrypt_ip( $encrypted_ip ) {
 		$auth_key = defined( 'AUTH_KEY' ) ? AUTH_KEY : '';

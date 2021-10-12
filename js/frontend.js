@@ -3,7 +3,7 @@
 	// ready event
 	$( function() {
 		// rest api request
-		if ( pvcArgsFrontend.mode == 'rest_api' ) {
+		if ( pvcArgsFrontend.mode === 'rest_api' ) {
 			var request = {
 				id: pvcArgsFrontend.postID
 			};

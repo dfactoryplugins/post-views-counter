@@ -14,11 +14,10 @@ define( 'SHORTINIT', true );
 // get wp-load.php location
 $path = explode( 'wp-content', __FILE__ );
 
-if ( is_file( reset( $path ) . 'wp-load.php' ) ) {
+if ( is_file( reset( $path ) . 'wp-load.php' ) )
 	require_once( reset( $path ) . 'wp-load.php' );
-} else {
+else
 	die( '-1' );
-}
 
 // typical headers
 header( 'Content-Type: text/html' );
@@ -65,26 +64,25 @@ require_once( WP_PLUGIN_DIR . '/post-views-counter/post-views-counter.php' );
 if ( defined( 'PVC_SHORTINIT_INC' ) && PVC_SHORTINIT_INC ) {
 	require_once( ABSPATH . WPINC . '/plugin.php' );
 	require_once( ABSPATH . WPINC . '/theme.php' );
-	
+
 	// get the current theme path
 	$theme_path = get_theme_file_path();
+
 	// load custom pvc includes file
 	$pvc_file_path = $theme_path . DIRECTORY_SEPARATOR . 'pvc' . DIRECTORY_SEPARATOR . 'includes.php';
-	
-	if ( is_file( $pvc_file_path ) ) {
+
+	if ( is_file( $pvc_file_path ) )
 		require_once( $pvc_file_path );
-	}
 }
 
 $action = esc_attr( trim( $_POST['action'] ) );
 
 // a bit of security
-$allowed_actions = array(
+$allowed_actions = [
 	'pvc-check-post'
-);
+];
 
-if ( in_array( $action, $allowed_actions ) ) {
+if ( in_array( $action, $allowed_actions ) )
 	do_action( 'pvc_ajax_' . $action );
-} else {
+else
 	die( '-1' );
-} 
