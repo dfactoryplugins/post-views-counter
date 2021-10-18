@@ -28,166 +28,6 @@ class Post_Views_Counter_Columns {
 		add_action( 'admin_bar_menu', [ $this, 'admin_bar_menu' ], 100 );
 		add_action( 'wp', [ $this, 'admin_bar_maybe_add_style' ] );
 		add_action( 'admin_init', [ $this, 'admin_bar_maybe_add_style' ] );
-		add_action( 'plugins_loaded', [ $this, 'init_gutenberg' ] );
-	}
-
-	/**
-	 * Init block editor actions.
-	 *
-	 * @return void
-	 */
-	public function init_gutenberg() {
-		$block_editor = has_action( 'enqueue_block_assets' );
-		$gutenberg = function_exists( 'gutenberg_can_edit_post_type' );
-
-		if ( ! $block_editor && ! $gutenberg  )
-			return;
-
-		add_action( 'add_meta_boxes', [ $this, 'gutenberg_add_meta_box' ] );
-		add_action( 'rest_api_init', [ $this, 'gutenberg_rest_api_init' ] );
-		add_action( 'enqueue_block_editor_assets', [ $this, 'gutenberg_enqueue_scripts' ] );
-	}
-
-	/**
-	 * Register block editor metabox.
-	 *
-	 * @return void
-	 */
-	public function gutenberg_add_meta_box() {
-		add_meta_box(
-			'post_views_meta_box',
-			__( 'Post Views', 'post-views-counter' ),
-			'',
-			'post',
-			'',
-			'',
-			[
-				'__back_compat_meta_box'				=> false,
-				'__block_editor_compatible_meta_box'	=> true
-			]
-		);
-	}
-
-	/**
-	 * Register REST API block editor endpoints.
-	 *
-	 * @return void
-	 */
-	public function gutenberg_rest_api_init() {
-		// get views route
-		register_rest_route(
-			'post-views-counter',
-			'/update-post-views/',
-			[
-				'methods'				=> [ 'POST' ],
-				'callback'				=> [ $this, 'gutenberg_update_callback' ],
-				'permission_callback'	=> [ $this, 'check_rest_route_permissions' ],
-				'args'					=> [
-					'id' => [
-						'sanitize_callback'	=> 'absint',
-					]
-				]
-			]
-		);
-	}
-
-	/**
-	 * Check whether user has permissions to perform post views update in block editor.
-	 *
-	 * @param object $request WP_REST_Request
-	 * @return bool|WP_Error
-	 */
-	public function check_rest_route_permissions( $request ) {
-		// break if current user can't edit this post
-		if ( ! current_user_can( 'edit_post', (int) $request->get_param( 'id' ) ) )
-			return new WP_Error( 'pvc-user-not-allowed', __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
-
-		// break if views editing is restricted
-		if ( (bool) Post_Views_Counter()->options['general']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
-			return new WP_Error( 'pvc-user-not-allowed', __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
-
-		return true;
-	}
-
-	/**
-	 * REST API callback for block editor endpoint.
-	 *
-	 * @param array $data
-	 * @return string|int
-	 */
-	public function gutenberg_update_callback( $data ) {
-		// cast ID
-		$post_id = ! empty( $data['id'] ) ? (int) $data['id'] : 0;
-
-		// cast post views
-		$post_views = ! empty( $data['post_views'] ) ? (int) $data['post_views'] : 0;
-
-		// get countable post types
-		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
-
-		// check if post exists
-		$post = get_post( $post_id );
-
-		// whether to count this post type or not
-		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
-			return wp_send_json_error( __( 'Invalid post ID.', 'post-views-counter' ) );
-
-		// break if current user can't edit this post
-		if ( ! current_user_can( 'edit_post', $post_id ) )
-			return wp_send_json_error( __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
-
-		// break if views editing is restricted
-		if ( (bool) Post_Views_Counter()->options['general']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
-			return wp_send_json_error( __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
-
-		global $wpdb;
-
-		pvc_update_post_views( $post_id, $post_views );
-
-		do_action( 'pvc_after_update_post_views_count', $post_id );
-
-		return $post_id;
-	}
-
-	/**
-	 * Enqueue front end and editor JavaScript and CSS.
-	 *
-	 * @return void
-	 */
-	public function gutenberg_enqueue_scripts() {
-		// enqueue the bundled block JS file
-		wp_enqueue_script(
-			'pvc-gutenberg',
-			POST_VIEWS_COUNTER_URL . '/js/gutenberg.min.js',
-			[ 'wp-i18n', 'wp-edit-post', 'wp-element', 'wp-editor', 'wp-components', 'wp-data', 'wp-plugins', 'wp-api' ],
-			Post_Views_Counter()->defaults['version']
-		);
-
-		// restrict editing
-		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
-
-		$js_args = [
-			'postID'		=> get_the_ID(),
-			'postViews'		=> pvc_get_post_views( get_the_ID() ),
-			'canEdit'		=> ( $restrict === false || ( $restrict === true && current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) ) ),
-			'nonce'			=> wp_create_nonce( 'wp_rest' ),
-			'textPostViews'	=> __( 'Post Views', 'post-views-counter' ),
-			'textHelp'		=> __( 'Adjust the views count for this post.', 'post-views-counter' ),
-			'textCancel'	=> __( 'Cancel', 'post-views-counter' )
-		];
-
-		wp_localize_script(
-			'pvc-gutenberg',
-			'pvcEditorArgs',
-			$js_args
-		);
-
-		// enqueue frontend and editor block styles
-		wp_enqueue_style(
-			'pvc-gutenberg', 
-			POST_VIEWS_COUNTER_URL . '/css/gutenberg.min.css', '', 
-			Post_Views_Counter()->defaults['version']
-		);
 	}
 
 	/**
@@ -273,26 +113,27 @@ class Post_Views_Counter_Columns {
 			return $post_id;
 
 		// break if post views in not one of the selected
-		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+		$post_types = (array) Post_Views_Counter()->options['general']['post_types_count'];
 
+		// get post type
 		if ( is_null( $post ) )
 			$post_type = get_post_type( $post_id );
 		else
 			$post_type = $post->post_type;
 
-		if ( ! in_array( $post_type, (array) $post_types ) )
+		// invalid post type?
+		if ( ! in_array( $post_type, $post_types, true ) )
 			return $post_id;
 
 		// break if views editing is restricted
-		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
-
-		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+		if ( (bool) Post_Views_Counter()->options['general']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			return $post_id;
 
 		// validate data
 		if ( ! isset( $_POST['pvc_nonce'] ) || ! wp_verify_nonce( $_POST['pvc_nonce'], 'post_views_count' ) )
 			return $post_id;
 
+		// update post views
 		pvc_update_post_views( $post_id, $post_views );
 
 		do_action( 'pvc_after_update_post_views_count', $post_id );
@@ -359,22 +200,27 @@ class Post_Views_Counter_Columns {
 	public function add_new_column( $columns ) {
 		$offset = 0;
 
+		// date column?
 		if ( isset( $columns['date'] ) )
 			$offset++;
 
+		// comments column?
 		if ( isset( $columns['comments'] ) )
 			$offset++;
 
+		// any skipped columns?
 		if ( $offset > 0 ) {
-			$date = array_slice( $columns, -$offset, $offset, true );
+			$data = array_slice( $columns, -$offset, $offset, true );
 
-			foreach ( $date as $column => $name ) {
+			// unset columns
+			foreach ( $data as $column => $name ) {
 				unset( $columns[$column] );
 			}
 
 			$columns['post_views'] = '<span class="dash-icon dashicons dashicons-chart-bar" title="' . __( 'Post Views', 'post-views-counter' ) . '"></span><span class="dash-title">' . __( 'Post Views', 'post-views-counter' ) . '</span>';
 
-			foreach ( $date as $column => $name ) {
+			// again add columns
+			foreach ( $data as $column => $name ) {
 				$columns[$column] = $name;
 			}
 		} else

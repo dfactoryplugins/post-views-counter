@@ -579,11 +579,20 @@ function pvc_update_post_views( $post_id = 0, $post_views = 0 ) {
 
 	global $wpdb;
 
-	// chnage post views?
+	// change post views?
 	$post_views = apply_filters( 'pvc_update_post_views_count', $post_views, $post_id );
 
-	// insert or update db post views count
-	$wpdb->query( $wpdb->prepare( "INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $post_views, $post_views ) );
+	// insert or update database post views count
+	$wpdb->query(
+		$wpdb->prepare(
+			"INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = %d",
+			$post_id,
+			4,
+			'total',
+			$post_views,
+			$post_views
+		)
+	);
 
 	// query fails only if it returns false
 	return apply_filters( 'pvc_update_post_views', $post_id );

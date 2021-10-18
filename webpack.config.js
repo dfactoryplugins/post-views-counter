@@ -55,14 +55,14 @@ module.exports = {
 	devtool: devMode ? 'inline-sourcemap' : false,
 	mode: devMode ? 'development' : 'production',
 	entry: {
-		'js/gutenberg.min': './src/gutenberg.js',
-		"css/gutenberg.min": './src/gutenberg.scss'
+		'js/block-editor.min': './src/block-editor.js',
+		"css/block-editor.min": './src/block-editor.scss'
 	},
 	output: {
 		path: path.resolve( __dirname ),
 		filename: '[name].js',
 		/* filename: ( chunkData ) => {
-			return chunkData.chunk.name === 'css/gutenberg.min' ? '[name].css': '[name].js';
+			return chunkData.chunk.name === 'css/block-editor.min' ? '[name].css': '[name].js';
 		}, */
 	},
 	watch: false,

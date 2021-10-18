@@ -114,8 +114,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 				// minimal setup for Fast AJAX
 				if ( defined( 'SHORTINIT' ) && SHORTINIT ) {
-					include_once( POST_VIEWS_COUNTER_PATH . 'includes/counter.php' );
-					include_once( POST_VIEWS_COUNTER_PATH . 'includes/crawler-detect.php' );
+					include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-counter.php' );
+					include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-crawler-detect.php' );
 					include_once( POST_VIEWS_COUNTER_PATH . 'includes/functions.php' );
 					
 					self::$instance->counter = new Post_Views_Counter_Counter();
@@ -141,6 +141,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 					self::$instance->functions = new Post_Views_Counter_Functions();
 					self::$instance->update = new Post_Views_Counter_Update();
 					self::$instance->settings = new Post_Views_Counter_Settings();
+					self::$instance->admin = new Post_Views_Counter_Admin();
 					self::$instance->query = new Post_Views_Counter_Query();
 					self::$instance->cron = new Post_Views_Counter_Cron();
 					self::$instance->counter = new Post_Views_Counter_Counter();
@@ -180,10 +181,11 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-update.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-api.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-admin.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-columns.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-query.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-cron.php' );
-			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-ounter.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-counter.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-crawler-detect.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-frontend.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-dashboard.php' );
@@ -192,7 +194,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 		/**
 		 * Class constructor.
-		 * 
+		 *
 		 * @return void
 		 */
 		public function __construct() {
@@ -214,7 +216,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 				// actions
 				add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
 				add_action( 'wp_loaded', [ $this, 'load_pluggable_functions' ], 10 );
-				// add_action( 'init', [ $this, 'gutenberg_blocks' ] );
 				add_action( 'admin_init', [ $this, 'update_notice' ] );
 				add_action( 'wp_ajax_pvc_dismiss_notice', [ $this, 'dismiss_notice' ] );
 
@@ -281,7 +282,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 		/**
 		 * Add admin notices.
-		 * 
+		 *
 		 * @param string $html
 		 * @param string $status
 		 * @param bool $paragraph
@@ -397,7 +398,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 		/**
 		 * Multisite activation.
-		 * 
+		 *
 		 * @global object $wpdb
 		 * @param bool $networkwide
 		 * @return void
@@ -424,7 +425,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 		/**
 		 * Single site activation.
-		 * 
+		 *
 		 * @global array $wp_roles
 		 * @return void
 		 */
@@ -458,7 +459,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 		/**
 		 * Multisite deactivation.
-		 * 
+		 *
 		 * @global array $wpdb
 		 * @param bool $networkwide
 		 * @return void
@@ -489,7 +490,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 		/**
 		 * Single site deactivation.
-		 * 
+		 *
 		 * @global array $wp_roles
 		 * @param bool $multi
 		 * @return void
@@ -521,7 +522,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 		/**
 		 * Schedule cache flushing if it's not already scheduled.
-		 * 
+		 *
 		 * @param bool $forced
 		 * @return void
 		 */
@@ -541,7 +542,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		}
 
 		/**
-		 * Load text domain..
+		 * Load text domain.
 		 *
 		 * @return void
 		 */
@@ -550,7 +551,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		}
 
 		/**
-		 * Load pluggable template functions..
+		 * Load pluggable template functions.
 		 *
 		 * @return void
 		 */
@@ -559,19 +560,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 		}
 
 		/**
-		 * Add Gutenberg blocks..
-		 *
-		 * @return void
-		 */
-		public function gutenberg_blocks() {
-			wp_register_script( 'pvc-admin-block-views', POST_VIEWS_COUNTER_URL . '/js/admin-block.js', [ 'wp-blocks', 'wp-element', 'wp-i18n' ] );
-
-			register_block_type( 'post-views-counter/views', [ 'editor_script' => 'pvc-admin-block-views' ] );
-		}
-
-		/**
 		 * Enqueue admin scripts and styles.
-		 * 
+		 *
 		 * @global string $post_type
 		 * @param string $page.
 		 * @return void
@@ -631,7 +621,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 		/**
 		 * Add links to plugin support forum.
-		 * 
+		 *
 		 * @param array $links
 		 * @param string $file
 		 * @return array
@@ -656,7 +646,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) :
 
 		/**
 		 * Add link to settings page.
-		 * 
+		 *
 		 * @staticvar string $plugin
 		 * @param array $links
 		 * @param string $file
