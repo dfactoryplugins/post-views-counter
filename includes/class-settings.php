@@ -16,9 +16,50 @@ class Post_Views_Counter_Settings {
 	 * @return void
 	 */
 	public function __construct() {
+		// actions
+		add_action( 'admin_init', [ $this, 'update_counter_mode' ] );
+
 		// filters
 		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_data' ] );
 		add_filter( 'post_views_counter_settings_pages', [ $this, 'settings_page' ] );
+	}
+
+	/**
+	 * Update counter mode.
+	 *
+	 * @return void
+	 */
+	public function update_counter_mode() {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		// Fast AJAX as active but not available counter mode?
+		if ( $pvc->options['general']['counter_mode'] === 'ajax' && ! in_array( 'ajax', $this->get_counter_modes(), true ) ) {
+			// set standard JavaScript AJAX calls
+			$pvc->options['general']['counter_mode'] = 'js';
+
+			// update database options
+			update_option( 'post_views_counter_settings_general', $pvc->options['general'] );
+		}
+	}
+
+	/**
+	 * Get available counter modes.
+	 *
+	 * @return array
+	 */
+	public function get_counter_modes() {
+		// counter modes
+		$modes = [
+			'php'	=> __( 'PHP', 'post-views-counter' ),
+			'js'	=> __( 'JavaScript', 'post-views-counter' )
+		];
+
+		// WordPress 4.4+?
+		if ( function_exists( 'register_rest_route' ) )
+			$modes['rest_api'] = __( 'REST API', 'post-views-counter' );
+
+		return apply_filters( 'pvc_get_counter_modes', $modes );
 	}
 
 	/**
@@ -30,17 +71,6 @@ class Post_Views_Counter_Settings {
 	public function settings_data( $settings ) {
 		// get main instance
 		$pvc = Post_Views_Counter();
-
-		// counting modes
-		$modes = [
-			'php'	=> __( 'PHP', 'post-views-counter' ),
-			'js'	=> __( 'JavaScript', 'post-views-counter' ),
-			'ajax'	=> __( 'Fast AJAX', 'post-views-counter' )
-		];
-
-		// WordPress 4.4+?
-		if ( function_exists( 'register_rest_route' ) )
-			$modes['rest_api'] = __( 'REST API', 'post-views-counter' );
 
 		// time types
 		$time_types = [
@@ -93,8 +123,8 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Counter Mode', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'radio',
-					'description'	=> __( 'Select the method of collecting post views data. If you are using any of the caching plugins select Javascript or REST API (if available).', 'post-views-counter' ) . '<br />' . __( 'Optionally try the Fast AJAX experimental method, usually 10+ times faster than Javascript or REST API.', 'post-views-counter' ),
-					'options'		=> $modes
+					'description'	=> __( 'Select the method of collecting post views data. If you are using any of the caching plugins select JavaScript or REST API (if available).', 'post-views-counter' ),
+					'options'		=> $this->get_counter_modes()
 				],
 				'post_views_column' => [
 					'tab'			=> 'general',
@@ -249,7 +279,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Position', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'select',
-					'description'	=> __( 'Select where would you like to display the post views counter. Use [post-views] shortcode for manual display.', 'post-views-counter' ),
+					'description'	=> sprintf( __( 'Select where would you like to display the post views counter. Use %s shortcode for manual display.', 'post-views-counter' ), '<code>[post-views]</code>' ),
 					'options'		=> [
 						'before'	=> __( 'before the content', 'post-views-counter' ),
 						'after'		=> __( 'after the content', 'post-views-counter' ),
@@ -547,7 +577,7 @@ class Post_Views_Counter_Settings {
 
 		$html .= '
 		</select>
-		<p class="description">' . __( 'Delete single day post views data older than specified above. Enter 0 (number zero) if you want to preserve your data regardless of its age.', 'post-views-counter' ) . '</p>';
+		<p class="description">' . sprintf( __( 'Delete single day post views data older than specified above. Enter %s if you want to preserve your data regardless of its age.', 'post-views-counter' ), '<code>0</code>' ) . '</p>';
 
 		return $html;
 	}
@@ -602,7 +632,7 @@ class Post_Views_Counter_Settings {
 
 		$html .= '
 		</select>
-		<p class="description">' . __( 'How often to flush cached view counts from the object cache into the database. This feature is used only if a persistent object cache is detected and the interval is greater than 0 (number zero). When used, view counts will be collected and stored in the object cache instead of the database and will then be asynchronously flushed to the database according to the specified interval.<br /><strong>Notice:</strong> Potential data loss may occur if the object cache is cleared/unavailable for the duration of the interval.', 'post-views-counter' ) . '</p>';
+		<p class="description">' . sprintf( __( 'How often to flush cached view counts from the object cache into the database. This feature is used only if a persistent object cache is detected and the interval is greater than %s. When used, view counts will be collected and stored in the object cache instead of the database and will then be asynchronously flushed to the database according to the specified interval.<br /><strong>Notice:</strong> Potential data loss may occur if the object cache is cleared/unavailable for the duration of the interval.', 'post-views-counter' ), '<code>0</code>' ) . '</p>';
 
 		return $html;
 	}

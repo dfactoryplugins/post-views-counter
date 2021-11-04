@@ -24,7 +24,7 @@
 					detail: response
 				} );
 			} );
-		// admin ajax or fast ajax request
+		// admin ajax request
 		} else {
 			var request = {
 				action: 'pvc-check-post',

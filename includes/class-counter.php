@@ -16,11 +16,11 @@ class Post_Views_Counter_Counter {
 	const MAX_INSERT_STRING_LENGTH = 25000;
 
 	private $db_insert_values = '';
-	private $cookie = array(
-		'exists'		 => false,
-		'visited_posts'	 => array(),
-		'expiration'	 => 0
-	);
+	private $cookie = [
+		'exists'		=> false,
+		'visited_posts'	=> [],
+		'expiration'	=> 0
+	];
 
 	/**
 	 * Class constructor.
@@ -29,13 +29,34 @@ class Post_Views_Counter_Counter {
 	 */
 	public function __construct() {
 		// actions
-		add_action( 'plugins_loaded', array( $this, 'check_cookie' ), 1 );
-		add_action( 'deleted_post', array( $this, 'delete_post_views' ) );
-		add_action( 'wp', array( $this, 'check_post_php' ) );
-		add_action( 'wp_ajax_pvc-check-post', array( $this, 'check_post_js' ) );
-		add_action( 'wp_ajax_nopriv_pvc-check-post', array( $this, 'check_post_js' ) );
-		add_action( 'pvc_ajax_pvc-check-post', array( $this, 'check_post_ajax' ) );
-		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
+		add_action( 'plugins_loaded', [ $this, 'check_cookie' ], 1 );
+		add_action( 'init', [ $this, 'init_counter' ] );
+		add_action( 'deleted_post', [ $this, 'delete_post_views' ] );
+	}
+
+	/**
+	 * Initialize counter.
+	 *
+	 * @return void
+	 */
+	public function init_counter() {
+		// admin?
+		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
+			return;
+
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		// PHP counter
+		if ( $pvc->options['general']['counter_mode'] === 'php' )
+			add_action( 'wp', [ $this, 'check_post_php' ] );
+		// JavaScript (AJAX) counter
+		elseif ( $pvc->options['general']['counter_mode'] === 'js' ) {
+			add_action( 'wp_ajax_pvc-check-post', [ $this, 'check_post_js' ] );
+			add_action( 'wp_ajax_nopriv_pvc-check-post', [ $this, 'check_post_js' ] );
+		// REST API?
+		} elseif ( $pvc->options['general']['counter_mode'] === 'rest_api' )
+			add_action( 'rest_api_init', [ $this, 'rest_api_init' ] );
 	}
 
 	/**
@@ -45,27 +66,26 @@ class Post_Views_Counter_Counter {
 	 * @return void
 	 */
 	public function check_post( $id = 0 ) {
-		// force check post in SHORTINIT mode
-		if ( defined( 'SHORTINIT' ) && SHORTINIT )
-			$this->check_cookie();
-
 		// get post id
 		$id = (int) ( empty( $id ) ? get_the_ID() : $id );
-
-		// get user id, from current user or static var in rest api request
-		$user_id = get_current_user_id();
-
-		// get user IP address
-		$user_ip = (string) $this->get_user_ip();
 
 		// empty id?
 		if ( empty( $id ) )
 			return;
 
+		// get user id, from current user or static var in rest api request
+		$user_id = get_current_user_id();
+
+		// get user IP address
+		$user_ip = $this->get_user_ip();
+
 		do_action( 'pvc_before_check_visit', $id, $user_id, $user_ip );
 
+		// get main instance
+		$pvc = Post_Views_Counter();
+
 		// get ips
-		$ips = Post_Views_Counter()->options['general']['exclude_ips'];
+		$ips = $pvc->options['general']['exclude_ips'];
 
 		// whether to count this ip
 		if ( ! empty( $ips ) && filter_var( preg_replace( '/[^0-9a-fA-F:., ]/', '', $user_ip ), FILTER_VALIDATE_IP ) ) {
@@ -80,30 +100,30 @@ class Post_Views_Counter_Counter {
 				}
 			}
 		}
-		
+
 		// strict counts?
-		if ( Post_Views_Counter()->options['general']['strict_counts'] ) {
+		if ( $pvc->options['general']['strict_counts'] ) {
 			// get IP cached visits
 			$ip_cache = get_transient( 'post_views_counter_ip_cache' );
 
 			if ( ! $ip_cache )
-				$ip_cache = array();
+				$ip_cache = [];
 
 			// get user IP address
-			$user_ip = $this->encrypt_ip( $this->get_user_ip() );
+			$user_ip = $this->encrypt_ip( $user_ip );
 
-			// get current time
-			$current_time = current_time( 'timestamp', true );
-			
 			// visit exists in transient?
 			if ( isset( $ip_cache[$id][$user_ip] ) ) {
-				if ( $current_time < $ip_cache[$id][$user_ip] + $this->get_timestamp( Post_Views_Counter()->options['general']['time_between_counts']['type'], Post_Views_Counter()->options['general']['time_between_counts']['number'], false ) )
+				// get current time
+				$current_time = current_time( 'timestamp', true );
+
+				if ( $current_time < $ip_cache[$id][$user_ip] + $this->get_timestamp( $pvc->options['general']['time_between_counts']['type'], $pvc->options['general']['time_between_counts']['number'], false ) )
 					return;
 			}
 		}
 
 		// get groups to check them faster
-		$groups = Post_Views_Counter()->options['general']['exclude']['groups'];
+		$groups = $pvc->options['general']['exclude']['groups'];
 
 		// whether to count this user
 		if ( ! empty( $user_id ) ) {
@@ -111,20 +131,22 @@ class Post_Views_Counter_Counter {
 			if ( in_array( 'users', $groups, true ) )
 				return;
 			// exclude specific roles?
-			elseif ( in_array( 'roles', $groups, true ) && $this->is_user_role_excluded( $user_id, Post_Views_Counter()->options['general']['exclude']['roles'] ) )
+			elseif ( in_array( 'roles', $groups, true ) && $this->is_user_role_excluded( $user_id, $pvc->options['general']['exclude']['roles'] ) )
 				return;
 		// exclude guests?
 		} elseif ( in_array( 'guests', $groups, true ) )
 			return;
 
 		// whether to count robots
-		if ( in_array( 'robots', $groups, true ) && Post_Views_Counter()->crawler_detect->is_crawler() )
+		if ( in_array( 'robots', $groups, true ) && $pvc->crawler_detect->is_crawler() )
 			return;
-
-		$current_time = current_time( 'timestamp', true );
 
 		// cookie already existed?
 		if ( $this->cookie['exists'] ) {
+			// get current time if needed
+			if ( ! isset( $current_time ) )
+				$current_time = current_time( 'timestamp', true );
+
 			// post already viewed but not expired?
 			if ( in_array( $id, array_keys( $this->cookie['visited_posts'] ), true ) && $current_time < $this->cookie['visited_posts'][$id] ) {
 				// update cookie but do not count visit
@@ -144,7 +166,7 @@ class Post_Views_Counter_Counter {
 		// count visit
 		if ( $count_visit ) {
 			// strict counts?
-			if ( Post_Views_Counter()->options['general']['strict_counts'] )
+			if ( $pvc->options['general']['strict_counts'] )
 				$this->save_ip( $id );
 
 			return $this->count_visit( $id );
@@ -165,7 +187,7 @@ class Post_Views_Counter_Counter {
 		if ( Post_Views_Counter()->options['general']['counter_mode'] !== 'php' )
 			return;
 
-		// get post types
+		// get countable post types
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
 		// whether to count this post type
@@ -176,41 +198,14 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
-	 * Check whether to count visit via Javascript(Ajax) request.
+	 * Check whether to count visit via JavaScript (AJAX) request.
 	 *
 	 * @return void
 	 */
 	public function check_post_js() {
-		if ( isset( $_POST['action'], $_POST['id'], $_POST['pvc_nonce'] ) && $_POST['action'] === 'pvc-check-post' && ($post_id = (int) $_POST['id']) > 0 && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-check-post' ) !== false ) {
-			// do we use Ajax as counter?
-			if ( Post_Views_Counter()->options['general']['counter_mode'] != 'js' )
-				exit;
-
-			// get countable post types
-			$post_types = Post_Views_Counter()->options['general']['post_types_count'];
-
-			// check if post exists
-			$post = get_post( $post_id );
-
-			// whether to count this post type or not
-			if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
-				exit;
-
-			$this->check_post( $post_id );
-		}
-
-		exit;
-	}
-
-	/**
-	 * Check whether to count visit via Fast AJAX request.
-	 *
-	 * @return void
-	 */
-	public function check_post_ajax() {
-		if ( isset( $_POST['action'], $_POST['id'], $_POST['pvc_nonce'] ) && $_POST['action'] === 'pvc-check-post' && ($post_id = (int) $_POST['id']) > 0 ) {
-			// do we use Ajax as counter?
-			if ( Post_Views_Counter()->options['general']['counter_mode'] != 'ajax' )
+		if ( isset( $_POST['action'], $_POST['id'], $_POST['pvc_nonce'] ) && $_POST['action'] === 'pvc-check-post' && ( $post_id = (int) $_POST['id'] ) > 0 && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-check-post' ) !== false ) {
+			// do we use JavaScript as counter?
+			if ( Post_Views_Counter()->options['general']['counter_mode'] !== 'js' )
 				exit;
 
 			// get countable post types
@@ -239,8 +234,8 @@ class Post_Views_Counter_Counter {
 		$post_id = absint( $request['id'] );
 
 		// do we use REST API as counter?
-		if ( Post_Views_Counter()->options['general']['counter_mode'] != 'rest_api' )
-			return new WP_Error( 'pvc_rest_api_disabled', __( 'REST API method is disabled.', 'post-views-counter' ), array( 'status' => 404 ) );
+		if ( Post_Views_Counter()->options['general']['counter_mode'] !== 'rest_api' )
+			return new WP_Error( 'pvc_rest_api_disabled', __( 'REST API method is disabled.', 'post-views-counter' ), [ 'status' => 404 ] );
 
 		// @todo: get current user id in direct api endpoint calls
 
@@ -248,13 +243,14 @@ class Post_Views_Counter_Counter {
 		$post = get_post( $post_id );
 
 		if ( ! $post )
-			return new WP_Error( 'pvc_post_invalid_id', __( 'Invalid post ID.', 'post-views-counter' ), array( 'status' => 404 ) );
+			return new WP_Error( 'pvc_post_invalid_id', __( 'Invalid post ID.', 'post-views-counter' ), [ 'status' => 404 ] );
 
+		// get countable post types
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
 		// whether to count this post type
-		if ( empty( $post_types ) || ! in_array( $post->post_type, $post_types ) )
-			return new WP_Error( 'pvc_post_type_excluded', __( 'Post type excluded.', 'post-views-counter' ), array( 'status' => 404 ) );
+		if ( empty( $post_types ) || ! in_array( $post->post_type, $post_types, true ) )
+			return new WP_Error( 'pvc_post_type_excluded', __( 'Post type excluded.', 'post-views-counter' ), [ 'status' => 404 ] );
 
 		return $this->check_post( $post_id );
 	}
@@ -274,7 +270,7 @@ class Post_Views_Counter_Counter {
 
 		// is cookie set?
 		if ( isset( $_COOKIE[$cookie_name] ) && ! empty( $_COOKIE[$cookie_name] ) ) {
-			$visited_posts = $expirations = array();
+			$visited_posts = $expirations = [];
 
 			foreach ( $_COOKIE[$cookie_name] as $content ) {
 				// is cookie valid?
@@ -291,11 +287,12 @@ class Post_Views_Counter_Counter {
 				}
 			}
 
-			$this->cookie = array(
-				'exists'		 => true,
-				'visited_posts'	 => $visited_posts,
-				'expiration'	 => max( $expirations )
-			);
+			// update cookie
+			$this->cookie = [
+				'exists'		=> true,
+				'visited_posts'	=> $visited_posts,
+				'expiration'	=> max( $expirations )
+			];
 		}
 	}
 
@@ -305,9 +302,9 @@ class Post_Views_Counter_Counter {
 	 * @param int $id
 	 * @param array $cookie
 	 * @param bool $expired
-	 * @return void|int
+	 * @return void
 	 */
-	private function save_cookie( $id, $cookie = array(), $expired = true ) {
+	private function save_cookie( $id, $cookie = [], $expired = true ) {
 		$set_cookie = apply_filters( 'pvc_maybe_set_cookie', true );
 
 		// Cookie Notice compatibility
@@ -315,7 +312,7 @@ class Post_Views_Counter_Counter {
 			$set_cookie = false;
 
 		if ( $set_cookie !== true )
-			return $id;
+			return;
 
 		$expiration = $this->get_timestamp( Post_Views_Counter()->options['general']['time_between_counts']['type'], Post_Views_Counter()->options['general']['time_between_counts']['number'] );
 
@@ -347,15 +344,15 @@ class Post_Views_Counter_Counter {
 			// set new last expiration date if needed
 			$cookie['expiration'] = max( $cookie['visited_posts'] );
 
-			$cookies = $imploded = array();
+			$cookies = $imploded = [];
 
 			// create pairs
 			foreach ( $cookie['visited_posts'] as $id => $exp ) {
 				$imploded[] = $exp . 'b' . $id;
 			}
 
-			// split cookie into chunks (4000 bytes to make sure it is safe for every browser)
-			$chunks = str_split( implode( 'a', $imploded ), 4000 );
+			// split cookie into chunks (3980 bytes to make sure it is safe for every browser)
+			$chunks = str_split( implode( 'a', $imploded ), 3980 );
 
 			// more then one chunk?
 			if ( count( $chunks ) > 1 ) {
@@ -366,7 +363,7 @@ class Post_Views_Counter_Counter {
 					$chunk_c = $last_id . $chunk;
 
 					// is it full-length chunk?
-					if ( strlen( $chunk ) === 4000 ) {
+					if ( strlen( $chunk ) === 3980 ) {
 						// get last part
 						$last_part = strrchr( $chunk_c, 'a' );
 
@@ -387,20 +384,20 @@ class Post_Views_Counter_Counter {
 
 			foreach ( $cookies as $key => $value ) {
 				// set cookie
-				setcookie( $cookie_name . '[' . $key . ']', $value, $cookie['expiration'], COOKIEPATH, COOKIE_DOMAIN, (isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ? true : false ), true );
+				setcookie( $cookie_name . '[' . $key . ']', $value, $cookie['expiration'], COOKIEPATH, COOKIE_DOMAIN, ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ? true : false ), true );
 			}
 		}
 	}
 
 	/**
-	 * Save user IP function.
+	 * Save user IP address.
 	 *
 	 * @param int $id
 	 * @return int|void
 	 */
 	private function save_ip( $id ) {
 		$set_cookie = apply_filters( 'pvc_maybe_set_cookie', true );
-		
+
 		// Cookie Notice compatibility
 		if ( function_exists( 'cn_cookies_accepted' ) && ! cn_cookies_accepted() )
 			$set_cookie = false;
@@ -412,7 +409,7 @@ class Post_Views_Counter_Counter {
 		$ip_cache = get_transient( 'post_views_counter_ip_cache' );
 
 		if ( ! $ip_cache )
-			$ip_cache = array();
+			$ip_cache = [];
 
 		// get user IP address
 		$user_ip = $this->encrypt_ip( $this->get_user_ip() );
@@ -441,36 +438,33 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
-	 * Count visit function.
+	 * Count visit.
 	 *
-	 * @global object $wpdb
 	 * @param int $id
 	 * @return int
 	 */
 	private function count_visit( $id ) {
-		global $wpdb;
-
-		$cache_key_names = array();
+		$cache_key_names = [];
 		$using_object_cache = $this->using_object_cache();
 		$increment_amount = (int) apply_filters( 'pvc_views_increment_amount', 1, $id );
 
 		// get day, week, month and year
 		$date = explode( '-', date( 'W-d-m-Y-o', current_time( 'timestamp', true ) ) );
 
-		foreach ( array(
-			0	 => $date[3] . $date[2] . $date[1], // day like 20140324
-			1	 => $date[4] . $date[0], // week like 201439
-			2	 => $date[3] . $date[2], // month like 201405
-			3	 => $date[3], // year like 2014
-			4	 => 'total'   // total views
-		) as $type => $period ) {
+		foreach ( [
+			0	=> $date[3] . $date[2] . $date[1],	// day like 20140324
+			1	=> $date[4] . $date[0],				// week like 201439
+			2	=> $date[3] . $date[2],				// month like 201405
+			3	=> $date[3],						// year like 2014
+			4	=> 'total'							// total views
+		] as $type => $period ) {
 			if ( $using_object_cache ) {
 				$cache_key = $id . self::CACHE_KEY_SEPARATOR . $type . self::CACHE_KEY_SEPARATOR . $period;
 				wp_cache_add( $cache_key, 0, self::GROUP );
 				wp_cache_incr( $cache_key, $increment_amount, self::GROUP );
 				$cache_key_names[] = $cache_key;
 			} else {
-				// hit the db directly
+				// hit the database directly
 				// @TODO: investigate queueing these queries on the 'shutdown' hook instead of running them instantly?
 				$this->db_insert( $id, $type, $period, $increment_amount );
 			}
@@ -488,14 +482,14 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Remove post views from database when post is deleted.
 	 *
-	 * @global object $wpdb
+	 * @global $wpdb
 	 * @param int $post_id
 	 * @return void
 	 */
 	public function delete_post_views( $post_id ) {
 		global $wpdb;
 
-		$wpdb->delete( $wpdb->prefix . 'post_views', array( 'id' => $post_id ), array( '%d' ) );
+		$wpdb->delete( $wpdb->prefix . 'post_views', [ 'id' => $post_id ], [ '%d' ] );
 	}
 
 	/**
@@ -507,14 +501,14 @@ class Post_Views_Counter_Counter {
 	 * @return string
 	 */
 	public function get_timestamp( $type, $number, $timestamp = true ) {
-		$converter = array(
-			'minutes'	 => 60,
-			'hours'		 => 3600,
-			'days'		 => 86400,
-			'weeks'		 => 604800,
-			'months'	 => 2592000,
-			'years'		 => 946080000
-		);
+		$converter = [
+			'minutes'	=> 60,
+			'hours'		=> 3600,
+			'days'		=> 86400,
+			'weeks'		=> 604800,
+			'months'	=> 2592000,
+			'years'		=> 946080000
+		];
 
 		return (int) ( ( $timestamp ? current_time( 'timestamp', true ) : 0 ) + $number * $converter[$type] );
 	}
@@ -539,7 +533,7 @@ class Post_Views_Counter_Counter {
 
 	/**
 	 * Update the single cache key which holds a list of all the cache keys
-	 * that need to be flushed to the db.
+	 * that need to be flushed to the database.
 	 *
 	 * The value of that special cache key is a giant string containing key names separated with the `|` character.
 	 * Each such key name then consists of 3 elements: $id, $type, $period (separated by a `.` character).
@@ -552,7 +546,7 @@ class Post_Views_Counter_Counter {
 	 * @param array $key_names
 	 * @return void
 	 */
-	private function update_cached_keys_list_if_needed( $key_names = array() ) {
+	private function update_cached_keys_list_if_needed( $key_names = [] ) {
 		$existing_list = wp_cache_get( self::NAME_ALLKEYS, self::GROUP );
 
 		if ( ! $existing_list )
@@ -591,7 +585,7 @@ class Post_Views_Counter_Counter {
 		$key_names = wp_cache_get( self::NAME_ALLKEYS, self::GROUP );
 
 		if ( ! $key_names )
-			$key_names = array();
+			$key_names = [];
 		else {
 			// create an array out of a string that's stored in the cache
 			$key_names = explode( '|', $key_names );
@@ -627,7 +621,7 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Insert or update views count.
 	 *
-	 * @global object $wpdb
+	 * @global $wpdb
 	 * @param int $id
 	 * @param string $type
 	 * @param string $period
@@ -681,7 +675,7 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Insert accumulated values to database.
 	 *
-	 * @global object $wpdb
+	 * @global $wpdb
 	 * @return int|bool
 	 */
 	private function db_commit_insert() {
@@ -709,14 +703,17 @@ class Post_Views_Counter_Counter {
 	 * @return bool
 	 */
 	public function is_user_role_excluded( $user_id, $option ) {
+		// get user by ID
 		$user = get_user_by( 'id', $user_id );
 
+		// no user?
 		if ( empty( $user ) )
 			return false;
 
 		// get user roles
 		$roles = (array) $user->roles;
 
+		// any roles?
 		if ( ! empty( $roles ) ) {
 			foreach ( $roles as $role ) {
 				if ( in_array( $role, $option, true ) )
@@ -750,7 +747,7 @@ class Post_Views_Counter_Counter {
 	public function get_user_ip() {
 		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
 
-		foreach ( array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' ) as $key ) {
+		foreach ( [ 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' ] as $key ) {
 			if ( array_key_exists( $key, $_SERVER ) === true ) {
 				foreach ( explode( ',', $_SERVER[$key] ) as $ip ) {
 					// trim for safety measures
@@ -763,7 +760,7 @@ class Post_Views_Counter_Counter {
 			}
 		}
 
-		return $ip;
+		return (string) $ip;
 	}
 
 	/**
@@ -846,30 +843,30 @@ class Post_Views_Counter_Counter {
 	 */
 	public function rest_api_init() {
 		// view post route
-		register_rest_route( 'post-views-counter', '/view-post/', array(
-			'methods'				=> array( 'GET', 'POST' ),
-			'callback'				=> array( $this, 'check_post_rest_api' ),
-			'permission_callback'	=> array( $this, 'post_views_permissions_check' ),
-			'args'					=> array(
-				'id' => array(
-					'default'			 => 0,
-					'sanitize_callback'	 => 'absint'
-				)
-			)
-		) );
+		register_rest_route( 'post-views-counter', '/view-post/', [
+			'methods'				=> [ 'GET', 'POST' ],
+			'callback'				=> [ $this, 'check_post_rest_api' ],
+			'permission_callback'	=> [ $this, 'post_views_permissions_check' ],
+			'args'					=> [
+				'id' => [
+					'default'			=> 0,
+					'sanitize_callback'	=> 'absint'
+				]
+			]
+		] );
 
 		// get views route
-		register_rest_route( 'post-views-counter', '/get-post-views/', array(
-			'methods'				=> array( 'GET', 'POST' ),
-			'callback'				=> array( $this, 'get_post_views_rest_api' ),
-			'permission_callback'	=> array( $this, 'get_post_views_permissions_check' ),
-			'args'					=> array(
-				'id' => array(
+		register_rest_route( 'post-views-counter', '/get-post-views/', [
+			'methods'				=> [ 'GET', 'POST' ],
+			'callback'				=> [ $this, 'get_post_views_rest_api' ],
+			'permission_callback'	=> [ $this, 'get_post_views_permissions_check' ],
+			'args'					=> [
+				'id' => [
 					'default'	=> 0,
 					'user_id'	=> get_current_user_id()
-				)
-			)
-		) );
+				]
+			]
+		] );
 	}
 
 	/**

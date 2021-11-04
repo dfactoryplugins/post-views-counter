@@ -5,7 +5,7 @@ Tags: counter, hits, posts, postviews, post views, views, count, statistics, sta
 Requires at least: 5.0
 Requires PHP: 5.2.4
 Tested up to: 5.8.1
-Stable tag: 1.3.7
+Stable tag: 1.3.8
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -20,7 +20,7 @@ For more information, check out plugin page at [dFactory](http://dfactory.eu/) o
 = Features include: =
 
 * Option to select post types for which post views will be counted and displayed.
-* 4 methods of collecting post views data: PHP, Javascript, Fast AJAX and REST API for greater flexibility
+* 3 methods of collecting post views data: PHP, Javascript and REST API for greater flexibility
 * Compatible with data privacy regulations
 * Possibility to manually set views count for each post
 * Dashboard post views stats widget
@@ -61,6 +61,9 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3.8 =
+* Tweak: Improved user input escaping
 
 = 1.3.7 =
 * Tweak: Implemented internal settings API
@@ -222,5 +225,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.3.7 =
-* Tweak: Implemented internal settings API
+= 1.3.8 =
+* Tweak: Improved user input escaping

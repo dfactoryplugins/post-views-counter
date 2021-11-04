@@ -28,7 +28,7 @@ class Post_Views_Counter_Cron {
 	/**
 	 * Reset daily counts.
 	 * 
-	 * @global object $wpdb
+	 * @global $wpdb
 	 * @return void
 	 */
 	public function reset_counts() {
@@ -41,7 +41,10 @@ class Post_Views_Counter_Cron {
 			'years'		 => 365
 		];
 
-		$wpdb->query( 'DELETE FROM ' . $wpdb->prefix . 'post_views WHERE type = 0 AND CAST( period AS SIGNED ) < CAST( ' . date( 'Ymd', strtotime( '-' . ( (int) ( $counter[Post_Views_Counter()->options['general']['reset_counts']['type']] * Post_Views_Counter()->options['general']['reset_counts']['number'] ) ) . ' days' ) ) . ' AS SIGNED)' );
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		$wpdb->query( 'DELETE FROM ' . $wpdb->prefix . 'post_views WHERE type = 0 AND CAST( period AS SIGNED ) < CAST( ' . date( 'Ymd', strtotime( '-' . ( (int) ( $counter[$pvc->options['general']['reset_counts']['type']] * $pvc->options['general']['reset_counts']['number'] ) ) . ' days' ) ) . ' AS SIGNED)' );
 	}
 
 	/**
@@ -51,6 +54,7 @@ class Post_Views_Counter_Cron {
 	 * @return void
 	 */
 	public function flush_cached_counts() {
+		// get counter class
 		$counter = Post_Views_Counter()->counter;
 
 		// caching?
@@ -65,13 +69,16 @@ class Post_Views_Counter_Cron {
 	 * @return array
 	 */
 	public function cron_time_intervals( $schedules ) {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
 		$schedules['post_views_counter_interval'] = [
 			'interval'	=> 86400,
 			'display'	=> __( 'Post Views Counter reset daily counts interval', 'post-views-counter' )
 		];
 
 		$schedules['post_views_counter_flush_interval'] = [
-			'interval'	=> Post_Views_Counter()->counter->get_timestamp( Post_Views_Counter()->options['general']['flush_interval']['type'], Post_Views_Counter()->options['general']['flush_interval']['number'], false ),
+			'interval'	=> $pvc->counter->get_timestamp( $pvc->options['general']['flush_interval']['type'], $pvc->options['general']['flush_interval']['number'], false ),
 			'display'	=> __( 'Post Views Counter cache flush interval', 'post-views-counter' )
 		];
 

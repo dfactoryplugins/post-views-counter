@@ -110,7 +110,7 @@ class Post_Views_Counter_Dashboard {
 							<span class="spinner"></span>
 						</div>
 						<div class="pvc-months">
-							<?php echo $months_html; ?>
+							<?php echo wp_kses_post( $months_html ); ?>
 						</div>
 					</div>
 				</div>
@@ -126,7 +126,7 @@ class Post_Views_Counter_Dashboard {
 							<span class="spinner"></span>
 						</div>
 						<div class="pvc-months">
-							<?php echo $months_html; ?>
+							<?php echo wp_kses_post( $months_html ); ?>
 						</div>
 					</div>
 				</div>
@@ -149,7 +149,7 @@ class Post_Views_Counter_Dashboard {
 			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
 		// get period
-		$period = isset( $_POST['period'] ) ? esc_attr( $_POST['period'] ) : 'this_month';
+		$period = isset( $_POST['period'] ) ? sanitize_text_field( $_POST['period'] ) : 'this_month';
 
 		// get post types
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
@@ -412,7 +412,7 @@ class Post_Views_Counter_Dashboard {
 			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
 		// get period
-		$period = isset( $_POST['period'] ) ? esc_attr( $_POST['period'] ) : 'this_month';
+		$period = isset( $_POST['period'] ) ? sanitize_text_field( $_POST['period'] ) : 'this_month';
 
 		// get post types
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];

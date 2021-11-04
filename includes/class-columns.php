@@ -292,12 +292,10 @@ class Post_Views_Counter_Columns {
 	 * @return void
 	 */
 	function save_bulk_post_views() {
-		if ( ! isset( $_POST['post_views'] ) )
-			$count = null;
-		else {
-			$count = trim( $_POST['post_views'] );
-
-			if ( is_numeric( $_POST['post_views'] ) ) {
+		$count = null;
+		
+		if ( isset( $_POST['post_views'] ) ) {
+			if ( is_numeric( trim( $_POST['post_views'] ) ) ) {
 				$count = (int) $_POST['post_views'];
 
 				if ( $count < 0 )
