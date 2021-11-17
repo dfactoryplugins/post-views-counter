@@ -66,6 +66,10 @@ class Post_Views_Counter_Counter {
 	 * @return void
 	 */
 	public function check_post( $id = 0 ) {
+		// short init?
+		if ( defined( 'SHORTINIT' ) && SHORTINIT )
+			$this->check_cookie();
+
 		// get post id
 		$id = (int) ( empty( $id ) ? get_the_ID() : $id );
 
@@ -578,7 +582,7 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Flush views data stored in the persistent object cache into
 	 * our custom table and clear the object cache keys when done.
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function flush_cache_to_db() {

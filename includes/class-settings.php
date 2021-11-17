@@ -34,7 +34,7 @@ class Post_Views_Counter_Settings {
 		$pvc = Post_Views_Counter();
 
 		// Fast AJAX as active but not available counter mode?
-		if ( $pvc->options['general']['counter_mode'] === 'ajax' && ! in_array( 'ajax', $this->get_counter_modes(), true ) ) {
+		if ( $pvc->options['general']['counter_mode'] === 'ajax' && ! array_key_exists( 'ajax', $this->get_counter_modes() ) ) {
 			// set standard JavaScript AJAX calls
 			$pvc->options['general']['counter_mode'] = 'js';
 

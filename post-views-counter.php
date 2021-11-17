@@ -111,34 +111,45 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				self::$instance = new Post_Views_Counter;
 				self::$instance->define_constants();
 
-				add_action( 'plugins_loaded', [ self::$instance, 'load_textdomain' ] );
+				// short init?
+				if ( defined( 'SHORTINIT' ) && SHORTINIT ) {
+					include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-counter.php' );
+					include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-crawler-detect.php' );
+					include_once( POST_VIEWS_COUNTER_PATH . 'includes/functions.php' );
 
-				self::$instance->includes();
+					self::$instance->counter = new Post_Views_Counter_Counter();
+					self::$instance->crawler_detect = new Post_Views_Counter_Crawler_Detect();
+				// regular setup
+				} else {
+					add_action( 'plugins_loaded', [ self::$instance, 'load_textdomain' ] );
 
-				// create settings API
-				self::$instance->settings_api = new Post_Views_Counter_Settings_API(
-					[
-						'object'		=> self::$instance,
-						'prefix'		=> 'post_views_counter',
-						'slug'			=> 'post-views-counter',
-						'domain'		=> 'post-views-counter',
-						'plugin'		=> 'Post Views Counter',
-						'plugin_url'	=> 'POST_VIEWS_COUNTER_URL'
-					]
-				);
+					self::$instance->includes();
 
-				self::$instance->functions = new Post_Views_Counter_Functions();
-				self::$instance->update = new Post_Views_Counter_Update();
-				self::$instance->settings = new Post_Views_Counter_Settings();
-				self::$instance->admin = new Post_Views_Counter_Admin();
-				self::$instance->query = new Post_Views_Counter_Query();
-				self::$instance->cron = new Post_Views_Counter_Cron();
-				self::$instance->counter = new Post_Views_Counter_Counter();
-				self::$instance->columns = new Post_Views_Counter_Columns();
-				self::$instance->crawler_detect = new Post_Views_Counter_Crawler_Detect();
-				self::$instance->frontend = new Post_Views_Counter_Frontend();
-				self::$instance->dashboard = new Post_Views_Counter_Dashboard();
-				self::$instance->widgets = new Post_Views_Counter_Widgets();
+					// create settings API
+					self::$instance->settings_api = new Post_Views_Counter_Settings_API(
+						[
+							'object'		=> self::$instance,
+							'prefix'		=> 'post_views_counter',
+							'slug'			=> 'post-views-counter',
+							'domain'		=> 'post-views-counter',
+							'plugin'		=> 'Post Views Counter',
+							'plugin_url'	=> 'POST_VIEWS_COUNTER_URL'
+						]
+					);
+
+					self::$instance->functions = new Post_Views_Counter_Functions();
+					self::$instance->update = new Post_Views_Counter_Update();
+					self::$instance->settings = new Post_Views_Counter_Settings();
+					self::$instance->admin = new Post_Views_Counter_Admin();
+					self::$instance->query = new Post_Views_Counter_Query();
+					self::$instance->cron = new Post_Views_Counter_Cron();
+					self::$instance->counter = new Post_Views_Counter_Counter();
+					self::$instance->columns = new Post_Views_Counter_Columns();
+					self::$instance->crawler_detect = new Post_Views_Counter_Crawler_Detect();
+					self::$instance->frontend = new Post_Views_Counter_Frontend();
+					self::$instance->dashboard = new Post_Views_Counter_Dashboard();
+					self::$instance->widgets = new Post_Views_Counter_Widgets();
+				}
 			}
 
 			return self::$instance;
@@ -150,8 +161,12 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @return void
 		 */
 		private function define_constants() {
-			define( 'POST_VIEWS_COUNTER_URL', plugins_url( '', __FILE__ ) );
-			define( 'POST_VIEWS_COUNTER_REL_PATH', dirname( plugin_basename( __FILE__ ) ) . '/' );
+			// fix plugin_basename empty $wp_plugin_paths var
+			if ( ! ( defined( 'SHORTINIT' ) && SHORTINIT ) ) {
+				define( 'POST_VIEWS_COUNTER_URL', plugins_url( '', __FILE__ ) );
+				define( 'POST_VIEWS_COUNTER_REL_PATH', dirname( plugin_basename( __FILE__ ) ) . '/' );
+			}
+
 			define( 'POST_VIEWS_COUNTER_PATH', plugin_dir_path( __FILE__ ) );
 		}
 
@@ -182,6 +197,16 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @return void
 		 */
 		public function __construct() {
+			// short init?
+			if ( defined( 'SHORTINIT' ) && SHORTINIT ) {
+				$this->options = [
+					'general'	 => array_merge( $this->defaults['general'], get_option( 'post_views_counter_settings_general', $this->defaults['general'] ) ),
+					'display'	 => array_merge( $this->defaults['display'], get_option( 'post_views_counter_settings_display', $this->defaults['display'] ) )
+				];
+
+				return;
+			}
+
 			register_activation_hook( __FILE__, [ $this, 'multisite_activation' ] );
 			register_deactivation_hook( __FILE__, [ $this, 'multisite_deactivation' ] );
 

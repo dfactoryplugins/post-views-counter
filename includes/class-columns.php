@@ -39,8 +39,11 @@ class Post_Views_Counter_Columns {
 	public function submitbox_views() {
 		global $post;
 
+		// get main instance
+		$pvc = Post_Views_Counter();
+
 		// incorrect post type?
-		if ( ! in_array( $post->post_type, (array) Post_Views_Counter()->options['general']['post_types_count'] ) )
+		if ( ! in_array( $post->post_type, (array) $pvc->options['general']['post_types_count'] ) )
 			return;
 
 		// break if current user can't edit this post
@@ -60,7 +63,7 @@ class Post_Views_Counter_Columns {
 
 			<?php
 			// restrict editing
-			$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
+			$restrict = (bool) $pvc->options['general']['restrict_edit_views'];
 
 			if ( $restrict === false || ( $restrict === true && current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) ) ) {
 				?>
@@ -112,8 +115,11 @@ class Post_Views_Counter_Columns {
 		if ( isset( $_POST['current_post_views'] ) && $post_views === (int) $_POST['current_post_views'] )
 			return $post_id;
 
+		// get main instance
+		$pvc = Post_Views_Counter();
+
 		// break if post views in not one of the selected
-		$post_types = (array) Post_Views_Counter()->options['general']['post_types_count'];
+		$post_types = (array) $pvc->options['general']['post_types_count'];
 
 		// get post type
 		if ( is_null( $post ) )
@@ -126,7 +132,7 @@ class Post_Views_Counter_Columns {
 			return $post_id;
 
 		// break if views editing is restricted
-		if ( (bool) Post_Views_Counter()->options['general']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+		if ( (bool) $pvc->options['general']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			return $post_id;
 
 		// validate data
@@ -262,11 +268,14 @@ class Post_Views_Counter_Columns {
 		if ( $column_name !== 'post_views' )
 			return;
 
-		if ( ! Post_Views_Counter()->options['general']['post_views_column'] || ! in_array( $post_type, Post_Views_Counter()->options['general']['post_types_count'] ) )
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		if ( ! $pvc->options['general']['post_views_column'] || ! in_array( $post_type, $pvc->options['general']['post_types_count'] ) )
 			return;
 
 		// break if views editing is restricted
-		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
+		$restrict = (bool) $pvc->options['general']['restrict_edit_views'];
 
 		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			return;
@@ -363,7 +372,7 @@ class Post_Views_Counter_Columns {
 			global $post;
 
 		// get countable post types
-		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+		$post_types = $pvc->options['general']['post_types_count'];
 
 		// whether to count this post type or not
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )

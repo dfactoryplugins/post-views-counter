@@ -164,7 +164,7 @@ class Post_Views_Counter_Settings_API {
 			$first_tab = key( $tabs );
 
 			// get current tab
-			$tab_key = ! empty( $_GET['tab'] ) && array_key_exists( sanitize_text_field( $_GET['tab'] ), $tabs ) ? sanitize_text_field( $_GET['tab'] ) : $first_tab;
+			$tab_key = ! empty( $_GET['tab'] ) && array_key_exists( $_GET['tab'], $tabs ) ? $_GET['tab'] : $first_tab;
 
 			echo '
 			<h2 class="nav-tab-wrapper">';
