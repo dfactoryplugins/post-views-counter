@@ -4,8 +4,8 @@ Donate link: http://dfactory.eu/
 Tags: counter, hits, posts, postviews, post views, views, count, statistics, stats, analytics, pageviews, tracking
 Requires at least: 5.0
 Requires PHP: 5.2.4
-Tested up to: 5.8.1
-Stable tag: 1.3.8
+Tested up to: 5.8.2
+Stable tag: 1.3.9
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -61,6 +61,9 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3.9 =
+* Tweak: Remove unnecessary plugin files
 
 = 1.3.8 =
 * Tweak: Improved user input escaping
@@ -225,5 +228,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.3.8 =
-* Tweak: Improved user input escaping
+= 1.3.9 =
+* Tweak: Remove unnecessary plugin files
