@@ -151,8 +151,15 @@ class Post_Views_Counter_Columns {
 	 * @return void
 	 */
 	public function register_new_column() {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		// is posts views column active?
+		if ( ! $pvc->options['general']['post_views_column'] )
+			return;
+
 		// get post types
-		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+		$post_types = $pvc->options['general']['post_types_count'];
 
 		// any post types?
 		if ( ! empty( $post_types ) ) {
@@ -204,33 +211,34 @@ class Post_Views_Counter_Columns {
 	 * @return array
 	 */
 	public function add_new_column( $columns ) {
-		$offset = 0;
+		// date column exists?
+		if ( isset( $columns['date'] ) ) {
+			// store date column
+			$date = $columns['date'];
 
-		// date column?
-		if ( isset( $columns['date'] ) )
-			$offset++;
+			// unset date column
+			unset( $columns['date'] );
+		}
 
-		// comments column?
-		if ( isset( $columns['comments'] ) )
-			$offset++;
+		// comments column exists?
+		if ( isset( $columns['comments'] ) ) {
+			// store comments column
+			$comments = $columns['comments'];
 
-		// any skipped columns?
-		if ( $offset > 0 ) {
-			$data = array_slice( $columns, -$offset, $offset, true );
+			// unset comments column
+			unset( $columns['comments'] );
+		}
 
-			// unset columns
-			foreach ( $data as $column => $name ) {
-				unset( $columns[$column] );
-			}
+		// add post views column
+		$columns['post_views'] = '<span class="dash-icon dashicons dashicons-chart-bar" title="' . esc_attr__( 'Post Views', 'post-views-counter' ) . '"><span class="screen-reader-text">' . esc_attr__( 'Post Views', 'post-views-counter' ) . '</span></span>';
 
-			$columns['post_views'] = '<span class="dash-icon dashicons dashicons-chart-bar" title="' . __( 'Post Views', 'post-views-counter' ) . '"></span><span class="dash-title">' . __( 'Post Views', 'post-views-counter' ) . '</span>';
+		// restore date column
+		if ( isset( $date ) )
+			$columns['date'] = $date;
 
-			// again add columns
-			foreach ( $data as $column => $name ) {
-				$columns[$column] = $name;
-			}
-		} else
-			$columns['post_views'] = '<span class="dash-icon dashicons dashicons-chart-bar" title="' . __( 'Post Views', 'post-views-counter' ) . '"></span><span class="dash-title">' . __( 'Post Views', 'post-views-counter' ) . '</span>';
+		// restore comments column
+		if ( isset( $comments ) )
+			$columns['comments'] = $comments;
 
 		return $columns;
 	}

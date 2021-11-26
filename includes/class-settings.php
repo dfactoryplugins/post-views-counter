@@ -711,9 +711,6 @@ class Post_Views_Counter_Settings {
 	 * @return array
 	 */
 	public function validate_exclude( $input, $field ) {
-		// get main instance
-		$pvc = Post_Views_Counter();
-
 		// any groups?
 		if ( isset( $input['exclude']['groups'] ) ) {
 			$groups = [];
@@ -749,10 +746,12 @@ class Post_Views_Counter_Settings {
 	 * @return string
 	 */
 	public function setting_exclude_ips() {
+		// get ip addresses
 		$ips = Post_Views_Counter()->options['general']['exclude_ips'];
 
 		$html = '';
 
+		// any ip addresses?
 		if ( ! empty( $ips ) ) {
 			foreach ( $ips as $key => $ip ) {
 				$html .= '
@@ -782,9 +781,6 @@ class Post_Views_Counter_Settings {
 	 * @return array
 	 */
 	public function validate_exclude_ips( $input, $field ) {
-		// get main instance
-		$pvc = Post_Views_Counter();
-
 		// any ip addresses?
 		if ( isset( $input['exclude_ips'] ) ) {
 			$ips = [];
@@ -864,9 +860,6 @@ class Post_Views_Counter_Settings {
 	 * @return array
 	 */
 	public function validate_restrict_display( $input, $field ) {
-		// get main instance
-		$pvc = Post_Views_Counter();
-
 		// any groups?
 		if ( isset( $input['restrict_display']['groups'] ) ) {
 			$groups = [];

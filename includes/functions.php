@@ -44,7 +44,7 @@ if ( ! function_exists( 'pvc_get_post_views' ) ) {
 			$post_views = (int) $wpdb->get_var( $query );
 			
 			// set the cache expiration, 5 minutes by default
-			$expire = absint( apply_filters( 'pvc_object_cache_expire', 5 * 60 ) );
+			$expire = absint( apply_filters( 'pvc_object_cache_expire', 300 ) );
 
 			wp_cache_add( md5( $query ), $post_views, 'pvc-get_post_views', $expire );
 		}
@@ -600,7 +600,7 @@ function pvc_update_post_views( $post_id = 0, $post_views = 0 ) {
 
 /**
  * View post manually function.
- * 
+ *
  * @since 1.2.0
  * @param int $post_id
  * @return bool
