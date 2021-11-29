@@ -72,8 +72,8 @@ class Post_Views_Counter_Columns {
 				<div id="post-views-input-container" class="hide-if-js">
 
 					<p><?php _e( 'Adjust the views count for this post.', 'post-views-counter' ); ?></p>
-					<input type="hidden" name="current_post_views" id="post-views-current" value="<?php echo $count; ?>" />
-					<input type="text" name="post_views" id="post-views-input" value="<?php echo $count; ?>"/><br />
+					<input type="hidden" name="current_post_views" id="post-views-current" value="<?php echo esc_attr( $count ); ?>" />
+					<input type="text" name="post_views" id="post-views-input" value="<?php echo esc_attr( $count ); ?>"/><br />
 					<p>
 						<a href="#post-views" class="save-post-views hide-if-no-js button"><?php _e( 'OK', 'post-views-counter' ); ?></a>
 						<a href="#post-views" class="cancel-post-views hide-if-no-js"><?php _e( 'Cancel', 'post-views-counter' ); ?></a>
@@ -255,7 +255,7 @@ class Post_Views_Counter_Columns {
 			// get total post views
 			$count = pvc_get_post_views( $id );
 
-			echo $count;
+			echo esc_html( $count );
 		}
 	}
 
@@ -511,6 +511,6 @@ class Post_Views_Counter_Columns {
 		$html .= '
 		</style>';
 
-		echo $html;
+		echo wp_kses( $html, array( 'style' => array() ) );
 	}
 }

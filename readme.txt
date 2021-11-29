@@ -5,7 +5,7 @@ Tags: counter, hits, posts, postviews, post views, views, count, statistics, sta
 Requires at least: 5.0
 Requires PHP: 5.2.4
 Tested up to: 5.8.2
-Stable tag: 1.3.9
+Stable tag: 1.3.10
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -61,6 +61,11 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3.10 =
+* Fix: Post views column not working properly
+* Tweak: Switched to openssl_encrypt method for IP encryption
+* Tweak: Improved user input escaping
 
 = 1.3.9 =
 * Tweak: Remove unnecessary plugin files
@@ -228,5 +233,7 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.3.9 =
-* Tweak: Remove unnecessary plugin files
+= 1.3.10 =
+* Fix: Post views column not working properly
+* Tweak: Switched to openssl_encrypt method for IP encryption
+* Tweak: Improved user input escaping

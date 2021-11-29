@@ -17,9 +17,9 @@ class Post_Views_Counter_Counter {
 
 	private $db_insert_values = '';
 	private $cookie = [
-		'exists'		=> false,
-		'visited_posts'	=> [],
-		'expiration'	=> 0
+		'exists'		 => false,
+		'visited_posts'	 => [],
+		'expiration'	 => 0
 	];
 
 	/**
@@ -54,7 +54,7 @@ class Post_Views_Counter_Counter {
 		elseif ( $pvc->options['general']['counter_mode'] === 'js' ) {
 			add_action( 'wp_ajax_pvc-check-post', [ $this, 'check_post_js' ] );
 			add_action( 'wp_ajax_nopriv_pvc-check-post', [ $this, 'check_post_js' ] );
-		// REST API?
+			// REST API?
 		} elseif ( $pvc->options['general']['counter_mode'] === 'rest_api' )
 			add_action( 'rest_api_init', [ $this, 'rest_api_init' ] );
 	}
@@ -137,7 +137,7 @@ class Post_Views_Counter_Counter {
 			// exclude specific roles?
 			elseif ( in_array( 'roles', $groups, true ) && $this->is_user_role_excluded( $user_id, $pvc->options['general']['exclude']['roles'] ) )
 				return;
-		// exclude guests?
+			// exclude guests?
 		} elseif ( in_array( 'guests', $groups, true ) )
 			return;
 
@@ -157,7 +157,7 @@ class Post_Views_Counter_Counter {
 				$this->save_cookie( $id, $this->cookie, false );
 
 				return;
-			// update cookie
+				// update cookie
 			} else
 				$this->save_cookie( $id, $this->cookie );
 		} else {
@@ -242,7 +242,6 @@ class Post_Views_Counter_Counter {
 			return new WP_Error( 'pvc_rest_api_disabled', __( 'REST API method is disabled.', 'post-views-counter' ), [ 'status' => 404 ] );
 
 		// @todo: get current user id in direct api endpoint calls
-
 		// check if post exists
 		$post = get_post( $post_id );
 
@@ -293,9 +292,9 @@ class Post_Views_Counter_Counter {
 
 			// update cookie
 			$this->cookie = [
-				'exists'		=> true,
-				'visited_posts'	=> $visited_posts,
-				'expiration'	=> max( $expirations )
+				'exists'		 => true,
+				'visited_posts'	 => $visited_posts,
+				'expiration'	 => max( $expirations )
 			];
 		}
 	}
@@ -456,11 +455,11 @@ class Post_Views_Counter_Counter {
 		$date = explode( '-', date( 'W-d-m-Y-o', current_time( 'timestamp', true ) ) );
 
 		foreach ( [
-			0	=> $date[3] . $date[2] . $date[1],	// day like 20140324
-			1	=> $date[4] . $date[0],				// week like 201439
-			2	=> $date[3] . $date[2],				// month like 201405
-			3	=> $date[3],						// year like 2014
-			4	=> 'total'							// total views
+			0	 => $date[3] . $date[2] . $date[1], // day like 20140324
+			1	 => $date[4] . $date[0], // week like 201439
+			2	 => $date[3] . $date[2], // month like 201405
+			3	 => $date[3], // year like 2014
+			4	 => 'total'	   // total views
 		] as $type => $period ) {
 			if ( $using_object_cache ) {
 				$cache_key = $id . self::CACHE_KEY_SEPARATOR . $type . self::CACHE_KEY_SEPARATOR . $period;
@@ -506,12 +505,12 @@ class Post_Views_Counter_Counter {
 	 */
 	public function get_timestamp( $type, $number, $timestamp = true ) {
 		$converter = [
-			'minutes'	=> 60,
-			'hours'		=> 3600,
-			'days'		=> 86400,
-			'weeks'		=> 604800,
-			'months'	=> 2592000,
-			'years'		=> 946080000
+			'minutes'	 => 60,
+			'hours'		 => 3600,
+			'days'		 => 86400,
+			'weeks'		 => 604800,
+			'months'	 => 2592000,
+			'years'		 => 946080000
 		];
 
 		return (int) ( ( $timestamp ? current_time( 'timestamp', true ) : 0 ) + $number * $converter[$type] );
@@ -641,11 +640,11 @@ class Post_Views_Counter_Counter {
 			$count = 1;
 
 		return $wpdb->query(
-			$wpdb->prepare( "
+		$wpdb->prepare( "
 				INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
 				VALUES (%d, %d, %s, %d)
 				ON DUPLICATE KEY UPDATE count = count + %d", $id, $type, $period, $count, $count
-			)
+		)
 		);
 	}
 
@@ -789,9 +788,13 @@ class Post_Views_Counter_Counter {
 	public function encrypt_ip( $ip ) {
 		$auth_key = defined( 'AUTH_KEY' ) ? AUTH_KEY : '';
 		$auth_iv = defined( 'NONCE_KEY' ) ? NONCE_KEY : '';
+		$cipher = 'AES-256-CBC';
 
-		// mcrypt strong encryption
-		if ( function_exists( 'mcrypt_encrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
+		// open ssl encryption
+		if ( function_exists( 'openssl_encrypt' ) && in_array( $cipher, openssl_get_cipher_methods() ) ) {
+			$encrypted_ip = strtr( base64_encode( openssl_encrypt( $ip, $cipher, $auth_key, $options = 0, $auth_iv ) ) );
+			// mcrypt strong encryption
+		} elseif ( function_exists( 'mcrypt_encrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
 			// get max key size of the mcrypt mode
 			$max_key_size = mcrypt_get_key_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
 			$max_iv_size = mcrypt_get_iv_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
@@ -800,7 +803,7 @@ class Post_Views_Counter_Counter {
 			$encrypt_iv = mb_strimwidth( $auth_iv, 0, $max_iv_size );
 
 			$encrypted_ip = strtr( base64_encode( mcrypt_encrypt( MCRYPT_BLOWFISH, $encrypt_key, $ip, MCRYPT_MODE_CBC, $encrypt_iv ) ), '+/=', '-_,' );
-		// simple encryption
+			// simple encryption
 		} elseif ( function_exists( 'gzdeflate' ) )
 			$encrypted_ip = base64_encode( convert_uuencode( gzdeflate( $ip ) ) );
 		// no encryption
@@ -819,9 +822,13 @@ class Post_Views_Counter_Counter {
 	public function decrypt_ip( $encrypted_ip ) {
 		$auth_key = defined( 'AUTH_KEY' ) ? AUTH_KEY : '';
 		$auth_iv = defined( 'NONCE_KEY' ) ? NONCE_KEY : '';
+		$cipher = 'AES-256-CBC';
 
+		// open ssl decryption
+		if ( function_exists( 'openssl_encrypt' ) && in_array( $cipher, openssl_get_cipher_methods() ) ) {
+			$ip = openssl_decrypt( $encrypted_ip, $cipher, $auth_key, $options = 0, $auth_iv );
 		// mcrypt strong encryption
-		if ( function_exists( 'mcrypt_decrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
+		} elseif ( function_exists( 'mcrypt_decrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
 			// get max key size of the mcrypt mode
 			$max_key_size = mcrypt_get_key_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
 			$max_iv_size = mcrypt_get_iv_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
@@ -830,7 +837,7 @@ class Post_Views_Counter_Counter {
 			$encrypt_iv = mb_strimwidth( $auth_iv, 0, $max_iv_size );
 
 			$ip = mcrypt_decrypt( MCRYPT_BLOWFISH, $encrypt_key, base64_decode( strtr( $encrypted_ip, '-_,', '+/=' ) ), MCRYPT_MODE_CBC, $encrypt_iv );
-		// simple encryption
+			// simple encryption
 		} elseif ( function_exists( 'gzinflate' ) )
 			$ip = gzinflate( convert_uudecode( base64_decode( $encrypted_ip ) ) );
 		// no encryption
@@ -848,26 +855,26 @@ class Post_Views_Counter_Counter {
 	public function rest_api_init() {
 		// view post route
 		register_rest_route( 'post-views-counter', '/view-post/', [
-			'methods'				=> [ 'GET', 'POST' ],
-			'callback'				=> [ $this, 'check_post_rest_api' ],
-			'permission_callback'	=> [ $this, 'post_views_permissions_check' ],
-			'args'					=> [
+			'methods'				 => [ 'GET', 'POST' ],
+			'callback'				 => [ $this, 'check_post_rest_api' ],
+			'permission_callback'	 => [ $this, 'post_views_permissions_check' ],
+			'args'					 => [
 				'id' => [
-					'default'			=> 0,
-					'sanitize_callback'	=> 'absint'
+					'default'			 => 0,
+					'sanitize_callback'	 => 'absint'
 				]
 			]
 		] );
 
 		// get views route
 		register_rest_route( 'post-views-counter', '/get-post-views/', [
-			'methods'				=> [ 'GET', 'POST' ],
-			'callback'				=> [ $this, 'get_post_views_rest_api' ],
-			'permission_callback'	=> [ $this, 'get_post_views_permissions_check' ],
-			'args'					=> [
+			'methods'				 => [ 'GET', 'POST' ],
+			'callback'				 => [ $this, 'get_post_views_rest_api' ],
+			'permission_callback'	 => [ $this, 'get_post_views_permissions_check' ],
+			'args'					 => [
 				'id' => [
-					'default'	=> 0,
-					'user_id'	=> get_current_user_id()
+					'default'	 => 0,
+					'user_id'	 => get_current_user_id()
 				]
 			]
 		] );
@@ -904,4 +911,5 @@ class Post_Views_Counter_Counter {
 	public function get_post_views_permissions_check( $request ) {
 		return (bool) apply_filters( 'pvc_rest_api_get_post_views_check', true, $request );
 	}
+
 }

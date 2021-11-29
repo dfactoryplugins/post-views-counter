@@ -2,7 +2,7 @@
 /*
 Plugin Name: Post Views Counter
 Description: Post Views Counter allows you to display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
-Version: 1.3.9
+Version: 1.3.10
 Author: Digital Factory
 Author URI: http://www.dfactory.eu/
 Plugin URI: http://www.dfactory.eu/plugins/post-views-counter/
@@ -31,7 +31,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 	 * Post Views Counter final class.
 	 *
 	 * @class Post_Views_Counter
-	 * @version	1.3.9
+	 * @version	1.3.10
 	 */
 	final class Post_Views_Counter {
 
@@ -84,7 +84,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				'icon_class'			=> 'dashicons-chart-bar',
 				'toolbar_statistics'	=> true
 			],
-			'version'	=> '1.3.9'
+			'version'	=> '1.3.10'
 		];
 
 		/**
@@ -361,7 +361,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				return;
 
 			if ( wp_verify_nonce( esc_attr( $_REQUEST['nonce'] ), 'pvc_dismiss_notice' ) ) {
-				$notice_action = empty( $_REQUEST['notice_action'] ) || $_REQUEST['notice_action'] === 'hide' ? 'hide' : esc_attr( $_REQUEST['notice_action'] );
+				$notice_action = empty( $_REQUEST['notice_action'] ) || $_REQUEST['notice_action'] === 'hide' ? 'hide' : sanitize_text_field( $_REQUEST['notice_action'] );
 
 				switch ( $notice_action ) {
 					// delay notice
