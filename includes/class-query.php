@@ -24,6 +24,7 @@ class Post_Views_Counter_Query {
 		add_filter( 'posts_join', [ $this, 'posts_join' ], 10, 2 );
 		add_filter( 'posts_groupby', [ $this, 'posts_groupby' ], 10, 2 );
 		add_filter( 'posts_orderby', [ $this, 'posts_orderby' ], 10, 2 );
+		add_filter( 'posts_distinct', [ $this, 'posts_distinct' ], 10, 2 );
 		add_filter( 'posts_fields', [ $this, 'posts_fields' ], 10, 2 );
 		add_filter( 'the_posts', [ $this, 'the_posts' ], 10, 2 );
 	}
@@ -290,6 +291,20 @@ class Post_Views_Counter_Query {
 	}
 
 	/**
+	 * Add DISTINCT clause.
+	 *
+	 * @param string $distinct
+	 * @param object $query
+	 * @return string
+	 */
+	public function posts_distinct( $distinct, $query ) {
+		if ( ( ! isset( $query->query['fields'] ) || $query->query['fields'] === '' || $query->query['fields'] === 'all' ) && ( ( isset( $query->pvc_orderby ) && $query->pvc_orderby ) || ( isset( $query->pvc_query ) && $query->pvc_query ) || apply_filters( 'pvc_extend_post_object', false, $query ) === true ) )
+			$distinct = $distinct . ' DISTINCT ';
+
+		return $distinct;
+	}
+
+	/**
 	 * Return post views in queried post objects.
 	 *
 	 * @param string $fields
@@ -297,8 +312,8 @@ class Post_Views_Counter_Query {
 	 * @return string
 	 */
 	public function posts_fields( $fields, $query ) {
-		if ( ( ! isset( $query->query['fields'] ) || $query->query['fields'] === '' ) && ( ( isset( $query->pvc_orderby ) && $query->pvc_orderby ) || ( isset( $query->pvc_query ) && $query->pvc_query ) || apply_filters( 'pvc_extend_post_object', false, $query ) === true ) )
-			$fields = $fields . ', SUM( IFNULL( pvc.count, 0 ) ) AS post_views';
+		if ( ( ! isset( $query->query['fields'] ) || $query->query['fields'] === '' || $query->query['fields'] === 'all' ) && ( ( isset( $query->pvc_orderby ) && $query->pvc_orderby ) || ( isset( $query->pvc_query ) && $query->pvc_query ) || apply_filters( 'pvc_extend_post_object', false, $query ) === true ) )
+			$fields = $fields . ', SUM( COALESCE( pvc.count, 0 ) ) AS post_views';
 
 		return $fields;
 	}
