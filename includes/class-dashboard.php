@@ -443,7 +443,7 @@ class Post_Views_Counter_Dashboard {
 
 		$data = [
 			'months'	=> $this->generate_months( $months ),
-			'html'		=> '',
+			'html'		=> ''
 		];
 
 		$html = '<table id="pvc-most-viewed-table" class="pvc-table pvc-table-hover">';
@@ -457,13 +457,21 @@ class Post_Views_Counter_Dashboard {
 		$html .= '<tbody>';
 
 		if ( $posts ) {
+			// active post types
+			$active_post_types = [];
+
 			foreach ( $posts as $index => $post ) {
 				setup_postdata( $post );
 
 				$html .= '<tr>';
 				$html .= '<th scope="col">' . ( $index + 1 ) . '</th>';
 
-				if ( current_user_can( 'edit_post', $post->ID ) )
+				if ( array_key_exists( $post->post_type, $active_post_types ) )
+					$post_type_exists = $active_post_types[$post->post_type];
+				else
+					$post_type_exists = $active_post_types[$post->post_type] = post_type_exists( $post->post_type );
+
+				if ( $post_type_exists && current_user_can( 'edit_post', $post->ID ) )
 					$html .= '<td><a href="' . get_edit_post_link( $post->ID ) . '">' . get_the_title( $post ) . '</a></td>';
 				else
 					$html .= '<td>' . get_the_title( $post ). '</td>';

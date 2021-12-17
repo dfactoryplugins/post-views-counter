@@ -36,20 +36,25 @@ if ( ! function_exists( 'pvc_get_post_views' ) ) {
 		FROM " . $wpdb->prefix . "post_views
 		WHERE id IN (" . $post_id . ") AND type = 4";
 
+		// calculate query hash
+		$query_hash = md5( $query );
+
 		// get cached data
-		$post_views = wp_cache_get( md5( $query ), 'pvc-get_post_views' );
+		$post_views = wp_cache_get( $query_hash, 'pvc-get_post_views' );
 
 		// cached data not found?
 		if ( $post_views === false ) {
+			// get post views
 			$post_views = (int) $wpdb->get_var( $query );
-			
+
 			// set the cache expiration, 5 minutes by default
 			$expire = absint( apply_filters( 'pvc_object_cache_expire', 300 ) );
 
-			wp_cache_add( md5( $query ), $post_views, 'pvc-get_post_views', $expire );
+			// add cached post views
+			wp_cache_add( $query_hash, $post_views, 'pvc-get_post_views', $expire );
 		}
 
-		return apply_filters( 'pvc_get_post_views', $post_views, $post_id );
+		return (int) apply_filters( 'pvc_get_post_views', $post_views, $post_id );
 	}
 
 }
