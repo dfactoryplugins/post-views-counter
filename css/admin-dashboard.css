@@ -6,6 +6,7 @@
 	display: flex;
 	flex-direction: column;
 }
+
 .pvc-dashboard-container .spinner {
 	position: absolute;
 	left: 50%;
@@ -13,9 +14,11 @@
 	margin-left: -10px;
 	z-index: 10;
 }
+
 .pvc-dashboard-container.loading {
 	pointer-events: none;
 }
+
 .pvc-dashboard-container.loading:after {
 	position: absolute;
 	content: '';
@@ -28,6 +31,7 @@
 	z-index: 1;
 	transition: all 0.2s;
 }
+
 .pvc-dashboard p.sub {
     color: #8f8f8f;
     font-size: 14px;
@@ -35,17 +39,16 @@
 	padding-bottom: 3px;
 	border-bottom: 1px solid #ececec;
 }
+
 .pvc-dashboard-container .pvc-months {
 	display: flex;
 	justify-content: space-between;
 	margin: 6px 10px 0 10px;
 	color: #aaa;
 }
+
 .pvc-dashboard-container .pvc-months .current {
 	color: #212529;
-}
-#pvc-chart-container {
-	min-height: 230px;
 }
 
 .pvc-data-container {
@@ -56,6 +59,7 @@
 	overflow-x: auto;
 	-webkit-overflow-scrolling: touch;
 }
+
 .pvc-table {
 	caption-side: bottom;
 	border-collapse: collapse;
@@ -119,6 +123,7 @@
 	margin: 0;
 	padding: 0;
 }
+
 .pvc-accordion-toggle {
 	background-color: #fafafa;
 	border-bottom: 1px solid #eee;
@@ -132,6 +137,7 @@
 	padding: 11px 12px;
 	color: #23282c;
 }
+
 .pvc-accordion-toggle::before {
 	color: #72777c;
 	content: "\f142";
@@ -147,10 +153,12 @@
 	-moz-osx-font-smoothing: grayscale;
 	top: 8px;
 }
+
 .pvc-accordion-title {
 	display: inline-block;
 	padding-right: 10px;
 }
+
 .pvc-accordion-actions {
 	position: absolute;
 	top: 0;
@@ -160,6 +168,7 @@
 	height: 14px;
 	line-height: 1;
 }
+
 .pvc-accordion-actions .pvc-accordion-action,
 .pvc-accordion-actions .pvc-accordion-action::before {
 	font-size: 14px;
@@ -167,14 +176,17 @@
 	width: 14px;
 	color: #72777c;
 }
+
 .pvc-tooltip {
 	position: relative;
 }
+
 .pvc-tooltip-icon {
 	display: inline-block;
 	width: 16px;
 	cursor: help;
 }
+
 .pvc-tooltip-icon::before {
 	color: #b4b9be;
 	content: "\f14c";
@@ -188,19 +200,23 @@
 	left: 0;
 	top: 2px;
 }
+
 .pvc-according-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 }
+
 .pvc-accordion-content {
 	padding: 11px 12px;
 	border-bottom: 1px solid #eee;
 	height: 100%;
 }
+
 .pvc-collapsed .pvc-accordion-toggle::before {
 	transform: rotate(180deg);
 }
+
 .pvc-collapsed .pvc-accordion-content {
 	display: none;
 }

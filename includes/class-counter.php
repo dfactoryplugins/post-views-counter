@@ -767,7 +767,7 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
-	 * Ensure an ip address is both a valid IP and does not fall within a private network range.
+	 * Ensure an IP address is both a valid IP and does not fall within a private network range.
 	 *
 	 * @param $ip string IP address
 	 * @return bool

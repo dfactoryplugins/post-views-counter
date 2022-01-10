@@ -17,56 +17,68 @@ class Post_Views_Counter_Dashboard {
 	 */
 	public function __construct() {
 		// actions
-		add_action( 'wp_dashboard_setup', [ $this, 'wp_dashboard_setup' ], 1 );
-		add_action( 'admin_enqueue_scripts', [ $this, 'admin_scripts_styles' ] );
-		add_action( 'wp_ajax_pvc_dashboard_most_viewed', [ $this, 'dashboard_get_most_viewed' ] );
-		add_action( 'wp_ajax_pvc_dashboard_chart', [ $this, 'dashboard_get_chart' ] );
-		add_action( 'wp_ajax_pvc_dashboard_user_options', [ $this, 'update_dashboard_user_options' ] );
+		add_action( 'admin_init', [ $this, 'init_admin_dashboard' ] );
 	}
 
 	/**
-	 * Initialize widget.
+	 * Dashboard Initialization.
+	 *
+	 * @global string $pagenow
+	 *
+	 * @return void
+	 */
+	public function init_admin_dashboard() {
+		global $pagenow;
+
+		// do it only on dashboard page
+		if ( $pagenow === 'index.php' ) {
+			// filter user_can_see_stats
+			if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) )
+				return;
+
+			add_action( 'wp_dashboard_setup', [ $this, 'wp_dashboard_setup' ], 1 );
+			add_action( 'admin_enqueue_scripts', [ $this, 'admin_scripts_styles' ] );
+		// ajax endpoints
+		} elseif ( $pagenow === 'admin-ajax.php' ) {
+			add_action( 'wp_ajax_pvc_dashboard_post_most_viewed', [ $this, 'dashboard_post_most_viewed' ] );
+			add_action( 'wp_ajax_pvc_dashboard_post_views_chart', [ $this, 'dashboard_post_views_chart' ] );
+			add_action( 'wp_ajax_pvc_dashboard_user_options', [ $this, 'update_dashboard_user_options' ] );
+		}
+	}
+
+	/**
+	 * Add dashboard widget.
 	 *
 	 * @return void
 	 */
 	public function wp_dashboard_setup() {
-		// filter user_can_see_stats
-		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) )
-			return;
-
-		// add dashboard post views chart widget
+		// add dashboard widget
 		wp_add_dashboard_widget( 'pvc_dashboard', __( 'Post Views Counter', 'post-views-counter' ), [ $this, 'dashboard_widget' ] );
 	}
 
 	/**
 	 * Enqueue admin scripts and styles.
 	 *
-	 * @param string $pagenow
 	 * @return void
 	 */
-	public function admin_scripts_styles( $pagenow ) {
-		if ( $pagenow !== 'index.php' )
-			return;
-
-		// filter user_can_see_stats
-		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) )
-			return;
+	public function admin_scripts_styles() {
+		// get main instance
+		$pvc = Post_Views_Counter();
 
 		// styles
-		wp_enqueue_style( 'pvc-admin-dashboard', POST_VIEWS_COUNTER_URL . '/css/admin-dashboard.css', [], Post_Views_Counter()->defaults['version'] );
-		wp_enqueue_style( 'pvc-chartjs', POST_VIEWS_COUNTER_URL . '/assets/chartjs/chart.min.css', [], Post_Views_Counter()->defaults['version'] );
-		wp_enqueue_style( 'pvc-microtip', POST_VIEWS_COUNTER_URL . '/assets/microtip/microtip.min.css', [], Post_Views_Counter()->defaults['version'] );
+		wp_enqueue_style( 'pvc-admin-dashboard', POST_VIEWS_COUNTER_URL . '/css/admin-dashboard.css', [], $pvc->defaults['version'] );
+		wp_enqueue_style( 'pvc-microtip', POST_VIEWS_COUNTER_URL . '/assets/microtip/microtip.min.css', [], '1.0.0' );
 
 		// scripts
-		wp_register_script( 'pvc-chartjs', POST_VIEWS_COUNTER_URL . '/assets/chartjs/chart.min.js', [ 'jquery' ], Post_Views_Counter()->defaults['version'], true );
-		wp_enqueue_script( 'pvc-admin-dashboard', POST_VIEWS_COUNTER_URL . '/js/admin-dashboard.js', [ 'jquery', 'pvc-chartjs' ], Post_Views_Counter()->defaults['version'], true );
+		wp_register_script( 'pvc-chartjs', POST_VIEWS_COUNTER_URL . '/assets/chartjs/chart.min.js', [ 'jquery' ], '3.7.0', true );
+		wp_enqueue_script( 'pvc-admin-dashboard', POST_VIEWS_COUNTER_URL . '/js/admin-dashboard.js', [ 'jquery', 'pvc-chartjs' ], $pvc->defaults['version'], true );
 
 		wp_localize_script(
 			'pvc-admin-dashboard',
 			'pvcArgs',
 			[
 				'ajaxURL'	=> admin_url( 'admin-ajax.php' ),
-				'nonce'		=> wp_create_nonce( 'pvc-dashboard-chart' ),
+				'nonce'		=> wp_create_nonce( 'pvc-dashboard-widget' ),
 				'nonceUser'	=> wp_create_nonce( 'pvc-dashboard-user-options' )
 			]
 		);
@@ -87,65 +99,116 @@ class Post_Views_Counter_Dashboard {
 
 		// sanitize options
 		$user_options = map_deep( $user_options, 'sanitize_text_field' );
+
+		// get menu items
 		$menu_items = ! empty( $user_options['menu_items'] ) ? $user_options['menu_items'] : [];
 
 		// generate months
-		$months_html = $this->generate_months( current_time( 'timestamp', false ) );
+		$months_html = wp_kses_post( $this->generate_months( current_time( 'timestamp', false ) ) );
 
-		?>
-		<div id="pvc-dashboard-accordion" class="pvc-accordion">
-			<div id="pvc-post-views" class="pvc-accordion-item<?php echo in_array( 'post-views', $menu_items ) ? ' pvc-collapsed' : ''; ?>">
-				<div class="pvc-accordion-header">
-					<div class="pvc-accordion-toggle"><span class="pvc-accordion-title"><?php _e( 'Post Views', 'post-views-counter' ); ?></span><span class="pvc-tooltip" aria-label="<?php _e( 'Displays the chart of most viewed post types for a selected time period.', 'post-views-counter' ); ?>" data-microtip-position="top" data-microtip-size="large" role="tooltip"><span class="pvc-tooltip-icon"></span></span></div>
-					<?php /*
-					<div class="pvc-accordion-actions">
-						<a href="javascript:void(0);" class="pvc-accordion-action dashicons dashicons-admin-generic"></a>
-					</div>
-					*/ ?>
-				</div>
-				<div class="pvc-accordion-content">
-					<div class="pvc-dashboard-container loading">
-						<div id="pvc-chart-container" class="pvc-data-container">
-							<canvas id="pvc-chart" height="175"></canvas>
-							<span class="spinner"></span>
-						</div>
-						<div class="pvc-months">
-							<?php echo wp_kses_post( $months_html ); ?>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div id="pvc-most-viewed" class="pvc-accordion-item<?php echo in_array( 'most-viewed', $menu_items ) ? ' pvc-collapsed' : ''; ?>">
-				<div class="pvc-accordion-header">
-					<div class="pvc-accordion-toggle"><span class="pvc-accordion-title"><?php _e( 'Top Posts', 'post-views-counter' ); ?></span><span class="pvc-tooltip" aria-label="<?php _e( 'Displays the list of most viewed posts and pages on your website.', 'post-views-counter' ); ?>" data-microtip-position="top" data-microtip-size="large" role="tooltip"><span class="pvc-tooltip-icon"></span></span></div>
-				</div>
-				<div class="pvc-accordion-content">
-					<div class="pvc-dashboard-container loading">
-						<div class="pvc-data-container">
-							<div id="pvc-viewed" class="pvc-table-responsive"></div>
-							<span class="spinner"></span>
-						</div>
-						<div class="pvc-months">
-							<?php echo wp_kses_post( $months_html ); ?>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<?php
+		// standard items
+		$items = [
+			[
+				'id'			=> 'post-views',
+				'title'			=> __( 'Post Views', 'post-views-counter' ),
+				'description'	=> __( 'Displays the chart of most viewed post types for a selected time period.', 'post-views-counter' ),
+				'content'		=> '<canvas id="pvc-post-views-chart" height="175"></canvas>'
+			],
+			[
+				'id'			=> 'post-most-viewed',
+				'title'			=> __( 'Top Posts', 'post-views-counter' ),
+				'description'	=> __( 'Displays the list of most viewed posts and pages on your website.', 'post-views-counter' ),
+				'content'		=> '<div id="pvc-post-most-viewed-content" class="pvc-table-responsive"></div>'
+			]
+		];
+
+		// filter items, do not allow to remove main items
+		$new_items = apply_filters( 'pvc_dashboard_widget_items', [] );
+
+		// any new items?
+		if ( is_array( $new_items ) && ! empty( $new_items ) ) {
+			foreach ( $new_items as $item ) {
+				// add new item
+				array_push( $items, $item );
+			}
+		}
+
+		// kses allowed html
+		$allowed_html = [
+			'div'		=> [
+				'id'	=> [],
+				'class'	=> []
+			],
+			'span'		=> [
+				'class'	=> []
+			],
+			'a'			=> [
+				'href'	=> [],
+				'class'	=> []
+			],
+			'canvas'	=> [
+				'id'		=> [],
+				'height'	=> []
+			]
+		];
+
+		$html = '
+		<div id="pvc-dashboard-accordion" class="pvc-accordion">';
+
+		foreach ( $items as $item ) {
+			$html .= $this->generate_dashboard_widget_item( $item, $menu_items, $months_html, $allowed_html );
+		}
+
+		$html .= '
+		</div>';
+
+		echo $html;
 	}
 
 	/**
-	 * Dashboard widget chart data function.
+	 * Generate dashboard widget item HTML.
 	 *
-	 * @global $_wp_admin_css_colors
+	 * @param array $item
+	 * @param array $menu_items
+	 * @param string $esc_months_html
+	 * @param array $allowed_html
+	 * @return string
+	 */
+	public function generate_dashboard_widget_item( $item, $menu_items, $esc_months_html, $allowed_html ) {
+		return '
+		<div id="pvc-' . esc_attr( $item['id'] ) . '" class="pvc-accordion-item' . ( in_array( $item['id'], $menu_items, true ) ? ' pvc-collapsed' : '' ) . '">
+			<div class="pvc-accordion-header">
+				<div class="pvc-accordion-toggle"><span class="pvc-accordion-title">' . esc_html( $item['title'] ) . '</span><span class="pvc-tooltip" aria-label="' . esc_html( $item['description'] ) . '" data-microtip-position="top" data-microtip-size="large" role="tooltip"><span class="pvc-tooltip-icon"></span></span></div>
+				<!--
+				<div class="pvc-accordion-actions">
+					<a href="javascript:void(0);" class="pvc-accordion-action dashicons dashicons-admin-generic"></a>
+				</div>
+				-->
+			</div>
+			<div class="pvc-accordion-content">
+				<div class="pvc-dashboard-container loading">
+					<div class="pvc-data-container">
+						' . wp_kses( $item['content'], $allowed_html ) . '
+						<span class="spinner"></span>
+					</div>
+					<div class="pvc-months">' . $esc_months_html . '</div>
+				</div>
+			</div>
+		</div>';
+	}
+
+	/**
+	 * Render dashboard widget with post views.
+	 *
+	 * @global array $_wp_admin_css_colors
+	 *
 	 * @return void
 	 */
-	public function dashboard_get_chart() {
+	public function dashboard_post_views_chart() {
 		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) )
 			wp_die( _( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
-		if ( ! check_ajax_referer( 'pvc-dashboard-chart', 'nonce' ) )
+		if ( ! check_ajax_referer( 'pvc-dashboard-widget', 'nonce' ) )
 			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
 		// get period
@@ -154,20 +217,10 @@ class Post_Views_Counter_Dashboard {
 		// get post types
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
-		// get stats
-		$query_args = [
-			'post_type'			=> $post_types,
-			'posts_per_page'	=> -1,
-			'paged'				=> false,
-			'orderby'			=> 'post_views',
-			'suppress_filters'	=> false,
-			'no_found_rows'		=> true
-		];
+		// get current date
+		$now = getdate( current_time( 'timestamp', get_option( 'gmt_offset' ) ) );
 
-		// $now = getdate( current_time( 'timestamp', get_option( 'gmt_offset' ) ) );
-		$now = getdate( current_time( 'timestamp', get_option( 'gmt_offset' ) ) - 2592000 );
-
-		// get color scheme global
+		// get color schemes
 		global $_wp_admin_css_colors;
 
 		// set default color;
@@ -191,18 +244,20 @@ class Post_Views_Counter_Dashboard {
 		// set chart labels
 		switch ( $period ) {
 			case 'this_week':
-				$data = [
-					'text' => [
-						'xAxes'	=> date_i18n( 'F Y' ),
-						'yAxes'	=> __( 'Post Views', 'post-views-counter' )
-					]
-				];
+				$data = [];
 
 				for ( $day = 0; $day <= 6; $day ++ ) {
 					$date = strtotime( $now['mday'] . '-' . $now['mon'] . '-' . $now['year'] . ' + ' . $day . ' days - ' . $now['wday'] . ' days' );
 					$query = new WP_Query(
 						wp_parse_args(
-							$query_args,
+							[
+								'post_type'			=> $post_types,
+								'posts_per_page'	=> -1,
+								'paged'				=> false,
+								'orderby'			=> 'post_views',
+								'suppress_filters'	=> false,
+								'no_found_rows'		=> true
+							],
 							[
 								'views_query' => [
 									'year'	=> date( 'Y', $date ),
@@ -221,10 +276,6 @@ class Post_Views_Counter_Dashboard {
 
 			case 'this_year':
 				$data = [
-					'text'		=> [
-						'xAxes'	=> __( 'Year', 'post-views-counter' ) . date( ' Y' ),
-						'yAxes'	=> __( 'Post Views', 'post-views-counter' ),
-					],
 					'design'	=> [
 						'fill'					=> true,
 						'backgroundColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
@@ -313,10 +364,6 @@ class Post_Views_Counter_Dashboard {
 
 				$data = [
 					'months'	=> $this->generate_months( $months ),
-					'text'		=> [
-						'xAxes'	=> $date[3] . ' ' . $date[1],
-						'yAxes'	=> __( 'Post Views', 'post-views-counter' ),
-					],
 					'design'	=> [
 						'fill'					=> true,
 						'backgroundColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
@@ -397,18 +444,17 @@ class Post_Views_Counter_Dashboard {
 
 		exit;
 	}
-	
+
 	/**
-	 * Dashboard widget chart data function.
-	 * 
-	 * @global $_wp_admin_css_colors
+	 * Render dashboard widget with most viewed posts.
+	 *
 	 * @return void
 	 */
-	public function dashboard_get_most_viewed() {
+	public function dashboard_post_most_viewed() {
 		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) )
 			wp_die( _( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
-		if ( ! check_ajax_referer( 'pvc-dashboard-chart', 'nonce' ) )
+		if ( ! check_ajax_referer( 'pvc-dashboard-widget', 'nonce' ) )
 			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
 		// get period
@@ -494,9 +540,9 @@ class Post_Views_Counter_Dashboard {
 
 		exit;
 	}
-	
+
 	/**
-	 * Generate months.
+	 * Generate dashboard widget months HTML.
 	 *
 	 * @param int $timestamp
 	 * @return string
@@ -525,7 +571,7 @@ class Post_Views_Counter_Dashboard {
 	}
 
 	/**
-	 * Dashboard widget chart user post types.
+	 * Update dashboard widget user options.
 	 *
 	 * @return void
 	 */
@@ -540,7 +586,7 @@ class Post_Views_Counter_Dashboard {
 		$allowed_post_types[] = '_pvc_total_views';
 
 		// get allowed menu items
-		$allowed_menu_items = [ 'post-views', 'most-viewed' ];
+		$allowed_menu_items = [ 'post-views', 'post-most-viewed' ];
 
 		// valid data?
 		if ( isset( $_POST['nonce'], $_POST['options'] ) && ! empty( $_POST['options'] ) ) {
