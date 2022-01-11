@@ -438,7 +438,8 @@ if ( ! function_exists( 'pvc_get_most_viewed_posts' ) ) {
 			[
 				'posts_per_page' => 10,
 				'order'			 => 'desc',
-				'post_type'		 => 'post'
+				'post_type'		 => 'post',
+				'fields'		 => ''
 			],
 			$args
 		);
@@ -450,9 +451,6 @@ if ( ! function_exists( 'pvc_get_most_viewed_posts' ) ) {
 
 		// force to use post views as order
 		$args['orderby'] = 'post_views';
-
-		// force to get all fields
-		$args['fields'] = '';
 
 		return apply_filters( 'pvc_get_most_viewed_posts', get_posts( $args ), $args );
 	}

@@ -4,21 +4,24 @@
 	 * Load initial data.
 	 */
 	window.addEventListener( 'load', function() {
-		pvcUpdatePostViewsChart( 'this_month' );
-		pvcUpdatePostMostViewed( 'this_month' );
+		updatePostViewsWidget( 'this_month' );
+		updatePostMostViewedWidget( 'this_month' );
 	} );
 
-	// ready event
+	/**
+	 * Ready event.
+	 */
 	$( function() {
+		// toggle collapse items
 		$( '.pvc-accordion-header' ).on( 'click', function( e ) {
 			$( this ).closest( '.pvc-accordion-item' ).toggleClass( 'pvc-collapsed' );
-			
+
 			var items = $( '#pvc-dashboard-accordion' ).find( '.pvc-accordion-item' );
 			var menuItems = {};
 
 			if ( items.length > 0 ) {
 				$( items ).each( function( index, item ) {
-					var itemName = $( item ).prop( 'id' );
+					var itemName = $( item ).attr( 'id' );
 
 					itemName = itemName.replace( 'pvc-', '' );
 
@@ -27,18 +30,14 @@
 			}
 
 			// update user options
-			var userOptions = {
-				menu_items: menuItems
-			};
-
-			pvcUpdateUserOptions( userOptions );
+			updateUserOptions( { menu_items: menuItems } );
 		} );
 	} );
 
 	/**
-	 * .
+	 * Get post most viewed data.
 	 */
-	function pvcGetViewedData( init, period, container ) {
+	function getPostMostViewedData( init, period, container ) {
 		$( container ).addClass( 'loading' ).find( '.spinner' ).addClass( 'is-active' );
 
 		$.ajax( {
@@ -57,14 +56,17 @@
 
 				// next call?
 				if ( ! init )
-					pvcBindMonthEvents( response.months, container );
+					bindMonthEvents( response.months, container );
 
 				$( container ).find( '#pvc-post-most-viewed-content' ).html( response.html );
 			}
 		} );
 	}
 
-	function pvcGetChartData( init, period, container ) {
+	/**
+	 * Get post views data.
+	 */
+	function getPostViewsData( init, period, container ) {
 		$( container ).addClass( 'loading' ).find( '.spinner' ).addClass( 'is-active' );
 
 		$.ajax( {
@@ -86,35 +88,41 @@
 					var config = {
 						type: 'line',
 						options: {
+							maintainAspectRatio: true,
 							responsive: true,
 							plugins: {
 								legend: {
 									display: true,
 									position: 'bottom',
-									onClick: function( e, element ) {
+									align: 'center',
+									fullSize: true,
+									onClick: function( e, element, legend ) {
 										var index = element.datasetIndex;
-										var ci = this.chart;
+										var ci = legend.chart;
 										var meta = ci.getDatasetMeta( index );
 
 										// set new hidden value
-										meta.hidden = ( meta.hidden === null ? ! ci.data.datasets[index].hidden : null );
+										if ( ci.isDatasetVisible( index ) )
+											meta.hidden = true;
+										else
+											meta.hidden = false;
 
 										// rerender the chart
 										ci.update();
 
 										// update user options
-										var userOptions = {
+										updateUserOptions( {
 											post_type: ci.data.datasets[index].post_type,
-											hidden: meta.hidden === null ? false : meta.hidden
-										}
-
-										pvcUpdateUserOptions( userOptions );
+											hidden: meta.hidden
+										} );
 									},
 									labels: {
 										boxWidth: 0,
+										boxHeight: 0,
 										fontSize: 12,
 										padding: 10,
-										usePointStyle: false
+										usePointStyle: false,
+										textAlign: 'center'
 									}
 								}
 							},
@@ -127,12 +135,13 @@
 								},
 								y: {
 									display: true,
+									grace: 0,
+									beginAtZero: true,
 									title: {
 										display: false
 									},
 									ticks: {
 										precision: 0,
-										beginAtZero: true,
 										maxTicksLimit: 12
 									}
 								}
@@ -143,20 +152,23 @@
 						}
 					};
 
-					config = pvcUpdateConfig( config, response );
+					config = updateConfig( config, response );
 
-					window.chartPVC = new Chart( document.getElementById( 'pvc-post-views-chart' ).getContext( '2d' ), config );
+					window.pvcPostViewsChart = new Chart( document.getElementById( 'pvc-post-views-chart' ).getContext( '2d' ), config );
 				} else {
-					pvcBindMonthEvents( response.months, container );
+					bindMonthEvents( response.months, container );
 
-					window.chartPVC.config = pvcUpdateConfig( window.chartPVC.config, response );
-					window.chartPVC.update();
+					window.pvcPostViewsChart.config = updateConfig( window.pvcPostViewsChart.config, response );
+					window.pvcPostViewsChart.update();
 				}
 			}
 		} );
 	}
 
-	function pvcUpdateUserOptions( options ) {
+	/**
+	 * Update user options.
+	 */
+	function updateUserOptions( options ) {
 		$.ajax( {
 			url: pvcArgs.ajaxURL,
 			type: 'POST',
@@ -170,7 +182,10 @@
 		} );
 	}
 
-	function pvcUpdateConfig( config, args ) {
+	/**
+	 * Update configuration.
+	 */
+	function updateConfig( config, args ) {
 		// update datasets
 		config.data = args.data;
 
@@ -198,66 +213,79 @@
 		return config;
 	}
 
-	function pvcUpdatePostViewsChart( period ) {
+	/**
+	 * Update post views widget.
+	 */
+	function updatePostViewsWidget( period ) {
 		var container = $( '#pvc-post-views' ).find( '.pvc-dashboard-container' );
 
 		if ( $( container ).length > 0 ) {
-			pvcBindMonthEvents( false, container );
+			bindMonthEvents( false, container );
 
-			pvcGetChartData( true, period, container );
+			getPostViewsData( true, period, container );
 		}
 	}
 
-	function pvcUpdatePostMostViewed( period ) {
+	/**
+	 * Update post most viewed widget.
+	 */
+	function updatePostMostViewedWidget( period ) {
 		var container = $( '#pvc-post-most-viewed' ).find( '.pvc-dashboard-container' );
 
 		if ( $( container ).length > 0 ) {
-			pvcBindMonthEvents( false, container );
+			bindMonthEvents( false, container );
 
-			pvcGetViewedData( true, period, container );
+			getPostMostViewedData( true, period, container );
 		}
 	}
 
-	function pvcBindMonthEvents( newMonths, container ) {
+	/**
+	 * Bind month events.
+	 */
+	function bindMonthEvents( newMonths, container ) {
 		var months = $( container ).find( '.pvc-months' );
 
 		// replace months?
 		if ( newMonths !== false )
 			months[0].innerHTML = newMonths;
 
-		var prev = months[0].getElementsByClassName( 'prev' );
-		var next = months[0].getElementsByClassName( 'next' );
+		var prev = months[0].getElementsByClassName( 'prev' )[0];
+		var next = months[0].getElementsByClassName( 'next' )[0];
 
-		if ( $( container ).closest( '.pvc-accordion-item' ).attr( 'id' ) === 'pvc-post-most-viewed' ) {
-			prev[0].addEventListener( 'click', pvcLoadMostViewedData );
-		} else {
-			prev[0].addEventListener( 'click', pvcLoadChartData );
-		}
+		if ( $( container ).closest( '.pvc-accordion-item' ).attr( 'id' ) === 'pvc-post-most-viewed' )
+			prev.addEventListener( 'click', loadPostMostViewedData );
+		else
+			prev.addEventListener( 'click', loadPostViewsData );
 
 		// skip span
-		if ( next[0].tagName === 'A' ) {
-			if ( $( container ).closest( '.pvc-accordion-item' ).attr( 'id' ) === 'pvc-post-most-viewed' ) {
-				next[0].addEventListener( 'click', pvcLoadMostViewedData );
-			} else {
-				next[0].addEventListener( 'click', pvcLoadChartData );
-			}
+		if ( next.tagName === 'A' ) {
+			if ( $( container ).closest( '.pvc-accordion-item' ).attr( 'id' ) === 'pvc-post-most-viewed' )
+				next.addEventListener( 'click', loadPostMostViewedData );
+			else
+				next.addEventListener( 'click', loadPostViewsData );
 		}
 	}
 
-	function pvcLoadChartData( e ) {
+	/**
+	 * Load post views data.
+	 */
+	function loadPostViewsData( e ) {
 		e.preventDefault();
 
 		var container = $( '#pvc-post-views' ).find( '.pvc-dashboard-container' );
 
-		pvcGetChartData( false, e.target.dataset.date, container );
+		getPostViewsData( false, e.target.dataset.date, container );
 	}
 
-	function pvcLoadMostViewedData( e ) {
+	/**
+	 * Load post most viewed data.
+	 */
+	function loadPostMostViewedData( e ) {
 		e.preventDefault();
 		
 		var container = $( '#pvc-post-most-viewed' ).find( '.pvc-dashboard-container' );
 
-		pvcGetViewedData( false, e.target.dataset.date, container );
+		getPostMostViewedData( false, e.target.dataset.date, container );
 	}
 
 } )( jQuery );

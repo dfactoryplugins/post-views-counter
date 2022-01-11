@@ -106,13 +106,22 @@ class Post_Views_Counter_Dashboard {
 		// generate months
 		$months_html = wp_kses_post( $this->generate_months( current_time( 'timestamp', false ) ) );
 
+		// get post types
+		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+
+		if ( ! empty( $post_types ) ) {
+			// treat every 4 post types as 1 line
+			$add = 23 * (int) ceil( count( $post_types ) / 4 ) - 23;
+		} else
+			$add = 0;
+
 		// standard items
 		$items = [
 			[
 				'id'			=> 'post-views',
 				'title'			=> __( 'Post Views', 'post-views-counter' ),
 				'description'	=> __( 'Displays the chart of most viewed post types for a selected time period.', 'post-views-counter' ),
-				'content'		=> '<canvas id="pvc-post-views-chart" height="175"></canvas>'
+				'content'		=> '<canvas id="pvc-post-views-chart" height="' . ( 170 + $add ) . '"></canvas>'
 			],
 			[
 				'id'			=> 'post-most-viewed',
@@ -406,10 +415,11 @@ class Post_Views_Counter_Dashboard {
 								'fields'		=> 'date=>views',
 								'post_type'		=> $post_type,
 								'views_query'	=> [
-									'year'	=> $date[1],
-									'month'	=> $date[0],
-									'week'	=> '',
-									'day'	=> ''
+									'year'			=> $date[1],
+									'month'			=> $date[0],
+									'week'			=> '',
+									'day'			=> '',
+									'hide_empty'	=> true
 								]
 							]
 						)
@@ -480,8 +490,9 @@ class Post_Views_Counter_Dashboard {
 			'suppress_filters'	=> false,
 			'no_found_rows'		=> true,
 			'views_query'		=> [
-				'year'	=> $date[1],
-				'month'	=> $date[0],
+				'year'			=> $date[1],
+				'month'			=> $date[0],
+				'hide_empty'	=> true
 			]
 		];
 
@@ -492,15 +503,16 @@ class Post_Views_Counter_Dashboard {
 			'html'		=> ''
 		];
 
-		$html = '<table id="pvc-most-viewed-table" class="pvc-table pvc-table-hover">';
-		$html .= '<thead>';
-		$html .= '<tr>';
-		$html .= '<th scope="col">#</th>';
-		$html .= '<th scope="col">' . __( 'Post', 'post-views-counter' ) . '</th>';
-		$html .= '<th scope="col">' . __( 'Post Views', 'post-views-counter' ) . '</th>';
-		$html .= '</tr>';
-		$html .= '</thead>';
-		$html .= '<tbody>';
+		$html = '
+		<table id="pvc-post-most-viewed-table" class="pvc-table pvc-table-hover">
+			<thead>
+				<tr>
+					<th scope="col">#</th>
+					<th scope="col">' . esc_html__( 'Post', 'post-views-counter' ) . '</th>
+					<th scope="col">' . esc_html__( 'Post Views', 'post-views-counter' ) . '</th>
+				</tr>
+			</thead>
+			<tbody>';
 
 		if ( $posts ) {
 			// active post types
@@ -509,8 +521,9 @@ class Post_Views_Counter_Dashboard {
 			foreach ( $posts as $index => $post ) {
 				setup_postdata( $post );
 
-				$html .= '<tr>';
-				$html .= '<th scope="col">' . ( $index + 1 ) . '</th>';
+				$html .= '
+				<tr>
+					<th scope="col">' . ( $index + 1 ) . '</th>';
 
 				if ( array_key_exists( $post->post_type, $active_post_types ) )
 					$post_type_exists = $active_post_types[$post->post_type];
@@ -518,21 +531,26 @@ class Post_Views_Counter_Dashboard {
 					$post_type_exists = $active_post_types[$post->post_type] = post_type_exists( $post->post_type );
 
 				if ( $post_type_exists && current_user_can( 'edit_post', $post->ID ) )
-					$html .= '<td><a href="' . get_edit_post_link( $post->ID ) . '">' . get_the_title( $post ) . '</a></td>';
+					$html .= '
+					<td><a href="' . esc_url( get_edit_post_link( $post->ID ) ) . '">' . esc_html( get_the_title( $post ) ) . '</a></td>';
 				else
-					$html .= '<td>' . get_the_title( $post ). '</td>';
+					$html .= '
+					<td>' . esc_html( get_the_title( $post ) ). '</td>';
 
-				$html .= '<td>' . number_format_i18n( $post->post_views ) . '</td>';
-				$html .= '</tr>';
+				$html .= '
+					<td>' . number_format_i18n( $post->post_views ) . '</td>
+				</tr>';
 			}
 		} else {
-			$html .= '<tr class="no-posts">';
-			$html .= '<td colspan="3">' . __( 'No most viewed posts found', 'post-views-counter' ) . '</td>';
-			$html .= '</tr>';
+			$html .= '
+				<tr class="no-posts">
+					<td colspan="3">' . esc_html__( 'No most viewed posts found', 'post-views-counter' ) . '</td>
+				</tr>';
 		}
 
-		$html .= '</tbody>';
-		$html .= '</table>';
+		$html .= '
+			</tbody>
+		</table>';
 
 		$data['html'] = $html;
 
