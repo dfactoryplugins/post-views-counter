@@ -10,6 +10,8 @@ if ( ! defined( 'ABSPATH' ) )
  */
 class Post_Views_Counter_Dashboard {
 
+	private $widget_items = [];
+
 	/**
 	 * Class constructor.
 	 *
@@ -21,7 +23,7 @@ class Post_Views_Counter_Dashboard {
 	}
 
 	/**
-	 * Dashboard Initialization.
+	 * Dashboard initialization.
 	 *
 	 * @global string $pagenow
 	 *
@@ -29,6 +31,9 @@ class Post_Views_Counter_Dashboard {
 	 */
 	public function init_admin_dashboard() {
 		global $pagenow;
+
+		// setup widget items
+		$this->setup_widget_items();
 
 		// do it only on dashboard page
 		if ( $pagenow === 'index.php' ) {
@@ -85,6 +90,60 @@ class Post_Views_Counter_Dashboard {
 	}
 
 	/**
+	 * Setup dashboard widget items.
+	 *
+	 * @return void
+	 */
+	private function setup_widget_items() {
+		// standard items
+		$items = [
+			[
+				'id'			=> 'post-views',
+				'title'			=> __( 'Post Views', 'post-views-counter' ),
+				'description'	=> __( 'Displays the chart of most viewed post types for a selected time period.', 'post-views-counter' ),
+				'content'		=> '<canvas id="pvc-post-views-chart" height="' . $this->calculate_canvas_size( Post_Views_Counter()->options['general']['post_types_count'] ) . '"></canvas>'
+			],
+			[
+				'id'			=> 'post-most-viewed',
+				'title'			=> __( 'Top Posts', 'post-views-counter' ),
+				'description'	=> __( 'Displays the list of most viewed posts and pages on your website.', 'post-views-counter' ),
+				'content'		=> '<div id="pvc-post-most-viewed-content" class="pvc-table-responsive"></div>'
+			]
+		];
+
+		// filter items, do not allow to remove main items
+		$new_items = apply_filters( 'pvc_dashboard_widget_items', [] );
+
+		// any new items?
+		if ( is_array( $new_items ) && ! empty( $new_items ) ) {
+			foreach ( $new_items as $item ) {
+				// add new item
+				array_push( $items, $item );
+			}
+		}
+
+		// set widget items
+		$this->widget_items = $items;
+	}
+
+	/**
+	 * Calculate canvas height based on number of legend items.
+	 *
+	 * @param array $data
+	 * @param bool $expression
+	 * @return int
+	 */
+	public function calculate_canvas_size( $data, $expression = true ) {
+		if ( $expression && ! empty( $data ) ) {
+			// treat every 4 legend items as 1 line - 23 pixels
+			$height = 23 * ( (int) ceil( count( $data ) / 4 ) - 1 );
+		} else
+			$height = 0;
+
+		return (int) ( 170 + $height );
+	}
+
+	/**
 	 * Render dashboard widget.
 	 *
 	 * @return void
@@ -106,41 +165,8 @@ class Post_Views_Counter_Dashboard {
 		// generate months
 		$months_html = wp_kses_post( $this->generate_months( current_time( 'timestamp', false ) ) );
 
-		// get post types
-		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
-
-		if ( ! empty( $post_types ) ) {
-			// treat every 4 post types as 1 line
-			$add = 23 * (int) ceil( count( $post_types ) / 4 ) - 23;
-		} else
-			$add = 0;
-
-		// standard items
-		$items = [
-			[
-				'id'			=> 'post-views',
-				'title'			=> __( 'Post Views', 'post-views-counter' ),
-				'description'	=> __( 'Displays the chart of most viewed post types for a selected time period.', 'post-views-counter' ),
-				'content'		=> '<canvas id="pvc-post-views-chart" height="' . ( 170 + $add ) . '"></canvas>'
-			],
-			[
-				'id'			=> 'post-most-viewed',
-				'title'			=> __( 'Top Posts', 'post-views-counter' ),
-				'description'	=> __( 'Displays the list of most viewed posts and pages on your website.', 'post-views-counter' ),
-				'content'		=> '<div id="pvc-post-most-viewed-content" class="pvc-table-responsive"></div>'
-			]
-		];
-
-		// filter items, do not allow to remove main items
-		$new_items = apply_filters( 'pvc_dashboard_widget_items', [] );
-
-		// any new items?
-		if ( is_array( $new_items ) && ! empty( $new_items ) ) {
-			foreach ( $new_items as $item ) {
-				// add new item
-				array_push( $items, $item );
-			}
-		}
+		// get widget items
+		$items = $this->widget_items;
 
 		// kses allowed html
 		$allowed_html = [
@@ -604,7 +630,7 @@ class Post_Views_Counter_Dashboard {
 		$allowed_post_types[] = '_pvc_total_views';
 
 		// get allowed menu items
-		$allowed_menu_items = [ 'post-views', 'post-most-viewed' ];
+		$allowed_menu_items = array_column( $this->widget_items, 'id' );
 
 		// valid data?
 		if ( isset( $_POST['nonce'], $_POST['options'] ) && ! empty( $_POST['options'] ) ) {
@@ -675,13 +701,13 @@ class Post_Views_Counter_Dashboard {
 	}
 
 	/**
-	 * Convert hex to rgb color.
+	 * Convert HEX to RGB color.
 	 *
 	 * @param string $color
-	 * @return bool
+	 * @return bool|array
 	 */
 	public function hex2rgb( $color ) {
-		if ( $color[0] == '#' )
+		if ( $color[0] === '#' )
 			$color = substr( $color, 1 );
 
 		if ( strlen( $color ) == 6 )
@@ -691,10 +717,6 @@ class Post_Views_Counter_Dashboard {
 		else
 			return false;
 
-		$r = hexdec( $r );
-		$g = hexdec( $g );
-		$b = hexdec( $b );
-
-		return [ 'r' => $r, 'g' => $g, 'b' => $b ];
+		return [ 'r' => hexdec( $r ), 'g' => hexdec( $g ), 'b' => hexdec( $b ) ];
 	}
 }
