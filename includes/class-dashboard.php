@@ -252,6 +252,9 @@ class Post_Views_Counter_Dashboard {
 		// get post types
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
+		// get dashboard user options
+		$user_options = $this->get_dashboard_user_options( get_current_user_id(), 'post_types' );
+
 		// get current date
 		$now = getdate( current_time( 'timestamp', get_option( 'gmt_offset' ) ) );
 
@@ -279,9 +282,24 @@ class Post_Views_Counter_Dashboard {
 		// set chart labels
 		switch ( $period ) {
 			case 'this_week':
-				$data = [];
+				//@TODO
+				$data = [
+					'design'	=> [
+						'fill'					=> true,
+						'backgroundColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
+						'borderColor'			=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'borderWidth'			=> 1.2,
+						'borderDash'			=> [],
+						'pointBorderColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'pointBackgroundColor'	=> 'rgba(255, 255, 255, 1)',
+						'pointBorderWidth'		=> 1.2
+					]
+				];
 
-				for ( $day = 0; $day <= 6; $day ++ ) {
+				$data['data']['datasets'][0]['label'] = __( 'Post Views', 'post-views-counter' );
+				$data['data']['datasets'][0]['post_type'] = '_pvc_total_views';
+
+				for ( $day = 0; $day <= 6; $day++ ) {
 					$date = strtotime( $now['mday'] . '-' . $now['mon'] . '-' . $now['year'] . ' + ' . $day . ' days - ' . $now['wday'] . ' days' );
 					$query = new WP_Query(
 						wp_parse_args(
@@ -304,8 +322,9 @@ class Post_Views_Counter_Dashboard {
 					);
 
 					$data['data']['labels'][] = date_i18n( 'j', $date );
-					$data['data']['datasets'][$type_name]['label'] = __( 'Post Views', 'post-views-counter' );
+					$data['data']['dates'][] = date_i18n( get_option( 'date_format' ), $date );
 					$data['data']['datasets'][0]['data'][] = $query->total_views;
+					$data['data']['datasets'][$day]['data'][] = $query->total_views;
 				}
 				break;
 
@@ -325,53 +344,59 @@ class Post_Views_Counter_Dashboard {
 
 				$data['data']['datasets'][0]['label'] = __( 'Total Views', 'post-views-counter' );
 				$data['data']['datasets'][0]['post_type'] = '_pvc_total_views';
-
-				// reindex post types
-				$post_types = array_combine( range( 1, count( $post_types ) ), array_values( $post_types ) );
-
-				$post_type_data = [];
-
-				foreach ( $post_types as $id => $post_type ) {
-					$post_type_obj = get_post_type_object( $post_type );
-
-					// unrecognized post type? (mainly from deactivated plugins)
-					if ( empty( $post_type_obj ) )
-						$label = $post_type;
-					else
-						$label = $post_type_obj->labels->name;
-
-					$data['data']['datasets'][$id]['label'] = $label;
-					$data['data']['datasets'][$id]['post_type'] = $post_type;
-					$data['data']['datasets'][$id]['data'] = [];
-
-					// get month views
-					$post_type_data[$id] = array_values(
-						pvc_get_views(
-							[
-								'fields'		=> 'date=>views',
-								'post_type'		=> $post_type,
-								'views_query'	=> [
-									'year'	=> date( 'Y' ),
-									'month'	=> '',
-									'week'	=> '',
-									'day'	=> ''
-								]
-							]
-						)
-					);
-				}
+				$data['data']['datasets'][0]['hidden'] = in_array( '_pvc_total_views', $user_options, true );
+				$data['data']['datasets'][0]['data'] = [];
 
 				$sum = [];
 
-				foreach ( $post_type_data as $post_type_id => $post_views ) {
-					foreach ( $post_views as $id => $views ) {
-						// generate chart data for specific post types
-						$data['data']['datasets'][$post_type_id]['data'][] = $views;
+				// any post types?
+				if ( ! empty( $post_types ) ) {
+					// reindex post types
+					$post_types = array_combine( range( 1, count( $post_types ) ), array_values( $post_types ) );
 
-						if ( ! array_key_exists( $id, $sum ) )
-							$sum[$id] = 0;
+					$post_type_data = [];
 
-						$sum[$id] += $views;
+					foreach ( $post_types as $id => $post_type ) {
+						$post_type_obj = get_post_type_object( $post_type );
+
+						// unrecognized post type? (mainly from deactivated plugins)
+						if ( empty( $post_type_obj ) )
+							$label = $post_type;
+						else
+							$label = $post_type_obj->labels->name;
+
+						$data['data']['datasets'][$id]['label'] = $label;
+						$data['data']['datasets'][$id]['post_type'] = $post_type;
+						$data['data']['datasets'][$id]['hidden'] = in_array( $post_type, $user_options, true );
+						$data['data']['datasets'][$id]['data'] = [];
+
+						// get month views
+						$post_type_data[$id] = array_values(
+							pvc_get_views(
+								[
+									'fields'		=> 'date=>views',
+									'post_type'		=> $post_type,
+									'views_query'	=> [
+										'year'	=> date( 'Y' ),
+										'month'	=> '',
+										'week'	=> '',
+										'day'	=> ''
+									]
+								]
+							)
+						);
+					}
+
+					foreach ( $post_type_data as $post_type_id => $post_views ) {
+						foreach ( $post_views as $id => $views ) {
+							// generate chart data for specific post types
+							$data['data']['datasets'][$post_type_id]['data'][] = $views;
+
+							if ( ! array_key_exists( $id, $sum ) )
+								$sum[$id] = 0;
+
+							$sum[$id] += $views;
+						}
 					}
 				}
 
@@ -380,25 +405,20 @@ class Post_Views_Counter_Dashboard {
 					// generate chart data
 					$data['data']['labels'][] = $i;
 					$data['data']['dates'][] = date_i18n( 'F Y', strtotime( date( 'Y' ) . '-' . str_pad( $i, 2, '0', STR_PAD_LEFT ) . '-01' ) );
-					$data['data']['datasets'][0]['data'][] = $sum[$i - 1];
+					$data['data']['datasets'][0]['data'][] = ( array_key_exists( $i - 1, $sum ) ? $sum[$i - 1] : 0 );
 				}
 				break;
 
 			case 'this_month':
 			default:
-				$user_options = $this->get_dashboard_user_options( get_current_user_id(), 'post_types' );
-
-				if ( $period !== 'this_month' ) {
-					$date = explode( '|', $period, 2 );
-					$months = strtotime( (string) $date[1] . '-' . (string) $date[0] . '-13' );
-				} else
-					$months = current_time( 'timestamp', false );
+				// convert period
+				$time = $this->period2timestamp( $period );
 
 				// get date chunks
-				$date = explode( ' ', date( "m Y t F", $months ) );
+				$date = explode( ' ', date( "m Y t F", $time ) );
 
 				$data = [
-					'months'	=> $this->generate_months( $months ),
+					'months'	=> $this->generate_months( $time ),
 					'design'	=> [
 						'fill'					=> true,
 						'backgroundColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
@@ -414,55 +434,59 @@ class Post_Views_Counter_Dashboard {
 				$data['data']['datasets'][0]['label'] = __( 'Total Views', 'post-views-counter' );
 				$data['data']['datasets'][0]['post_type'] = '_pvc_total_views';
 				$data['data']['datasets'][0]['hidden'] = in_array( '_pvc_total_views', $user_options, true );
-
-				// reindex post types
-				$post_types = array_combine( range( 1, count( $post_types ) ), array_values( $post_types ) );
-
-				$post_type_data = [];
-
-				foreach ( $post_types as $id => $post_type ) {
-					$post_type_obj = get_post_type_object( $post_type );
-
-					// unrecognized post type? (mainly from deactivated plugins)
-					if ( empty( $post_type_obj ) )
-						$label = $post_type;
-					else
-						$label = $post_type_obj->labels->name;
-
-					$data['data']['datasets'][$id]['label'] = $label;
-					$data['data']['datasets'][$id]['post_type'] = $post_type;
-					$data['data']['datasets'][$id]['hidden'] = in_array( $post_type, $user_options, true );
-					$data['data']['datasets'][$id]['data'] = [];
-
-					// get month views
-					$post_type_data[$id] = array_values(
-						pvc_get_views(
-							[
-								'fields'		=> 'date=>views',
-								'post_type'		=> $post_type,
-								'views_query'	=> [
-									'year'			=> $date[1],
-									'month'			=> $date[0],
-									'week'			=> '',
-									'day'			=> '',
-									'hide_empty'	=> true
-								]
-							]
-						)
-					);
-				}
+				$data['data']['datasets'][0]['data'] = [];
 
 				$sum = [];
 
-				foreach ( $post_type_data as $post_type_id => $post_views ) {
-					foreach ( $post_views as $id => $views ) {
-						// generate chart data for specific post types
-						$data['data']['datasets'][$post_type_id]['data'][] = $views;
+				// any post types?
+				if ( ! empty( $post_types ) ) {
+					// reindex post types
+					$post_types = array_combine( range( 1, count( $post_types ) ), array_values( $post_types ) );
 
-						if ( ! array_key_exists( $id, $sum ) )
-							$sum[$id] = 0;
+					$post_type_data = [];
 
-						$sum[$id] += $views;
+					foreach ( $post_types as $id => $post_type ) {
+						$post_type_obj = get_post_type_object( $post_type );
+
+						// unrecognized post type? (mainly from deactivated plugins)
+						if ( empty( $post_type_obj ) )
+							$label = $post_type;
+						else
+							$label = $post_type_obj->labels->name;
+
+						$data['data']['datasets'][$id]['label'] = $label;
+						$data['data']['datasets'][$id]['post_type'] = $post_type;
+						$data['data']['datasets'][$id]['hidden'] = in_array( $post_type, $user_options, true );
+						$data['data']['datasets'][$id]['data'] = [];
+
+						// get month views
+						$post_type_data[$id] = array_values(
+							pvc_get_views(
+								[
+									'fields'		=> 'date=>views',
+									'post_type'		=> $post_type,
+									'views_query'	=> [
+										'year'			=> $date[1],
+										'month'			=> $date[0],
+										'week'			=> '',
+										'day'			=> '',
+										'hide_empty'	=> true
+									]
+								]
+							)
+						);
+					}
+
+					foreach ( $post_type_data as $post_type_id => $post_views ) {
+						foreach ( $post_views as $id => $views ) {
+							// generate chart data for specific post types
+							$data['data']['datasets'][$post_type_id]['data'][] = $views;
+
+							if ( ! array_key_exists( $id, $sum ) )
+								$sum[$id] = 0;
+
+							$sum[$id] += $views;
+						}
 					}
 				}
 
@@ -471,7 +495,7 @@ class Post_Views_Counter_Dashboard {
 					// generate chart data
 					$data['data']['labels'][] = ( $i % 2 === 0 ? '' : $i );
 					$data['data']['dates'][] = date_i18n( get_option( 'date_format' ), strtotime( $date[1] . '-' . $date[0] . '-' . str_pad( $i, 2, '0', STR_PAD_LEFT ) ) );
-					$data['data']['datasets'][0]['data'][] = $sum[$i - 1];
+					$data['data']['datasets'][0]['data'][] = ( array_key_exists( $i - 1, $sum ) ? $sum[$i - 1] : 0 );
 				}
 				break;
 		}
@@ -493,20 +517,17 @@ class Post_Views_Counter_Dashboard {
 		if ( ! check_ajax_referer( 'pvc-dashboard-widget', 'nonce' ) )
 			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
-		// get period
-		$period = isset( $_POST['period'] ) ? sanitize_text_field( $_POST['period'] ) : 'this_month';
-
 		// get post types
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
 
-		if ( $period !== 'this_month' ) {
-			$date = explode( '|', $period, 2 );
-			$months = strtotime( (string) $date[1] . '-' . (string) $date[0] . '-13' );
-		} else
-			$months = current_time( 'timestamp', false );
+		// get period
+		$period = isset( $_POST['period'] ) ? sanitize_text_field( $_POST['period'] ) : 'this_month';
+
+		// convert period
+		$time = $this->period2timestamp( $period );
 
 		// get date chunks
-		$date = explode( ' ', date( "m Y t F", $months ) );
+		$date = explode( ' ', date( "m Y t F", $time ) );
 
 		// get stats
 		$query_args = [
@@ -525,7 +546,7 @@ class Post_Views_Counter_Dashboard {
 		$posts = pvc_get_most_viewed_posts( $query_args );
 
 		$data = [
-			'months'	=> $this->generate_months( $months ),
+			'months'	=> $this->generate_months( $time ),
 			'html'		=> ''
 		];
 
@@ -704,6 +725,30 @@ class Post_Views_Counter_Dashboard {
 			$user_options[$data_type] = [];
 
 		return $user_options[$data_type];
+	}
+
+	/**
+	 * Convert period to timestamp.
+	 *
+	 * @param string $period
+	 * @return int
+	 */
+	public function period2timestamp( $period ) {
+		// whitelisted period?
+		if ( in_array( $period, [ 'this_week', 'this_year', 'this_month' ], true ) ) {
+			$timestamp = current_time( 'timestamp', false );
+		} else {
+			if ( preg_match( '/^([0-9]{2}\|[0-9]{4})$/', $period ) === 1 ) {
+				// month|year
+				$date = explode( '|', $period, 2 );
+
+				// get timestamp
+				$timestamp = strtotime( (string) $date[1] . '-' . (string) $date[0] . '-13' );
+			} else
+				$timestamp = current_time( 'timestamp', false );
+		}
+
+		return $timestamp;
 	}
 
 	/**
