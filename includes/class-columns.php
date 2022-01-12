@@ -34,6 +34,7 @@ class Post_Views_Counter_Columns {
 	 * Output post views for single post.
 	 *
 	 * @global object $post
+	 *
 	 * @return void 
 	 */
 	public function submitbox_views() {
@@ -263,6 +264,7 @@ class Post_Views_Counter_Columns {
 	 * Handle quick edit.
 	 *
 	 * @global string $pagenow
+	 *
 	 * @param string $column_name
 	 * @param string $post_type
 	 * @return void
@@ -305,7 +307,8 @@ class Post_Views_Counter_Columns {
 	/**
 	 * Bulk save post views.
 	 *
-	 * @global object $wpdb;
+	 * @global object $wpdb
+	 *
 	 * @return void
 	 */
 	function save_bulk_post_views() {
@@ -360,6 +363,10 @@ class Post_Views_Counter_Columns {
 	/**
 	 * Add admin bar stats to a post.
 	 *
+	 * @global string $pagenow
+	 * @global string $post
+	 *
+	 * @param object $admin_bar
 	 * @return void
 	 */
 	public function admin_bar_menu( $admin_bar ) {
@@ -450,6 +457,9 @@ class Post_Views_Counter_Columns {
 
 	/**
 	 * Maybe add admin CSS.
+	 *
+	 * @global string $pagenow
+	 * @global string $post
 	 *
 	 * @return void
 	 */

@@ -30,9 +30,57 @@
 			}
 
 			// update user options
-			updateUserOptions( { menu_items: menuItems } );
+			pvcUpdateUserOptions( { menu_items: menuItems } );
 		} );
 	} );
+
+	/**
+	 * Update user options.
+	 */
+	pvcUpdateUserOptions = function( options ) {
+		$.ajax( {
+			url: pvcArgs.ajaxURL,
+			type: 'POST',
+			dataType: 'json',
+			data: {
+				action: 'pvc_dashboard_user_options',
+				nonce: pvcArgs.nonceUser,
+				options: options
+			},
+			success: function() {}
+		} );
+	}
+
+	/**
+	 * Update configuration.
+	 */
+	pvcUpdateConfig = function( config, args ) {
+		// update datasets
+		config.data = args.data;
+
+		// update tooltips with new dates
+		config.options.plugins.tooltip = {
+			callbacks: {
+				title: function( tooltip ) {
+					return args.data.dates[tooltip[0].dataIndex];
+				}
+			}
+		};
+
+		// update colors
+		$.each( config.data.datasets, function( i, dataset ) {
+			dataset.fill = args.design.fill;
+			dataset.borderColor = args.design.borderColor;
+			dataset.backgroundColor = args.design.backgroundColor;
+			dataset.borderWidth = args.design.borderWidth;
+			dataset.borderDash = args.design.borderDash;
+			dataset.pointBorderColor = args.design.pointBorderColor;
+			dataset.pointBackgroundColor = args.design.pointBackgroundColor;
+			dataset.pointBorderWidth = args.design.pointBorderWidth;
+		} );
+
+		return config;
+	}
 
 	/**
 	 * Get post most viewed data.
@@ -111,7 +159,7 @@
 										ci.update();
 
 										// update user options
-										updateUserOptions( {
+										pvcUpdateUserOptions( {
 											post_type: ci.data.datasets[index].post_type,
 											hidden: meta.hidden
 										} );
@@ -152,65 +200,17 @@
 						}
 					};
 
-					config = updateConfig( config, response );
+					config = pvcUpdateConfig( config, response );
 
 					window.pvcPostViewsChart = new Chart( document.getElementById( 'pvc-post-views-chart' ).getContext( '2d' ), config );
 				} else {
 					bindMonthEvents( response.months, container );
 
-					window.pvcPostViewsChart.config = updateConfig( window.pvcPostViewsChart.config, response );
+					window.pvcPostViewsChart.config = pvcUpdateConfig( window.pvcPostViewsChart.config, response );
 					window.pvcPostViewsChart.update();
 				}
 			}
 		} );
-	}
-
-	/**
-	 * Update user options.
-	 */
-	function updateUserOptions( options ) {
-		$.ajax( {
-			url: pvcArgs.ajaxURL,
-			type: 'POST',
-			dataType: 'json',
-			data: {
-				action: 'pvc_dashboard_user_options',
-				nonce: pvcArgs.nonceUser,
-				options: options
-			},
-			success: function() {}
-		} );
-	}
-
-	/**
-	 * Update configuration.
-	 */
-	function updateConfig( config, args ) {
-		// update datasets
-		config.data = args.data;
-
-		// update tooltips with new dates
-		config.options.plugins.tooltip = {
-			callbacks: {
-				title: function( tooltip ) {
-					return args.data.dates[tooltip[0].dataIndex];
-				}
-			}
-		};
-
-		// update colors
-		$.each( config.data.datasets, function( i, dataset ) {
-			dataset.fill = args.design.fill;
-			dataset.borderColor = args.design.borderColor;
-			dataset.backgroundColor = args.design.backgroundColor;
-			dataset.borderWidth = args.design.borderWidth;
-			dataset.borderDash = args.design.borderDash;
-			dataset.pointBorderColor = args.design.pointBorderColor;
-			dataset.pointBackgroundColor = args.design.pointBackgroundColor;
-			dataset.pointBorderWidth = args.design.pointBorderWidth;
-		} );
-
-		return config;
 	}
 
 	/**

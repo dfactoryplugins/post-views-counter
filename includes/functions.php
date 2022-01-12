@@ -14,8 +14,9 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Get post views for a post or array of posts.
- * 
- * @global $wpdb
+ *
+ * @global object $wpdb
+ *
  * @param int|array $post_id
  * @return int
  */
@@ -61,8 +62,9 @@ if ( ! function_exists( 'pvc_get_post_views' ) ) {
 
 /**
  * Get views query.
- * 
- * @global $wpdb
+ *
+ * @global object $wpdb
+ *
  * @param array $args
  * @return int|array
  */
@@ -427,7 +429,7 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 
 /**
  * Get most viewed posts.
- * 
+ *
  * @param array $args
  * @return array
  */
@@ -459,7 +461,7 @@ if ( ! function_exists( 'pvc_get_most_viewed_posts' ) ) {
 
 /**
  * Display a list of most viewed posts.
- * 
+ *
  * @param array $post_id
  * @param bool $display
  * @return mixed
@@ -505,7 +507,7 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 
 			$html .= '
 			<li>';
-				
+
 				$html .= apply_filters( 'pvc_most_viewed_posts_item_before', $args['item_before'], $post );
 
 				if ( $args['show_post_thumbnail'] && has_post_thumbnail( $post->ID ) ) {
@@ -532,9 +534,9 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 
 				if ( ! empty( $excerpt ) )
 					$html .= '
-				
+
 				<div class="post-excerpt">' . esc_html( $excerpt ) . '</div>';
-				
+
 				$html .= apply_filters( 'pvc_most_viewed_posts_item_after', $args['item_after'], $post );
 
 				$html .= '
@@ -560,7 +562,8 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 /**
  * Update total number of post views for a post.
  *
- * @global $wpdb
+ * @global object $wpdb
+ *
  * @param int $post_id Post ID
  * @param int $post_views Number of post views
  * @return true|int

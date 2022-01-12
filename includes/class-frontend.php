@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Frontend class.
- * 
+ *
  * @class Post_Views_Counter_Frontend
  */
 class Post_Views_Counter_Frontend {
@@ -33,7 +33,7 @@ class Post_Views_Counter_Frontend {
 
 	/**
 	 * Post views shortcode function.
-	 * 
+	 *
 	 * @param array $args
 	 * @return string
 	 */

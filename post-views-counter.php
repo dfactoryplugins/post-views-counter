@@ -331,7 +331,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 						// save dismiss state
 						$( '.pvc-notice.is-dismissible' ).on( 'click', '.notice-dismiss, .pvc-dismissible-notice', function ( e ) {
 							var notice_action = 'hide';
-							
+
 							if ( $( e.currentTarget ).hasClass( 'pvc-delay-notice' ) ) {
 								notice_action = 'delay'
 							}
@@ -402,6 +402,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * Multisite activation.
 		 *
 		 * @global object $wpdb
+		 *
 		 * @param bool $networkwide
 		 * @return void
 		 */
@@ -428,7 +429,9 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		/**
 		 * Single site activation.
 		 *
-		 * @global array $wp_roles
+		 * @global object $wpdb
+		 * @global string $charset_collate
+		 *
 		 * @return void
 		 */
 		public function activate_single() {
@@ -463,6 +466,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * Multisite deactivation.
 		 *
 		 * @global $wpdb
+		 *
 		 * @param bool $networkwide
 		 * @return void
 		 */
@@ -494,6 +498,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * Single site deactivation.
 		 *
 		 * @global $wpdb
+		 *
 		 * @param bool $multi
 		 * @return void
 		 */
@@ -565,6 +570,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * Enqueue admin scripts and styles.
 		 *
 		 * @global string $post_type
+		 *
 		 * @param string $page.
 		 * @return void
 		 */

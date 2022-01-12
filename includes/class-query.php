@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Query class.
- * 
+ *
  * @class Post_Views_Counter_Query
  */
 class Post_Views_Counter_Query {
@@ -137,7 +137,7 @@ class Post_Views_Counter_Query {
 					}
 				}
 
-				// after and before dates should be 
+				// after and before dates should be both valid
 				if ( $valid_dates ) {
 					foreach ( $query_chunks as $chunk ) {
 						// year

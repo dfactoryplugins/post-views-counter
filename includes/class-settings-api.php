@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Settings_API class.
- * 
+ *
  * @class Post_Views_Counter_Settings_API
  */
 class Post_Views_Counter_Settings_API {

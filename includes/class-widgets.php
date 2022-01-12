@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Widgets class.
- * 
+ *
  * @class Post_Views_Counter_Widgets
  */
 class Post_Views_Counter_Widgets {
@@ -32,7 +32,7 @@ class Post_Views_Counter_Widgets {
 
 /**
  * Post_Views_Counter_List_Widget class.
- * 
+ *
  * @class Post_Views_Counter_List_Widget
  */
 class Post_Views_Counter_List_Widget extends WP_Widget {

@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Dashboard class.
- * 
+ *
  * @class Post_Views_Counter_Dashboard
  */
 class Post_Views_Counter_Dashboard {
@@ -498,7 +498,7 @@ class Post_Views_Counter_Dashboard {
 
 		// get post types
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
-		
+
 		if ( $period !== 'this_month' ) {
 			$date = explode( '|', $period, 2 );
 			$months = strtotime( (string) $date[1] . '-' . (string) $date[0] . '-13' );
@@ -623,18 +623,9 @@ class Post_Views_Counter_Dashboard {
 		if ( ! check_ajax_referer( 'pvc-dashboard-user-options', 'nonce' ) )
 			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
-		// get allowed post types
-		$allowed_post_types = Post_Views_Counter()->options['general']['post_types_count'];
-
-		// simulate total views as post type
-		$allowed_post_types[] = '_pvc_total_views';
-
-		// get allowed menu items
-		$allowed_menu_items = array_column( $this->widget_items, 'id' );
-
 		// valid data?
 		if ( isset( $_POST['nonce'], $_POST['options'] ) && ! empty( $_POST['options'] ) ) {
-			// get options
+			// get sanitized options
 			$update = map_deep( $_POST['options'], 'sanitize_text_field' );
 
 			// get user ID
@@ -652,27 +643,42 @@ class Post_Views_Counter_Dashboard {
 				$user_options['post_types'] = [];
 
 			// hide post type?
-			if ( ! empty( $update['post_type'] ) && in_array( $update['post_type'], $allowed_post_types, true ) ) {
-				if ( isset( $update['hidden'] ) && $update['hidden'] === 'true' ) {
-					if ( ! in_array( $update['post_type'], $user_options['post_types'], true ) )
-						$user_options['post_types'][] = $update['post_type'];
-				} else {
-					if ( ( $key = array_search( $update['post_type'], $user_options['post_types'] ) ) !== false )
-						unset( $user_options['post_types'][$key] );
+			if ( ! empty( $update['post_type'] ) ) {
+				// get allowed post types
+				$allowed_post_types = Post_Views_Counter()->options['general']['post_types_count'];
+
+				// simulate total post views as post type
+				$allowed_post_types[] = '_pvc_total_views';
+
+				if ( in_array( $update['post_type'], $allowed_post_types, true ) ) {
+					if ( isset( $update['hidden'] ) && $update['hidden'] === 'true' ) {
+						if ( ! in_array( $update['post_type'], $user_options['post_types'], true ) )
+							$user_options['post_types'][] = $update['post_type'];
+					} else {
+						if ( ( $key = array_search( $update['post_type'], $user_options['post_types'] ) ) !== false )
+							unset( $user_options['post_types'][$key] );
+					}
 				}
 			}
 
-			// hide menu item?
-			$user_options['menu_items'] = [];
+			// empty menu items?
+			if ( ! array_key_exists( 'menu_items', $user_options ) || ! is_array( $user_options['menu_items'] ) )
+				$user_options['menu_items'] = [];
 
 			if ( ! empty( $update['menu_items'] ) && is_array( $update['menu_items'] ) ) {
-				$update['menu_items'] = map_deep( $update['menu_items'], 'sanitize_text_field' );
+				$user_options['menu_items'] = [];
+
+				// get allowed menu items
+				$allowed_menu_items = array_column( $this->widget_items, 'id' );
 
 				foreach ( $update['menu_items'] as $menu_item => $hidden ) {
-					if ( in_array( $menu_item, $allowed_menu_items ) && $hidden === 'true' )
-						$user_options['menu_items'][] = $menu_item;					
+					if ( in_array( $menu_item, $allowed_menu_items, true ) && $hidden === 'true' )
+						$user_options['menu_items'][] = $menu_item;
 				}
 			}
+
+			// filter user options
+			$user_options = apply_filters( 'pvc_update_dashboard_user_options', $user_options, $update, $user_id );
 
 			// update userdata
 			update_user_meta( $user_id, 'pvc_dashboard', $user_options );
