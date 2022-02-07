@@ -168,30 +168,11 @@ class Post_Views_Counter_Dashboard {
 		// get widget items
 		$items = $this->widget_items;
 
-		// kses allowed html
-		$allowed_html = [
-			'div'		=> [
-				'id'	=> [],
-				'class'	=> []
-			],
-			'span'		=> [
-				'class'	=> []
-			],
-			'a'			=> [
-				'href'	=> [],
-				'class'	=> []
-			],
-			'canvas'	=> [
-				'id'		=> [],
-				'height'	=> []
-			]
-		];
-
 		$html = '
 		<div id="pvc-dashboard-accordion" class="pvc-accordion">';
 
 		foreach ( $items as $item ) {
-			$html .= $this->generate_dashboard_widget_item( $item, $menu_items, $months_html, $allowed_html );
+			$html .= $this->generate_dashboard_widget_item( $item, $menu_items, $months_html );
 		}
 
 		$html .= '
@@ -206,10 +187,16 @@ class Post_Views_Counter_Dashboard {
 	 * @param array $item
 	 * @param array $menu_items
 	 * @param string $esc_months_html
-	 * @param array $allowed_html
 	 * @return string
 	 */
-	public function generate_dashboard_widget_item( $item, $menu_items, $esc_months_html, $allowed_html ) {
+	public function generate_dashboard_widget_item( $item, $menu_items, $esc_months_html ) {
+		// allows a list of HTML Entities such as  
+		$allowed_html = wp_kses_allowed_html( 'post' );
+		$allowed_html['canvas'] = [
+			'id' => [],
+			'height' => []
+		];
+		
 		return '
 		<div id="pvc-' . esc_attr( $item['id'] ) . '" class="pvc-accordion-item' . ( in_array( $item['id'], $menu_items, true ) ? ' pvc-collapsed' : '' ) . '">
 			<div class="pvc-accordion-header">
