@@ -3,9 +3,9 @@ Contributors: dfactory
 Donate link: http://dfactory.eu/
 Tags: counter, hits, posts, postviews, post views, views, count, statistics, stats, analytics, pageviews, tracking
 Requires at least: 5.0
-Requires PHP: 5.2.4
-Tested up to: 5.8.2
-Stable tag: 1.3.10
+Requires PHP: 5.3.0
+Tested up to: 5.9
+Stable tag: 1.3.11
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -24,6 +24,7 @@ For more information, check out plugin page at [dFactory](http://dfactory.eu/) o
 * Compatible with data privacy regulations
 * Possibility to manually set views count for each post
 * Dashboard post views stats widget
+* Full Data Privacy compliance
 * Capability to query posts according to its views count
 * Custom REST API endpoints
 * Option to set counts interval
@@ -61,6 +62,12 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3.11 =
+* Fix: Potentailly incorrect counting of post views in edge case db queries
+* Fix: Possible empty chart in dashboard
+* Fix: Incorrect saving of dashboard widget user options
+* Tweak: Updated Chart.js to version 3.7.0
 
 = 1.3.10 =
 * Fix: Post views column not working properly
@@ -233,7 +240,8 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.3.10 =
-* Fix: Post views column not working properly
-* Tweak: Switched to openssl_encrypt method for IP encryption
-* Tweak: Improved user input escaping
+= 1.3.11 =
+* Fix: Potentailly incorrect counting of post views in edge case db queries
+* Fix: Possible empty chart in dashboard
+* Fix: Incorrect saving of dashboard widget user options
+* Tweak: Updated Chart.js to version 3.7.0
