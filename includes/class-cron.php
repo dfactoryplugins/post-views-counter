@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Cron class.
- * 
+ *
  * @class Post_Views_Counter_Cron
  */
 class Post_Views_Counter_Cron {
@@ -28,7 +28,8 @@ class Post_Views_Counter_Cron {
 	/**
 	 * Reset daily counts.
 	 *
-	 * @global $wpdb
+	 * @global object $wpdb
+	 *
 	 * @return void
 	 */
 	public function reset_counts() {

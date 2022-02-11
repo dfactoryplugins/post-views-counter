@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Counter class.
- * 
+ *
  * @class Post_Views_Counter_Counter
  */
 class Post_Views_Counter_Counter {
@@ -231,11 +231,12 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Check whether to count visit via REST API request.
 	 *
-	 * @param array $request
-	 * @return array|int
+	 * @param object $request
+	 * @return int|WP_Error
 	 */
 	public function check_post_rest_api( $request ) {
-		$post_id = absint( $request['id'] );
+		// get post id (already sanitized)
+		$post_id = $request->get_param( 'id' );
 
 		// do we use REST API as counter?
 		if ( Post_Views_Counter()->options['general']['counter_mode'] !== 'rest_api' )
@@ -485,7 +486,8 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Remove post views from database when post is deleted.
 	 *
-	 * @global $wpdb
+	 * @global object $wpdb
+	 *
 	 * @param int $post_id
 	 * @return void
 	 */
@@ -501,16 +503,16 @@ class Post_Views_Counter_Counter {
 	 * @param string $type
 	 * @param int $number
 	 * @param bool $timestamp
-	 * @return string
+	 * @return int
 	 */
 	public function get_timestamp( $type, $number, $timestamp = true ) {
 		$converter = [
-			'minutes'	 => 60,
-			'hours'		 => 3600,
-			'days'		 => 86400,
-			'weeks'		 => 604800,
-			'months'	 => 2592000,
-			'years'		 => 946080000
+			'minutes'	=> 60,
+			'hours'		=> 3600,
+			'days'		=> 86400,
+			'weeks'		=> 604800,
+			'months'	=> 2592000,
+			'years'		=> 946080000
 		];
 
 		return (int) ( ( $timestamp ? current_time( 'timestamp', true ) : 0 ) + $number * $converter[$type] );
@@ -520,7 +522,7 @@ class Post_Views_Counter_Counter {
 	 * Check if object cache is in use.
 	 *
 	 * @param bool $using
-	 * @return bool
+	 * @return bool|null
 	 */
 	public function using_object_cache( $using = null ) {
 		$using = wp_using_ext_object_cache( $using );
@@ -624,7 +626,8 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Insert or update views count.
 	 *
-	 * @global $wpdb
+	 * @global object $wpdb
+	 *
 	 * @param int $id
 	 * @param string $type
 	 * @param string $period
@@ -640,11 +643,11 @@ class Post_Views_Counter_Counter {
 			$count = 1;
 
 		return $wpdb->query(
-		$wpdb->prepare( "
-				INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
+			$wpdb->prepare(
+				"INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
 				VALUES (%d, %d, %s, %d)
 				ON DUPLICATE KEY UPDATE count = count + %d", $id, $type, $period, $count, $count
-		)
+			)
 		);
 	}
 
@@ -678,7 +681,8 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Insert accumulated values to database.
 	 *
-	 * @global $wpdb
+	 * @global object $wpdb
+	 *
 	 * @return int|bool
 	 */
 	private function db_commit_insert() {
@@ -687,8 +691,8 @@ class Post_Views_Counter_Counter {
 
 		global $wpdb;
 
-		$result = $wpdb->query( "
-			INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
+		$result = $wpdb->query(
+			"INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
 			VALUES " . $this->db_insert_values . "
 			ON DUPLICATE KEY UPDATE count = count + VALUES(count)"
 		);
@@ -873,8 +877,7 @@ class Post_Views_Counter_Counter {
 			'permission_callback'	 => [ $this, 'get_post_views_permissions_check' ],
 			'args'					 => [
 				'id' => [
-					'default'	 => 0,
-					'user_id'	 => get_current_user_id()
+					'default'	 => 0
 				]
 			]
 		] );
@@ -883,11 +886,17 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Get post views via REST API request.
 	 *
-	 * @param array $request
+	 * @param object $request
 	 * @return int
 	 */
 	public function get_post_views_rest_api( $request ) {
-		$post_id = is_array( $request['id'] ) ? array_map( 'absint', $request['id'] ) : absint( $request['id'] );
+		// get id
+		$post_id = $request->get_param( 'id' );
+
+		if ( is_array( $post_id ) )
+			$post_id = array_map( 'absint', $request['id'] );
+		else
+			$post_id = absint( $request['id'] );
 
 		return pvc_get_post_views( $post_id );
 	}
@@ -895,8 +904,8 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Check if a given request has access to get views.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
-	 * @return WP_Error|bool
+	 * @param object $request
+	 * @return bool
 	 */
 	public function post_views_permissions_check( $request ) {
 		return (bool) apply_filters( 'pvc_rest_api_post_views_check', true, $request );
@@ -905,11 +914,10 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Check if a given request has access to get views.
 	 *
-	 * @param WP_REST_Request $request Full data about the request.
-	 * @return WP_Error|bool
+	 * @param object $request
+	 * @return bool
 	 */
 	public function get_post_views_permissions_check( $request ) {
 		return (bool) apply_filters( 'pvc_rest_api_get_post_views_check', true, $request );
 	}
-
 }

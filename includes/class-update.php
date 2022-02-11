@@ -17,7 +17,7 @@ class Post_Views_Counter_Update {
 	 */
 	public function __construct() {
 		// actions
-		add_action( 'init', array( $this, 'check_update' ) );
+		add_action( 'init', [ $this, 'check_update' ] );
 	}
 
 	/**
@@ -38,7 +38,7 @@ class Post_Views_Counter_Update {
 
 			if ( $general['reset_counts']['number'] > 0 ) {
 				// unsupported data reset in minutes/hours
-				if ( in_array( $general['reset_counts']['type'], array( 'minutes', 'hours' ), true ) ) {
+				if ( in_array( $general['reset_counts']['type'], [ 'minutes', 'hours' ], true ) ) {
 					// set type to date
 					$general['reset_counts']['type'] = 'days';
 
@@ -99,6 +99,8 @@ class Post_Views_Counter_Update {
 
 	/**
 	 * Database update for 1.2.4 and below.
+	 *
+	 * @global object $wpdb
 	 *
 	 * @return void
 	 */

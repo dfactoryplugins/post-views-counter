@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Functions class.
- * 
+ *
  * @class Post_Views_Counter_Functions
  */
 class Post_Views_Counter_Functions {
@@ -47,6 +47,7 @@ class Post_Views_Counter_Functions {
 	 * Get all user roles.
 	 *
 	 * @global object $wp_roles
+	 *
 	 * @return array
 	 */
 	public function get_user_roles() {

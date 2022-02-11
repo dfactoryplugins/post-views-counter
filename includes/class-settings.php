@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Settings class.
- * 
+ *
  * @class Post_Views_Counter_Settings
  */
 class Post_Views_Counter_Settings {
@@ -353,6 +353,8 @@ class Post_Views_Counter_Settings {
 	/**
 	 * Validate options.
 	 *
+	 * @global object $wpdb
+	 *
 	 * @param array $input Settings data
 	 * @return array
 	 */
@@ -360,6 +362,8 @@ class Post_Views_Counter_Settings {
 		// check capability
 		if ( ! current_user_can( 'manage_options' ) )
 			return $input;
+
+		global $wpdb;
 
 		// get main instance
 		$pvc = Post_Views_Counter();
@@ -371,8 +375,6 @@ class Post_Views_Counter_Settings {
 		if ( isset( $_POST['post_views_counter_import_wp_postviews'] ) ) {
 			// make sure we do not change anything in the settings
 			$input = $pvc->options['general'];
-
-			global $wpdb;
 
 			// get views key
 			$meta_key = esc_attr( apply_filters( 'pvc_import_meta_key', 'views' ) );
@@ -397,8 +399,6 @@ class Post_Views_Counter_Settings {
 		} elseif ( isset( $_POST['post_views_counter_reset_views'] ) ) {
 			// make sure we do not change anything in the settings
 			$input = $pvc->options['general'];
-
-			global $wpdb;
 
 			if ( $wpdb->query( 'TRUNCATE TABLE ' . $wpdb->prefix . 'post_views' ) )
 				add_settings_error( 'reset_post_views', 'reset_post_views', __( 'All existing data deleted succesfully.', 'post-views-counter' ), 'updated' );

@@ -190,13 +190,13 @@ class Post_Views_Counter_Dashboard {
 	 * @return string
 	 */
 	public function generate_dashboard_widget_item( $item, $menu_items, $esc_months_html ) {
-		// allows a list of HTML Entities such as  
+		// get allowed html tags
 		$allowed_html = wp_kses_allowed_html( 'post' );
 		$allowed_html['canvas'] = [
 			'id' => [],
 			'height' => []
 		];
-		
+
 		return '
 		<div id="pvc-' . esc_attr( $item['id'] ) . '" class="pvc-accordion-item' . ( in_array( $item['id'], $menu_items, true ) ? ' pvc-collapsed' : '' ) . '">
 			<div class="pvc-accordion-header">

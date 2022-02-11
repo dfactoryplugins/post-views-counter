@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Admin class.
- * 
+ *
  * @class Post_Views_Counter_Admin
  */
 class Post_Views_Counter_Admin {
@@ -112,6 +112,9 @@ class Post_Views_Counter_Admin {
 
 	/**
 	 * Enqueue frontend and editor JavaScript and CSS.
+	 *
+	 * @global string $pagenow
+	 * @global string $wp_version
 	 *
 	 * @return void
 	 */

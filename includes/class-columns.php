@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Columns class.
- * 
+ *
  * @class Post_Views_Counter_Columns
  */
 class Post_Views_Counter_Columns {
@@ -35,7 +35,7 @@ class Post_Views_Counter_Columns {
 	 *
 	 * @global object $post
 	 *
-	 * @return void 
+	 * @return void
 	 */
 	public function submitbox_views() {
 		global $post;
@@ -94,27 +94,27 @@ class Post_Views_Counter_Columns {
 	 *
 	 * @param int $post_id
 	 * @param object $post
-	 * @return int
+	 * @return void
 	 */
 	public function save_post( $post_id, $post = null ) {
 		// break if doing autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
-			return $post_id;
+			return;
 
 		// break if current user can't edit this post
 		if ( ! current_user_can( 'edit_post', $post_id ) )
-			return $post_id;
+			return;
 
 		// is post views set
 		if ( ! isset( $_POST['post_views'] ) )
-			return $post_id;
+			return;
 
 		// cast numeric post views
 		$post_views = (int) $_POST['post_views'];
 
 		// unchanged post views value?
 		if ( isset( $_POST['current_post_views'] ) && $post_views === (int) $_POST['current_post_views'] )
-			return $post_id;
+			return;
 
 		// get main instance
 		$pvc = Post_Views_Counter();
@@ -130,15 +130,15 @@ class Post_Views_Counter_Columns {
 
 		// invalid post type?
 		if ( ! in_array( $post_type, $post_types, true ) )
-			return $post_id;
+			return;
 
 		// break if views editing is restricted
 		if ( (bool) $pvc->options['general']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
-			return $post_id;
+			return;
 
 		// validate data
 		if ( ! isset( $_POST['pvc_nonce'] ) || ! wp_verify_nonce( $_POST['pvc_nonce'], 'post_views_count' ) )
-			return $post_id;
+			return;
 
 		// update post views
 		pvc_update_post_views( $post_id, $post_views );
@@ -313,7 +313,7 @@ class Post_Views_Counter_Columns {
 	 */
 	function save_bulk_post_views() {
 		$count = null;
-		
+
 		if ( isset( $_POST['post_views'] ) ) {
 			if ( is_numeric( trim( $_POST['post_views'] ) ) ) {
 				$count = (int) $_POST['post_views'];
@@ -521,6 +521,6 @@ class Post_Views_Counter_Columns {
 		$html .= '
 		</style>';
 
-		echo wp_kses( $html, array( 'style' => array() ) );
+		echo wp_kses( $html, [ 'style' => [] ] );
 	}
 }

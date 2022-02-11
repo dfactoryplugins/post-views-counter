@@ -120,6 +120,8 @@ class Post_Views_Counter_Settings_API {
 	/**
 	 * Render settings.
 	 *
+	 * @global string $pagenow
+	 *
 	 * @return void
 	 */
 	public function options_page() {
