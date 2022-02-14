@@ -97,6 +97,11 @@ class Post_Views_Counter_Frontend {
 
 		$display = false;
 
+		// post type check
+		if ( ! empty( $pvc->options['display']['post_types_display'] ) ) {
+			$display = is_singular( $pvc->options['display']['post_types_display'] );
+		}
+
 		// page visibility check
 		if ( ! empty( $pvc->options['display']['page_types_display'] ) ) {
 			foreach ( $pvc->options['display']['page_types_display'] as $page ) {
