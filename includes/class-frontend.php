@@ -39,16 +39,44 @@ class Post_Views_Counter_Frontend {
 	 */
 	public function post_views_shortcode( $args ) {
 		$defaults = [
-			'id' => get_the_ID()
+			'id'	=> get_the_ID(),
+			'type'	=> 'post'
 		];
 
+		// main item?
+		if ( ! in_the_loop() ) {
+			// get current object
+			$object = get_queried_object();
+
+			// post?
+			if ( is_a( $object, 'WP_Post' ) ) {
+				$defaults['id'] = $object->ID;
+				$defaults['type'] = 'post';
+			// term?
+			} elseif ( is_a( $object, 'WP_Term' ) ) {
+				$defaults['id'] = $object->term_id;
+				$defaults['type'] = 'term';
+			// user?
+			} elseif ( is_a( $object, 'WP_User' ) ) {
+				$defaults['id'] = $object->ID;
+				$defaults['type'] = 'user';
+			}
+		}
+
+		// combine attributes
 		$args = shortcode_atts( $defaults, $args );
 
-		return pvc_post_views( $args['id'], false );
+		// default type?
+		if ( $args['type'] === 'post' )
+			$views = pvc_post_views( $args['id'], false );
+		else
+			$views = apply_filters( 'pvc_post_views_shortcode', '', $args );
+
+		return $views;
 	}
 
 	/**
-	 * Set up plugin hooks.
+	 * Display number of post views.
 	 *
 	 * @return void
 	 */
@@ -58,6 +86,7 @@ class Post_Views_Counter_Frontend {
 
 		$filter = apply_filters( 'pvc_shortcode_filter_hook', Post_Views_Counter()->options['display']['position'] );
 
+		// valid filter?
 		if ( ! empty( $filter ) && in_array( $filter, [ 'before', 'after' ] ) ) {
 			// post content
 			add_filter( 'the_content', [ $this, 'add_post_views_count' ] );
@@ -65,11 +94,9 @@ class Post_Views_Counter_Frontend {
 			// bbpress support
 			add_action( 'bbp_template_' . $filter . '_single_topic', [ $this, 'display_bbpress_post_views' ] );
 			add_action( 'bbp_template_' . $filter . '_single_forum', [ $this, 'display_bbpress_post_views' ] );
-		} else {
-			// custom
-			if ( $filter !== 'manual' && is_string( $filter ) )
-				add_filter( $filter, [ $this, 'add_post_views_count' ] );
-		}
+		// custom
+		} elseif ( $filter !== 'manual' && is_string( $filter ) )
+			add_filter( $filter, [ $this, 'add_post_views_count' ] );
 	}
 
 	/**
