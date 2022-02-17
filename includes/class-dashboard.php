@@ -222,8 +222,6 @@ class Post_Views_Counter_Dashboard {
 	/**
 	 * Render dashboard widget with post views.
 	 *
-	 * @global array $_wp_admin_css_colors
-	 *
 	 * @return void
 	 */
 	public function dashboard_post_views_chart() {
@@ -245,26 +243,8 @@ class Post_Views_Counter_Dashboard {
 		// get current date
 		$now = getdate( current_time( 'timestamp', get_option( 'gmt_offset' ) ) );
 
-		// get color schemes
-		global $_wp_admin_css_colors;
-
-		// set default color;
-		$color = [
-			'r'	=> 105,
-			'g'	=> 168,
-			'b'	=> 187
-		];
-
-		if ( ! empty( $_wp_admin_css_colors ) ) {
-			// get current admin color scheme name
-			$current_color_scheme = get_user_option( 'admin_color' );
-
-			if ( empty( $current_color_scheme ) )
-				$current_color_scheme = 'fresh';
-
-			if ( isset( $_wp_admin_css_colors[$current_color_scheme] ) )
-				$color = $this->hex2rgb( $_wp_admin_css_colors[$current_color_scheme]->colors[2] );
-		}
+		// get colors
+		$color = $this->get_colors();
 
 		// set chart labels
 		switch ( $period ) {
@@ -736,6 +716,38 @@ class Post_Views_Counter_Dashboard {
 		}
 
 		return $timestamp;
+	}
+
+	/**
+	 * Get default color for charts.
+	 *
+	 * @global array $_wp_admin_css_colors
+	 *
+	 * @return array
+	 */
+	public function get_colors() {
+		// get global color scheme
+		global $_wp_admin_css_colors;
+
+		// set default colors
+		$colors = [
+			'r'	=> 105,
+			'g'	=> 168,
+			'b'	=> 187
+		];
+
+		if ( ! empty( $_wp_admin_css_colors ) ) {
+			// get current admin color scheme name
+			$current_color_scheme = get_user_option( 'admin_color' );
+
+			if ( empty( $current_color_scheme ) )
+				$current_color_scheme = 'fresh';
+
+			if ( isset( $_wp_admin_css_colors[$current_color_scheme] ) )
+				$colors = $this->hex2rgb( $_wp_admin_css_colors[$current_color_scheme]->colors[2] );
+		}
+
+		return $colors;
 	}
 
 	/**

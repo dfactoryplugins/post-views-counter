@@ -105,8 +105,12 @@ class Post_Views_Counter_Settings {
 			],
 			'validate' => [ $this, 'validate_settings' ],
 			'sections' => [
-				'post_views_counter_general_settings' => [],
-				'post_views_counter_display_settings' => []
+				'post_views_counter_general_settings' => [
+					'tab'	=> 'general'
+				],
+				'post_views_counter_display_settings' => [
+					'tab'	=> 'display'
+				]
 			],
 			'fields' => [
 				'post_types_count' => [

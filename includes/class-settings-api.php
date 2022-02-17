@@ -200,8 +200,17 @@ class Post_Views_Counter_Settings_API {
 						<hr />
 						<p class="df-link inner"><a href="http://www.dfactory.eu/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=created-by" target="_blank" title="Digital Factory"><img src="//pvc-53eb.kxcdn.com/df-black-sm.png" alt="Digital Factory"></a></p>
 					</div>
-				</div>
-				<form action="options.php" method="post">';
+				</div>';
+
+		$display_form = true;
+
+		// check form attribute
+		if ( ! empty( $this->settings[$matches[1]]['form'] ) && ! empty( $tab_key ) && ! empty( $this->settings[$matches[1]]['form'][$tab_key] ) ) {
+			$form = $this->settings[$matches[1]]['form'][$tab_key];
+
+			if ( isset( $form['buttons'] ) && ! $form['buttons'] )
+				$display_form = false;
+		}
 
 		// any tabs?
 		if ( ! empty( $tab_key ) ) {
@@ -212,21 +221,30 @@ class Post_Views_Counter_Settings_API {
 		} else
 			$setting = $this->prefix . '_' . $matches[1] . '_settings';
 
+		if ( $display_form ) {
+			echo '
+				<form action="options.php" method="post">';
+		}
+
 		settings_fields( $setting );
 		do_settings_sections( $setting );
 
-		echo '
+		if ( $display_form ) {
+			echo '
 					<p class="submit">';
 
-		submit_button( '', 'primary', 'save_' . $setting, false );
+			submit_button( '', 'primary', 'save_' . $setting, false );
 
-		echo ' ';
+			echo ' ';
 
-		submit_button( __( 'Reset to defaults', $this->domain ), 'secondary reset_' . $setting . ' reset_' . $this->short . '_settings', 'reset_' . $setting, false );
+			submit_button( __( 'Reset to defaults', $this->domain ), 'secondary reset_' . $setting . ' reset_' . $this->short . '_settings', 'reset_' . $setting, false );
+
+			echo '
+					</p>
+				</form>';
+		}
 
 		echo '
-					</p>
-				</form>
 			</div>
 			<div class="clear"></div>
 		</div>';
@@ -252,6 +270,11 @@ class Post_Views_Counter_Settings_API {
 		}
 	}
 
+	/**
+	 * Register setting with sections and fields.
+	 *
+	 * @return void
+	 */
 	public function register_setting_fields( $setting_id, $setting, $option_name = '' ) {
 		if ( empty( $option_name ) )
 			$option_name = $setting['option_name'];
@@ -262,6 +285,10 @@ class Post_Views_Counter_Settings_API {
 		// register setting sections
 		if ( ! empty( $setting['sections'] ) ) {
 			foreach ( $setting['sections'] as $section_id => $section ) {
+				// skip unwanted sections
+				if ( ! empty( $section['tab'] ) && $section['tab'] !== $setting_id )
+					continue;
+
 				add_settings_section(
 					$section_id,
 					! empty( $section['title'] ) ? esc_html( $section['title'] ) : '',
@@ -274,6 +301,7 @@ class Post_Views_Counter_Settings_API {
 		// register setting fields
 		if ( ! empty( $setting['fields'] ) ) {
 			foreach ( $setting['fields'] as $field_key => $field ) {
+				// skip unwanted fields
 				if ( ! empty( $field['tab'] ) && $field['tab'] !== $setting_id )
 					continue;
 
