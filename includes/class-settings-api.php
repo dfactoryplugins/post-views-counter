@@ -72,6 +72,15 @@ class Post_Views_Counter_Settings_API {
 	}
 
 	/**
+	 * Get pages.
+	 *
+	 * @return array
+	 */
+	public function get_pages() {
+		return $this->pages;
+	}
+
+	/**
 	 * Get settings.
 	 *
 	 * @return array

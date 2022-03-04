@@ -144,6 +144,12 @@
 									position: 'bottom',
 									align: 'center',
 									fullSize: true,
+									onHover: function( e ) {
+										e.native.target.style.cursor = 'pointer';
+									},
+									onLeave: function( e ) {
+										e.native.target.style.cursor = 'default';
+									},
 									onClick: function( e, element, legend ) {
 										var index = element.datasetIndex;
 										var ci = legend.chart;
