@@ -171,9 +171,13 @@
 										} );
 									},
 									labels: {
-										boxWidth: 0,
-										boxHeight: 0,
-										fontSize: 12,
+										boxWidth: 8,
+										boxHeight: 8,
+										font: {
+											size: 13,
+											weight: 'normal',
+											family: "'-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', 'sans-serif'"
+										},
 										padding: 10,
 										usePointStyle: false,
 										textAlign: 'center'
