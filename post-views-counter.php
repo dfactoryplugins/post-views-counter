@@ -70,6 +70,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			],
 			'display'	=> [
 				'label'					=> 'Post Views:',
+                'unit'                  => '',
 				'post_types_display'	=> [ 'post' ],
 				'page_types_display'	=> [ 'singular' ],
 				'restrict_display'		=> [
