@@ -211,7 +211,7 @@ class Post_Views_Counter_Frontend {
 			wp_enqueue_style( 'dashicons' );
 
 			// load style
-			wp_enqueue_style( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/css/frontend.css', [], $pvc->defaults['version'] );
+			wp_enqueue_style( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/css/frontend.min.css', [], $pvc->defaults['version'] );
 		}
 
 		// get countable post types
@@ -226,7 +226,7 @@ class Post_Views_Counter_Frontend {
 
 		// specific counter mode?
 		if ( in_array( $mode, [ 'js', 'rest_api' ], true ) ) {
-			wp_enqueue_script( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/js/frontend.js', [ 'jquery' ], $pvc->defaults['version'], true );
+			wp_enqueue_script( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/js/frontend.min.js', [ 'jquery' ], $pvc->defaults['version'], true );
 
 			$args = [
 				'mode'		=> $mode,

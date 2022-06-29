@@ -220,12 +220,14 @@ class Post_Views_Counter_Counter {
 
 			// whether to count this post type or not
 			if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
-				exit;
+				exit();
 
-			$this->check_post( $post_id );
+			echo json_encode( array( 
+				'post_id' => (int) $this->check_post( $post_id ) 
+			) );
 		}
 
-		exit;
+		exit();
 	}
 
 	/**
@@ -256,7 +258,11 @@ class Post_Views_Counter_Counter {
 		if ( empty( $post_types ) || ! in_array( $post->post_type, $post_types, true ) )
 			return new WP_Error( 'pvc_post_type_excluded', __( 'Post type excluded.', 'post-views-counter' ), [ 'status' => 404 ] );
 
-		return $this->check_post( $post_id );
+		echo json_encode( array( 
+			'post_id' => (int) $this->check_post( $post_id )
+		) );
+
+		exit();
 	}
 
 	/**
@@ -709,7 +715,7 @@ class Post_Views_Counter_Counter {
 	 * @param string $option
 	 * @return bool
 	 */
-	public function is_user_role_excluded( $user_id, $option ) {
+	public function is_user_role_excluded( $user_id, $option = array() ) {
 		// get user by ID
 		$user = get_user_by( 'id', $user_id );
 

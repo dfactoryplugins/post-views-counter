@@ -1,0 +1,167 @@
+/* Post Views Counter settings */
+.post-views-counter-settings {
+    margin-right: 300px;
+
+    form {
+        float: left;
+        min-width: 463px;
+        width: auto;
+    }
+
+    fieldset .description {
+        font-size: 13px;
+        margin-bottom: 8px;
+        margin-top: 4px;
+        display: block;
+    }
+
+    p.help,
+    p.description,
+    span.description {
+        font-size: 13px;
+        font-style: italic;
+    }
+
+    .ip-box {
+        margin-bottom: 3px;
+    }
+
+    .pvc_user_roles {
+        margin-top: 12px;
+    }
+
+    select {
+        vertical-align: top;
+    }
+
+    output {
+        display: block;
+        font-size: 30px;
+        font-weight: bold;
+        text-align: center;
+        margin: 30px 0;
+        width: 100%;
+    }
+
+    .df-credits {
+        float: right;
+        width: 280px;
+        background: #fff;
+        margin: 20px -300px 20px 20px;
+        position: relative;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+    
+        .inner {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+    
+        h3 {
+            font-size: 14px;
+            line-height: 1.4;
+            margin: 0;
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+        }
+    
+        .df-link {
+            padding-top: 5px;
+            padding-bottom: 10px;
+            margin: 0;
+    
+            a {
+                display: block;
+                text-align: center;
+                outline: none !important;
+                border: none !important;
+                box-shadow: none !important;
+    
+                img {
+                    display: block;
+                    margin: 0 auto;
+                    width: 80px;
+                }
+            }
+        }
+    
+        hr {
+            border: solid #eee;
+            border-width: 1px 0 0;
+            clear: both;
+            height: 0;
+        }
+    }
+}
+
+/* Single post edit screen */
+#misc-publishing-actions #post-views {
+    #post-views-display:before {
+        display: inline-block;
+        font: 400 20px/1 dashicons;
+        left: -1px;
+        padding: 0 2px 0 0;
+        position: relative;
+        text-decoration: none !important;
+        vertical-align: top;
+        color: #888;
+        content: "\f185";
+        top: -1px;
+    }
+}
+
+/* Listing edit screen */
+.edit-php {
+    .widefat {
+        th {
+            &#post_views {
+                width: 5.5em;
+            }
+
+            &.column-post_views .dashicons {
+                &,
+                &:before {
+                    font-size: 1.1em;
+                    vertical-align: middle;
+                }
+            }
+
+            &.dash-title {
+                display: none;
+            }
+        }
+
+        td {
+            .dashicons {
+                &,
+                &:before {
+                    font-size: 1.1em;
+                }
+            }
+        }
+    }
+
+    .metabox-prefs {
+        .dash-icon {
+            display: none;
+        }
+    }
+
+    #inline-edit-post_views {
+        input {
+            width: auto;
+        }
+    }
+
+    .is-hidden {
+        display: none !important;
+        visibility: hidden !important;
+    }
+}
+
+.upload-php {
+    .widefat {
+        .dash-title {
+            display: none;
+        }
+    }
+}

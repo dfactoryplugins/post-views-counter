@@ -575,7 +575,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @return void
 		 */
 		public function admin_enqueue_scripts( $page ) {
-			wp_register_style( 'pvc-admin', POST_VIEWS_COUNTER_URL . '/css/admin.css' );
+			wp_register_style( 'pvc-admin', POST_VIEWS_COUNTER_URL . '/css/admin.min.css' );
 
 			wp_register_script( 'pvc-admin-settings', POST_VIEWS_COUNTER_URL . '/js/admin-settings.js', [ 'jquery' ], $this->defaults['version'] );
 			wp_register_script( 'pvc-admin-post', POST_VIEWS_COUNTER_URL . '/js/admin-post.js', [ 'jquery' ], $this->defaults['version'] );
