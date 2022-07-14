@@ -795,12 +795,13 @@ class Post_Views_Counter_Counter {
 		$auth_key = defined( 'AUTH_KEY' ) ? AUTH_KEY : '';
 		$auth_iv = defined( 'NONCE_KEY' ) ? NONCE_KEY : '';
 		$cipher = 'AES-256-CBC';
+		$php_71x = version_compare( PHP_VERSION, '7.1.0', '>=' ) && version_compare( PHP_VERSION, '7.2.0', '<' );
 
 		// open ssl encryption
 		if ( function_exists( 'openssl_encrypt' ) && in_array( $cipher, openssl_get_cipher_methods() ) )
 			$encrypted_ip = strtr( base64_encode( openssl_encrypt( $ip, $cipher, $auth_key, $options = 0, $auth_iv ) ) );
 		// mcrypt strong encryption
-		elseif ( function_exists( 'mcrypt_encrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
+		elseif ( ! $php_71x && function_exists( 'mcrypt_encrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
 			// get max key size of the mcrypt mode
 			$max_key_size = mcrypt_get_key_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
 			$max_iv_size = mcrypt_get_iv_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
@@ -829,12 +830,13 @@ class Post_Views_Counter_Counter {
 		$auth_key = defined( 'AUTH_KEY' ) ? AUTH_KEY : '';
 		$auth_iv = defined( 'NONCE_KEY' ) ? NONCE_KEY : '';
 		$cipher = 'AES-256-CBC';
+		$php_71x = version_compare( PHP_VERSION, '7.1.0', '>=' ) && version_compare( PHP_VERSION, '7.2.0', '<' );
 
 		// open ssl decryption
 		if ( function_exists( 'openssl_encrypt' ) && in_array( $cipher, openssl_get_cipher_methods() ) ) {
 			$ip = openssl_decrypt( $encrypted_ip, $cipher, $auth_key, $options = 0, $auth_iv );
 		// mcrypt strong encryption
-		} elseif ( function_exists( 'mcrypt_decrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
+		} elseif ( ! $php_71x && function_exists( 'mcrypt_decrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
 			// get max key size of the mcrypt mode
 			$max_key_size = mcrypt_get_key_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
 			$max_iv_size = mcrypt_get_iv_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
