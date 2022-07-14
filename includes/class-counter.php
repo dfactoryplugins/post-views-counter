@@ -321,10 +321,6 @@ class Post_Views_Counter_Counter {
 	private function save_cookie( $id, $cookie = [], $expired = true ) {
 		$set_cookie = apply_filters( 'pvc_maybe_set_cookie', true );
 
-		// Cookie Notice compatibility
-		if ( function_exists( 'cn_cookies_accepted' ) && ! cn_cookies_accepted() )
-			$set_cookie = false;
-
 		if ( $set_cookie !== true )
 			return;
 
@@ -411,10 +407,6 @@ class Post_Views_Counter_Counter {
 	 */
 	private function save_ip( $id ) {
 		$set_cookie = apply_filters( 'pvc_maybe_set_cookie', true );
-
-		// Cookie Notice compatibility
-		if ( function_exists( 'cn_cookies_accepted' ) && ! cn_cookies_accepted() )
-			$set_cookie = false;
 
 		if ( $set_cookie !== true )
 			return $id;
@@ -805,10 +797,10 @@ class Post_Views_Counter_Counter {
 		$cipher = 'AES-256-CBC';
 
 		// open ssl encryption
-		if ( function_exists( 'openssl_encrypt' ) && in_array( $cipher, openssl_get_cipher_methods() ) ) {
+		if ( function_exists( 'openssl_encrypt' ) && in_array( $cipher, openssl_get_cipher_methods() ) )
 			$encrypted_ip = strtr( base64_encode( openssl_encrypt( $ip, $cipher, $auth_key, $options = 0, $auth_iv ) ) );
-			// mcrypt strong encryption
-		} elseif ( function_exists( 'mcrypt_encrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
+		// mcrypt strong encryption
+		elseif ( function_exists( 'mcrypt_encrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
 			// get max key size of the mcrypt mode
 			$max_key_size = mcrypt_get_key_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
 			$max_iv_size = mcrypt_get_iv_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
@@ -817,7 +809,7 @@ class Post_Views_Counter_Counter {
 			$encrypt_iv = mb_strimwidth( $auth_iv, 0, $max_iv_size );
 
 			$encrypted_ip = strtr( base64_encode( mcrypt_encrypt( MCRYPT_BLOWFISH, $encrypt_key, $ip, MCRYPT_MODE_CBC, $encrypt_iv ) ), '+/=', '-_,' );
-			// simple encryption
+		// simple encryption
 		} elseif ( function_exists( 'gzdeflate' ) )
 			$encrypted_ip = base64_encode( convert_uuencode( gzdeflate( $ip ) ) );
 		// no encryption
