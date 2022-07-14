@@ -226,7 +226,7 @@ class Post_Views_Counter_Frontend {
 
 		// specific counter mode?
 		if ( in_array( $mode, [ 'js', 'rest_api' ], true ) ) {
-			wp_enqueue_script( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/js/frontend.min.js', [ 'jquery' ], $pvc->defaults['version'], true );
+			wp_enqueue_script( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/js/frontend' . ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.min' : '' ) . '.js', [], $pvc->defaults['version'], true );
 
 			$args = [
 				'mode'		=> $mode,

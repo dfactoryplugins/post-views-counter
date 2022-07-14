@@ -220,14 +220,16 @@ class Post_Views_Counter_Counter {
 
 			// whether to count this post type or not
 			if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
-				exit();
+				exit;
 
-			echo json_encode( array( 
-				'post_id' => (int) $this->check_post( $post_id ) 
-			) );
+			echo json_encode(
+				[
+					'post_id'	=> (int) $this->check_post( $post_id )
+				]
+			);
 		}
 
-		exit();
+		exit;
 	}
 
 	/**
@@ -258,11 +260,13 @@ class Post_Views_Counter_Counter {
 		if ( empty( $post_types ) || ! in_array( $post->post_type, $post_types, true ) )
 			return new WP_Error( 'pvc_post_type_excluded', __( 'Post type excluded.', 'post-views-counter' ), [ 'status' => 404 ] );
 
-		echo json_encode( array( 
-			'post_id' => (int) $this->check_post( $post_id )
-		) );
+		echo json_encode(
+			[
+				'post_id'	=> (int) $this->check_post( $post_id )
+			]
+		);
 
-		exit();
+		exit;
 	}
 
 	/**
