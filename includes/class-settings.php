@@ -35,7 +35,7 @@ class Post_Views_Counter_Settings {
 
 		// Fast AJAX as active but not available counter mode?
 		if ( $pvc->options['general']['counter_mode'] === 'ajax' && ! array_key_exists( 'ajax', $this->get_counter_modes() ) ) {
-			// set standard JavaScript AJAX calls
+			// set standard javascript ajax calls
 			$pvc->options['general']['counter_mode'] = 'js';
 
 			// update database options
@@ -310,6 +310,17 @@ class Post_Views_Counter_Settings {
 					'type'			=> 'input',
 					'description'	=> sprintf( __( 'Enter the post views icon class. Any of the <a href="%s" target="_blank">Dashicons</a> classes are available.', 'post-views-counter' ), 'https://developer.wordpress.org/resource/dashicons/' ),
 					'subclass'		=> 'regular-text'
+				],
+				'dashboard_links' => [
+					'tab'			=> 'display',
+					'title'			=> __( 'Dashboard Widget Links', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_display_settings',
+					'type'			=> 'select',
+					'description'	=> sprintf( __( 'Select where the post links should point in dashboard. Editing is only allowed for users with %s capability.', 'post-views-counter' ), '<code>edit_post</code>' ),
+					'options'		=> [
+						'edit'	=> __( 'edit post in admin', 'post-views-counter' ),
+						'view'	=> __( 'view post in frontend', 'post-views-counter' )
+					]
 				],
 				'toolbar_statistics' => [
 					'tab'			=> 'display',

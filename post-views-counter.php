@@ -82,6 +82,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					'text'	 => true
 				],
 				'icon_class'			=> 'dashicons-chart-bar',
+				'dashboard_links'		=> 'edit',
 				'toolbar_statistics'	=> true
 			],
 			'version'	=> '1.3.11'

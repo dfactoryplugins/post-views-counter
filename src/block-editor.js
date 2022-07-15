@@ -43,7 +43,7 @@ class PostViews extends Component {
 	// reset views on cancel click
 	handleCancel( e ) {
 		this.setState( ( prevState ) => (
-			{ 
+			{
 				postViews: pvcEditorArgs.postViews,
 				isVisible: ! prevState.isVisible
 			}

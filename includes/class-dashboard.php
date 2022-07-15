@@ -483,8 +483,11 @@ class Post_Views_Counter_Dashboard {
 		if ( ! check_ajax_referer( 'pvc-dashboard-widget', 'nonce' ) )
 			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
+		// get main instance
+		$pvc = Post_Views_Counter();
+
 		// get post types
-		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+		$post_types = $pvc->options['general']['post_types_count'];
 
 		// get period
 		$period = isset( $_POST['period'] ) ? sanitize_text_field( $_POST['period'] ) : 'this_month';
@@ -538,17 +541,24 @@ class Post_Views_Counter_Dashboard {
 				<tr>
 					<th scope="col">' . ( $index + 1 ) . '</th>';
 
-				if ( array_key_exists( $post->post_type, $active_post_types ) )
-					$post_type_exists = $active_post_types[$post->post_type];
-				else
-					$post_type_exists = $active_post_types[$post->post_type] = post_type_exists( $post->post_type );
+				if ( $pvc->options['display']['dashboard_links'] === 'edit' ) {
+					// check post type existence
+					if ( array_key_exists( $post->post_type, $active_post_types ) )
+						$post_type_exists = $active_post_types[$post->post_type];
+					else
+						$post_type_exists = $active_post_types[$post->post_type] = post_type_exists( $post->post_type );
 
-				if ( $post_type_exists && current_user_can( 'edit_post', $post->ID ) )
-					$html .= '
+					// edit post link
+					if ( $post_type_exists && current_user_can( 'edit_post', $post->ID ) )
+						$html .= '
 					<td><a href="' . esc_url( get_edit_post_link( $post->ID ) ) . '">' . esc_html( get_the_title( $post ) ) . '</a></td>';
-				else
-					$html .= '
+					else
+						$html .= '
 					<td>' . esc_html( get_the_title( $post ) ). '</td>';
+				} else {
+					$html .= '
+					<td><a href="' . esc_url( get_permalink( $post->ID ) ) . '">' . esc_html( get_the_title( $post ) ) . '</a></td>';
+				}
 
 				$html .= '
 					<td>' . number_format_i18n( $post->post_views ) . '</td>

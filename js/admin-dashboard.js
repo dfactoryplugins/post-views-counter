@@ -292,7 +292,7 @@
 	 */
 	function loadPostMostViewedData( e ) {
 		e.preventDefault();
-		
+
 		var container = $( '#pvc-post-most-viewed' ).find( '.pvc-dashboard-container' );
 
 		getPostMostViewedData( false, e.target.dataset.date, container );
