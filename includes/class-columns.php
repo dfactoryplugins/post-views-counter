@@ -25,9 +25,7 @@ class Post_Views_Counter_Columns {
 		add_action( 'bulk_edit_custom_box', [ $this, 'quick_edit_custom_box' ], 10, 2 );
 		add_action( 'quick_edit_custom_box', [ $this, 'quick_edit_custom_box' ], 10, 2 );
 		add_action( 'wp_ajax_save_bulk_post_views', [ $this, 'save_bulk_post_views' ] );
-		add_action( 'admin_bar_menu', [ $this, 'admin_bar_menu' ], 100 );
-		add_action( 'wp', [ $this, 'admin_bar_maybe_add_style' ] );
-		add_action( 'admin_init', [ $this, 'admin_bar_maybe_add_style' ] );
+		add_action( 'wp_loaded', [ $this, 'maybe_load_admin_bar_menu' ] );
 	}
 
 	/**
@@ -369,27 +367,56 @@ class Post_Views_Counter_Columns {
 	 * @param object $admin_bar
 	 * @return void
 	 */
+	public function maybe_load_admin_bar_menu() {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		// statistics disabled?
+		if ( ! apply_filters( 'pvc_display_toolbar_statistics', $pvc->options['display']['toolbar_statistics'] ) )
+			return;
+
+		// skip for not logged in users
+		if ( ! is_user_logged_in() )
+			return;
+
+		// skip users with turned off admin bar at frontend
+		if ( ! is_admin() && get_user_option( 'show_admin_bar_front' ) !== 'true' )
+			return;
+
+		add_action( 'wp', [ $this, 'admin_bar_maybe_add_style' ] );
+		add_action( 'admin_init', [ $this, 'admin_bar_maybe_add_style' ] );
+		add_action( 'admin_bar_menu', [ $this, 'admin_bar_menu' ], 100 );
+	}
+
+	/**
+	 * Add admin bar stats to a post.
+	 *
+	 * @global string $pagenow
+	 * @global string $post
+	 *
+	 * @param object $admin_bar
+	 * @return void
+	 */
 	public function admin_bar_menu( $admin_bar ) {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
-		// statistics enabled?
-		if ( ! apply_filters( 'pvc_display_toolbar_statistics', $pvc->options['display']['toolbar_statistics'] ) )
-			return;
-
+		// set empty post
 		$post = null;
 
+		// admin?
 		if ( is_admin() && ! wp_doing_ajax() ) {
 			global $pagenow;
 
-			$post = $pagenow == 'post.php' && ! empty( $_GET['post'] ) ? get_post( (int) $_GET['post'] ) : $post;
+			$post = ( $pagenow === 'post.php' && ! empty( $_GET['post'] ) ) ? get_post( (int) $_GET['post'] ) : $post;
+		// frontend?
 		} elseif ( is_singular() )
 			global $post;
 
 		// get countable post types
 		$post_types = $pvc->options['general']['post_types_count'];
 
-		// whether to count this post type or not
+		// whether to allow this post type or not
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
 			return;
 
@@ -467,23 +494,22 @@ class Post_Views_Counter_Columns {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
-		// statistics enabled?
-		if ( ! $pvc->options['display']['toolbar_statistics'] )
-			return;
-
+		// set empty post
 		$post = null;
 
+		// admin?
 		if ( is_admin() && ! wp_doing_ajax() ) {
 			global $pagenow;
 
 			$post = ( $pagenow === 'post.php' && ! empty( $_GET['post'] ) ) ? get_post( (int) $_GET['post'] ) : $post;
+		// frontend?
 		} elseif ( is_singular() )
 			global $post;
 
 		// get countable post types
 		$post_types = $pvc->options['general']['post_types_count'];
 
-		// whether to count this post type or not
+		// whether to allow this post type or not
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
 			return;
 

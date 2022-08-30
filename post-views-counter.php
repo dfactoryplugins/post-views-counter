@@ -219,7 +219,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 
 			// actions
 			add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
-			add_action( 'wp_loaded', [ $this, 'load_pluggable_functions' ], 10 );
+			add_action( 'wp_loaded', [ $this, 'load_pluggable_functions' ] );
 			add_action( 'admin_init', [ $this, 'update_notice' ] );
 			add_action( 'wp_ajax_pvc_dismiss_notice', [ $this, 'dismiss_notice' ] );
 

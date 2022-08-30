@@ -614,17 +614,36 @@ function pvc_update_post_views( $post_id = 0, $post_views = 0 ) {
 /**
  * View post manually function.
  *
+ * By default this function has limitations. It works properly only between
+ * wp_loaded (minimum priority 10) and wp_head (maximum priority 6) actions and
+ * it can handle only one function execution per site request.
+ *
+ * To bypass these limitations there is a $bypass_content argument. It requires
+ * JavaScript or REST API as counter mode but it extends the ability to use
+ * pvc_view_post up to wp_print_footer_scripts (maximum priority 10) action. It
+ * also bypass one function execution limitation to allow multiple function
+ * calls during one site request. This also includes the correct saving of
+ * cookies.
+ *
  * @since 1.2.0
+ *
  * @param int $post_id
+ * @param bool $bypass_content
  * @return bool
  */
-function pvc_view_post( $post_id = 0 ) {
+function pvc_view_post( $post_id = 0, $bypass_content = false ) {
 	$post_id = (int) ( empty( $post_id ) ? get_the_ID() : $post_id );
 
 	if ( ! $post_id )
 		return false;
 
-	Post_Views_Counter()->counter->check_post( $post_id );
+	// get main instance
+	$pvc = Post_Views_Counter();
+
+	if ( $bypass_content )
+		$pvc->counter->add_to_queue( $post_id );
+	else
+		$pvc->counter->check_post( $post_id );
 
 	return true;
 }

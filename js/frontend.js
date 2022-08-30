@@ -1,5 +1,7 @@
 document.addEventListener( 'DOMContentLoaded', function() {
 	PostViewsCounter = {
+		promise: null,
+
 		/**
 		 * Initialize counter.
 		 *
@@ -10,29 +12,33 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		init: function( args ) {
 			// rest api request
 			if ( args.mode === 'rest_api' ) {
-				let options = {
-					id: args.postID
-				};
-				let headers = {
-					'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-					'X-WP-Nonce': args.nonce
-				};
-
 				// request
-				this.request( args.requestURL+ '?id=' + args.postID, options, 'POST', headers );
+				this.promise = this.request(
+					args.requestURL+ '?id=' + args.postID,
+					{
+						id: args.postID
+					},
+					'POST',
+					{
+						'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+						'X-WP-Nonce': args.nonce
+					}
+				);
 			// admin ajax request
 			} else {
-				let options = {
-					action:	'pvc-check-post',
-					pvc_nonce: args.nonce,
-					id: args.postID
-				};
-				let headers = {
-					'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
-				};
-
 				// request
-				this.request( args.requestURL, options, 'POST', headers );
+				this.promise = this.request(
+					args.requestURL,
+					{
+						action:	'pvc-check-post',
+						pvc_nonce: args.nonce,
+						id: args.postID
+					},
+					'POST',
+					{
+						'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+					}
+				);
 			}
 		},
 
@@ -88,7 +94,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		prepareData: function( data ) {
 			return Object.keys( data ).map( function( el ) {
 				// add extra "data" array
-				return encodeURIComponent( el ) + '=' + encodeURIComponent( data[el] )
+				return encodeURIComponent( el ) + '=' + encodeURIComponent( data[el] );
 			} ).join( '&' ).replace( /%20/g, '+' );
 		},
 

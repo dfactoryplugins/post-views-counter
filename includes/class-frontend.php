@@ -211,7 +211,7 @@ class Post_Views_Counter_Frontend {
 			wp_enqueue_style( 'dashicons' );
 
 			// load style
-			wp_enqueue_style( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/css/frontend.min.css', [], $pvc->defaults['version'] );
+			wp_enqueue_style( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/css/frontend' . ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.min' : '' ) . '.css', [], $pvc->defaults['version'] );
 		}
 
 		// get countable post types

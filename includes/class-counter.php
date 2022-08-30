@@ -15,6 +15,8 @@ class Post_Views_Counter_Counter {
 	const CACHE_KEY_SEPARATOR = '.';
 	const MAX_INSERT_STRING_LENGTH = 25000;
 
+	private $queue = [];
+	private $queue_mode = false;
 	private $db_insert_values = '';
 	private $cookie = [
 		'exists'		 => false,
@@ -35,6 +37,98 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
+	 * Add Post ID to queue.
+	 *
+	 * @return void
+	 */
+	public function add_to_queue( $post_id ) {
+		$this->queue[] = (int) $post_id;
+	}
+
+	/**
+	 * Run manual pvc_view_post queue.
+	 *
+	 * @return void
+	 */
+	public function queue_count() {
+		if ( isset( $_POST['action'], $_POST['ids'], $_POST['pvc_nonce'] ) && $_POST['action'] === 'pvc-view-posts' && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-view-posts' ) !== false && $_POST['ids'] !== '' ) {
+			$ids = explode( ',', $_POST['ids'] );
+
+			if ( ! empty( $ids ) ) {
+				$ids = array_filter( array_map( 'intval', $ids ) );
+
+				if ( ! empty( $ids ) ) {
+					// turn on queue mode
+					$this->queue_mode = true;
+
+					foreach ( $ids as $id ) {
+						$counted[$id] = ! ( $this->check_post( $id ) === null );
+					}
+
+					// turn off queue mode
+					$this->queue_mode = false;
+				}
+			}
+
+			echo json_encode(
+				[
+					'post_id'	=> $ids,
+					'counted'	=> $counted
+				]
+			);
+		}
+
+		exit;
+	}
+
+	/**
+	 * Print JavaScript with queue in the footer.
+	 *
+	 * @return void
+	 */
+	public function print_queue_count() {
+		// any ids to "view"?
+		if ( ! empty( $this->queue ) ) {
+			echo "
+			<script>
+				setTimeout( function() {
+					let pvcLoadManualCounter = function( url, implementationCode ) {
+						let pvcScriptTag = document.createElement( 'script' );
+
+						// set attributes
+						pvcScriptTag.src = url;
+						pvcScriptTag.onload = implementationCode;
+						pvcScriptTag.onreadystatechange = implementationCode;
+
+						// append script
+						document.body.appendChild( pvcScriptTag );
+					};
+
+					let pvcExecuteManualCounter = function() {
+						let pvcManualCounterArgs = {
+							url: '" . esc_url( admin_url( 'admin-ajax.php' ) ) . "',
+							nonce: '" . wp_create_nonce( 'pvc-view-posts' ) . "',
+							ids: '" . implode( ',', $this->queue ) . "'
+						};
+
+						// main javascript file was loaded?
+						if ( typeof PostViewsCounter !== 'undefined' && PostViewsCounter.promise !== null ) {
+							PostViewsCounter.promise.then( function() {
+								PostViewsCounterManual.init( pvcManualCounterArgs );
+							} );
+						// PostViewsCounter is undefined or promise is null
+						} else {
+							PostViewsCounterManual.init( pvcManualCounterArgs );
+						}
+					}
+
+					pvcLoadManualCounter( '" . POST_VIEWS_COUNTER_URL . "/js/counter" . ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.min' : '' ) . ".js', pvcExecuteManualCounter );
+				}, 10 );
+			</script>";
+		}
+	}
+
+	/**
 	 * Initialize counter.
 	 *
 	 * @return void
@@ -46,15 +140,19 @@ class Post_Views_Counter_Counter {
 
 		// get main instance
 		$pvc = Post_Views_Counter();
+ 
+		add_action( 'wp_ajax_pvc-view-posts', [ $this, 'queue_count' ] );
+		add_action( 'wp_ajax_nopriv_pvc-view-posts', [ $this, 'queue_count' ] );
+		add_action( 'wp_print_footer_scripts', [ $this, 'print_queue_count' ], 11 );
 
-		// PHP counter
+		// php counter
 		if ( $pvc->options['general']['counter_mode'] === 'php' )
 			add_action( 'wp', [ $this, 'check_post_php' ] );
-		// JavaScript (AJAX) counter
+		// javascript (ajax) counter
 		elseif ( $pvc->options['general']['counter_mode'] === 'js' ) {
 			add_action( 'wp_ajax_pvc-check-post', [ $this, 'check_post_js' ] );
 			add_action( 'wp_ajax_nopriv_pvc-check-post', [ $this, 'check_post_js' ] );
-			// REST API?
+		// rest api counter
 		} elseif ( $pvc->options['general']['counter_mode'] === 'rest_api' )
 			add_action( 'rest_api_init', [ $this, 'rest_api_init' ] );
 	}
@@ -63,7 +161,7 @@ class Post_Views_Counter_Counter {
 	 * Check whether to count visit.
 	 *
 	 * @param int $id
-	 * @return void
+	 * @return void|int
 	 */
 	public function check_post( $id = 0 ) {
 		// short init?
@@ -137,7 +235,7 @@ class Post_Views_Counter_Counter {
 			// exclude specific roles?
 			elseif ( in_array( 'roles', $groups, true ) && $this->is_user_role_excluded( $user_id, $pvc->options['general']['exclude']['roles'] ) )
 				return;
-			// exclude guests?
+		// exclude guests?
 		} elseif ( in_array( 'guests', $groups, true ) )
 			return;
 
@@ -157,7 +255,7 @@ class Post_Views_Counter_Counter {
 				$this->save_cookie( $id, $this->cookie, false );
 
 				return;
-				// update cookie
+			// update cookie
 			} else
 				$this->save_cookie( $id, $this->cookie );
 		} else {
@@ -187,12 +285,15 @@ class Post_Views_Counter_Counter {
 		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
 			return;
 
-		// do we use PHP as counter?
-		if ( Post_Views_Counter()->options['general']['counter_mode'] !== 'php' )
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		// do we use php as counter?
+		if ( $pvc->options['general']['counter_mode'] !== 'php' )
 			return;
 
 		// get countable post types
-		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+		$post_types = $pvc->options['general']['post_types_count'];
 
 		// whether to count this post type
 		if ( empty( $post_types ) || ! is_singular( $post_types ) )
@@ -208,12 +309,15 @@ class Post_Views_Counter_Counter {
 	 */
 	public function check_post_js() {
 		if ( isset( $_POST['action'], $_POST['id'], $_POST['pvc_nonce'] ) && $_POST['action'] === 'pvc-check-post' && ( $post_id = (int) $_POST['id'] ) > 0 && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-check-post' ) !== false ) {
-			// do we use JavaScript as counter?
-			if ( Post_Views_Counter()->options['general']['counter_mode'] !== 'js' )
+			// get main instance
+			$pvc = Post_Views_Counter();
+
+			// do we use javascript as counter?
+			if ( $pvc->options['general']['counter_mode'] !== 'js' )
 				exit;
 
 			// get countable post types
-			$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+			$post_types = $pvc->options['general']['post_types_count'];
 
 			// check if post exists
 			$post = get_post( $post_id );
@@ -224,7 +328,8 @@ class Post_Views_Counter_Counter {
 
 			echo json_encode(
 				[
-					'post_id'	=> (int) $this->check_post( $post_id )
+					'post_id'	=> $post_id,
+					'counted'	=> ! ( $this->check_post( $post_id ) === null )
 				]
 			);
 		}
@@ -239,11 +344,14 @@ class Post_Views_Counter_Counter {
 	 * @return int|WP_Error
 	 */
 	public function check_post_rest_api( $request ) {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
 		// get post id (already sanitized)
 		$post_id = $request->get_param( 'id' );
 
 		// do we use REST API as counter?
-		if ( Post_Views_Counter()->options['general']['counter_mode'] !== 'rest_api' )
+		if ( $pvc->options['general']['counter_mode'] !== 'rest_api' )
 			return new WP_Error( 'pvc_rest_api_disabled', __( 'REST API method is disabled.', 'post-views-counter' ), [ 'status' => 404 ] );
 
 		// @todo: get current user id in direct api endpoint calls
@@ -254,7 +362,7 @@ class Post_Views_Counter_Counter {
 			return new WP_Error( 'pvc_post_invalid_id', __( 'Invalid post ID.', 'post-views-counter' ), [ 'status' => 404 ] );
 
 		// get countable post types
-		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+		$post_types = $pvc->options['general']['post_types_count'];
 
 		// whether to count this post type
 		if ( empty( $post_types ) || ! in_array( $post->post_type, $post_types, true ) )
@@ -262,7 +370,8 @@ class Post_Views_Counter_Counter {
 
 		echo json_encode(
 			[
-				'post_id'	=> (int) $this->check_post( $post_id )
+				'post_id'	=> $post_id,
+				'counted'	=> ! ( $this->check_post( $post_id ) === null )
 			]
 		);
 
@@ -272,9 +381,10 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Initialize cookie session.
 	 *
+	 * @param array $cookie Use this cookie instead of $_COOKIE
 	 * @return void
 	 */
-	public function check_cookie() {
+	public function check_cookie( $cookie = [] ) {
 		// do not run in admin except for ajax requests
 		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
 			return;
@@ -282,11 +392,17 @@ class Post_Views_Counter_Counter {
 		// assign cookie name
 		$cookie_name = 'pvc_visits' . ( is_multisite() ? '_' . get_current_blog_id() : '' );
 
-		// is cookie set?
-		if ( isset( $_COOKIE[$cookie_name] ) && ! empty( $_COOKIE[$cookie_name] ) ) {
+		if ( empty( $cookie ) ) {
+			// is cookie set?
+			if ( isset( $_COOKIE[$cookie_name] ) && ! empty( $_COOKIE[$cookie_name] ) )
+				$cookie = $_COOKIE[$cookie_name];
+		}
+
+		// cookie data?
+		if ( $cookie ) {
 			$visited_posts = $expirations = [];
 
-			foreach ( $_COOKIE[$cookie_name] as $content ) {
+			foreach ( $cookie as $content ) {
 				// is cookie valid?
 				if ( preg_match( '/^(([0-9]+b[0-9]+a?)+)$/', $content ) === 1 ) {
 					// get single id with expiration
@@ -324,15 +440,40 @@ class Post_Views_Counter_Counter {
 		if ( $set_cookie !== true )
 			return;
 
-		$expiration = $this->get_timestamp( Post_Views_Counter()->options['general']['time_between_counts']['type'], Post_Views_Counter()->options['general']['time_between_counts']['number'] );
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		$expiration = $this->get_timestamp( $pvc->options['general']['time_between_counts']['type'], $pvc->options['general']['time_between_counts']['number'] );
 
 		// assign cookie name
 		$cookie_name = 'pvc_visits' . ( is_multisite() ? '_' . get_current_blog_id() : '' );
 
+		// check whether php version is at least 7.3
+		$at_least_73 = version_compare( phpversion(), '7.3', '>=' );
+
 		// is this a new cookie?
 		if ( empty( $cookie ) ) {
-			// set cookie
-			setcookie( $cookie_name . '[0]', $expiration . 'b' . $id, $expiration, COOKIEPATH, COOKIE_DOMAIN, (isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ? true : false ), true );
+			if ( $at_least_73 ) {
+				// set cookie
+				setcookie(
+					$cookie_name . '[0]',
+					$expiration . 'b' . $id,
+					[
+						'expires'	=> $expiration,
+						'path'		=> COOKIEPATH,
+						'domain'	=> COOKIE_DOMAIN,
+						'secure'	=> isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off',
+						'httponly'	=> true,
+						'samesite'	=> 'LAX'
+					]
+				);
+			} else {
+				// set cookie
+				setcookie( $cookie_name . '[0]', $expiration . 'b' . $id, $expiration, COOKIEPATH, COOKIE_DOMAIN, ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ), true );
+			}
+
+			if ( $this->queue_mode )
+				$this->check_cookie( [ 0 => $expiration . 'b' . $id ] );
 		} else {
 			if ( $expired ) {
 				// add new id or change expiration date if id already exists
@@ -393,10 +534,31 @@ class Post_Views_Counter_Counter {
 			}
 
 			foreach ( $cookies as $key => $value ) {
-				// set cookie
-				setcookie( $cookie_name . '[' . $key . ']', $value, $cookie['expiration'], COOKIEPATH, COOKIE_DOMAIN, ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ? true : false ), true );
+				if ( $at_least_73 ) {
+					// set cookie
+					setcookie(
+						$cookie_name . '[' . $key . ']',
+						$value,
+						[
+							'expires'	=> $cookie['expiration'],
+							'path'		=> COOKIEPATH,
+							'domain'	=> COOKIE_DOMAIN,
+							'secure'	=> isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off',
+							'httponly'	=> true,
+							'samesite'	=> 'LAX'
+						]
+					);
+				} else {
+					// set cookie
+					setcookie( $cookie_name . '[' . $key . ']', $value, $cookie['expiration'], COOKIEPATH, COOKIE_DOMAIN, ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ), true );
+				}
 			}
+
+			if ( $this->queue_mode )
+				$this->check_cookie( $cookies );
 		}
+		// is cookie set?
+		// if ( isset( $_COOKIE[$cookie_name] ) && ! empty( $_COOKIE[$cookie_name] ) ) {
 	}
 
 	/**
@@ -425,7 +587,10 @@ class Post_Views_Counter_Counter {
 
 		// visit exists in transient?
 		if ( isset( $ip_cache[$id][$user_ip] ) ) {
-			if ( $current_time > $ip_cache[$id][$user_ip] + $this->get_timestamp( Post_Views_Counter()->options['general']['time_between_counts']['type'], Post_Views_Counter()->options['general']['time_between_counts']['number'], false ) )
+			// get main instance
+			$pvc = Post_Views_Counter();
+
+			if ( $current_time > $ip_cache[$id][$user_ip] + $this->get_timestamp( $pvc->options['general']['time_between_counts']['type'], $pvc->options['general']['time_between_counts']['number'], false ) )
 				$ip_cache[$id][$user_ip] = $current_time;
 			else
 				return;
