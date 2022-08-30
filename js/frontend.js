@@ -14,10 +14,8 @@ document.addEventListener( 'DOMContentLoaded', function() {
 			if ( args.mode === 'rest_api' ) {
 				// request
 				this.promise = this.request(
-					args.requestURL+ '?id=' + args.postID,
-					{
-						id: args.postID
-					},
+					args.requestURL,
+					{},
 					'POST',
 					{
 						'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',

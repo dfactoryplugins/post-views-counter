@@ -1027,29 +1027,37 @@ class Post_Views_Counter_Counter {
 	 */
 	public function rest_api_init() {
 		// view post route
-		register_rest_route( 'post-views-counter', '/view-post/', [
-			'methods'				 => [ 'GET', 'POST' ],
-			'callback'				 => [ $this, 'check_post_rest_api' ],
-			'permission_callback'	 => [ $this, 'post_views_permissions_check' ],
-			'args'					 => [
-				'id' => [
-					'default'			 => 0,
-					'sanitize_callback'	 => 'absint'
+		register_rest_route(
+			'post-views-counter',
+			'/view-post/(?P<id>\d+)',
+			[
+				'methods'				 => [ 'GET', 'POST' ],
+				'callback'				 => [ $this, 'check_post_rest_api' ],
+				'permission_callback'	 => [ $this, 'post_view_permissions_check' ],
+				'args'					 => [
+					'id' => [
+						'default'			 => 0,
+						'sanitize_callback'	 => 'absint'
+					]
 				]
 			]
-		] );
+		);
 
 		// get views route
-		register_rest_route( 'post-views-counter', '/get-post-views/', [
-			'methods'				 => [ 'GET', 'POST' ],
-			'callback'				 => [ $this, 'get_post_views_rest_api' ],
-			'permission_callback'	 => [ $this, 'get_post_views_permissions_check' ],
-			'args'					 => [
-				'id' => [
-					'default'	 => 0
+		register_rest_route(
+			'post-views-counter',
+			'/get-post-views/(?P<id>(\d+,?)+)',
+			[
+				'methods'				 => [ 'GET', 'POST' ],
+				'callback'				 => [ $this, 'get_post_views_rest_api' ],
+				'permission_callback'	 => [ $this, 'get_post_views_permissions_check' ],
+				'args'					 => [
+					'id' => [
+						'default'	 => 0
+					]
 				]
 			]
-		] );
+		);
 	}
 
 	/**
@@ -1059,24 +1067,34 @@ class Post_Views_Counter_Counter {
 	 * @return int
 	 */
 	public function get_post_views_rest_api( $request ) {
-		// get id
+		// get id(s)
 		$post_id = $request->get_param( 'id' );
 
+		// POST array?
 		if ( is_array( $post_id ) )
-			$post_id = array_map( 'absint', $request['id'] );
-		else
-			$post_id = absint( $request['id'] );
+			$post_id = array_map( 'absint', $post_id );
+		// multiple comma-separated values?
+		elseif ( strpos( $post_id, ',' ) !== false ) {
+			$post_id = explode( ',', $post_id );
+
+			if ( is_array( $post_id ) && ! empty( $post_id ) )
+				$post_id = array_map( 'absint', $post_id );
+			else
+				$post_id = [];
+		// single value?
+		} else
+			$post_id = absint( $post_id );
 
 		return pvc_get_post_views( $post_id );
 	}
 
 	/**
-	 * Check if a given request has access to get views.
+	 * Check if a given request has access to view post.
 	 *
 	 * @param object $request
 	 * @return bool
 	 */
-	public function post_views_permissions_check( $request ) {
+	public function post_view_permissions_check( $request ) {
 		return (bool) apply_filters( 'pvc_rest_api_post_views_check', true, $request );
 	}
 

@@ -229,14 +229,15 @@ class Post_Views_Counter_Frontend {
 			wp_enqueue_script( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/js/frontend' . ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.min' : '' ) . '.js', [], $pvc->defaults['version'], true );
 
 			$args = [
-				'mode'		=> $mode,
-				'postID'	=> get_the_ID(),
-				'nonce'		=> ( $mode === 'rest_api' ? wp_create_nonce( 'wp_rest' ) : wp_create_nonce( 'pvc-check-post' ) )
+				'mode'			=> $mode,
+				'postID'		=> get_the_ID(),
+				'nonce'			=> ( $mode === 'rest_api' ? wp_create_nonce( 'wp_rest' ) : wp_create_nonce( 'pvc-check-post' ) ),
+				// 'permalinks'	=> 
 			];
 
 			switch ( $mode ) {
 				case 'rest_api':
-					$args['requestURL'] = rest_url( 'post-views-counter/view-post/' );
+					$args['requestURL'] = rest_url( 'post-views-counter/view-post/' . $args['postID'] );
 					break;
 
 				case 'js':
