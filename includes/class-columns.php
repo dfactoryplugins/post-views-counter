@@ -345,13 +345,7 @@ class Post_Views_Counter_Columns {
 				global $wpdb;
 
 				// insert or update db post views count
-				$wpdb->query(
-					$wpdb->prepare( "
-						INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
-						VALUES (%d, %d, %s, %d)
-						ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $count, $count
-					)
-				);
+				$wpdb->query( $wpdb->prepare( "INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $count, $count ) );
 			}
 		}
 

@@ -809,13 +809,7 @@ class Post_Views_Counter_Counter {
 		if ( ! $count )
 			$count = 1;
 
-		return $wpdb->query(
-			$wpdb->prepare(
-				"INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
-				VALUES (%d, %d, %s, %d)
-				ON DUPLICATE KEY UPDATE count = count + %d", $id, $type, $period, $count, $count
-			)
-		);
+		return $wpdb->query( $wpdb->prepare( "INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = count + %d", $id, $type, $period, $count, $count ) );
 	}
 
 	/**
