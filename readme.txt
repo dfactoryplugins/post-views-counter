@@ -4,7 +4,7 @@ Donate link: http://dfactory.eu/
 Tags: counter, hits, posts, postviews, post views, views, count, statistics, stats, analytics, pageviews, tracking
 Requires at least: 5.0
 Requires PHP: 5.4.0
-Tested up to: 6.0.1
+Tested up to: 6.0.2
 Stable tag: 1.3.11
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
