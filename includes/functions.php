@@ -404,6 +404,9 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 		// prepare display
 		$label = apply_filters( 'pvc_post_views_label', ( function_exists( 'icl_t' ) ? icl_t( 'Post Views Counter', 'Post Views Label', $options['label'] ) : $options['label'] ), $post_id );
 
+        // prepare unit
+        $unit = apply_filters( 'pvc_post_views_unit', ( function_exists('icl_t') ? icl_t( 'Post Views Counter', 'Post Views Label', $options['unit'] ) : $options['unit']), $post_id );
+
 		// get icon class
 		$icon_class = ( $options['icon_class'] !== '' ? esc_attr( $options['icon_class'] ) : '' );
 
@@ -418,7 +421,7 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 			'<div class="' . esc_attr( $class ) . '">
 				' . ( $options['display_style']['icon'] && $icon_class !== '' ? $icon : '' )
 				. ( $options['display_style']['text'] && $label !== '' ? '<span class="post-views-label">' . esc_html( $label ) . '</span> ' : '' )
-				. '<span class="post-views-count">' . number_format_i18n( $views ) . '</span>
+				. '<span class="post-views-count">' . number_format_i18n( $views ) . '</span> ' . $unit . '
 			</div>',
 			$post_id,
 			$views,

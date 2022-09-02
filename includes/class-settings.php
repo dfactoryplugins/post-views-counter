@@ -239,6 +239,16 @@ class Post_Views_Counter_Settings {
 					'validate'		=> [ $this, 'validate_label' ],
 					'reset'			=> [ $this, 'reset_label' ]
 				],
+                'unit' => [
+                    'tab'           => 'display',
+                    'title'         => __( 'Units', 'post-view-counter' ),
+                    'section'       => 'post_views_counter_display_settings',
+                    'type'			=> 'input',
+                    'description'	=> __( 'Enter the unit for the post views counter field.', 'post-views-counter' ),
+                    'subclass'		=> 'regular-text',
+                    'validate'		=> [ $this, 'validate_unit' ],
+                    'reset'			=> [ $this, 'reset_unit' ]
+                ],
 				'post_types_display' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Post Type', 'post-views-counter' ),
@@ -457,6 +467,29 @@ class Post_Views_Counter_Settings {
 		return $input;
 	}
 
+    /**
+     * Validate unit.
+     *
+     * @param array $input Input POST data
+     * @param array $field Field options
+     * @return array
+     */
+    public function validate_unit( $input, $field ) {
+        // get main instance
+        $pvc = Post_Views_Counter();
+
+        if ( ! isset( $input ) )
+            $input = $pvc->defaults['display']['unit'];
+
+        // use internal settings API to validate settings first
+        $input = $pvc->settings_api->validate_field( $input, 'input', $field );
+
+        if ( function_exists( 'icl_register_string' ) )
+            icl_register_string( 'Post Views Counter', 'Post Views Unit', $input );
+
+        return $input;
+    }
+
 	/**
 	 * Restore post views label to default value.
 	 *
@@ -470,6 +503,20 @@ class Post_Views_Counter_Settings {
 
 		return $default;
 	}
+
+    /**
+     * Restore post views unit to default value.
+     *
+     * @param array $default Default value
+     * @param array $field Field options
+     * @return array
+     */
+    public function reset_unit( $default, $field ) {
+        if ( function_exists( 'icl_register_string' ) )
+            icl_register_string( 'Post Views Counter', 'Post Views Unit', $default );
+
+        return $default;
+    }
 
 	/**
 	 * Setting: display style.
