@@ -541,23 +541,19 @@ class Post_Views_Counter_Dashboard {
 				<tr>
 					<th scope="col">' . ( $index + 1 ) . '</th>';
 
-				if ( $pvc->options['display']['dashboard_links'] === 'edit' ) {
-					// check post type existence
-					if ( array_key_exists( $post->post_type, $active_post_types ) )
-						$post_type_exists = $active_post_types[$post->post_type];
-					else
-						$post_type_exists = $active_post_types[$post->post_type] = post_type_exists( $post->post_type );
+				// check post type existence
+				if ( array_key_exists( $post->post_type, $active_post_types ) )
+					$post_type_exists = $active_post_types[$post->post_type];
+				else
+					$post_type_exists = $active_post_types[$post->post_type] = post_type_exists( $post->post_type );
 
-					// edit post link
-					if ( $post_type_exists && current_user_can( 'edit_post', $post->ID ) )
-						$html .= '
+				// edit post link
+				if ( $post_type_exists && current_user_can( 'edit_post', $post->ID ) ) {
+					$html .= '
 					<td><a href="' . esc_url( get_edit_post_link( $post->ID ) ) . '">' . esc_html( get_the_title( $post ) ) . '</a></td>';
-					else
-						$html .= '
-					<td>' . esc_html( get_the_title( $post ) ). '</td>';
 				} else {
 					$html .= '
-					<td><a href="' . esc_url( get_permalink( $post->ID ) ) . '">' . esc_html( get_the_title( $post ) ) . '</a></td>';
+					<td>' . esc_html( get_the_title( $post ) ). '</td>';
 				}
 
 				$html .= '
