@@ -81,7 +81,7 @@ class Post_Views_Counter_Frontend {
 	 * @return void
 	 */
 	public function run() {
-		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
+		if ( is_admin() && ! wp_doing_ajax() )
 			return;
 
 		$filter = apply_filters( 'pvc_shortcode_filter_hook', Post_Views_Counter()->options['display']['position'] );
@@ -231,18 +231,20 @@ class Post_Views_Counter_Frontend {
 			$args = [
 				'mode'			=> $mode,
 				'postID'		=> get_the_ID(),
-				'nonce'			=> ( $mode === 'rest_api' ? wp_create_nonce( 'wp_rest' ) : wp_create_nonce( 'pvc-check-post' ) ),
-				// 'permalinks'	=> 
+				'requestURL'	=> '',
+				'nonce'			=> ''
 			];
 
 			switch ( $mode ) {
 				case 'rest_api':
 					$args['requestURL'] = rest_url( 'post-views-counter/view-post/' . $args['postID'] );
+					$args['nonce'] = wp_create_nonce( 'wp_rest' );
 					break;
 
 				case 'js':
 				default:
 					$args['requestURL'] = admin_url( 'admin-ajax.php' );
+					$args['nonce'] = wp_create_nonce( 'pvc-check-post' );
 					break;
 			}
 

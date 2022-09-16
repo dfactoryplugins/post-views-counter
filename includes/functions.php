@@ -623,9 +623,20 @@ function pvc_update_post_views( $post_id = 0, $post_views = 0 ) {
  * @return bool
  */
 function pvc_view_post( $post_id = 0, $bypass_content = false ) {
-	$post_id = (int) ( empty( $post_id ) ? get_the_ID() : $post_id );
+	// no post id?
+	if ( empty( $post_id ) ) {
+		// get current id
+		$post_id = get_the_ID();
+	} else {
+		// cast post id
+		$post_id = (int) $post_id;
+	}
 
-	if ( ! $post_id )
+	// get post
+	$post = get_post( $post_id );
+
+	// invalid post?
+	if ( ! is_a( $post, 'WP_Post' ) )
 		return false;
 
 	// get main instance

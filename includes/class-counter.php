@@ -39,6 +39,7 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Add Post ID to queue.
 	 *
+	 * @param int $post_id
 	 * @return void
 	 */
 	public function add_to_queue( $post_id ) {
@@ -51,8 +52,11 @@ class Post_Views_Counter_Counter {
 	 * @return void
 	 */
 	public function queue_count() {
-		if ( isset( $_POST['action'], $_POST['ids'], $_POST['pvc_nonce'] ) && $_POST['action'] === 'pvc-view-posts' && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-view-posts' ) !== false && $_POST['ids'] !== '' ) {
+		if ( isset( $_POST['action'], $_POST['ids'], $_POST['pvc_nonce'] ) && $_POST['action'] === 'pvc-view-posts' && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-view-posts' ) !== false && $_POST['ids'] !== '' && is_string( $_POST['ids'] ) ) {
+			// get post ids
 			$ids = explode( ',', $_POST['ids'] );
+
+			$counted = [];
 
 			if ( ! empty( $ids ) ) {
 				$ids = array_filter( array_map( 'intval', $ids ) );
@@ -72,7 +76,7 @@ class Post_Views_Counter_Counter {
 
 			echo json_encode(
 				[
-					'post_id'	=> $ids,
+					'post_ids'	=> $ids,
 					'counted'	=> $counted
 				]
 			);
@@ -91,39 +95,41 @@ class Post_Views_Counter_Counter {
 		if ( ! empty( $this->queue ) ) {
 			echo "
 			<script>
-				setTimeout( function() {
-					let pvcLoadManualCounter = function( url, implementationCode ) {
-						let pvcScriptTag = document.createElement( 'script' );
+				( function( window, document, undefined ) {
+					document.addEventListener( 'DOMContentLoaded', function() {
+						let pvcLoadManualCounter = function( url, counter ) {
+							let pvcScriptTag = document.createElement( 'script' );
 
-						// set attributes
-						pvcScriptTag.src = url;
-						pvcScriptTag.onload = implementationCode;
-						pvcScriptTag.onreadystatechange = implementationCode;
+							// append script
+							document.body.appendChild( pvcScriptTag );
 
-						// append script
-						document.body.appendChild( pvcScriptTag );
-					};
-
-					let pvcExecuteManualCounter = function() {
-						let pvcManualCounterArgs = {
-							url: '" . esc_url( admin_url( 'admin-ajax.php' ) ) . "',
-							nonce: '" . wp_create_nonce( 'pvc-view-posts' ) . "',
-							ids: '" . implode( ',', $this->queue ) . "'
+							// set attributes
+							pvcScriptTag.onload = counter;
+							pvcScriptTag.onreadystatechange = counter;
+							pvcScriptTag.src = url;
 						};
 
-						// main javascript file was loaded?
-						if ( typeof PostViewsCounter !== 'undefined' && PostViewsCounter.promise !== null ) {
-							PostViewsCounter.promise.then( function() {
-								PostViewsCounterManual.init( pvcManualCounterArgs );
-							} );
-						// PostViewsCounter is undefined or promise is null
-						} else {
-							PostViewsCounterManual.init( pvcManualCounterArgs );
-						}
-					}
+						let pvcExecuteManualCounter = function() {
+							let pvcManualCounterArgs = {
+								url: '" . esc_url( admin_url( 'admin-ajax.php' ) ) . "',
+								nonce: '" . wp_create_nonce( 'pvc-view-posts' ) . "',
+								ids: '" . implode( ',', $this->queue ) . "'
+							};
 
-					pvcLoadManualCounter( '" . POST_VIEWS_COUNTER_URL . "/js/counter" . ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.min' : '' ) . ".js', pvcExecuteManualCounter );
-				}, 10 );
+							// main javascript file was loaded?
+							if ( typeof PostViewsCounter !== 'undefined' && PostViewsCounter.promise !== null ) {
+								PostViewsCounter.promise.then( function() {
+									PostViewsCounterManual.init( pvcManualCounterArgs );
+								} );
+							// PostViewsCounter is undefined or promise is null
+							} else {
+								PostViewsCounterManual.init( pvcManualCounterArgs );
+							}
+						}
+
+						pvcLoadManualCounter( '" . POST_VIEWS_COUNTER_URL . "/js/counter" . ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.min' : '' ) . ".js', pvcExecuteManualCounter );
+					}, false );
+				} )( window, document );
 			</script>";
 		}
 	}
@@ -135,7 +141,7 @@ class Post_Views_Counter_Counter {
 	 */
 	public function init_counter() {
 		// admin?
-		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
+		if ( is_admin() && ! wp_doing_ajax() )
 			return;
 
 		// get main instance
@@ -282,7 +288,7 @@ class Post_Views_Counter_Counter {
 	 */
 	public function check_post_php() {
 		// do not count admin entries
-		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
+		if ( is_admin() && ! wp_doing_ajax() )
 			return;
 
 		// get main instance
@@ -368,14 +374,10 @@ class Post_Views_Counter_Counter {
 		if ( empty( $post_types ) || ! in_array( $post->post_type, $post_types, true ) )
 			return new WP_Error( 'pvc_post_type_excluded', __( 'Post type excluded.', 'post-views-counter' ), [ 'status' => 404 ] );
 
-		echo json_encode(
-			[
-				'post_id'	=> $post_id,
-				'counted'	=> ! ( $this->check_post( $post_id ) === null )
-			]
-		);
-
-		exit;
+		return [
+			'post_id'	=> $post_id,
+			'counted'	=> ! ( $this->check_post( $post_id ) === null )
+		];
 	}
 
 	/**
@@ -386,13 +388,13 @@ class Post_Views_Counter_Counter {
 	 */
 	public function check_cookie( $cookie = [] ) {
 		// do not run in admin except for ajax requests
-		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
+		if ( is_admin() && ! wp_doing_ajax() )
 			return;
 
-		// assign cookie name
-		$cookie_name = 'pvc_visits' . ( is_multisite() ? '_' . get_current_blog_id() : '' );
-
 		if ( empty( $cookie ) ) {
+			// assign cookie name
+			$cookie_name = 'pvc_visits' . ( is_multisite() ? '_' . get_current_blog_id() : '' );
+
 			// is cookie set?
 			if ( isset( $_COOKIE[$cookie_name] ) && ! empty( $_COOKIE[$cookie_name] ) )
 				$cookie = $_COOKIE[$cookie_name];
@@ -443,17 +445,18 @@ class Post_Views_Counter_Counter {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
+		// get expiration
 		$expiration = $this->get_timestamp( $pvc->options['general']['time_between_counts']['type'], $pvc->options['general']['time_between_counts']['number'] );
 
 		// assign cookie name
 		$cookie_name = 'pvc_visits' . ( is_multisite() ? '_' . get_current_blog_id() : '' );
 
 		// check whether php version is at least 7.3
-		$at_least_73 = version_compare( phpversion(), '7.3', '>=' );
+		$php_at_least_73 = version_compare( phpversion(), '7.3', '>=' );
 
 		// is this a new cookie?
 		if ( empty( $cookie ) ) {
-			if ( $at_least_73 ) {
+			if ( $php_at_least_73 ) {
 				// set cookie
 				setcookie(
 					$cookie_name . '[0]',
@@ -534,7 +537,7 @@ class Post_Views_Counter_Counter {
 			}
 
 			foreach ( $cookies as $key => $value ) {
-				if ( $at_least_73 ) {
+				if ( $php_at_least_73 ) {
 					// set cookie
 					setcookie(
 						$cookie_name . '[' . $key . ']',
@@ -557,8 +560,6 @@ class Post_Views_Counter_Counter {
 			if ( $this->queue_mode )
 				$this->check_cookie( $cookies );
 		}
-		// is cookie set?
-		// if ( isset( $_COOKIE[$cookie_name] ) && ! empty( $_COOKIE[$cookie_name] ) ) {
 	}
 
 	/**
@@ -870,7 +871,7 @@ class Post_Views_Counter_Counter {
 	 * @param string $option
 	 * @return bool
 	 */
-	public function is_user_role_excluded( $user_id, $option = array() ) {
+	public function is_user_role_excluded( $user_id, $option = [] ) {
 		// get user by ID
 		$user = get_user_by( 'id', $user_id );
 
@@ -1023,7 +1024,7 @@ class Post_Views_Counter_Counter {
 		// view post route
 		register_rest_route(
 			'post-views-counter',
-			'/view-post/(?P<id>\d+)',
+			'/view-post/(?P<id>\d+)|/view-post/',
 			[
 				'methods'				 => [ 'GET', 'POST' ],
 				'callback'				 => [ $this, 'check_post_rest_api' ],
@@ -1047,7 +1048,8 @@ class Post_Views_Counter_Counter {
 				'permission_callback'	 => [ $this, 'get_post_views_permissions_check' ],
 				'args'					 => [
 					'id' => [
-						'default'	 => 0
+						'default'			=> 0,
+						'sanitize_callback'	=> [ $this, 'validate_rest_api_data' ]
 					]
 				]
 			]
@@ -1061,25 +1063,7 @@ class Post_Views_Counter_Counter {
 	 * @return int
 	 */
 	public function get_post_views_rest_api( $request ) {
-		// get id(s)
-		$post_id = $request->get_param( 'id' );
-
-		// POST array?
-		if ( is_array( $post_id ) )
-			$post_id = array_map( 'absint', $post_id );
-		// multiple comma-separated values?
-		elseif ( strpos( $post_id, ',' ) !== false ) {
-			$post_id = explode( ',', $post_id );
-
-			if ( is_array( $post_id ) && ! empty( $post_id ) )
-				$post_id = array_map( 'absint', $post_id );
-			else
-				$post_id = [];
-		// single value?
-		} else
-			$post_id = absint( $post_id );
-
-		return pvc_get_post_views( $post_id );
+		return pvc_get_post_views( $request->get_param( 'id' ) );
 	}
 
 	/**
@@ -1100,5 +1084,30 @@ class Post_Views_Counter_Counter {
 	 */
 	public function get_post_views_permissions_check( $request ) {
 		return (bool) apply_filters( 'pvc_rest_api_get_post_views_check', true, $request );
+	}
+
+	/**
+	 * Validate REST API incoming data.
+	 *
+	 * @param int|array $data
+	 * @return int|array
+	 */
+	public function validate_rest_api_data( $data ) {
+		// POST array?
+		if ( is_array( $data ) )
+			$data = array_unique( array_filter( array_map( 'absint', $data ) ), SORT_NUMERIC );
+		// multiple comma-separated values?
+		elseif ( strpos( $data, ',' ) !== false ) {
+			$data = explode( ',', $data );
+
+			if ( is_array( $data ) && ! empty( $data ) )
+				$data = array_unique( array_filter( array_map( 'absint', $data ) ), SORT_NUMERIC );
+			else
+				$data = [];
+		// single value?
+		} else
+			$data = absint( $data );
+
+		return $data;
 	}
 }

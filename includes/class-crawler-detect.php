@@ -75,7 +75,7 @@ class Post_Views_Counter_Crawler_Detect {
 	 */
 	public function init() {
 		// break on admin side
-		if ( is_admin() && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
+		if ( is_admin() && ! wp_doing_ajax() )
 			return;
 
 		$this->ua_http_headers = $this->get_headers_list();

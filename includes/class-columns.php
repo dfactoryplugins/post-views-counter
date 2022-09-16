@@ -355,10 +355,6 @@ class Post_Views_Counter_Columns {
 	/**
 	 * Add admin bar stats to a post.
 	 *
-	 * @global string $pagenow
-	 * @global string $post
-	 *
-	 * @param object $admin_bar
 	 * @return void
 	 */
 	public function maybe_load_admin_bar_menu() {
@@ -377,9 +373,10 @@ class Post_Views_Counter_Columns {
 		if ( ! is_admin() && get_user_option( 'show_admin_bar_front' ) !== 'true' )
 			return;
 
-		add_action( 'wp', [ $this, 'admin_bar_maybe_add_style' ] );
-		add_action( 'admin_init', [ $this, 'admin_bar_maybe_add_style' ] );
-		add_action( 'admin_bar_menu', [ $this, 'admin_bar_menu' ], 100 );
+		if ( is_admin() )
+			add_action( 'admin_init', [ $this, 'admin_bar_maybe_add_style' ] );
+		else
+			add_action( 'wp', [ $this, 'admin_bar_maybe_add_style' ] );
 	}
 
 	/**
@@ -507,11 +504,15 @@ class Post_Views_Counter_Columns {
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
 			return;
 
-		// on backend area
-		add_action( 'admin_head', [ $this, 'admin_bar_css' ] );
+		// add admin bar
+		add_action( 'admin_bar_menu', [ $this, 'admin_bar_menu' ], 100 );
 
-		// on frontend area
-		add_action( 'wp_head', [ $this, 'admin_bar_css' ] );
+		// backend
+		if ( current_action() === 'admin_init' )
+			add_action( 'admin_head', [ $this, 'admin_bar_css' ] );
+		// frontend
+		elseif ( current_action() === 'wp' )
+			add_action( 'wp_head', [ $this, 'admin_bar_css' ] );
 	}
 
 	/**

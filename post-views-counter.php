@@ -109,7 +109,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		public static function instance() {
 			if ( ! isset( self::$instance ) && ! ( self::$instance instanceof Post_Views_Counter ) ) {
 				self::$instance = new Post_Views_Counter;
-				self::$instance->define_constants();
 
 				// short init?
 				if ( defined( 'SHORTINIT' ) && SHORTINIT ) {
@@ -121,7 +120,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					self::$instance->crawler_detect = new Post_Views_Counter_Crawler_Detect();
 				// regular setup
 				} else {
-					add_action( 'plugins_loaded', [ self::$instance, 'load_textdomain' ] );
+					add_action( 'init', [ self::$instance, 'load_textdomain' ] );
 
 					self::$instance->includes();
 
@@ -164,7 +163,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			// fix plugin_basename empty $wp_plugin_paths var
 			if ( ! ( defined( 'SHORTINIT' ) && SHORTINIT ) ) {
 				define( 'POST_VIEWS_COUNTER_URL', plugins_url( '', __FILE__ ) );
-				define( 'POST_VIEWS_COUNTER_REL_PATH', dirname( plugin_basename( __FILE__ ) ) . '/' );
+				define( 'POST_VIEWS_COUNTER_BASENAME', plugin_basename( __FILE__ ) );
+				define( 'POST_VIEWS_COUNTER_REL_PATH', dirname( POST_VIEWS_COUNTER_BASENAME ) . '/' );
 			}
 
 			define( 'POST_VIEWS_COUNTER_PATH', plugin_dir_path( __FILE__ ) );
@@ -197,6 +197,9 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @return void
 		 */
 		public function __construct() {
+			// define plugin constants
+			$this->define_constants();
+
 			// short init?
 			if ( defined( 'SHORTINIT' ) && SHORTINIT ) {
 				$this->options = [
@@ -207,6 +210,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				return;
 			}
 
+			// activation hooks
 			register_activation_hook( __FILE__, [ $this, 'multisite_activation' ] );
 			register_deactivation_hook( __FILE__, [ $this, 'multisite_deactivation' ] );
 
@@ -600,17 +604,19 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 *
 		 * @global string $post_type
 		 *
-		 * @param string $page.
+		 * @param string $page
 		 * @return void
 		 */
 		public function admin_enqueue_scripts( $page ) {
+			// register styles
 			wp_register_style( 'pvc-admin', POST_VIEWS_COUNTER_URL . '/css/admin.min.css' );
 
+			// register scripts
 			wp_register_script( 'pvc-admin-settings', POST_VIEWS_COUNTER_URL . '/js/admin-settings.js', [ 'jquery' ], $this->defaults['version'] );
 			wp_register_script( 'pvc-admin-post', POST_VIEWS_COUNTER_URL . '/js/admin-post.js', [ 'jquery' ], $this->defaults['version'] );
 			wp_register_script( 'pvc-admin-quick-edit', POST_VIEWS_COUNTER_URL . '/js/admin-quick-edit.js', [ 'jquery', 'inline-edit-post' ], $this->defaults['version'] );
 
-			// load on PVC settings page
+			// load on pvc settings page
 			if ( $page === 'settings_page_post-views-counter' ) {
 				wp_enqueue_script( 'pvc-admin-settings' );
 
@@ -622,7 +628,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				);
 
 				wp_enqueue_style( 'pvc-admin' );
-
 			// load on single post page
 			} elseif ( $page === 'post.php' || $page === 'post-new.php' ) {
 				$post_types = Post_Views_Counter()->options['general']['post_types_count'];
@@ -667,9 +672,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			if ( ! current_user_can( 'install_plugins' ) )
 				return $links;
 
-			$plugin = plugin_basename( __FILE__ );
-
-			if ( $file == $plugin ) {
+			if ( $file === POST_VIEWS_COUNTER_BASENAME ) {
 				return array_merge(
 					$links,
 					[
@@ -684,21 +687,16 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		/**
 		 * Add link to settings page.
 		 *
-		 * @staticvar string $plugin
 		 * @param array $links
 		 * @param string $file
 		 * @return array
 		 */
 		public function plugin_action_links( $links, $file ) {
-			if ( ! is_admin() || ! current_user_can( 'manage_options' ) )
+			if ( ! current_user_can( 'manage_options' ) )
 				return $links;
 
-			static $plugin;
-
-			$plugin = plugin_basename( __FILE__ );
-
-			if ( $file == $plugin ) {
-				$settings_link = sprintf( '<a href="%s">%s</a>', admin_url( 'options-general.php' ) . '?page=post-views-counter', __( 'Settings', 'post-views-counter' ) );
+			if ( $file === POST_VIEWS_COUNTER_BASENAME ) {
+				$settings_link = sprintf( '<a href="%s">%s</a>', admin_url( 'options-general.php?page=post-views-counter' ), __( 'Settings', 'post-views-counter' ) );
 
 				array_unshift( $links, $settings_link );
 			}
