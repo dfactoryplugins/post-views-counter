@@ -146,7 +146,7 @@ class Post_Views_Counter_Counter {
 
 		// get main instance
 		$pvc = Post_Views_Counter();
- 
+
 		add_action( 'wp_ajax_pvc-view-posts', [ $this, 'queue_count' ] );
 		add_action( 'wp_ajax_nopriv_pvc-view-posts', [ $this, 'queue_count' ] );
 		add_action( 'wp_print_footer_scripts', [ $this, 'print_queue_count' ], 11 );
@@ -598,8 +598,8 @@ class Post_Views_Counter_Counter {
 		} else
 			$ip_cache[$id][$user_ip] = $current_time;
 
-		// keep it light, only 10 records per post and maximum 100 post records (=> max. 1000 ip entries)
-		// also, the data gets deleted after a week if there's no activity during this time...
+		// keep it light, only 10 records per post and maximum 100 post records (max. 1000 ip entries)
+		// also, the data gets deleted after a week if there's no activity during this time
 		if ( count( $ip_cache[$id] ) > 10 )
 			$ip_cache[$id] = array_slice( $ip_cache[$id], -10, 10, true );
 
@@ -969,13 +969,13 @@ class Post_Views_Counter_Counter {
 			$encrypt_key = mb_strimwidth( $auth_key, 0, $max_key_size );
 			$encrypt_iv = mb_strimwidth( $auth_iv, 0, $max_iv_size );
 
-			$encrypted_ip = strtr( base64_encode( mcrypt_encrypt( MCRYPT_BLOWFISH, $encrypt_key, $ip, MCRYPT_MODE_CBC, $encrypt_iv ) ), '+/=', '-_,' );
+			$encrypted_ip = base64_encode( mcrypt_encrypt( MCRYPT_BLOWFISH, $encrypt_key, $ip, MCRYPT_MODE_CBC, $encrypt_iv ) );
 		// simple encryption
 		} elseif ( function_exists( 'gzdeflate' ) )
 			$encrypted_ip = base64_encode( convert_uuencode( gzdeflate( $ip ) ) );
 		// no encryption
 		else
-			$encrypted_ip = strtr( base64_encode( convert_uuencode( $ip ) ), '+/=', '-_,' );
+			$encrypted_ip = base64_encode( convert_uuencode( $ip ) );
 
 		return $encrypted_ip;
 	}
@@ -993,10 +993,10 @@ class Post_Views_Counter_Counter {
 		$php_71x = version_compare( phpversion(), '7.1.0', '>=' ) && version_compare( phpversion(), '7.2.0', '<' );
 
 		// openssl decryption
-		if ( $auth_key && $auth_iv && function_exists( 'openssl_encrypt' ) && in_array( $cipher, array_map( 'strtoupper', openssl_get_cipher_methods() ) ) ) {
+		if ( $auth_key && $auth_iv && function_exists( 'openssl_encrypt' ) && in_array( $cipher, array_map( 'strtoupper', openssl_get_cipher_methods() ) ) )
 			$ip = openssl_decrypt( base64_decode( $encrypted_ip ), $cipher, $auth_key, 0, mb_strimwidth( $auth_iv, 0, openssl_cipher_iv_length( $cipher ), '', 'UTF-8' ) );
 		// mcrypt decryption
-		} elseif ( $auth_key && $auth_iv && ! $php_71x && function_exists( 'mcrypt_decrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
+		elseif ( $auth_key && $auth_iv && ! $php_71x && function_exists( 'mcrypt_decrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
 			// get max key size of the mcrypt mode
 			$max_key_size = mcrypt_get_key_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
 			$max_iv_size = mcrypt_get_iv_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
@@ -1004,13 +1004,13 @@ class Post_Views_Counter_Counter {
 			$encrypt_key = mb_strimwidth( $auth_key, 0, $max_key_size );
 			$encrypt_iv = mb_strimwidth( $auth_iv, 0, $max_iv_size );
 
-			$ip = rtrim( mcrypt_decrypt( MCRYPT_BLOWFISH, $encrypt_key, base64_decode( strtr( $encrypted_ip, '-_,', '+/=' ) ), MCRYPT_MODE_CBC, $encrypt_iv ), "\0" );
+			$ip = rtrim( mcrypt_decrypt( MCRYPT_BLOWFISH, $encrypt_key, base64_decode( $encrypted_ip ), MCRYPT_MODE_CBC, $encrypt_iv ), "\0" );
 		// simple decryption
 		} elseif ( function_exists( 'gzinflate' ) )
 			$ip = gzinflate( convert_uudecode( base64_decode( $encrypted_ip ) ) );
 		// no decryption
 		else
-			$ip = convert_uudecode( base64_decode( strtr( $encrypted_ip, '-_,', '+/=' ) ) );
+			$ip = convert_uudecode( base64_decode( $encrypted_ip ) );
 
 		return $ip;
 	}
