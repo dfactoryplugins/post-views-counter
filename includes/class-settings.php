@@ -226,7 +226,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Deactivation', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'boolean',
-					'description'	=> '',
+					'description'	=> __( 'It will delete all data related to the plugin from the database including post views.', 'post-views-counter' ),
 					'label'			=> __( 'Enable to delete all plugin data on deactivation.', 'post-views-counter' )
 				],
 				'label' => [

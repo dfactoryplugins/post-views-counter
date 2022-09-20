@@ -211,8 +211,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			}
 
 			// activation hooks
-			register_activation_hook( __FILE__, [ $this, 'multisite_activation' ] );
-			register_deactivation_hook( __FILE__, [ $this, 'multisite_deactivation' ] );
+			register_activation_hook( __FILE__, [ $this, 'activate_plugin' ] );
+			register_deactivation_hook( __FILE__, [ $this, 'deactivate_plugin' ] );
 
 			// settings
 			$this->options = [
@@ -404,15 +404,15 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		}
 
 		/**
-		 * Multisite activation.
+		 * Plugin activation.
 		 *
 		 * @global object $wpdb
 		 *
-		 * @param bool $networkwide
+		 * @param bool $network
 		 * @return void
 		 */
-		public function multisite_activation( $networkwide ) {
-			if ( is_multisite() && $networkwide ) {
+		public function activate_plugin( $network ) {
+			if ( is_multisite() && $network ) {
 				global $wpdb;
 
 				$activated_blogs = [];
@@ -461,24 +461,24 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			);
 
 			// add default options
-			add_option( 'post_views_counter_settings_general', $this->defaults['general'], '', 'no' );
-			add_option( 'post_views_counter_settings_display', $this->defaults['display'], '', 'no' );
-			add_option( 'post_views_counter_version', $this->defaults['version'], '', 'no' );
+			add_option( 'post_views_counter_settings_general', $this->defaults['general'], null, false );
+			add_option( 'post_views_counter_settings_display', $this->defaults['display'], null, false );
+			add_option( 'post_views_counter_version', $this->defaults['version'], null, false );
 
 			// schedule cache flush
 			$this->schedule_cache_flush();
 		}
 
 		/**
-		 * Multisite deactivation.
+		 * Plugin deactivation.
 		 *
 		 * @global object $wpdb
 		 *
-		 * @param bool $networkwide
+		 * @param bool $network
 		 * @return void
 		 */
-		public function multisite_deactivation( $networkwide ) {
-			if ( is_multisite() && $networkwide ) {
+		public function deactivate_plugin( $network ) {
+			if ( is_multisite() && $network ) {
 				global $wpdb;
 
 				$blogs_ids = $wpdb->get_col( 'SELECT blog_id FROM ' . $wpdb->blogs );
@@ -507,11 +507,11 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 *
 		 * @global object $wpdb
 		 *
-		 * @param bool $multi
+		 * @param bool $network
 		 * @return void
 		 */
-		public function deactivate_single( $multi = false ) {
-			if ( $multi ) {
+		public function deactivate_single( $network = false ) {
+			if ( $network ) {
 				$options = get_option( 'post_views_counter_settings_general' );
 				$check = $options['deactivation_delete'];
 			} else
@@ -519,8 +519,14 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 
 			// delete default options
 			if ( $check ) {
+				// delete options
 				delete_option( 'post_views_counter_settings_general' );
 				delete_option( 'post_views_counter_settings_display' );
+				delete_option( 'post_views_counter_activation_date' );
+				delete_option( 'post_views_counter_version' );
+
+				// delete transients
+				delete_transient( 'post_views_counter_ip_cache' );
 
 				global $wpdb;
 
