@@ -416,6 +416,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				global $wpdb;
 
 				$activated_blogs = [];
+
+				// get available sites
 				$blogs_ids = $wpdb->get_col( 'SELECT blog_id FROM ' . $wpdb->blogs );
 
 				foreach ( $blogs_ids as $blog_id ) {
@@ -428,7 +430,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					restore_current_blog();
 				}
 
-				update_site_option( 'post_views_counter_activated_blogs', $activated_blogs, [] );
+				update_site_option( 'post_views_counter_activated_blogs', $activated_blogs );
 			} else
 				$this->activate_single();
 		}
@@ -481,10 +483,11 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			if ( is_multisite() && $network ) {
 				global $wpdb;
 
+				// get available sites
 				$blogs_ids = $wpdb->get_col( 'SELECT blog_id FROM ' . $wpdb->blogs );
 
-				if ( ! ( $activated_blogs = get_site_option( 'post_views_counter_activated_blogs', false, false ) ) )
-					$activated_blogs = [];
+				// get activated sites
+				$activated_blogs = get_site_option( 'post_views_counter_activated_blogs', [] );
 
 				foreach ( $blogs_ids as $blog_id ) {
 					switch_to_blog( $blog_id );

@@ -12,31 +12,19 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		init: function( args ) {
 			// rest api request
 			if ( args.mode === 'rest_api' ) {
-				// request
-				this.promise = this.request(
-					args.requestURL,
-					{},
-					'POST',
-					{
-						'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-						'X-WP-Nonce': args.nonce
-					}
-				);
+				this.promise = this.request( args.requestURL, {}, 'POST', {
+					'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+					'X-WP-Nonce': args.nonce
+				} );
 			// admin ajax request
 			} else {
-				// request
-				this.promise = this.request(
-					args.requestURL,
-					{
-						action:	'pvc-check-post',
-						pvc_nonce: args.nonce,
-						id: args.postID
-					},
-					'POST',
-					{
-						'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
-					}
-				);
+				this.promise = this.request( args.requestURL, {
+					action:	'pvc-check-post',
+					pvc_nonce: args.nonce,
+					id: args.postID
+				}, 'POST', {
+					'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+				} );
 			}
 		},
 

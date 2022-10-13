@@ -10,6 +10,8 @@ if ( ! defined( 'ABSPATH' ) )
  */
 class Post_Views_Counter_Frontend {
 
+	private $script_args = [];
+
 	/**
 	 * Class constructor.
 	 *
@@ -197,6 +199,15 @@ class Post_Views_Counter_Frontend {
 	}
 
 	/**
+	 * Get frontend script arguments.
+	 *
+	 * @return array
+	 */
+	public function get_frontend_script_args() {
+		return $this->script_args;
+	}
+
+	/**
 	 * Enqueue frontend scripts and styles.
 	 *
 	 * @return void
@@ -228,6 +239,7 @@ class Post_Views_Counter_Frontend {
 		if ( in_array( $mode, [ 'js', 'rest_api' ], true ) ) {
 			wp_enqueue_script( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/js/frontend' . ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.min' : '' ) . '.js', [], $pvc->defaults['version'], true );
 
+			// prepare args
 			$args = [
 				'mode'			=> $mode,
 				'postID'		=> get_the_ID(),
@@ -236,11 +248,13 @@ class Post_Views_Counter_Frontend {
 			];
 
 			switch ( $mode ) {
+				// rest api 
 				case 'rest_api':
 					$args['requestURL'] = rest_url( 'post-views-counter/view-post/' . $args['postID'] );
 					$args['nonce'] = wp_create_nonce( 'wp_rest' );
 					break;
 
+				// javascript
 				case 'js':
 				default:
 					$args['requestURL'] = admin_url( 'admin-ajax.php' );
@@ -251,7 +265,10 @@ class Post_Views_Counter_Frontend {
 			// make it safe
 			$args['requestURL'] = esc_url_raw( $args['requestURL'] );
 
-			wp_localize_script( 'post-views-counter-frontend', 'pvcArgsFrontend', apply_filters( 'pvc_frontend_script_args', $args ) );
+			// set script args
+			$this->script_args = apply_filters( 'pvc_frontend_script_args', $args, 'standard' );
+
+			wp_localize_script( 'post-views-counter-frontend', 'pvcArgsFrontend', $this->script_args );
 		}
 	}
 }
