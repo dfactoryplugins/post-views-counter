@@ -423,7 +423,7 @@ class Post_Views_Counter_Counter {
 			$this->cookie = [
 				'exists'		 => true,
 				'visited_posts'	 => $visited_posts,
-				'expiration'	 => max( $expirations )
+				'expiration'	 => empty( $expirations ) ? 0 : max( $expirations )
 			];
 		}
 	}
@@ -496,7 +496,7 @@ class Post_Views_Counter_Counter {
 			}
 
 			// set new last expiration date if needed
-			$cookie['expiration'] = max( $cookie['visited_posts'] );
+			$cookie['expiration'] = empty( $cookie['visited_posts'] ) ? 0 : max( $cookie['visited_posts'] );
 
 			$cookies = $imploded = [];
 
