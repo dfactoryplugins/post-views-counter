@@ -199,15 +199,15 @@ class Post_Views_Counter_Settings_API {
 					<h3 class="hndle">' . $this->plugin . ' ' . $this->object->defaults['version'] . '</h3>
 					<div class="inside">
 						<h4 class="inner">' . __( 'Need support?', $this->domain ) . '</h4>
-						<p class="inner">' . sprintf( __( 'If you are having problems with this plugin, please browse it\'s <a href="%s" target="_blank">Documentation</a> or talk about them in the <a href="%s" target="_blank">Support forum</a>', $this->domain ), 'https://www.dfactory.eu/docs/' . $this->slug . '/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=docs', 'https://www.dfactory.eu/support/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=support' ) . '</p>
+						<p class="inner">' . sprintf( __( 'If you are having problems with this plugin, please browse it\'s <a href="%s" target="_blank">Documentation</a> or talk about them in the <a href="%s" target="_blank">Support forum</a>', $this->domain ), 'https://dfactory.co/docs/' . $this->slug . '/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=docs', 'https://dfactory.co/support/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=support' ) . '</p>
 						<hr />
 						<h4 class="inner">' . __( 'Do you like this plugin?', $this->domain ) . '</h4>
 						<p class="inner">' . sprintf( __( '<a href="%s" target="_blank">Rate it 5</a> on WordPress.org', $this->domain ), 'https://wordpress.org/support/plugin/' . $this->slug . '/reviews/?filter=5' ) . '<br />' .
-						sprintf( __( 'Blog about it & link to the <a href="%s" target="_blank">plugin page</a>.', $this->domain ), 'https://dfactory.eu/plugins/' . $this->slug . '/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=blog-about' ) . '<br />' .
-						sprintf( __( 'Check out our other <a href="%s" target="_blank">WordPress plugins</a>.', $this->domain ), 'https://dfactory.eu/plugins/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=other-plugins' ) . '
+						sprintf( __( 'Blog about it & link to the <a href="%s" target="_blank">plugin page</a>.', $this->domain ), 'https://dfactory.co/plugins/' . $this->slug . '/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=blog-about' ) . '<br />' .
+						sprintf( __( 'Check out our other <a href="%s" target="_blank">WordPress plugins</a>.', $this->domain ), 'https://dfactory.co/plugins/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=other-plugins' ) . '
 						</p>
 						<hr />
-						<p class="df-link inner"><a href="http://www.dfactory.eu/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=created-by" target="_blank" title="Digital Factory"><img src="//pvc-53eb.kxcdn.com/df-black-sm.png" alt="Digital Factory"></a></p>
+						<p class="df-link inner"><a href="http://dfactory.co/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=created-by" target="_blank" title="Digital Factory"><img src="//pvc-53eb.kxcdn.com/df-black-sm.png" alt="Digital Factory"></a></p>
 					</div>
 				</div>';
 

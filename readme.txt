@@ -4,8 +4,8 @@ Donate link: http://dfactory.eu/
 Tags: counter, hits, posts, postviews, post views, views, count, statistics, stats, analytics, pageviews, tracking
 Requires at least: 5.1
 Requires PHP: 5.4.0
-Tested up to: 6.0.2
-Stable tag: 1.3.11
+Tested up to: 6.1
+Stable tag: 1.3.12
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -62,6 +62,16 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3.12 =
+* Fix: Frontend Javascript rewritten from jQuery to Vanilla JS
+* Fix: Admin Bar Style loading on every page
+* Fix: Network initialization process for new sites
+* Fix: IP address encryption
+* Fix: REST API endpoints
+* Fix: Removed couple of deprecated functions
+* Tweak: Updated chart.js script to version 3.9.1
+* Tweak: Added SameSite attribute to cookie
 
 = 1.3.11 =
 * Fix: Potentailly incorrect counting of post views in edge case db queries
@@ -240,8 +250,9 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.3.11 =
-* Fix: Potentailly incorrect counting of post views in edge case db queries
-* Fix: Possible empty chart in dashboard
-* Fix: Incorrect saving of dashboard widget user options
-* Tweak: Updated Chart.js to version 3.7.0
+= 1.3.12 =
+* Fix: Frontend Javascript rewritten from jQuery to Vanilla JS
+* Fix: Admin Bar Style loading on every page
+* Fix: Network initialization process for new sites
+* Fix: IP address encryption
+* Fix: REST API endpoints
