@@ -10,16 +10,18 @@ if ( ! defined( 'ABSPATH' ) )
  */
 class Post_Views_Counter_Settings_API {
 
-	private $settings;
-	private $pages;
-	private $page_types;
-	private $prefix;
-	private $slug;
-	private $domain;
-	private $short;
+	private $settings = [];
+	private $input_settings = [];
+	private $validated_settings = [];
+	private $pages = [];
+	private $page_types = [];
+	private $prefix = '';
+	private $slug = '';
+	private $domain = '';
+	private $short = '';
+	private $plugin = '';
+	private $plugin_url = '';
 	private $object;
-	private $plugin;
-	private $plugin_url;
 
 	/**
 	 * Class constructor.
@@ -87,6 +89,24 @@ class Post_Views_Counter_Settings_API {
 	 */
 	public function get_settings() {
 		return $this->settings;
+	}
+
+	/**
+	 * Get current input settings during saving.
+	 *
+	 * @return array
+	 */
+	public function get_input_settings() {
+		return $this->input_settings;
+	}
+
+	/**
+	 * Get already validated setting fields during saving.
+	 *
+	 * @return array
+	 */
+	public function get_validated_settings() {
+		return $this->validated_settings;
 	}
 
 	/**
@@ -389,7 +409,7 @@ class Post_Views_Counter_Settings_API {
 
 			case 'radio':
 				foreach ( $args['options'] as $key => $name ) {
-					$html .= '<label><input id="' . esc_attr( $args['id'] . '_' . $key ) . '" type="radio" name="' . esc_attr( $args['name'] ) . '" value="' . esc_attr( $key ) . '" ' . checked( $key, $args['value'], false ) . ' ' . disabled( empty( $args['disabled'] ), false, false ) . ' />' . esc_html( $name ) . '</label> ';
+					$html .= '<label><input id="' . esc_attr( $args['id'] . '_' . $key ) . '" type="radio" name="' . esc_attr( $args['name'] ) . '" value="' . esc_attr( $key ) . '" ' . checked( $key, $args['value'], false ) . ' ' . disabled( ! empty( $args['disabled'] ) && in_array ( $key, $args['disabled'], true ), true, false ) . ' />' . esc_html( $name ) . '</label> ';
 				}
 				break;
 
@@ -403,7 +423,7 @@ class Post_Views_Counter_Settings_API {
 				$html .= '<input type="hidden" name="' . esc_attr( $args['name'] ) . '" value="empty" />';
 
 				foreach ( $args['options'] as $key => $name ) {
-					$html .= '<label><input id="' . esc_attr( $args['id'] . '_' . $key ) . '" type="checkbox" name="' . esc_attr( $args['name'] ) . '[]" value="' . esc_attr( $key ) . '" ' . checked( in_array( $key, $args['value'] ), true, false ) . ' ' . disabled( empty( $args['disabled'] ), false, false ) . ' />' . esc_html( $name ) . '</label>' . ( $display_type === 'horizontal' ? ' ' : '<br />' );
+					$html .= '<label><input id="' . esc_attr( $args['id'] . '_' . $key ) . '" type="checkbox" name="' . esc_attr( $args['name'] ) . '[]" value="' . esc_attr( $key ) . '" ' . checked( in_array( $key, $args['value'] ), true, false ) . ' ' . disabled( ! empty( $args['disabled'] ) && in_array ( $key, $args['disabled'], true ), true, false ) . ' />' . esc_html( $name ) . '</label>' . ( $display_type === 'horizontal' ? ' ' : '<br />' );
 				}
 				break;
 
@@ -658,6 +678,12 @@ class Post_Views_Counter_Settings_API {
 					else
 						$input[$field_id] = $this->object->defaults[$setting_id][$field_id];
 				}
+
+				// update input data
+				$this->input_settings = $input;
+
+				// add this field as validated
+				$this->validated_settings[] = $field_id;
 			}
 		}
 

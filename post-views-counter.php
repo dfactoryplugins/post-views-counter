@@ -132,7 +132,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 							'slug'			=> 'post-views-counter',
 							'domain'		=> 'post-views-counter',
 							'plugin'		=> 'Post Views Counter',
-							'plugin_url'	=> 'POST_VIEWS_COUNTER_URL'
+							'plugin_url'	=> POST_VIEWS_COUNTER_URL
 						]
 					);
 
