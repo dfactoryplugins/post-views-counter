@@ -74,7 +74,7 @@ class Post_Views_Counter_Cron {
 		$pvc = Post_Views_Counter();
 
 		$schedules['post_views_counter_interval'] = [
-			'interval'	=> 86400,
+			'interval'	=> DAY_IN_SECONDS,
 			'display'	=> __( 'Post Views Counter reset daily counts interval', 'post-views-counter' )
 		];
 
@@ -117,7 +117,7 @@ class Post_Views_Counter_Cron {
 				}
 
 				// set schedule
-				wp_schedule_event( current_time( 'timestamp', true ) + 86400, 'post_views_counter_interval', 'pvc_reset_counts' );
+				wp_schedule_event( current_time( 'timestamp', true ) + DAY_IN_SECONDS, 'post_views_counter_interval', 'pvc_reset_counts' );
 			}
 		} else {
 			// remove schedule

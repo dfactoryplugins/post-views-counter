@@ -259,7 +259,6 @@ class Post_Views_Counter_Frontend {
 				default:
 					$args['requestURL'] = admin_url( 'admin-ajax.php' );
 					$args['nonce'] = wp_create_nonce( 'pvc-check-post' );
-					break;
 			}
 
 			// make it safe

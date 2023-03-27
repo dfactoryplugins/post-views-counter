@@ -170,7 +170,7 @@ class Post_Views_Counter_Counter {
 	 * @return void|int
 	 */
 	public function check_post( $id = 0 ) {
-		// short init?
+		// force check cookie in SHORTINIT mode
 		if ( defined( 'SHORTINIT' ) && SHORTINIT )
 			$this->check_cookie();
 
@@ -383,7 +383,7 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Initialize cookie session.
 	 *
-	 * @param array $cookie Use this cookie instead of $_COOKIE
+	 * @param array $cookie Use this data instead of real $_COOKIE
 	 * @return void
 	 */
 	public function check_cookie( $cookie = [] ) {
@@ -437,9 +437,8 @@ class Post_Views_Counter_Counter {
 	 * @return void
 	 */
 	private function save_cookie( $id, $cookie = [], $expired = true ) {
-		$set_cookie = apply_filters( 'pvc_maybe_set_cookie', true );
-
-		if ( $set_cookie !== true )
+		// early return?
+		if ( apply_filters( 'pvc_maybe_set_cookie', true, $id, 'post', $cookie, $expired ) !== true )
 			return;
 
 		// get main instance
@@ -465,14 +464,14 @@ class Post_Views_Counter_Counter {
 						'expires'	=> $expiration,
 						'path'		=> COOKIEPATH,
 						'domain'	=> COOKIE_DOMAIN,
-						'secure'	=> isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off',
+						'secure'	=> is_ssl(),
 						'httponly'	=> true,
 						'samesite'	=> 'LAX'
 					]
 				);
 			} else {
 				// set cookie
-				setcookie( $cookie_name . '[0]', $expiration . 'b' . $id, $expiration, COOKIEPATH, COOKIE_DOMAIN, ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ), true );
+				setcookie( $cookie_name . '[0]', $expiration . 'b' . $id, $expiration, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
 			}
 
 			if ( $this->queue_mode )
@@ -546,14 +545,14 @@ class Post_Views_Counter_Counter {
 							'expires'	=> $cookie['expiration'],
 							'path'		=> COOKIEPATH,
 							'domain'	=> COOKIE_DOMAIN,
-							'secure'	=> isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off',
+							'secure'	=> is_ssl(),
 							'httponly'	=> true,
 							'samesite'	=> 'LAX'
 						]
 					);
 				} else {
 					// set cookie
-					setcookie( $cookie_name . '[' . $key . ']', $value, $cookie['expiration'], COOKIEPATH, COOKIE_DOMAIN, ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' ), true );
+					setcookie( $cookie_name . '[' . $key . ']', $value, $cookie['expiration'], COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
 				}
 			}
 
@@ -566,21 +565,20 @@ class Post_Views_Counter_Counter {
 	 * Save user IP address.
 	 *
 	 * @param int $id
-	 * @return int|void
+	 * @return void
 	 */
 	private function save_ip( $id ) {
-		$set_cookie = apply_filters( 'pvc_maybe_set_cookie', true );
+		// early return?
+		if ( apply_filters( 'pvc_maybe_set_ip', true, $id, 'post' ) !== true )
+			return;
 
-		if ( $set_cookie !== true )
-			return $id;
-
-		// get IP cached visits
+		// get ip cached visits
 		$ip_cache = get_transient( 'post_views_counter_ip_cache' );
 
 		if ( ! $ip_cache )
 			$ip_cache = [];
 
-		// get user IP address
+		// get user ip address
 		$user_ip = $this->encrypt_ip( $this->get_user_ip() );
 
 		// get current time
@@ -675,12 +673,12 @@ class Post_Views_Counter_Counter {
 	 */
 	public function get_timestamp( $type, $number, $timestamp = true ) {
 		$converter = [
-			'minutes'	=> 60,
-			'hours'		=> 3600,
-			'days'		=> 86400,
-			'weeks'		=> 604800,
-			'months'	=> 2592000,
-			'years'		=> 946080000
+			'minutes'	=> MINUTE_IN_SECONDS,
+			'hours'		=> HOUR_IN_SECONDS,
+			'days'		=> DAY_IN_SECONDS,
+			'weeks'		=> WEEK_IN_SECONDS,
+			'months'	=> MONTH_IN_SECONDS,
+			'years'		=> YEAR_IN_SECONDS
 		];
 
 		return (int) ( ( $timestamp ? current_time( 'timestamp', true ) : 0 ) + $number * $converter[$type] );

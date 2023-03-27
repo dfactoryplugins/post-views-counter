@@ -44,12 +44,12 @@ class Post_Views_Counter_Update {
 
 					// new number of days
 					if ( $general['reset_counts']['type'] === 'minutes' )
-						$general['reset_counts']['number'] = $general['reset_counts']['number'] * 60;
+						$general['reset_counts']['number'] = $general['reset_counts']['number'] * MINUTE_IN_SECONDS;
 					else
-						$general['reset_counts']['number'] = $general['reset_counts']['number'] * 3600;
+						$general['reset_counts']['number'] = $general['reset_counts']['number'] * HOUR_IN_SECONDS;
 
 					// how many days?
-					$general['reset_counts']['number'] = (int) round( ceil( $general['reset_counts']['number'] / 86400 ) );
+					$general['reset_counts']['number'] = (int) round( ceil( $general['reset_counts']['number'] / DAY_IN_SECONDS ) );
 
 					// force cron to update
 					$general['cron_run'] = true;
