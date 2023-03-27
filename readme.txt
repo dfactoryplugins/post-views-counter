@@ -1,6 +1,6 @@
 === Post Views Counter ===
 Contributors: dfactory
-Donate link: http://dfactory.eu/
+Donate link: http://www.dfactory.co/
 Tags: counter, hits, posts, postviews, post views, views, count, statistics, stats, analytics, pageviews, tracking
 Requires at least: 5.1
 Requires PHP: 5.4.0
@@ -13,9 +13,9 @@ Post Views Counter allows you to display how many times a post, page or custom p
 
 == Description ==
 
-[Post Views Counter](http://www.dfactory.eu/plugins/post-views-counter/) allows you to display how many times a post, page or custom post type had been viewed with this simple, fast and easy to use plugin.
+[Post Views Counter](http://www.dfactory.co/plugins/post-views-counter/) allows you to display how many times a post, page or custom post type had been viewed with this simple, fast and easy to use plugin.
 
-For more information, check out plugin page at [dFactory](http://dfactory.eu/) or plugin [support forum](http://www.dfactory.eu/support/forum/post-views-counter/).
+For more information, check out plugin page at [dFactory](http://www.dfactory.co/) or plugin [support forum](http://www.dfactory.co/support/forum/post-views-counter/).
 
 = Features include: =
 

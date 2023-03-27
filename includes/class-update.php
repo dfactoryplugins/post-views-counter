@@ -29,12 +29,15 @@ class Post_Views_Counter_Update {
 		if ( ! current_user_can( 'manage_options' ) )
 			return;
 
+		// get main instance
+		$pvc = Post_Views_Counter();
+
 		// get current database version
 		$current_db_version = get_option( 'post_views_counter_version', '1.0.0' );
 
 		// update 1.2.4+
 		if ( version_compare( $current_db_version, '1.2.4', '<=' ) ) {
-			$general = Post_Views_Counter()->options['general'];
+			$general = $pvc->options['general'];
 
 			if ( $general['reset_counts']['number'] > 0 ) {
 				// unsupported data reset in minutes/hours
@@ -59,11 +62,11 @@ class Post_Views_Counter_Update {
 					update_option( 'post_views_counter_settings_general', $general );
 
 					// update general options
-					Post_Views_Counter()->options['general'] = $general;
+					$pvc->options['general'] = $general;
 				}
 
 				// update cron job for all users
-				Post_Views_Counter()->cron->check_cron();
+				$pvc->cron->check_cron();
 			}
 		}
 
@@ -72,7 +75,7 @@ class Post_Views_Counter_Update {
 				$this->update_1();
 
 				// update plugin version
-				update_option( 'post_views_counter_version', Post_Views_Counter()->defaults['version'], false );
+				update_option( 'post_views_counter_version', $pvc->defaults['version'], false );
 			}
 		}
 
@@ -87,13 +90,13 @@ class Post_Views_Counter_Update {
 		$current_db_version = get_option( 'post_views_counter_version', '1.0.0' );
 
 		// new version?
-		if ( version_compare( $current_db_version, Post_Views_Counter()->defaults['version'], '<' ) ) {
+		if ( version_compare( $current_db_version, $pvc->defaults['version'], '<' ) ) {
 			// is update 1 required?
 			if ( version_compare( $current_db_version, '1.2.4', '<=' ) )
-				Post_Views_Counter()->add_notice( $update_1_html, 'notice notice-info' );
+				$pvc->add_notice( $update_1_html, 'notice notice-info' );
 			else
 				// update plugin version
-				update_option( 'post_views_counter_version', Post_Views_Counter()->defaults['version'], false );
+				update_option( 'post_views_counter_version', $pvc->defaults['version'], false );
 		}
 	}
 

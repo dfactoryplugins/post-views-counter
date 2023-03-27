@@ -26,7 +26,6 @@ if ( ! defined( 'ABSPATH' ) )
 	exit;
 
 if ( ! class_exists( 'Post_Views_Counter' ) ) {
-
 	/**
 	 * Post Views Counter final class.
 	 *
@@ -36,6 +35,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 	final class Post_Views_Counter {
 
 		private static $instance;
+		private $notices;
 		public $options;
 		public $defaults = [
 			'general'	=> [
@@ -87,6 +87,14 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			'version'	=> '1.3.12'
 		];
 
+		// instances
+		public $functions;
+		public $cron;
+		public $counter;
+		public $crawler_detect;
+		public $frontend;
+		public $dashboard;
+
 		/**
 		 * Disable object cloning.
 		 *
@@ -136,18 +144,24 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 						]
 					);
 
+					// initialize other classes
 					self::$instance->functions = new Post_Views_Counter_Functions();
-					self::$instance->update = new Post_Views_Counter_Update();
-					self::$instance->settings = new Post_Views_Counter_Settings();
-					self::$instance->admin = new Post_Views_Counter_Admin();
-					self::$instance->query = new Post_Views_Counter_Query();
+
+					new Post_Views_Counter_Update();
+					new Post_Views_Counter_Settings();
+					new Post_Views_Counter_Admin();
+					new Post_Views_Counter_Query();
+
 					self::$instance->cron = new Post_Views_Counter_Cron();
 					self::$instance->counter = new Post_Views_Counter_Counter();
-					self::$instance->columns = new Post_Views_Counter_Columns();
+
+					new Post_Views_Counter_Columns();
+
 					self::$instance->crawler_detect = new Post_Views_Counter_Crawler_Detect();
 					self::$instance->frontend = new Post_Views_Counter_Frontend();
 					self::$instance->dashboard = new Post_Views_Counter_Dashboard();
-					self::$instance->widgets = new Post_Views_Counter_Widgets();
+
+					new Post_Views_Counter_Widgets();
 				}
 			}
 
@@ -164,7 +178,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			if ( ! ( defined( 'SHORTINIT' ) && SHORTINIT ) ) {
 				define( 'POST_VIEWS_COUNTER_URL', plugins_url( '', __FILE__ ) );
 				define( 'POST_VIEWS_COUNTER_BASENAME', plugin_basename( __FILE__ ) );
-				define( 'POST_VIEWS_COUNTER_REL_PATH', dirname( POST_VIEWS_COUNTER_BASENAME ) . '/' );
+				define( 'POST_VIEWS_COUNTER_REL_PATH', dirname( POST_VIEWS_COUNTER_BASENAME ) );
 			}
 
 			define( 'POST_VIEWS_COUNTER_PATH', plugin_dir_path( __FILE__ ) );
@@ -211,8 +225,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			}
 
 			// activation hooks
-			register_activation_hook( __FILE__, [ $this, 'activate_plugin' ] );
-			register_deactivation_hook( __FILE__, [ $this, 'deactivate_plugin' ] );
+			register_activation_hook( __FILE__, [ $this, 'activation' ] );
+			register_deactivation_hook( __FILE__, [ $this, 'deactivation' ] );
 
 			// settings
 			$this->options = [
@@ -228,8 +242,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			add_action( 'wp_ajax_pvc_dismiss_notice', [ $this, 'dismiss_notice' ] );
 
 			// filters
-			add_filter( 'plugin_row_meta', [ $this, 'plugin_row_meta' ], 10, 2 );
-			add_filter( 'plugin_action_links', [ $this, 'plugin_action_links' ], 10, 2 );
+			add_filter( 'plugin_row_meta', [ $this, 'plugin_extend_links' ], 10, 2 );
+			add_filter( 'plugin_action_links_' . POST_VIEWS_COUNTER_BASENAME, [ $this, 'plugin_settings_link' ] );
 		}
 
 		/**
@@ -274,8 +288,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				$activation_date = get_option( 'post_views_counter_activation_date' );
 
 				if ( (int) $this->options['general']['update_delay_date'] === 0 ) {
-					if ( $activation_date + 1209600 > $current_time )
-						$this->options['general']['update_delay_date'] = $activation_date + 1209600;
+					if ( $activation_date + 2 * WEEK_IN_SECONDS > $current_time )
+						$this->options['general']['update_delay_date'] = $activation_date + 2 * WEEK_IN_SECONDS;
 					else
 						$this->options['general']['update_delay_date'] = $current_time;
 
@@ -283,26 +297,30 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				}
 
 				if ( ( ! empty( $this->options['general']['update_delay_date'] ) ? (int) $this->options['general']['update_delay_date'] : $current_time ) <= $current_time )
-					$this->add_notice( sprintf( __( "Hey, you've been using <strong>Post Views Counter</strong> for more than %s.", 'post-views-counter' ), human_time_diff( $activation_date, $current_time ) ) . '<br />' . __( 'Could you please do me a BIG favor and give it a 5-star rating on WordPress to help us spread the word and boost our motivation.', 'post-views-counter' ) . '<br /><br />' . __( 'Your help is much appreciated. Thank you very much', 'post-views-counter' ) . ' ~ <strong>Bartosz Arendt</strong>, ' . sprintf( __( 'founder of <a href="%s" target="_blank">Digital Factory</a> plugins.', 'post-views-counter' ), 'https://dfactory.co/' ) . '<br /><br />' . sprintf( __( '<a href="%s" class="pvc-dismissible-notice" target="_blank" rel="noopener">Ok, you deserve it</a><br /><a href="javascript:void(0);" class="pvc-dismissible-notice pvc-delay-notice" rel="noopener">Nope, maybe later</a><br /><a href="javascript:void(0);" class="pvc-dismissible-notice" rel="noopener">I already did</a>', 'post-views-counter' ), 'https://wordpress.org/support/plugin/post-views-counter/reviews/?filter=5#new-post' ), 'notice notice-info is-dismissible pvc-notice' );
+					$this->add_notice( sprintf( __( "Hey, you've been using <strong>Post Views Counter</strong> for more than %s.", 'post-views-counter' ), human_time_diff( $activation_date, $current_time ) ) . '<br />' . __( 'Could you please do me a BIG favor and give it a 5-star rating on WordPress to help us spread the word and boost our motivation.', 'post-views-counter' ) . '<br /><br />' . __( 'Your help is much appreciated. Thank you very much', 'post-views-counter' ) . ' ~ <strong>Bartosz Arendt</strong>, ' . sprintf( __( 'founder of <a href="%s" target="_blank">Digital Factory</a> plugins.', 'post-views-counter' ), 'http://www.dfactory.co/' ) . '<br /><br />' . sprintf( __( '<a href="%s" class="pvc-dismissible-notice" target="_blank" rel="noopener">Ok, you deserve it</a><br /><a href="javascript:void(0);" class="pvc-dismissible-notice pvc-delay-notice" rel="noopener">Nope, maybe later</a><br /><a href="javascript:void(0);" class="pvc-dismissible-notice" rel="noopener">I already did</a>', 'post-views-counter' ), 'https://wordpress.org/support/plugin/post-views-counter/reviews/?filter=5#new-post' ), 'notice notice-info is-dismissible pvc-notice' );
 			}
 		}
 
 		/**
 		 * Add admin notices.
 		 *
-		 * @param string $html
-		 * @param string $status
-		 * @param bool $paragraph
+		 * @param string $html Notice HTML
+		 * @param string $status Notice status
+		 * @param bool $paragraph Whether to use paragraph
+		 * @param bool $network
 		 * @return void
 		 */
-		public function add_notice( $html = '', $status = 'error', $paragraph = true ) {
+		public function add_notice( $html = '', $status = 'error', $paragraph = true, $network = false ) {
 			$this->notices[] = [
 				'html' 		=> $html,
-				'status' 	=> $status,
-				'paragraph' => $paragraph
+				'status'	=> $status,
+				'paragraph'	=> $paragraph
 			];
 
 			add_action( 'admin_notices', [ $this, 'display_notice' ] );
+
+			if ( $network )
+				add_action( 'network_admin_notices', [ $this, 'display_notice' ] );
 		}
 
 		/**
@@ -313,9 +331,9 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		public function display_notice() {
 			foreach( $this->notices as $notice ) {
 				echo '
-				<div class="' . $notice['status'] . '">
+				<div class="' . esc_attr( $notice['status'] ) . '">
 					' . ( $notice['paragraph'] ? '<p>' : '' ) . '
-					' . $notice['html'] . '
+					' . wp_kses_post( $notice['html'] ) . '
 					' . ( $notice['paragraph'] ? '</p>' : '' ) . '
 				</div>';
 			}
@@ -375,7 +393,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 						$this->options['general'] = array_merge(
 							$this->options['general'],
 							[
-								'update_delay_date'	=> time() + 1209600
+								'update_delay_date'	=> time() + 2 * WEEK_IN_SECONDS
 							]
 						);
 						update_option( 'post_views_counter_settings_general', $this->options['general'] );
@@ -411,28 +429,25 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @param bool $network
 		 * @return void
 		 */
-		public function activate_plugin( $network ) {
+		public function activation( $network ) {
+			// network activation?
 			if ( is_multisite() && $network ) {
 				global $wpdb;
 
-				$activated_blogs = [];
-
-				// get available sites
+				// get all available sites
 				$blogs_ids = $wpdb->get_col( 'SELECT blog_id FROM ' . $wpdb->blogs );
 
 				foreach ( $blogs_ids as $blog_id ) {
-					switch_to_blog( $blog_id );
+					// change to another site
+					switch_to_blog( (int) $blog_id );
 
-					$this->activate_single();
-
-					$activated_blogs[] = (int) $blog_id;
+					// run current site activation process
+					$this->activate_site();
 
 					restore_current_blog();
 				}
-
-				update_site_option( 'post_views_counter_activated_blogs', $activated_blogs );
 			} else
-				$this->activate_single();
+				$this->activate_site();
 		}
 
 		/**
@@ -443,7 +458,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 *
 		 * @return void
 		 */
-		public function activate_single() {
+		public function activate_site() {
 			global $wpdb, $charset_collate;
 
 			// required for dbdelta
@@ -479,30 +494,25 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @param bool $network
 		 * @return void
 		 */
-		public function deactivate_plugin( $network ) {
+		public function deactivation( $network ) {
+			// network deactivation?
 			if ( is_multisite() && $network ) {
 				global $wpdb;
 
-				// get available sites
+				// get all available sites
 				$blogs_ids = $wpdb->get_col( 'SELECT blog_id FROM ' . $wpdb->blogs );
 
-				// get activated sites
-				$activated_blogs = get_site_option( 'post_views_counter_activated_blogs', [] );
-
 				foreach ( $blogs_ids as $blog_id ) {
-					switch_to_blog( $blog_id );
+					// change to another site
+					switch_to_blog( (int) $blog_id );
 
-					$this->deactivate_single( true );
-
-					if ( in_array( (int) $blog_id, $activated_blogs, true ) )
-						unset( $activated_blogs[array_search( $blog_id, $activated_blogs )] );
+					// run current site deactivation process
+					$this->deactivate_site( true );
 
 					restore_current_blog();
 				}
-
-				update_site_option( 'post_views_counter_activated_blogs', $activated_blogs );
 			} else
-				$this->deactivate_single();
+				$this->deactivate_site();
 		}
 
 		/**
@@ -510,17 +520,17 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 *
 		 * @global object $wpdb
 		 *
-		 * @param bool $network
+		 * @param bool $multi
 		 * @return void
 		 */
-		public function deactivate_single( $network = false ) {
-			if ( $network ) {
+		public function deactivate_site( $multi = false ) {
+			if ( $multi === true ) {
 				$options = get_option( 'post_views_counter_settings_general' );
 				$check = $options['deactivation_delete'];
 			} else
 				$check = $this->options['general']['deactivation_delete'];
 
-			// delete default options
+			// delete options if needed
 			if ( $check ) {
 				// delete options
 				delete_option( 'post_views_counter_settings_general' );
@@ -540,7 +550,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			// remove schedule
 			wp_clear_scheduled_hook( 'pvc_reset_counts' );
 
-			remove_action( 'pvc_reset_counts', [ Post_Views_Counter()->cron, 'reset_counts' ] );
+			remove_action( 'pvc_reset_counts', [ $this->cron, 'reset_counts' ] );
 
 			$this->remove_cache_flush();
 		}
@@ -553,19 +563,13 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 */
 		public function initialize_new_network_site( $site ) {
 			if ( is_multisite() ) {
-				// get active sites
-				$active_blogs = get_site_option( 'post_views_counter_activated_blogs', [] );
-
+				// change to another site
 				switch_to_blog( $site->blog_id );
 
-				// activate new site
-				$this->activate_single();
-
-				$active_blogs[] = (int) $site->blog_id;
+				// run current site activation process
+				$this->activate_site();
 
 				restore_current_blog();
-
-				update_site_option( 'post_views_counter_activated_blogs', $active_blogs );
 			}
 		}
 
@@ -596,7 +600,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @return void
 		 */
 		public function load_textdomain() {
-			load_plugin_textdomain( 'post-views-counter', false, POST_VIEWS_COUNTER_REL_PATH . 'languages/' );
+			load_plugin_textdomain( 'post-views-counter', false, POST_VIEWS_COUNTER_REL_PATH . '/languages/' );
 		}
 
 		/**
@@ -671,44 +675,33 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		}
 
 		/**
-		 * Add links to plugin support forum.
+		 * Add link to Settings page.
 		 *
 		 * @param array $links
-		 * @param string $file
 		 * @return array
 		 */
-		public function plugin_row_meta( $links, $file ) {
-			if ( ! current_user_can( 'install_plugins' ) )
+		public function plugin_settings_link( $links ) {
+			if ( ! current_user_can( 'manage_options' ) )
 				return $links;
 
-			if ( $file === POST_VIEWS_COUNTER_BASENAME ) {
-				return array_merge(
-					$links,
-					[
-						sprintf( '<a href="http://www.dfactory.co/support/forum/post-views-counter/" target="_blank">%s</a>', __( 'Support', 'post-views-counter' ) )
-					]
-				);
-			}
+			array_unshift( $links, sprintf( '<a href="%s">%s</a>', esc_url_raw( admin_url( 'options-general.php' ) ) . '?page=post-views-counter', esc_html__( 'Settings', 'post-views-counter' ) ) );
 
 			return $links;
 		}
 
 		/**
-		 * Add link to settings page.
+		 * Add link to Support Forum.
 		 *
 		 * @param array $links
 		 * @param string $file
 		 * @return array
 		 */
-		public function plugin_action_links( $links, $file ) {
-			if ( ! current_user_can( 'manage_options' ) )
+		public function plugin_extend_links( $links, $file ) {
+			if ( ! current_user_can( 'install_plugins' ) )
 				return $links;
 
-			if ( $file === POST_VIEWS_COUNTER_BASENAME ) {
-				$settings_link = sprintf( '<a href="%s">%s</a>', admin_url( 'options-general.php?page=post-views-counter' ), __( 'Settings', 'post-views-counter' ) );
-
-				array_unshift( $links, $settings_link );
-			}
+			if ( $file === POST_VIEWS_COUNTER_BASENAME )
+				return array_merge( $links, [ sprintf( '<a href="http://www.dfactory.co/support/forum/post-views-counter/" target="_blank">%s</a>', esc_html__( 'Support', 'post-views-counter' ) ) ] );
 
 			return $links;
 		}
