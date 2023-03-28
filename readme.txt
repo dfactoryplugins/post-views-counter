@@ -190,7 +190,7 @@ No questions yet.
 
 = 1.1.4 =
 * Fix: Dashicons link broken.
-* Tweak: Confirmed WordPress 4.4 compatibility 
+* Tweak: Confirmed WordPress 4.4 compatibility
 
 = 1.1.3 =
 * Fix: Duplicated views count in custom post types
@@ -215,7 +215,7 @@ No questions yet.
 * New: French translation, thanks to [Theophil Bethel](http://reseau-chretien-gironde.fr/)
 
 = 1.0.10 =
-* New: Option to limit post views editing to admins only 
+* New: Option to limit post views editing to admins only
 
 = 1.0.9 =
 * New: Spanish translation, thanks to [Carlos Rodriguez](http://cglevel.com/)

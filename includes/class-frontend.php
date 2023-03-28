@@ -248,7 +248,7 @@ class Post_Views_Counter_Frontend {
 			];
 
 			switch ( $mode ) {
-				// rest api 
+				// rest api
 				case 'rest_api':
 					$args['requestURL'] = rest_url( 'post-views-counter/view-post/' . $args['postID'] );
 					$args['nonce'] = wp_create_nonce( 'wp_rest' );
@@ -267,7 +267,7 @@ class Post_Views_Counter_Frontend {
 			// set script args
 			$this->script_args = apply_filters( 'pvc_frontend_script_args', $args, 'standard' );
 
-			wp_localize_script( 'post-views-counter-frontend', 'pvcArgsFrontend', $this->script_args );
+			wp_add_inline_script( 'post-views-counter-frontend', 'var pvcArgsFrontend = ' . wp_json_encode( $this->script_args ) . ";\n", 'before' );
 		}
 	}
 }

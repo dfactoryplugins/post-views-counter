@@ -74,7 +74,7 @@ class Post_Views_Counter_Counter {
 				}
 			}
 
-			echo json_encode(
+			echo wp_json_encode(
 				[
 					'post_ids'	=> $ids,
 					'counted'	=> $counted
@@ -246,7 +246,7 @@ class Post_Views_Counter_Counter {
 			return;
 
 		// whether to count robots
-		if ( in_array( 'robots', $groups, true ) && $pvc->crawler_detect->is_crawler() )
+		if ( in_array( 'robots', $groups, true ) && $pvc->crawler->is_crawler() )
 			return;
 
 		// cookie already existed?
@@ -332,7 +332,7 @@ class Post_Views_Counter_Counter {
 			if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
 				exit;
 
-			echo json_encode(
+			echo wp_json_encode(
 				[
 					'post_id'	=> $post_id,
 					'counted'	=> ! ( $this->check_post( $post_id ) === null )

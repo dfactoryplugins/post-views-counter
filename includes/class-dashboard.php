@@ -77,15 +77,14 @@ class Post_Views_Counter_Dashboard {
 		// scripts
 		wp_enqueue_script( 'pvc-admin-dashboard', POST_VIEWS_COUNTER_URL . '/js/admin-dashboard.js', [ 'jquery', 'pvc-chartjs' ], $pvc->defaults['version'], true );
 
-		wp_localize_script(
-			'pvc-admin-dashboard',
-			'pvcArgs',
-			[
-				'ajaxURL'	=> admin_url( 'admin-ajax.php' ),
-				'nonce'		=> wp_create_nonce( 'pvc-dashboard-widget' ),
-				'nonceUser'	=> wp_create_nonce( 'pvc-dashboard-user-options' )
-			]
-		);
+		// prepare script data
+		$script_data = [
+			'ajaxURL'	=> admin_url( 'admin-ajax.php' ),
+			'nonce'		=> wp_create_nonce( 'pvc-dashboard-widget' ),
+			'nonceUser'	=> wp_create_nonce( 'pvc-dashboard-user-options' )
+		];
+
+		wp_add_inline_script( 'pvc-admin-dashboard', 'var pvcArgs = ' . wp_json_encode( $script_data ) . ";\n", 'before' );
 	}
 
 	/**
@@ -466,7 +465,7 @@ class Post_Views_Counter_Dashboard {
 				break;
 		}
 
-		echo json_encode( $data );
+		echo wp_json_encode( $data );
 
 		exit;
 	}
@@ -573,7 +572,7 @@ class Post_Views_Counter_Dashboard {
 
 		$data['html'] = $html;
 
-		echo json_encode( $data );
+		echo wp_json_encode( $data );
 
 		exit;
 	}

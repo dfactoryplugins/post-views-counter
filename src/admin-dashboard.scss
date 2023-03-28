@@ -10,7 +10,7 @@
         &.pvc-collapsed .pvc-accordion-toggle::before {
             transform: rotate(180deg);
         }
-        
+
         &.pvc-collapsed .pvc-accordion-content {
             display: none;
         }
@@ -19,7 +19,7 @@
             align-items: center;
             justify-content: space-between;
         }
-        
+
         .pvc-accordion-content {
             padding: 11px 12px;
             border-bottom: 1px solid #eee;
@@ -39,7 +39,7 @@
         margin: 0;
         padding: 11px 12px;
         color: #23282c;
-    
+
         &:before {
             color: #72777c;
             content: "\f142";
@@ -56,12 +56,12 @@
             top: 8px;
         }
     }
-    
+
     .pvc-accordion-title {
         display: inline-block;
         padding-right: 10px;
     }
-    
+
     .pvc-accordion-actions {
         position: absolute;
         top: 0;
@@ -70,7 +70,7 @@
         padding: 11px 30px 11px 0;
         height: 14px;
         line-height: 1;
-    
+
         .pvc-accordion-action {
             &,
             &:before {
@@ -81,16 +81,16 @@
             }
         }
     }
-    
+
     .pvc-tooltip {
         position: relative;
     }
-    
+
     .pvc-tooltip-icon {
         display: inline-block;
         width: 16px;
         cursor: help;
-    
+
         &:before {
             color: #b4b9be;
             content: "\f14c";

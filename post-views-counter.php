@@ -88,12 +88,13 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		];
 
 		// instances
-		public $functions;
-		public $cron;
 		public $counter;
-		public $crawler_detect;
-		public $frontend;
+		public $crawler;
+		public $cron;
 		public $dashboard;
+		public $frontend;
+		public $functions;
+		public $settings_api;
 
 		/**
 		 * Disable object cloning.
@@ -125,7 +126,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					include_once( POST_VIEWS_COUNTER_PATH . 'includes/functions.php' );
 
 					self::$instance->counter = new Post_Views_Counter_Counter();
-					self::$instance->crawler_detect = new Post_Views_Counter_Crawler_Detect();
+					self::$instance->crawler = new Post_Views_Counter_Crawler_Detect();
 				// regular setup
 				} else {
 					add_action( 'init', [ self::$instance, 'load_textdomain' ] );
@@ -157,7 +158,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 
 					new Post_Views_Counter_Columns();
 
-					self::$instance->crawler_detect = new Post_Views_Counter_Crawler_Detect();
+					self::$instance->crawler = new Post_Views_Counter_Crawler_Detect();
 					self::$instance->frontend = new Post_Views_Counter_Frontend();
 					self::$instance->dashboard = new Post_Views_Counter_Dashboard();
 
@@ -633,12 +634,13 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			if ( $page === 'settings_page_post-views-counter' ) {
 				wp_enqueue_script( 'pvc-admin-settings' );
 
-				wp_localize_script(
-					'pvc-admin-settings', 'pvcArgsSettings', [
-						'resetToDefaults' => __( 'Are you sure you want to reset these settings to defaults?', 'post-views-counter' ),
-						'resetViews' => __( 'Are you sure you want to delete all existing data?', 'post-views-counter' )
-					]
-				);
+				// prepare script data
+				$script_data = [
+					'resetToDefaults'	=> esc_html__( 'Are you sure you want to reset these settings to defaults?', 'post-views-counter' ),
+					'resetViews'		=> esc_html__( 'Are you sure you want to delete all existing data?', 'post-views-counter' )
+				];
+
+				wp_add_inline_script( 'pvc-admin-settings', 'var pvcArgsSettings = ' . wp_json_encode( $script_data ) . ";\n", 'before' );
 
 				wp_enqueue_style( 'pvc-admin' );
 			// load on single post page

@@ -147,20 +147,19 @@ class Post_Views_Counter_Admin {
 		// restrict editing
 		$restrict = (bool) $pvc->options['general']['restrict_edit_views'];
 
-		wp_localize_script(
-			'pvc-block-editor',
-			'pvcEditorArgs',
-			[
-				'postID'		=> get_the_ID(),
-				'postViews'		=> pvc_get_post_views( get_the_ID() ),
-				'canEdit'		=> ( $restrict === false || ( $restrict === true && current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) ) ),
-				'nonce'			=> wp_create_nonce( 'wp_rest' ),
-				'wpGreater53'	=> version_compare( $wp_version, '5.3', '>=' ),
-				'textPostViews'	=> __( 'Post Views', 'post-views-counter' ),
-				'textHelp'		=> __( 'Adjust the views count for this post.', 'post-views-counter' ),
-				'textCancel'	=> __( 'Cancel', 'post-views-counter' )
-			]
-		);
+		// prepare script data
+		$script_data = [
+			'postID'		=> get_the_ID(),
+			'postViews'		=> pvc_get_post_views( get_the_ID() ),
+			'canEdit'		=> ( $restrict === false || ( $restrict === true && current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) ) ),
+			'nonce'			=> wp_create_nonce( 'wp_rest' ),
+			'wpGreater53'	=> version_compare( $wp_version, '5.3', '>=' ),
+			'textPostViews'	=> esc_html__( 'Post Views', 'post-views-counter' ),
+			'textHelp'		=> esc_html__( 'Adjust the views count for this post.', 'post-views-counter' ),
+			'textCancel'	=> esc_html__( 'Cancel', 'post-views-counter' )
+		];
+
+		wp_add_inline_script( 'pvc-block-editor', 'var pvcEditorArgs = ' . wp_json_encode( $script_data ) . ";\n", 'before' );
 
 		// enqueue frontend and editor block styles
 		wp_enqueue_style( 'pvc-block-editor', POST_VIEWS_COUNTER_URL . '/css/block-editor.min.css', '', $pvc->defaults['version'] );
