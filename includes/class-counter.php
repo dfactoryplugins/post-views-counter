@@ -391,7 +391,7 @@ class Post_Views_Counter_Counter {
 		if ( is_admin() && ! wp_doing_ajax() )
 			return;
 
-		if ( empty( $cookie ) ) {
+		if ( empty( $cookie ) || ! is_array( $cookie ) ) {
 			// assign cookie name
 			$cookie_name = 'pvc_visits' . ( is_multisite() ? '_' . get_current_blog_id() : '' );
 
@@ -401,7 +401,7 @@ class Post_Views_Counter_Counter {
 		}
 
 		// cookie data?
-		if ( $cookie ) {
+		if ( $cookie && is_array( $cookie ) ) {
 			$visited_posts = $expirations = [];
 
 			foreach ( $cookie as $content ) {
