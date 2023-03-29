@@ -369,11 +369,15 @@ class Post_Views_Counter_Query {
 	/**
 	 * Get tax table aliases from query.
 	 *
+	 * @global object $wpdb
+	 *
 	 * @param object $query
 	 * @param string $join_sql
 	 * @return array
 	 */
 	private function get_groupby_tax_aliases( $query, $join_sql ) {
+		global $wpdb;
+
 		$groupby = [];
 
 		// trim join sql
@@ -392,10 +396,10 @@ class Post_Views_Counter_Query {
 
 				foreach ( $chunks as $chunk ) {
 					// standard join
-					if ( strpos( $chunk, 'wp_term_relationships ON' ) !== false )
-						$aliases[] = 'wp_term_relationships';
+					if ( strpos( $chunk, $wpdb->prefix . 'term_relationships ON' ) !== false )
+						$aliases[] = $wpdb->prefix . 'term_relationships';
 					// alias join
-					elseif ( strpos( $chunk, 'wp_term_relationships AS' ) !== false && preg_match( '/wp_term_relationships AS ([a-z0-9]+) ON/i', $chunk, $matches ) === 1 )
+					elseif ( strpos( $chunk, $wpdb->prefix . 'term_relationships AS' ) !== false && preg_match( '/' . $wpdb->prefix . 'term_relationships AS ([a-z0-9]+) ON/i', $chunk, $matches ) === 1 )
 						$aliases[] = $matches[1];
 				}
 
