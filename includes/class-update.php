@@ -93,7 +93,7 @@ class Post_Views_Counter_Update {
 		if ( version_compare( $current_db_version, $pvc->defaults['version'], '<' ) ) {
 			// is update 1 required?
 			if ( version_compare( $current_db_version, '1.2.4', '<=' ) )
-				$pvc->add_notice( $update_1_html, 'notice notice-info' );
+				$pvc->add_notice( $update_1_html, 'notice notice-info', false );
 			else
 				// update plugin version
 				update_option( 'post_views_counter_version', $pvc->defaults['version'], false );
@@ -128,6 +128,6 @@ class Post_Views_Counter_Update {
 			$wpdb->query( 'ALTER TABLE `' . $wpdb->prefix . 'post_views` ADD UNIQUE INDEX `id_type_period_count` (`id`, `type`, `period`, `count`) USING BTREE' );
 		}
 
-		Post_Views_Counter()->add_notice( __( 'Thank you! Datebase was succesfully updated.', 'post-views-counter' ), 'updated', true );
+		Post_Views_Counter()->add_notice( __( 'Thank you! Datebase was successfully updated.', 'post-views-counter' ), 'updated', true );
 	}
 }

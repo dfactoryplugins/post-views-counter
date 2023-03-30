@@ -330,11 +330,27 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @return void
 		 */
 		public function display_notice() {
+			$allowed_html = array_merge(
+				wp_kses_allowed_html( 'post' ),
+				[
+					'input'	=> [
+						'type'	=> true,
+						'name'	=> true,
+						'class'	=> true,
+						'value'	=> true
+					],
+					'form'	=> [
+						'action'	=> true,
+						'method'	=> true
+					]
+				]
+			);
+
 			foreach( $this->notices as $notice ) {
 				echo '
 				<div class="' . esc_attr( $notice['status'] ) . '">
 					' . ( $notice['paragraph'] ? '<p>' : '' ) . '
-					' . wp_kses_post( $notice['html'] ) . '
+					' . wp_kses( $notice['html'], $allowed_html ) . '
 					' . ( $notice['paragraph'] ? '</p>' : '' ) . '
 				</div>';
 			}
