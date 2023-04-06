@@ -5,7 +5,7 @@ Description: Post Views Counter allows you to display how many times a post, pag
 Version: 1.3.12
 Author: Digital Factory
 Author URI: http://www.dfactory.co/
-Plugin URI: http://www.dfactory.co/plugins/post-views-counter/
+Plugin URI: http://www.dfactory.co/products/post-views-counter/
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 Text Domain: post-views-counter
@@ -117,7 +117,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 */
 		public static function instance() {
 			if ( ! isset( self::$instance ) && ! ( self::$instance instanceof Post_Views_Counter ) ) {
-				self::$instance = new Post_Views_Counter;
+				self::$instance = new Post_Views_Counter();
 
 				// short init?
 				if ( defined( 'SHORTINIT' ) && SHORTINIT ) {
@@ -243,8 +243,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			add_action( 'wp_ajax_pvc_dismiss_notice', [ $this, 'dismiss_notice' ] );
 
 			// filters
-			add_filter( 'plugin_row_meta', [ $this, 'plugin_extend_links' ], 10, 2 );
 			add_filter( 'plugin_action_links_' . POST_VIEWS_COUNTER_BASENAME, [ $this, 'plugin_settings_link' ] );
+			add_filter( 'plugin_row_meta', [ $this, 'plugin_extend_links' ], 10, 2 );
 		}
 
 		/**

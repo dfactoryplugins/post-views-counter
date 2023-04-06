@@ -52,35 +52,37 @@ class Post_Views_Counter_Counter {
 	 * @return void
 	 */
 	public function queue_count() {
-		if ( isset( $_POST['action'], $_POST['ids'], $_POST['pvc_nonce'] ) && $_POST['action'] === 'pvc-view-posts' && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-view-posts' ) !== false && $_POST['ids'] !== '' && is_string( $_POST['ids'] ) ) {
-			// get post ids
-			$ids = explode( ',', $_POST['ids'] );
+		// check conditions
+		if ( ! isset( $_POST['action'], $_POST['ids'], $_POST['pvc_nonce'] ) || ! wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-view-posts' ) || $_POST['ids'] === '' || ! is_string( $_POST['ids'] ) )
+			exit;
 
-			$counted = [];
+		// get post ids
+		$ids = explode( ',', $_POST['ids'] );
+
+		$counted = [];
+
+		if ( ! empty( $ids ) ) {
+			$ids = array_filter( array_map( 'intval', $ids ) );
 
 			if ( ! empty( $ids ) ) {
-				$ids = array_filter( array_map( 'intval', $ids ) );
+				// turn on queue mode
+				$this->queue_mode = true;
 
-				if ( ! empty( $ids ) ) {
-					// turn on queue mode
-					$this->queue_mode = true;
-
-					foreach ( $ids as $id ) {
-						$counted[$id] = ! ( $this->check_post( $id ) === null );
-					}
-
-					// turn off queue mode
-					$this->queue_mode = false;
+				foreach ( $ids as $id ) {
+					$counted[$id] = ! ( $this->check_post( $id ) === null );
 				}
-			}
 
-			echo wp_json_encode(
-				[
-					'post_ids'	=> $ids,
-					'counted'	=> $counted
-				]
-			);
+				// turn off queue mode
+				$this->queue_mode = false;
+			}
 		}
+
+		echo wp_json_encode(
+			[
+				'post_ids'	=> $ids,
+				'counted'	=> $counted
+			]
+		);
 
 		exit;
 	}
@@ -314,31 +316,39 @@ class Post_Views_Counter_Counter {
 	 * @return void
 	 */
 	public function check_post_js() {
-		if ( isset( $_POST['action'], $_POST['id'], $_POST['pvc_nonce'] ) && $_POST['action'] === 'pvc-check-post' && ( $post_id = (int) $_POST['id'] ) > 0 && wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-check-post' ) !== false ) {
-			// get main instance
-			$pvc = Post_Views_Counter();
+		// check conditions
+		if ( ! isset( $_POST['action'], $_POST['id'], $_POST['pvc_nonce'] ) || ! wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-check-post' ) )
+			exit;
 
-			// do we use javascript as counter?
-			if ( $pvc->options['general']['counter_mode'] !== 'js' )
-				exit;
+		// get post id
+		$post_id = (int) $_POST['id'];
 
-			// get countable post types
-			$post_types = $pvc->options['general']['post_types_count'];
+		if ( $post_id <= 0 )
+			exit;
 
-			// check if post exists
-			$post = get_post( $post_id );
+		// get main instance
+		$pvc = Post_Views_Counter();
 
-			// whether to count this post type or not
-			if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
-				exit;
+		// do we use javascript as counter?
+		if ( $pvc->options['general']['counter_mode'] !== 'js' )
+			exit;
 
-			echo wp_json_encode(
-				[
-					'post_id'	=> $post_id,
-					'counted'	=> ! ( $this->check_post( $post_id ) === null )
-				]
-			);
-		}
+		// get countable post types
+		$post_types = $pvc->options['general']['post_types_count'];
+
+		// check if post exists
+		$post = get_post( $post_id );
+
+		// whether to count this post type or not
+		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
+			exit;
+
+		echo wp_json_encode(
+			[
+				'post_id'	=> $post_id,
+				'counted'	=> ! ( $this->check_post( $post_id ) === null )
+			]
+		);
 
 		exit;
 	}

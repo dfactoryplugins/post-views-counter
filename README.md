@@ -4,7 +4,7 @@ Post Views Counter allows you to display how many times a post, page or custom p
 
 ## Description
 
-[Post Views Counter](http://www.dfactory.co/plugins/post-views-counter/) allows you to display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
+[Post Views Counter](http://www.dfactory.co/products/post-views-counter/) allows you to display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
 
 For more information, check out plugin page at [dFactory](http://www.dfactory.co/) or plugin [support forum](http://www.dfactory.co/support/forum/post-views-counter/).
 
