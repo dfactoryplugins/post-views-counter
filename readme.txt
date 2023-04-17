@@ -4,8 +4,8 @@ Donate link: http://www.dfactory.co/
 Tags: counter, hits, posts, postviews, post views, views, count, statistics, stats, analytics, pageviews, tracking
 Requires at least: 5.1
 Requires PHP: 5.4.0
-Tested up to: 6.1
-Stable tag: 1.3.12
+Tested up to: 6.2
+Stable tag: 1.3.13
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -62,6 +62,15 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.3.13 =
+* New: Compatibility with WP 6.2 and PHP 8.2
+* Fix: Invalid year in seconds
+* Fix: Possible invalid cookie data in views storage
+* Fix: Default database prefix
+* Tweak: Switch from wp_localize_script to wp_add_inline_script 
+* Tweak: Updated bot detection
+
 
 = 1.3.12 =
 * Fix: Frontend Javascript rewritten from jQuery to Vanilla JS
@@ -250,9 +259,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.3.12 =
-* Fix: Frontend Javascript rewritten from jQuery to Vanilla JS
-* Fix: Admin Bar Style loading on every page
-* Fix: Network initialization process for new sites
-* Fix: IP address encryption
-* Fix: REST API endpoints
+= 1.3.13 =
+* New: Compatibility with WP 6.2 and PHP 8.2
