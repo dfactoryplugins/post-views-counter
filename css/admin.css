@@ -2,38 +2,31 @@
 .post-views-counter-settings {
     margin-right: 300px;
 }
-
 .post-views-counter-settings form {
     float: left;
     min-width: 463px;
     width: auto;
 }
-
 .post-views-counter-settings fieldset .description {
     font-size: 13px;
     margin-bottom: 8px;
     margin-top: 4px;
     display: block;
 }
-
 .post-views-counter-settings p.help, .post-views-counter-settings p.description, .post-views-counter-settings span.description {
     font-size: 13px;
     font-style: italic;
 }
-
 .post-views-counter-settings div.ip-box {
     margin-bottom: 3px;
 }
-
 .post-views-counter-settings select {
 	vertical-align: top;
 }
-
 .pvc_user_roles {
 	margin-top: 12px;
 }
-
-.df-credits {
+.post-views-counter-settings .df-credits {
     float: right;
     width: 280px;
     background: #fff;
@@ -41,45 +34,51 @@
     position: relative;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
-
-.df-credits .inner {
+.post-views-counter-settings .df-credits .inner {
     padding-left: 10px;
     padding-right: 10px;
 }
-
-.df-credits h3 {
+.post-views-counter-settings .df-credits h3 {
     font-size: 14px;
     line-height: 1.4;
     margin: 0;
     padding: 8px 12px;
     border-bottom: 1px solid #eee;
 }
-
-.df-credits .df-link {
+.post-views-counter-settings .df-credits .df-link {
 	padding-top: 5px;
     padding-bottom: 10px;
     margin: 0;
 }
-
-.df-credits .df-link a {
+.post-views-counter-settings .df-credits .df-link a {
 	display: block;
 	text-align: center;
 	outline: none !important;
 	border: none !important;
 	box-shadow: none !important;
 }
-
-.df-credits .df-link a img {
+.post-views-counter-settings .df-credits .df-link a img {
 	display: block;
 	margin: 0 auto;
 	width: 80px;
 }
-
-.df-credits hr {
+.post-views-counter-settings .df-credits hr {
     border: solid #eee;
     border-width: 1px 0 0;
     clear: both;
     height: 0;
+}
+
+/* All Mobile Sizes (devices and browser) */
+@media only screen and (max-width: 960px) {
+	.post-views-counter-settings .df-credits {
+		width: 100%;
+		float: none;
+		margin: 20px 0;
+	}
+	.post-views-counter-settings {
+		margin-right: 0;
+	}
 }
 
 /* Single post edit screen */
