@@ -3,7 +3,7 @@
 Plugin Name: Post Views Counter
 Description: Post Views Counter allows you to display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
 Version: 1.3.13
-Author: Digital Factory
+Author: dFactory
 Author URI: http://www.dfactory.co/
 Plugin URI: http://www.dfactory.co/products/post-views-counter/
 License: MIT License
@@ -40,6 +40,10 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		public $defaults = [
 			'general'	=> [
 				'post_types_count'		=> [ 'post' ],
+				'taxonomies_count'		=> false,
+				'users_count'			=> false,
+				'data_storage'			=> 'cookies',
+				'amp_support'			=> false,
 				'counter_mode'			=> 'php',
 				'post_views_column'		=> true,
 				'restrict_edit_views'	=> false,
@@ -61,6 +65,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				],
 				'exclude_ips'			=> [],
 				'strict_counts'			=> false,
+				'menu_position'			=> 'submenu',
 				'deactivation_delete'	=> false,
 				'cron_run'				=> true,
 				'cron_update'			=> true,
@@ -70,6 +75,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			],
 			'display'	=> [
 				'label'					=> 'Post Views:',
+				'taxonomies_display'	=> [],
+				'user_display'			=> false,
 				'post_types_display'	=> [ 'post' ],
 				'page_types_display'	=> [ 'singular' ],
 				'restrict_display'		=> [

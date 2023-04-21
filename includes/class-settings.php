@@ -51,13 +51,11 @@ class Post_Views_Counter_Settings {
 	public function get_counter_modes() {
 		// counter modes
 		$modes = [
-			'php'	=> __( 'PHP', 'post-views-counter' ),
-			'js'	=> __( 'JavaScript', 'post-views-counter' )
+			'php'		=> __( 'PHP', 'post-views-counter' ),
+			'js'		=> __( 'JavaScript', 'post-views-counter' ),
+			'rest_api'	=> __( 'REST API', 'post-views-counter' ),
+			'ajax'		=> __( 'Fast AJAX', 'post-views-counter' )
 		];
-
-		// WordPress 4.4+?
-		if ( function_exists( 'register_rest_route' ) )
-			$modes['rest_api'] = __( 'REST API', 'post-views-counter' );
 
 		return apply_filters( 'pvc_get_counter_modes', $modes );
 	}
@@ -122,27 +120,78 @@ class Post_Views_Counter_Settings {
 					'description'	=> __( 'Select post types for which post views will be counted.', 'post-views-counter' ),
 					'options'		=> $post_types
 				],
+				'taxonomies_count' => [
+					'tab'			=> 'general',
+					'title'			=> __( 'Taxonomies Count', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_settings',
+					'type'			=> 'custom',
+					'label'			=> __( 'Enable to count taxonomy terms visits.', 'post-views-counter' ),
+					'class'			=> 'pro',
+					'skip_saving'	=> true,
+					'callback'		=> [ $this, 'setting_taxonomies_count' ]
+				],
+				'users_count' => [
+					'tab'			=> 'general',
+					'title'			=> __( 'Authors Count', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_settings',
+					'type'			=> 'custom',
+					'label'			=> __( 'Enable to count authors archive visits.', 'post-views-counter' ),
+					'class'			=> 'pro',
+					'skip_saving'	=> true,
+					'callback'		=> [ $this, 'setting_users_count' ]
+				],
 				'counter_mode' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Counter Mode', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'radio',
 					'description'	=> __( 'Select the method of collecting post views data. If you are using any of the caching plugins select JavaScript or REST API (if available).', 'post-views-counter' ),
-					'options'		=> $this->get_counter_modes()
+					'class'			=> 'pro-extended',
+					'options'		=> $this->get_counter_modes(),
+					'disabled'		=> [ 'ajax' ]
 				],
 				'post_views_column' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Post Views Column', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'boolean',
+					'class'			=> 'pro-extended-full',
 					'description'	=> '',
 					'label'			=> __( 'Enable to display post views count column for each of the selected post types.', 'post-views-counter' )
+				],
+				'data_storage' => [
+					'tab'			=> 'general',
+					'title'			=> __( 'Data Storage', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_settings',
+					'type'			=> 'radio',
+					'class'			=> 'pro',
+					'skip_saving'	=> true,
+					'description'	=> sprintf( __( 'Choose how the content views data should be stored. Cookieless method cannot be used with PHP counter mode. It means that data will be stored in %s but it will fall back to %s to maintain functionality if user\'s browser does not support it.', 'post-views-counter' ), '<code>localStorage</code>', '<code>cookies</code>' ),
+					'options'		=> [
+						'cookies'		=> __( 'Cookies', 'post-views-counter' ),
+						'cookieless'	=> __( 'Cookieless', 'post-views-counter' )
+					],
+					'disabled'		=> [ 'cookies', 'cookieless' ],
+					'value'			=> 'cookies'
+				],
+				'amp_support' => [
+					'tab'			=> 'general',
+					'title'			=> __( 'AMP Support', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_settings',
+					'type'			=> 'boolean',
+					'class'			=> 'pro',
+					'disabled'		=> true,
+					'skip_saving'	=> true,
+					'value'			=> false,
+					'label'			=> __( 'Enable to support AMP.', 'post-views-counter' ),
+					'description'	=> sprintf( __( 'This requires official %s plugin installed and activated.', 'post-views-counter' ), '<code><a href="https://wordpress.org/plugins/amp/" target="_blank">AMP</a></code>' )
 				],
 				'restrict_edit_views' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Restrict Edit', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'boolean',
+					'class'			=> 'pro-extended-full',
 					'description'	=> '',
 					'label'			=> __( 'Enable to restrict post views editing to admins only.', 'post-views-counter' )
 				],
@@ -221,6 +270,21 @@ class Post_Views_Counter_Settings {
 					'skip_saving'	=> true,
 					'callback'		=> [ $this, 'setting_wp_postviews' ]
 				],
+				'menu_position' => [
+					'tab'			=> 'general',
+					'title'			=> __( 'Menu Position', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_settings',
+					'type'			=> 'radio',
+					'class'			=> 'pro',
+					'skip_saving'	=> true,
+					'options'		=> [
+						'topmenu'	=> __( 'Top menu', 'post-views-counter' ),
+						'submenu'	=> __( 'Setting submenu', 'post-views-counter' )
+					],
+					'disabled'		=> [ 'topmenu', 'submenu' ],
+					'value'			=> 'submenu',
+					'description'	=> __( 'Choose where to display the menu.', 'post-views-counter' ),
+				],
 				'deactivation_delete' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Deactivation', 'post-views-counter' ),
@@ -238,6 +302,27 @@ class Post_Views_Counter_Settings {
 					'subclass'		=> 'regular-text',
 					'validate'		=> [ $this, 'validate_label' ],
 					'reset'			=> [ $this, 'reset_label' ]
+				],
+				'taxonomies_display' => [
+					'tab'			=> 'display',
+					'title'			=> __( 'Taxonomies', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_display_settings',
+					'type'			=> 'custom',
+					'class'			=> 'pro',
+					'skip_saving'	=> true,
+					'options'		=> $pvc->functions->get_taxonomies( 'labels' ),
+					'callback'		=> [ $this, 'setting_taxonomies_display' ]
+				],
+				'user_display' => [
+					'tab'			=> 'display',
+					'title'			=> __( 'Authors', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_display_settings',
+					'type'			=> 'boolean',
+					'class'			=> 'pro',
+					'disabled'		=> true,
+					'skip_saving'	=> true,
+					'value'			=> false,
+					'label'			=> __( 'Display number of views on authors archive pages.', 'post-views-counter' )
 				],
 				'post_types_display' => [
 					'tab'			=> 'display',
@@ -316,6 +401,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Toolbar Chart', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'boolean',
+					'class'			=> 'pro-extended-full',
 					'description'	=> __( 'The post views chart will be displayed for the post types that are being counted.', 'post-views-counter' ),
 					'label'			=> __( 'Enable to display the post views chart at the toolbar.', 'post-views-counter' )
 				]
@@ -421,6 +507,58 @@ class Post_Views_Counter_Settings {
 		}
 
 		return $input;
+	}
+
+	/**
+	 * Setting: taxonomies count.
+	 *
+	 * @param array $field
+	 * @return string
+	 */
+	public function setting_taxonomies_count( $field ) {
+		$html = '
+			<label><input id="post_views_counter_general_taxonomies_count" type="checkbox" name="" value="" disabled />' . esc_html( $field['label'] ) . '</label>';
+
+		return $html;
+	}
+
+	/**
+	 * Setting: users count.
+	 *
+	 * @param array $field
+	 * @return string
+	 */
+	public function setting_users_count( $field ) {
+		// get base instance
+		$pvc = Post_Views_Counter();
+
+		$html = '
+			<label><input id="post_views_counter_general_users_count" type="checkbox" name="" value="" disabled />' . esc_html( $field['label'] ) . '</label>';
+
+		return $html;
+	}
+
+	/**
+	 * Setting: taxonomies count.
+	 *
+	 * @param array $field
+	 * @return string
+	 */
+	public function setting_taxonomies_display( $field ) {
+		// get base instance
+		$pvc = Post_Views_Counter();
+
+		$html = '';
+
+		foreach ( $field['options'] as $taxonomy => $label ) {
+			$html .= '
+			<label><input type="checkbox" name="" value="" disabled />' . esc_html( $label ) . '</label>';
+		}
+
+		$html .= '
+			<p class="description">' . esc_html__( 'Select taxonomies for which the views count will be displayed.', 'post-views-counter' ) . '</p>';
+
+		return $html;
 	}
 
 	/**
@@ -697,7 +835,7 @@ class Post_Views_Counter_Settings {
 
 		foreach ( $field['options']['roles'] as $role => $role_name ) {
 			$html .= '
-				<label><input type="checkbox" name="post_views_counter_settings_general[exclude][roles][' . $role . ']" value="1" ' . checked( in_array( $role, $pvc->options['general']['exclude']['roles'], true ), true, false ) . '>' . esc_html( $role_name ) . '</label>';
+				<label><input type="checkbox" name="post_views_counter_settings_general[exclude][roles][' . $role . ']" value="1" ' . checked( in_array( $role, $pvc->options['general']['exclude']['roles'], true ), true, false ) . ' />' . esc_html( $role_name ) . '</label>';
 		}
 
 		$html .= '
@@ -814,7 +952,7 @@ class Post_Views_Counter_Settings {
 		$html = '
 		<input type="submit" class="button button-secondary" name="post_views_counter_import_wp_postviews" value="' . __( 'Import views', 'post-views-counter' ) . '"/> <label><input id="pvc-wp-postviews" type="checkbox" name="post_views_counter_import_wp_postviews_override" value="1" />' . __( 'Override existing views data.', 'post-views-counter' ) . '</label>
 		<p class="description">' . __( 'Import post views data from WP-PostViews plugin.', 'post-views-counter' ) . '</p>
-		<br /><input type="submit" class="button button-secondary" name="post_views_counter_reset_views" value="' . __( 'Delete views', 'post-views-counter' ) . '"/>
+		<br /><input type="submit" class="button button-secondary" name="post_views_counter_reset_views" value="' . __( 'Delete views', 'post-views-counter' ) . '" />
 		<p class="description">' . __( 'Delete all the existing post views data.', 'post-views-counter' ) . '</p>';
 
 		return $html;

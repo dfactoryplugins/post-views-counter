@@ -396,20 +396,22 @@ class Post_Views_Counter_Settings_API {
 		if ( empty( $args ) || ! is_array( $args ) )
 			return;
 
-		$html = '<div id="' . $args['id'] . '_setting"' . ( ! empty( $args['class'] ) ? ' class="' . $args['class'] . '"' : '' ) . '>';
+		$html = '<div id="' . $args['id'] . '_setting"' . ( ! empty( $args['class'] ) ? ' class="' . esc_attr( $args['class'] ) . '"' : '' ) . '>';
 
 		if ( ! empty ( $args['before_field'] ) )
 			$html .= $args['before_field'];
 
 		switch ( $args['type'] ) {
 			case 'boolean':
-				$html .= '<input type="hidden" name="' . esc_attr( $args['name'] ) . '" value="false" />';
+				if ( empty( $args['disabled'] ) )
+					$html .= '<input type="hidden" name="' . esc_attr( $args['name'] ) . '" value="false" />';
+
 				$html .= '<label><input id="' . esc_attr( $args['id'] ) . '" type="checkbox" name="' . esc_attr( $args['name'] ) . '" value="true" ' . checked( (bool) $args['value'], true, false ) . ' ' . disabled( empty( $args['disabled'] ), false, false ) . ' />' . esc_html( $args['label'] ) . '</label>';
 				break;
 
 			case 'radio':
 				foreach ( $args['options'] as $key => $name ) {
-					$html .= '<label><input id="' . esc_attr( $args['id'] . '_' . $key ) . '" type="radio" name="' . esc_attr( $args['name'] ) . '" value="' . esc_attr( $key ) . '" ' . checked( $key, $args['value'], false ) . ' ' . disabled( ! empty( $args['disabled'] ) && in_array ( $key, $args['disabled'], true ), true, false ) . ' />' . esc_html( $name ) . '</label> ';
+					$html .= '<label for="' . esc_attr( $args['id'] . '_' . $key ) . '"><input id="' . esc_attr( $args['id'] . '_' . $key ) . '" type="radio" name="' . esc_attr( $args['name'] ) . '" value="' . esc_attr( $key ) . '" ' . checked( $key, $args['value'], false ) . ' ' . disabled( ! empty( $args['disabled'] ) && in_array ( $key, $args['disabled'], true ), true, false ) . ' />' . esc_html( $name ) . '</label> ';
 				}
 				break;
 
@@ -495,7 +497,11 @@ class Post_Views_Counter_Settings_API {
 				break;
 
 			case 'radio':
-				$value = is_array( $value ) ? false : sanitize_text_field( $value );
+				$value = is_array( $value ) ? $args['default'] : sanitize_key( $value );
+
+				// disallow disabled radios
+				if ( ! empty( $args['disabled'] ) && in_array( $value, $args['disabled'], true ) )
+					$value = $args['default'];
 				break;
 
 			case 'checkbox':
@@ -504,7 +510,7 @@ class Post_Views_Counter_Settings_API {
 					$value = [];
 				else {
 					if ( is_array( $value ) && ! empty( $value ) ) {
-						$value = array_map( 'sanitize_text_field', $value );
+						$value = array_map( 'sanitize_key', $value );
 						$values = [];
 
 						foreach ( $value as $single_value ) {
@@ -673,9 +679,13 @@ class Post_Views_Counter_Settings_API {
 						$input[$field_id] = $this->object->defaults[$setting_id][$field_id];
 				} else {
 					// field data?
-					if ( isset( $input[$field_id] ) )
+					if ( isset( $input[$field_id] ) ) {
+						// make sure default value is available
+						if ( ! isset( $field['default'] ) )
+							$field['default'] = $this->object->defaults[$setting_id][$field_id];
+
 						$input[$field_id] = $this->validate_field( $input[$field_id], $field['type'], $field );
-					else
+					} else
 						$input[$field_id] = $this->object->defaults[$setting_id][$field_id];
 				}
 

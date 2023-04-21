@@ -64,4 +64,39 @@ class Post_Views_Counter_Functions {
 
 		return $roles;
 	}
+
+	/**
+	 * Get taxonomies available for counting.
+	 *
+	 * @param bool $mode
+	 * @return array
+	 */
+	public function get_taxonomies( $mode = 'labels' ) {
+		// get public taxonomies
+		$taxonomies = get_taxonomies(
+			[
+				'public' => true
+			],
+			$mode === 'keys' ? 'names' : 'objects',
+			'and'
+		);
+
+		// only keys
+		if ( $mode === 'keys' )
+			$_taxonomies = array_keys( $taxonomies );
+		// objects
+		elseif ( $mode === 'objects' )
+			$_taxonomies = $taxonomies;
+		// labels
+		else {
+			$_taxonomies = [];
+
+			// prepare taxonomy labels
+			foreach ( $taxonomies as $name => $taxonomy ) {
+				$_taxonomies[$name] = $taxonomy->label;
+			}
+		}
+
+		return $_taxonomies;
+	}
 }
