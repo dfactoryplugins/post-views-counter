@@ -65,7 +65,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				],
 				'exclude_ips'			=> [],
 				'strict_counts'			=> false,
-				'menu_position'			=> 'submenu',
+				'menu_position'			=> 'sub',
 				'deactivation_delete'	=> false,
 				'cron_run'				=> true,
 				'cron_update'			=> true,

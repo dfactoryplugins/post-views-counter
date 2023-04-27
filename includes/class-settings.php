@@ -17,7 +17,7 @@ class Post_Views_Counter_Settings {
 	 */
 	public function __construct() {
 		// actions
-		add_action( 'admin_init', [ $this, 'update_counter_mode' ] );
+		add_action( 'admin_init', [ $this, 'update_counter_mode' ], 12 );
 
 		// filters
 		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_data' ] );
@@ -33,8 +33,11 @@ class Post_Views_Counter_Settings {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
+		// get settings
+		$settings = $pvc->settings_api->get_settings();
+
 		// Fast AJAX as active but not available counter mode?
-		if ( $pvc->options['general']['counter_mode'] === 'ajax' && ! array_key_exists( 'ajax', $this->get_counter_modes() ) ) {
+		if ( $pvc->options['general']['counter_mode'] === 'ajax' && in_array( 'ajax', $settings['post-views-counter']['fields']['counter_mode']['disabled'], true ) ) {
 			// set standard javascript ajax calls
 			$pvc->options['general']['counter_mode'] = 'js';
 
@@ -126,7 +129,7 @@ class Post_Views_Counter_Settings {
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'custom',
 					'label'			=> __( 'Enable to count taxonomy terms visits.', 'post-views-counter' ),
-					'class'			=> 'pro',
+					'class'			=> 'pvc-pro',
 					'skip_saving'	=> true,
 					'callback'		=> [ $this, 'setting_taxonomies_count' ]
 				],
@@ -136,7 +139,7 @@ class Post_Views_Counter_Settings {
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'custom',
 					'label'			=> __( 'Enable to count authors archive visits.', 'post-views-counter' ),
-					'class'			=> 'pro',
+					'class'			=> 'pvc-pro',
 					'skip_saving'	=> true,
 					'callback'		=> [ $this, 'setting_users_count' ]
 				],
@@ -146,7 +149,7 @@ class Post_Views_Counter_Settings {
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'radio',
 					'description'	=> __( 'Select the method of collecting post views data. If you are using any of the caching plugins select JavaScript or REST API (if available).', 'post-views-counter' ),
-					'class'			=> 'pro-extended',
+					'class'			=> 'pvc-pro-extended',
 					'options'		=> $this->get_counter_modes(),
 					'disabled'		=> [ 'ajax' ]
 				],
@@ -155,7 +158,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Post Views Column', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'boolean',
-					'class'			=> 'pro-extended-full',
+					'class'			=> 'pvc-pro',
 					'description'	=> '',
 					'label'			=> __( 'Enable to display post views count column for each of the selected post types.', 'post-views-counter' )
 				],
@@ -164,7 +167,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Data Storage', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'radio',
-					'class'			=> 'pro',
+					'class'			=> 'pvc-pro',
 					'skip_saving'	=> true,
 					'description'	=> sprintf( __( 'Choose how the content views data should be stored. Cookieless method cannot be used with PHP counter mode. It means that data will be stored in %s but it will fall back to %s to maintain functionality if user\'s browser does not support it.', 'post-views-counter' ), '<code>localStorage</code>', '<code>cookies</code>' ),
 					'options'		=> [
@@ -179,7 +182,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'AMP Support', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'boolean',
-					'class'			=> 'pro',
+					'class'			=> 'pvc-pro',
 					'disabled'		=> true,
 					'skip_saving'	=> true,
 					'value'			=> false,
@@ -191,7 +194,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Restrict Edit', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'boolean',
-					'class'			=> 'pro-extended-full',
+					'class'			=> 'pvc-pro',
 					'description'	=> '',
 					'label'			=> __( 'Enable to restrict post views editing to admins only.', 'post-views-counter' )
 				],
@@ -275,14 +278,11 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Menu Position', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'radio',
-					'class'			=> 'pro',
 					'skip_saving'	=> true,
 					'options'		=> [
-						'topmenu'	=> __( 'Top menu', 'post-views-counter' ),
-						'submenu'	=> __( 'Setting submenu', 'post-views-counter' )
+						'top'	=> __( 'Top menu', 'post-views-counter' ),
+						'sub'	=> __( 'Setting submenu', 'post-views-counter' )
 					],
-					'disabled'		=> [ 'topmenu', 'submenu' ],
-					'value'			=> 'submenu',
 					'description'	=> __( 'Choose where to display the menu.', 'post-views-counter' ),
 				],
 				'deactivation_delete' => [
@@ -904,7 +904,7 @@ class Post_Views_Counter_Settings {
 		} else {
 			$html .= '
 			<div class="ip-box">
-				<input type="text" name="post_views_counter_settings_general[exclude_ips][]" value="" /> <a href="#" class="remove-exclude-ip" title="' . esc_attr__( 'Remove', 'post-views-counter' ) . '">' . esc_html__( 'Remove', 'post-views-counter' ) . '</a>
+				<input type="text" name="post_views_counter_settings_general[exclude_ips][]" value="" /> <a href="#" class="remove-exclude-ip" title="' . esc_attr__( 'Remove', 'post-views-counter' ) . '" style="display: none">' . esc_html__( 'Remove', 'post-views-counter' ) . '</a>
 			</div>';
 		}
 
