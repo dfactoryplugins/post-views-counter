@@ -7,15 +7,10 @@
     min-width: 463px;
     width: auto;
 }
-.post-views-counter-settings fieldset .description {
-    font-size: 13px;
-    margin-bottom: 8px;
-    margin-top: 4px;
-    display: block;
-}
-.post-views-counter-settings p.help, .post-views-counter-settings p.description, .post-views-counter-settings span.description {
+.post-views-counter-settings p.help, .post-views-counter-settings p.description {
     font-size: 13px;
     font-style: italic;
+	line-height: 1.6;
 }
 .post-views-counter-settings div.ip-box {
     margin-bottom: 3px;
@@ -68,23 +63,10 @@
     clear: both;
     height: 0;
 }
-.post-views-counter-settings tr.pro th:after {
+.post-views-counter-settings tr.pvc-pro th:after, .post-views-counter-settings tr.pvc-pro-extended label[for="post_views_counter_general_counter_mode_ajax"]:after {
 	content: 'PRO';
     display: inline;
     background-color: #a3b745;
-    color: white;
-    padding: 2px 4px;
-    text-align: center;
-    border-radius: 4px;
-    margin-left: 4px;
-    font-weight: bold;
-    font-size: 11px;
-}
-
-.post-views-counter-settings tr.pro-extended-full th:after, .post-views-counter-settings tr.pro-extended label[for="post_views_counter_general_counter_mode_ajax"]:after {
-	content: 'PRO';
-    display: inline;
-    background-color: #4f94d4;
     color: white;
     padding: 2px 4px;
     text-align: center;
