@@ -36,8 +36,8 @@ class Post_Views_Counter_Settings {
 		// get settings
 		$settings = $pvc->settings_api->get_settings();
 
-		// Fast AJAX as active but not available counter mode?
-		if ( $pvc->options['general']['counter_mode'] === 'ajax' && in_array( 'ajax', $settings['post-views-counter']['fields']['counter_mode']['disabled'], true ) ) {
+		// fast ajax as active but not available counter mode?
+		if ( $pvc->options['general']['counter_mode'] === 'ajax' && ! array_key_exists( 'ajax', $this->get_counter_modes() ) && in_array( 'ajax', $settings['post-views-counter']['fields']['counter_mode']['disabled'], true ) ) {
 			// set standard javascript ajax calls
 			$pvc->options['general']['counter_mode'] = 'js';
 
@@ -100,17 +100,27 @@ class Post_Views_Counter_Settings {
 		// add settings
 		$settings['post-views-counter'] = [
 			'label' => __( 'Post Views Counter Settings', 'post-views-counter' ),
+			'form' => [
+				'reports'	=> [
+					'buttons'	=> false
+				]
+			],
 			'option_name' => [
 				'general'	=> 'post_views_counter_settings_general',
-				'display'	=> 'post_views_counter_settings_display'
+				'display'	=> 'post_views_counter_settings_display',
+				'reports'	=> 'post_views_counter_settings_reports'
 			],
 			'validate' => [ $this, 'validate_settings' ],
 			'sections' => [
-				'post_views_counter_general_settings' => [
+				'post_views_counter_general_settings'	=> [
 					'tab'	=> 'general'
 				],
-				'post_views_counter_display_settings' => [
+				'post_views_counter_display_settings'	=> [
 					'tab'	=> 'display'
+				],
+				'post_views_counter_reports_settings'	=> [
+					'callback'	=> null,
+					'tab'		=> 'reports'
 				]
 			],
 			'fields' => [
@@ -169,7 +179,7 @@ class Post_Views_Counter_Settings {
 					'type'			=> 'radio',
 					'class'			=> 'pvc-pro',
 					'skip_saving'	=> true,
-					'description'	=> sprintf( __( 'Choose how the content views data should be stored. Cookieless method cannot be used with PHP counter mode. It means that data will be stored in %s but it will fall back to %s to maintain functionality if user\'s browser does not support it.', 'post-views-counter' ), '<code>localStorage</code>', '<code>cookies</code>' ),
+					'description'	=> sprintf( __( 'Choose how the content views data should be stored. Cookieless method cannot be used with PHP counter mode. It means that data will be stored in %s but it will fall back to %s to maintain functionality if user\'s browser does not support it. It will also delete cookies if there are any and import them into %s object.', 'post-views-counter' ), '<code>localStorage</code>', '<code>cookies</code>', '<code>localStorage</code>' ),
 					'options'		=> [
 						'cookies'		=> __( 'Cookies', 'post-views-counter' ),
 						'cookieless'	=> __( 'Cookieless', 'post-views-counter' )
@@ -308,7 +318,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Taxonomies', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'custom',
-					'class'			=> 'pro',
+					'class'			=> 'pvc-pro',
 					'skip_saving'	=> true,
 					'options'		=> $pvc->functions->get_taxonomies( 'labels' ),
 					'callback'		=> [ $this, 'setting_taxonomies_display' ]
@@ -318,7 +328,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Authors', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'boolean',
-					'class'			=> 'pro',
+					'class'			=> 'pvc-pro',
 					'disabled'		=> true,
 					'skip_saving'	=> true,
 					'value'			=> false,
@@ -401,7 +411,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Toolbar Chart', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'boolean',
-					'class'			=> 'pro-extended-full',
+					'class'			=> 'pvc-pro',
 					'description'	=> __( 'The post views chart will be displayed for the post types that are being counted.', 'post-views-counter' ),
 					'label'			=> __( 'Enable to display the post views chart at the toolbar.', 'post-views-counter' )
 				]
@@ -433,6 +443,12 @@ class Post_Views_Counter_Settings {
 				'display'	 => [
 					'label'			=> __( 'Display', 'post-views-counter' ),
 					'option_name'	=> 'post_views_counter_settings_display'
+				],
+				'reports'	=> [
+					'label'			=> __( 'Reports', 'post-views-counter' ),
+					'option_name'	=> 'post_views_counter_settings_reports',
+					'disabled'		=> true,
+					'class'			=> 'pvc-pro'
 				]
 			]
 		];

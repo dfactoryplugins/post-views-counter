@@ -1,6 +1,7 @@
 document.addEventListener( 'DOMContentLoaded', function() {
 	PostViewsCounter = {
 		promise: null,
+		args: {},
 
 		/**
 		 * Initialize counter.
@@ -10,19 +11,36 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		 * @return {void}
 		 */
 		init: function( args ) {
+			this.args = args;
+
+			// default parameters
+			let params = {};
+
+			// set cookie/storage name
+			let name = 'pvc_visits' + ( args.multisite !== false ? '_' + parseInt( args.multisite ) : '' );
+
+			// cookieless data storage?
+			if ( args.dataStorage === 'cookieless' && this.isLocalStorageAvailable() ) {
+				params.storage_type = 'cookieless';
+				params.storage_data = this.readStorageData( name );
+			} else {
+				params.storage_type = 'cookies';
+				params.storage_data = this.readCookieData( name );
+			}
+
 			// rest api request
 			if ( args.mode === 'rest_api' ) {
-				this.promise = this.request( args.requestURL, {}, 'POST', {
+				this.promise = this.request( args.requestURL, params, 'POST', {
 					'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
 					'X-WP-Nonce': args.nonce
 				} );
 			// admin ajax request
 			} else {
-				this.promise = this.request( args.requestURL, {
-					action:	'pvc-check-post',
-					pvc_nonce: args.nonce,
-					id: args.postID
-				}, 'POST', {
+				params.action = 'pvc-check-post';
+				params.pvc_nonce = args.nonce;
+				params.id = args.postID;
+
+				this.promise = this.request( args.requestURL, params, 'POST', {
 					'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
 				} );
 			}
@@ -35,17 +53,18 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		 * @param {object} params
 		 * @param {string} method
 		 * @param {object} headers
+		 * @param {string} name
 		 *
 		 * @return {object}
 		 */
-		request: function( url, params, method, headers ) {
+		request: function( url, params, method, headers, name = '' ) {
 			let options = {
 				method: method,
 				mode: 'cors',
 				cache: 'no-cache',
 				credentials: 'same-origin',
 				headers: headers,
-				body: this.prepareData( params )
+				body: this.prepareRequestData( params )
 			};
 
 			const _this = this;
@@ -58,8 +77,14 @@ document.addEventListener( 'DOMContentLoaded', function() {
 				return response.json();
 			} ).then( function( response ) {
 				try {
-					if ( typeof response === 'object' && response !== null )
+					if ( typeof response === 'object' && response !== null ) {
+						if ( _this.args.dataStorage === 'cookieless' )
+							_this.saveStorageData( name, response.storage );
+						else
+							_this.saveCookieData( name, response.storage );
+
 						_this.triggerEvent( 'pvcCheckPost', response );
+					}
 				} catch( error ) {
 					console.log( 'Invalid JSON data' );
 					console.log( error );
@@ -77,7 +102,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		 *
 		 * @return {string}
 		 */
-		prepareData: function( data ) {
+		prepareRequestData: function( data ) {
 			return Object.keys( data ).map( function( el ) {
 				// add extra "data" array
 				return encodeURIComponent( el ) + '=' + encodeURIComponent( data[el] );
@@ -100,6 +125,115 @@ document.addEventListener( 'DOMContentLoaded', function() {
 
 			// trigger event
 			document.dispatchEvent( newEvent );
+		},
+
+		/**
+		 * Save localStorage data.
+		 *
+		 * @param {string} name
+		 * @param {object} data
+		 *
+		 * @return {void}
+		 */
+		saveStorageData: function( name, data ) {
+			window.localStorage.setItem( name, JSON.stringify( data ) );
+		},
+
+		/**
+		 * Read localStorage data.
+		 *
+		 * @param {string} name
+		 *
+		 * @return {string}
+		 */
+		readStorageData: function( name ) {
+			let data = null;
+
+			// get data
+			data = window.localStorage.getItem( name );
+
+			// no data?
+			if ( data === null )
+				data = '';
+
+			return data;
+		},
+
+		/**
+		 * Save cookies.
+		 *
+		 * @param {string} name
+		 * @param {object} data
+		 *
+		 * @return {void}
+		 */
+		saveCookieData: function( name, data ) {
+			var cookieSecure = '';
+
+			// ssl?
+			if ( document.location.protocol === 'https:' )
+				cookieSecure = ';secure';
+
+			for ( let i = 0; i < data.name.length; i++ ) {
+				var cookieDate = new Date();
+				var expiration = parseInt( data.expiry[i] );
+
+				// valid expiration timestamp?
+				if ( expiration )
+					expiration = expiration * 1000;
+				// add default 24 hours
+				else
+					expiration = cookieDate.getTime() + 86400000;
+
+				// set cookie date expiry
+				cookieDate.setTime( expiration );
+
+				// set cookie
+				document.cookie = data.name[i] + '=' + data.value[i] + ';expires=' + cookieDate.toUTCString() + ';path=/' + ( this.args.path === '/' ? '' : this.args.path ) + ';domain=' + this.args.domain + cookieSecure + ';SameSite=Lax';
+			}
+		},
+
+		/**
+		 * Read cookies.
+		 *
+		 * @param {string} name
+		 *
+		 * @return {string}
+		 */
+		readCookieData: function( name ) {
+			var cookies = [];
+
+			document.cookie.split( ';' ).forEach( function( el ) {
+				var [key, value] = el.split( '=' );
+				var trimmedKey = key.trim();
+				var regex = new RegExp( name + '\\[\\d+\\]' );
+
+				// look all cookies starts with name parameter
+				if ( regex.test( trimmedKey ) )
+					cookies.push( value );
+			} );
+
+			return cookies.join( 'a' );
+		},
+
+		/**
+		 * Check whether localStorage is available.
+		 *
+		 * @return {bool}
+		 */
+		isLocalStorageAvailable: function() {
+			var storage;
+
+			try {
+				storage = window['localStorage'];
+
+				storage.setItem( '__pvcStorageTest', 0 );
+				storage.removeItem( '__pvcStorageTest' );
+
+				return true;
+			} catch (e) {
+				return e instanceof DOMException && ( e.code === 22 || e.code === 1014 || e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' ) && ( storage && storage.length !== 0 );
+			}
 		}
 	}
 

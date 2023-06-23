@@ -244,7 +244,11 @@ class Post_Views_Counter_Frontend {
 				'mode'			=> $mode,
 				'postID'		=> get_the_ID(),
 				'requestURL'	=> '',
-				'nonce'			=> ''
+				'nonce'			=> '',
+				'dataStorage'	=> $pvc->options['general']['data_storage'],
+				'multisite'		=> ( is_multisite() ? (int) get_current_blog_id() : false ),
+				'path'			=> empty( COOKIEPATH ) || ! is_string( COOKIEPATH ) ? '/' : COOKIEPATH,
+				'domain'		=> empty( COOKIE_DOMAIN ) || ! is_string( COOKIE_DOMAIN ) ? '' : COOKIE_DOMAIN
 			];
 
 			switch ( $mode ) {

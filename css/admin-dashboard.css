@@ -1,8 +1,8 @@
 .pvc-dashboard-container {
-    min-height: 260px;
-    margin: 0 -4px;
-    text-align: center;
-    position: relative;
+	min-height: 260px;
+	margin: 0 -4px;
+	text-align: center;
+	position: relative;
 	display: flex;
 	flex-direction: column;
 }
@@ -29,8 +29,8 @@
 	transition: all 0.2s;
 }
 .pvc-dashboard p.sub {
-    color: #8f8f8f;
-    font-size: 14px;
+	color: #8f8f8f;
+	font-size: 14px;
 	text-align: left;
 	padding-bottom: 3px;
 	border-bottom: 1px solid #ececec;
@@ -62,11 +62,11 @@
 	text-align: left;
 }
 .pvc-table > thead {
-    vertical-align: bottom;
+	vertical-align: bottom;
 	color: #212529;
 }
 .pvc-table > tbody {
-    vertical-align: inherit;
+	vertical-align: inherit;
 }
 .pvc-table tbody,
 .pvc-table td,
@@ -74,9 +74,9 @@
 .pvc-table th,
 .pvc-table thead,
 .pvc-table tr {
-    border-color: inherit;
-    border-style: solid;
-    border-width: 0;
+	border-color: inherit;
+	border-style: solid;
+	border-width: 0;
 }
 .pvc-table th,
 .pvc-table td {
@@ -86,7 +86,7 @@
 .pvc-table th:first-child,
 .pvc-table td:first-child {
 	width: 1px;
-    white-space: nowrap;
+	white-space: nowrap;
 }
 .pvc-table th:last-child,
 .pvc-table td:last-child {
@@ -96,10 +96,10 @@
 	text-align: left;
 }
 .pvc-table > :not(caption) > * > * {
-    padding: .5rem .5rem;
-    background-color: transparent;
-    border-bottom-width: 1px;
-    box-shadow: inset 0 0 0 9999px transparent;
+	padding: .5rem .5rem;
+	background-color: transparent;
+	border-bottom-width: 1px;
+	box-shadow: inset 0 0 0 9999px transparent;
 }
 #pvc_dashboard .inside {
 	margin: 0;
@@ -113,7 +113,6 @@
 	position: relative;
 	font-size: 14px;
 	font-weight: 400;
-	line-height: 1;
 	margin: 0;
 	padding: 11px 12px;
 	color: #23282c;
@@ -122,7 +121,8 @@
 	color: #72777c;
 	content: "\f142";
 	display: inline-block;
-	font: normal 20px/1 dashicons;
+	font: normal 20px dashicons;
+	line-height: 1;
 	position: absolute;
 	right: 8px;
 	text-decoration: none !important;
@@ -165,7 +165,8 @@
 	color: #b4b9be;
 	content: "\f14c";
 	display: inline-block;
-	font: normal 16px/1 dashicons;
+	font: normal 16px dashicons;
+	line-height: 1;
 	position: absolute;
 	text-decoration: none !important;
 	speak: none;

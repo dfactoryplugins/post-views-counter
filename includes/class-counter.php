@@ -15,6 +15,8 @@ class Post_Views_Counter_Counter {
 	const CACHE_KEY_SEPARATOR = '.';
 	const MAX_INSERT_STRING_LENGTH = 25000;
 
+	private $storage = [];
+	private $storage_type = 'cookies';
 	private $queue = [];
 	private $queue_mode = false;
 	private $db_insert_values = '';
@@ -34,6 +36,15 @@ class Post_Views_Counter_Counter {
 		add_action( 'plugins_loaded', [ $this, 'check_cookie' ], 1 );
 		add_action( 'init', [ $this, 'init_counter' ] );
 		add_action( 'deleted_post', [ $this, 'delete_post_views' ] );
+	}
+
+	/**
+	 * Get storage data.
+	 *
+	 * @return array
+	 */
+	public function get_storage() {
+		return $this->storage;
 	}
 
 	/**
@@ -169,9 +180,10 @@ class Post_Views_Counter_Counter {
 	 * Check whether to count visit.
 	 *
 	 * @param int $id
+	 * @param array $content_data
 	 * @return void|int
 	 */
-	public function check_post( $id = 0 ) {
+	public function check_post( $id = 0, $content_data = [] ) {
 		// force check cookie in SHORTINIT mode
 		if ( defined( 'SHORTINIT' ) && SHORTINIT )
 			$this->check_cookie();
@@ -251,27 +263,29 @@ class Post_Views_Counter_Counter {
 		if ( in_array( 'robots', $groups, true ) && $pvc->crawler->is_crawler() )
 			return;
 
-		// cookie already existed?
-		if ( $this->cookie['exists'] ) {
-			// get current time if needed
-			if ( ! isset( $current_time ) )
-				$current_time = current_time( 'timestamp', true );
-
-			// post already viewed but not expired?
-			if ( in_array( $id, array_keys( $this->cookie['visited_posts'] ), true ) && $current_time < $this->cookie['visited_posts'][$id] ) {
-				// update cookie but do not count visit
-				$this->save_cookie( $id, $this->cookie, false );
-
-				return;
-			// update cookie
-			} else
-				$this->save_cookie( $id, $this->cookie );
-		} else {
-			// set new cookie
-			$this->save_cookie( $id );
+		// do not count visit by default
+		$count_visit = false;
+ 
+		// cookieless data storage?
+		if ( $pvc->options['general']['data_storage'] === 'cookieless' && $this->storage_type === 'cookieless' ) {
+			$count_visit = $this->save_data_storage( $id, $content_data );
+		} elseif ( $pvc->options['general']['data_storage'] === 'cookies' && $this->storage_type === 'cookies' ) {
+			// php counter mode?
+			if ( $pvc->options['general']['counter_mode'] === 'php' ) {
+				if ( $this->cookie['exists'] ) {
+					// update cookie
+					$count_visit = $this->save_cookie( $id, $this->cookie );
+				} else {
+					// set new cookie
+					$count_visit = $this->save_cookie( $id );
+				}
+			} else {
+				$count_visit = $this->save_cookie_storage( $id, $content_data );
+			}
 		}
 
-		$count_visit = (bool) apply_filters( 'pvc_count_visit', true, $id );
+		// filter visit counting
+		$count_visit = (bool) apply_filters( 'pvc_count_visit', $count_visit, $id, 'post' );
 
 		// count visit
 		if ( $count_visit ) {
@@ -317,7 +331,7 @@ class Post_Views_Counter_Counter {
 	 */
 	public function check_post_js() {
 		// check conditions
-		if ( ! isset( $_POST['action'], $_POST['id'], $_POST['pvc_nonce'] ) || ! wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-check-post' ) )
+		if ( ! isset( $_POST['action'], $_POST['id'], $_POST['storage_type'], $_POST['storage_data'], $_POST['pvc_nonce'] ) || ! wp_verify_nonce( $_POST['pvc_nonce'], 'pvc-check-post' ) )
 			exit;
 
 		// get post id
@@ -343,10 +357,32 @@ class Post_Views_Counter_Counter {
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
 			exit;
 
+		// get storage type
+		$storage_type = sanitize_key( $_POST['storage_type'] );
+
+		// invalid storage type?
+		if ( ! in_array( $storage_type, [ 'cookies', 'cookieless' ], true ) )
+			exit;
+
+		// set storage type
+		$this->storage_type = $storage_type;
+
+		// cookieless data storage?
+		if ( $storage_type === 'cookieless' && $pvc->options['general']['data_storage'] === 'cookieless' ) {
+			// sanitize storage data
+			$storage_data = $this->sanitize_storage_data( $_POST['storage_data'] );
+		// cookies?
+		} elseif ( $storage_type === 'cookies' && $pvc->options['general']['data_storage'] === 'cookies' ) {
+			// sanitize cookies data
+			$storage_data = $this->sanitize_cookies_data( $_POST['storage_data'] );
+		} else
+			$storage_data = [];
+
 		echo wp_json_encode(
 			[
 				'post_id'	=> $post_id,
-				'counted'	=> ! ( $this->check_post( $post_id ) === null )
+				'counted'	=> ! ( $this->check_post( $post_id, $storage_data ) === null ),
+				'storage'		=> $this->storage
 			]
 		);
 
@@ -439,20 +475,236 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
+	 * Sanitize storage data.
+	 *
+	 * @param string $storage_data
+	 * @return array
+	 */
+	public function sanitize_storage_data( $storage_data ) {
+		try {
+			// strip slashes
+			$storage_data = stripslashes( $storage_data );
+
+			// decode storage data
+			$storage_data = json_decode( $storage_data, true, 2 );
+		} finally {
+			// valid data?
+			if ( json_last_error() === JSON_ERROR_NONE && is_array( $storage_data ) && ! empty( $storage_data ) ) {
+				$content_data = [];
+
+				foreach ( $storage_data as $content_id => $content_expiration ) {
+					$content_data[(int) $content_id] = (int) $content_expiration;
+				}
+
+				return array_unique( $content_data, SORT_NUMERIC );
+			} else
+				return [];
+		}
+	}
+
+	/**
+	 * Sanitize cookies.
+	 *
+	 * @param string $storage_data
+	 * @return array
+	 */
+	public function sanitize_cookies_data( $storage_data ) {
+		$content_data = $expirations = [];
+
+		// is cookie valid?
+		if ( preg_match( '/^(([0-9]+b[0-9]+a?)+)$/', $storage_data ) === 1 ) {
+			// get single id with expiration
+			$expiration_ids = explode( 'a', $storage_data );
+
+			// check every expiration => id pair
+			foreach ( $expiration_ids as $pair ) {
+				$pair = explode( 'b', $pair );
+				$expirations[] = (int) $pair[0];
+				$content_data[(int) $pair[1]] = (int) $pair[0];
+			}
+		}
+
+		return [
+			'visited'		=> array_unique( $content_data, SORT_NUMERIC ),
+			'expiration'	=> empty( $expirations ) ? 0 : max( $expirations )
+		];
+	}
+
+	/**
+	 * Save data storage.
+	 *
+	 * @param int $content
+	 * @param array $content_data
+	 * @return bool
+	 */
+	private function save_data_storage( $content, $content_data ) {
+		// get base instance
+		$pvc = Post_Views_Counter();
+
+		// set default flag
+		$count_visit = true;
+
+		// get expiration
+		$expiration = $pvc->counter->get_timestamp( $pvc->options['general']['time_between_counts']['type'], $pvc->options['general']['time_between_counts']['number'] );
+
+		// is this a new cookie?
+		if ( empty( $content_data ) ) {
+			$this->storage = [
+				$content => $expiration
+			];
+		} else {
+			// get current gmt time
+			$current_time = current_time( 'timestamp', true );
+
+			// post already viewed but not expired?
+			if ( in_array( $content, array_keys( $content_data ), true ) && $current_time < $content_data[$content] )
+				$count_visit = false;
+
+			// create copy for better foreach performance
+			$content_data_tmp = $content_data;
+
+			// check whether viewed id has expired - no need to keep it anymore
+			foreach ( $content_data_tmp as $content_id => $content_expiration ) {
+				if ( $current_time > $content_expiration )
+					unset( $content_data[$content_id] );
+			}
+
+			// add new id or change expiration date if id already exists
+			if ( $count_visit )
+				$content_data[$content] = $expiration;
+
+			$this->storage = $content_data;
+		}
+
+		return $count_visit;
+	}
+
+	/**
+	 * Save cookie storage.
+	 *
+	 * @param int $content
+	 * @param array $content_data
+	 * @return bool
+	 */
+	private function save_cookie_storage( $content, $content_data ) {
+		// early return?
+// todo: check this filter in js
+		// if ( apply_filters( 'pvc_maybe_set_cookie', true, $content, $content_type, $content_data ) !== true )
+			// return;
+
+		// get base instance
+		$pvc = Post_Views_Counter();
+
+		// set default flag
+		$count_visit = true;
+
+		// get expiration
+		$expiration = $pvc->counter->get_timestamp( $pvc->options['general']['time_between_counts']['type'], $pvc->options['general']['time_between_counts']['number'] );
+
+		// assign cookie name
+		$cookie_name = 'pvc_visits' . ( is_multisite() ? '_' . get_current_blog_id() : '' );
+
+		$cookies_data = [
+			'name'		=> [],
+			'value'		=> [],
+			'expiry'	=> []
+		];
+
+		// is this a new cookie?
+		if ( empty( $content_data['visited'] ) ) {
+			$cookies_data['name'][] = $cookie_name . '[0]';
+			$cookies_data['value'][] = $expiration . 'b' . $content;
+			$cookies_data['expiry'][] = $expiration;
+		} else {
+			// get current gmt time
+			$current_time = current_time( 'timestamp', true );
+
+			if ( in_array( $content, array_keys( $content_data['visited'] ), true ) && $current_time < $content_data['visited'][$content] ) {
+				$count_visit = false;
+			} else {
+				// add new id or change expiration date if id already exists
+				$content_data['visited'][$content] = $expiration;
+			}
+
+			// create copy for better foreach performance
+			$visited_expirations = $content_data['visited'];
+
+			// check whether viewed id has expired - no need to keep it in cookie (less size)
+			foreach ( $visited_expirations as $content_id => $content_expiration ) {
+				if ( $current_time > $content_expiration )
+					unset( $content_data['visited'][$content_id] );
+			}
+
+			// set new last expiration date if needed
+			$content_data['expiration'] = empty( $content_data['visited'] ) ? 0 : max( $content_data['visited'] );
+
+			$cookies = $imploded = [];
+
+			// create pairs
+			foreach ( $content_data['visited'] as $id => $exp ) {
+				$imploded[] = $exp . 'b' . $id;
+			}
+
+			// split cookie into chunks (3980 bytes to make sure it is safe for every browser)
+			$chunks = str_split( implode( 'a', $imploded ), 3980 );
+
+			// more then one chunk?
+			if ( count( $chunks ) > 1 ) {
+				$last_id = '';
+
+				foreach ( $chunks as $chunk_id => $chunk ) {
+					// new chunk
+					$chunk_c = $last_id . $chunk;
+
+					// is it full-length chunk?
+					if ( strlen( $chunk ) === 3980 ) {
+						// get last part
+						$last_part = strrchr( $chunk_c, 'a' );
+
+						// get last id
+						$last_id = substr( $last_part, 1 );
+
+						// add new full-lenght chunk
+						$cookies[$chunk_id] = substr( $chunk_c, 0, strlen( $chunk_c ) - strlen( $last_part ) );
+					} else {
+						// add last chunk
+						$cookies[$chunk_id] = $chunk_c;
+					}
+				}
+			} else {
+				// only one chunk
+				$cookies[] = $chunks[0];
+			}
+
+			foreach ( $cookies as $key => $value ) {
+				$cookies_data['name'][] = $cookie_name . '[' . $key . ']';
+				$cookies_data['value'][] = $value;
+				$cookies_data['expiry'][] = $content_data['expiration'];
+			}
+		}
+
+		$this->storage = $cookies_data;
+
+		return $count_visit;
+	}
+
+	/**
 	 * Save cookie function.
 	 *
 	 * @param int $id
 	 * @param array $cookie
-	 * @param bool $expired
-	 * @return void
+	 * @return bool
 	 */
-	private function save_cookie( $id, $cookie = [], $expired = true ) {
+	private function save_cookie( $id, $cookie = [] ) {
 		// early return?
-		if ( apply_filters( 'pvc_maybe_set_cookie', true, $id, 'post', $cookie, $expired ) !== true )
+		if ( apply_filters( 'pvc_maybe_set_cookie', true, $id, 'post', $cookie ) !== true )
 			return;
 
 		// get main instance
 		$pvc = Post_Views_Counter();
+
+		// set default flag
+		$count_visit = true;
 
 		// get expiration
 		$expiration = $this->get_timestamp( $pvc->options['general']['time_between_counts']['type'], $pvc->options['general']['time_between_counts']['number'] );
@@ -475,19 +727,25 @@ class Post_Views_Counter_Counter {
 						'path'		=> COOKIEPATH,
 						'domain'	=> COOKIE_DOMAIN,
 						'secure'	=> is_ssl(),
-						'httponly'	=> true,
+						'httponly'	=> false,
 						'samesite'	=> 'LAX'
 					]
 				);
 			} else {
 				// set cookie
-				setcookie( $cookie_name . '[0]', $expiration . 'b' . $id, $expiration, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+				setcookie( $cookie_name . '[0]', $expiration . 'b' . $id, $expiration, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), false );
 			}
 
 			if ( $this->queue_mode )
 				$this->check_cookie( [ 0 => $expiration . 'b' . $id ] );
 		} else {
-			if ( $expired ) {
+			// get current gmt time
+			$current_time = current_time( 'timestamp', true );
+
+			// post already viewed but not expired?
+			if ( in_array( $id, array_keys( $cookie['visited_posts'] ), true ) && $current_time < $cookie['visited_posts'][$id] )
+				$count_visit = false;
+			else {
 				// add new id or change expiration date if id already exists
 				$cookie['visited_posts'][$id] = $expiration;
 			}
@@ -495,12 +753,9 @@ class Post_Views_Counter_Counter {
 			// create copy for better foreach performance
 			$visited_posts_expirations = $cookie['visited_posts'];
 
-			// get current gmt time
-			$time = current_time( 'timestamp', true );
-
 			// check whether viewed id has expired - no need to keep it in cookie (less size)
 			foreach ( $visited_posts_expirations as $post_id => $post_expiration ) {
-				if ( $time > $post_expiration )
+				if ( $current_time > $post_expiration )
 					unset( $cookie['visited_posts'][$post_id] );
 			}
 
@@ -556,19 +811,21 @@ class Post_Views_Counter_Counter {
 							'path'		=> COOKIEPATH,
 							'domain'	=> COOKIE_DOMAIN,
 							'secure'	=> is_ssl(),
-							'httponly'	=> true,
+							'httponly'	=> false,
 							'samesite'	=> 'LAX'
 						]
 					);
 				} else {
 					// set cookie
-					setcookie( $cookie_name . '[' . $key . ']', $value, $cookie['expiration'], COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+					setcookie( $cookie_name . '[' . $key . ']', $value, $cookie['expiration'], COOKIEPATH, COOKIE_DOMAIN, is_ssl(), false );
 				}
 			}
 
 			if ( $this->queue_mode )
 				$this->check_cookie( $cookies );
 		}
+
+		return $count_visit;
 	}
 
 	/**
@@ -626,7 +883,7 @@ class Post_Views_Counter_Counter {
 	private function count_visit( $id ) {
 		$cache_key_names = [];
 		$using_object_cache = $this->using_object_cache();
-		$increment_amount = (int) apply_filters( 'pvc_views_increment_amount', 1, $id );
+		$increment_amount = (int) apply_filters( 'pvc_views_increment_amount', 1, $id, 'post' );
 
 		// get day, week, month and year
 		$date = explode( '-', date( 'W-d-m-Y-o', current_time( 'timestamp', true ) ) );
@@ -1034,7 +1291,7 @@ class Post_Views_Counter_Counter {
 			'post-views-counter',
 			'/view-post/(?P<id>\d+)|/view-post/',
 			[
-				'methods'				 => [ 'GET', 'POST' ],
+				'methods'				 => [ 'POST' ],
 				'callback'				 => [ $this, 'check_post_rest_api' ],
 				'permission_callback'	 => [ $this, 'post_view_permissions_check' ],
 				'args'					 => [
