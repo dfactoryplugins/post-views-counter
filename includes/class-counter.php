@@ -382,7 +382,7 @@ class Post_Views_Counter_Counter {
 			[
 				'post_id'	=> $post_id,
 				'counted'	=> ! ( $this->check_post( $post_id, $storage_data ) === null ),
-				'storage'		=> $this->storage
+				'storage'	=> $this->storage
 			]
 		);
 
@@ -420,9 +420,28 @@ class Post_Views_Counter_Counter {
 		if ( empty( $post_types ) || ! in_array( $post->post_type, $post_types, true ) )
 			return new WP_Error( 'pvc_post_type_excluded', __( 'Post type excluded.', 'post-views-counter' ), [ 'status' => 404 ] );
 
+		// get storage type
+		$storage_type = sanitize_key( $request->get_param( 'storage_type' ) );
+
+		// invalid storage type?
+		if ( ! in_array( $storage_type, [ 'cookies', 'cookieless' ], true ) )
+			return new WP_Error( 'pvc_invalid_storage_type', __( 'Invalid storage type.', 'post-views-counter-pro' ), [ 'status' => 404 ] );
+
+		// cookieless data storage?
+		if ( $storage_type === 'cookieless' && $pvc->options['general']['data_storage'] === 'cookieless' ) {
+			// sanitize storage data
+			$storage_data = $this->sanitize_storage_data( $request->get_param( 'storage_data' ) );
+		// cookies?
+		} elseif ( $storage_type === 'cookies' && $pvc->options['general']['data_storage'] === 'cookies' ) {
+			// sanitize cookies data
+			$storage_data = $this->sanitize_cookies_data( $request->get_param( 'storage_data' ) );
+		} else
+			$storage_data = [];
+
 		return [
 			'post_id'	=> $post_id,
-			'counted'	=> ! ( $this->check_post( $post_id ) === null )
+			'counted'	=> ! ( $this->check_post( $post_id, $storage_data ) === null ),
+			'storage'	=> $this->storage
 		];
 	}
 
