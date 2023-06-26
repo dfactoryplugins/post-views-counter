@@ -48,6 +48,35 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
+	 * Set storage data.
+	 *
+	 * @param string $storage_type
+	 * @return array
+	 */
+	public function set_storage_type( $storage_type ) {
+		// allow only fast ajax requests
+		if ( ! ( defined( 'SHORTINIT' ) && SHORTINIT ) )
+			return false;
+
+		// check post data
+		if ( ! isset( $_POST['action'], $_POST['content'], $_POST['type'], $_POST['subtype'], $_POST['storage_type'], $_POST['storage_data'], $_POST['pvcp_nonce'] ) )
+			return false;
+
+		// verify nonce
+		if ( ! wp_verify_nonce( $_POST['pvcp_nonce'], 'pvcp-check-post' ) )
+			return false;
+
+		// allow only valid storage type
+		if ( in_array( $storage_type, [ 'cookies', 'cookieless' ], true ) ) {
+			$this->storage_type = $storage_type;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Add Post ID to queue.
 	 *
 	 * @param int $post_id
@@ -426,6 +455,9 @@ class Post_Views_Counter_Counter {
 		// invalid storage type?
 		if ( ! in_array( $storage_type, [ 'cookies', 'cookieless' ], true ) )
 			return new WP_Error( 'pvc_invalid_storage_type', __( 'Invalid storage type.', 'post-views-counter-pro' ), [ 'status' => 404 ] );
+
+		// set storage type
+		$this->storage_type = $storage_type;
 
 		// cookieless data storage?
 		if ( $storage_type === 'cookieless' && $pvc->options['general']['data_storage'] === 'cookieless' ) {
@@ -1314,9 +1346,15 @@ class Post_Views_Counter_Counter {
 				'callback'				 => [ $this, 'check_post_rest_api' ],
 				'permission_callback'	 => [ $this, 'post_view_permissions_check' ],
 				'args'					 => [
-					'id' => [
+					'id'			=> [
 						'default'			 => 0,
 						'sanitize_callback'	 => 'absint'
+					],
+					'storage_type'	=> [
+						'default'			 => 'cookies'
+					],
+					'storage_data'	=> [
+						'default'			 => ''
 					]
 				]
 			]

@@ -33,7 +33,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 				this.promise = this.request( args.requestURL, params, 'POST', {
 					'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
 					'X-WP-Nonce': args.nonce
-				} );
+				}, name );
 			// admin ajax request
 			} else {
 				params.action = 'pvc-check-post';
@@ -42,7 +42,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 
 				this.promise = this.request( args.requestURL, params, 'POST', {
 					'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
-				} );
+				}, name );
 			}
 		},
 
