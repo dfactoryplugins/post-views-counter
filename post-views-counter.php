@@ -218,7 +218,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 *
 		 * @return void
 		 */
-		public function __construct() {
+		private function __construct() {
 			// define plugin constants
 			$this->define_constants();
 

@@ -17,6 +17,7 @@ class Post_Views_Counter_Counter {
 
 	private $storage = [];
 	private $storage_type = 'cookies';
+	private $storage_modified = false;
 	private $queue = [];
 	private $queue_mode = false;
 	private $db_insert_values = '';
@@ -48,12 +49,51 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
-	 * Set storage data.
+	 * Set storage data. Used only for additional authors counting.
+	 *
+	 * @return bool
+	 */
+	public function set_storage( $data, $class ) {
+		if ( ! is_a( $class, 'Post_Views_Counter_Pro_Counter' ) )
+			return false;
+
+		if ( ! $class->is_main_storage_allowed() )
+			return false;
+
+		// is it active content type?
+		if ( ! $class->is_content_type_active( 'user', 'posts' ) )
+			return false;
+
+		if ( $this->storage_type === 'cookies' )
+			$this->storage = $data;
+		else
+			$this->storage['user'] = $data;
+
+		$this->storage_modified = true;
+
+		return true;
+	}
+
+	/**
+	 * Get storage type.
+	 *
+	 * @return array
+	 */
+	public function get_storage_type() {
+		return $this->storage_type;
+	}
+
+	/**
+	 * Set storage type. Used only for fast ajax requests.
 	 *
 	 * @param string $storage_type
 	 * @return array
 	 */
-	public function set_storage_type( $storage_type ) {
+	public function set_storage_type( $storage_type, $class ) {
+		// allow only from pro counter class
+		if ( ! is_a( $class, 'Post_Views_Counter_Pro_Counter' ) )
+			return false;
+
 		// allow only fast ajax requests
 		if ( ! ( defined( 'SHORTINIT' ) && SHORTINIT ) )
 			return false;
@@ -230,7 +270,7 @@ class Post_Views_Counter_Counter {
 		// get user IP address
 		$user_ip = $this->get_user_ip();
 
-		do_action( 'pvc_before_check_visit', $id, $user_id, $user_ip );
+		do_action( 'pvc_before_check_visit', $id, $user_id, $user_ip, 'post' );
 
 		// get main instance
 		$pvc = Post_Views_Counter();
@@ -297,7 +337,7 @@ class Post_Views_Counter_Counter {
  
 		// cookieless data storage?
 		if ( $pvc->options['general']['data_storage'] === 'cookieless' && $this->storage_type === 'cookieless' ) {
-			$count_visit = $this->save_data_storage( $id, $content_data );
+			$count_visit = $this->save_data_storage( $id, 'post', $content_data );
 		} elseif ( $pvc->options['general']['data_storage'] === 'cookies' && $this->storage_type === 'cookies' ) {
 			// php counter mode?
 			if ( $pvc->options['general']['counter_mode'] === 'php' ) {
@@ -585,10 +625,11 @@ class Post_Views_Counter_Counter {
 	 * Save data storage.
 	 *
 	 * @param int $content
+	 * @param string $content_type
 	 * @param array $content_data
 	 * @return bool
 	 */
-	private function save_data_storage( $content, $content_data ) {
+	private function save_data_storage( $content, $content_type, $content_data ) {
 		// get base instance
 		$pvc = Post_Views_Counter();
 
@@ -600,7 +641,7 @@ class Post_Views_Counter_Counter {
 
 		// is this a new cookie?
 		if ( empty( $content_data ) ) {
-			$this->storage = [
+			$storage = [
 				$content => $expiration
 			];
 		} else {
@@ -624,8 +665,10 @@ class Post_Views_Counter_Counter {
 			if ( $count_visit )
 				$content_data[$content] = $expiration;
 
-			$this->storage = $content_data;
+			$storage = $content_data;
 		}
+
+		$this->storage[$content_type] = $storage;
 
 		return $count_visit;
 	}
@@ -731,6 +774,14 @@ class Post_Views_Counter_Counter {
 				$cookies_data['name'][] = $cookie_name . '[' . $key . ']';
 				$cookies_data['value'][] = $value;
 				$cookies_data['expiry'][] = $content_data['expiration'];
+			}
+		}
+
+		if ( $this->storage_modified && ! empty( $this->storage ) ) {
+			foreach ( $this->storage as $key => $value ) {
+				foreach ( $value as $subkey => $subvalue ) {
+					$cookies_data[$key][] = $subvalue;
+				}
 			}
 		}
 
@@ -962,7 +1013,7 @@ class Post_Views_Counter_Counter {
 		if ( $using_object_cache && ! empty( $cache_key_names ) )
 			$this->update_cached_keys_list_if_needed( $cache_key_names );
 
-		do_action( 'pvc_after_count_visit', $id );
+		do_action( 'pvc_after_count_visit', $id, 'post' );
 
 		return $id;
 	}
