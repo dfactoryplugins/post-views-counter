@@ -334,7 +334,7 @@ class Post_Views_Counter_Counter {
 
 		// do not count visit by default
 		$count_visit = false;
- 
+
 		// cookieless data storage?
 		if ( $pvc->options['general']['data_storage'] === 'cookieless' && $this->storage_type === 'cookieless' ) {
 			$count_visit = $this->save_data_storage( $id, 'post', $content_data );

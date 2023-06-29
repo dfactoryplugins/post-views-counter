@@ -18,10 +18,36 @@ class Post_Views_Counter_Settings {
 	public function __construct() {
 		// actions
 		add_action( 'admin_init', [ $this, 'update_counter_mode' ], 12 );
+		add_action( 'pvc_settings_form', [ $this, 'settings_form' ], 10, 4 );
 
 		// filters
 		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_data' ] );
 		add_filter( 'post_views_counter_settings_pages', [ $this, 'settings_page' ] );
+	}
+
+	/**
+	 * Add hidden inputs to redirect to valid page after changing menu position.
+	 *
+	 * @param string $setting
+	 * @param string $page_type
+	 * @param string $url_page
+	 * @param string $tab_key
+	 * @return void
+	 */
+	public function settings_form( $setting, $page_type, $url_page, $tab_key ) {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		// topmenu referer
+		$topmenu = '<input type="hidden" name="_wp_http_referer" data-pvc-menu="topmenu" value="' .esc_url( admin_url( 'admin.php?page=post-views-counter' . ( $tab_key !== '' ? '&tab=' . $tab_key : '' ) ) ) . '" />';
+
+		// submenu referer
+		$submenu = '<input type="hidden" name="_wp_http_referer" data-pvc-menu="submenu" value="' .esc_url( admin_url( 'options-general.php?page=post-views-counter' . ( $tab_key !== '' ? '&tab=' . $tab_key : '' ) ) ) . '" />';
+
+		if ( $pvc->options['general']['menu_position'] === 'sub' )
+			echo $topmenu . $submenu;
+		else
+			echo $submenu . $topmenu;
 	}
 
 	/**
@@ -428,8 +454,11 @@ class Post_Views_Counter_Settings {
 	 * @return array
 	 */
 	public function settings_page( $pages ) {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		// default page
 		$pages['post-views-counter'] = [
-			'type'			=> 'settings_page',
 			'menu_slug'		=> 'post-views-counter',
 			'page_title'	=> __( 'Post Views Counter Settings', 'post-views-counter' ),
 			'menu_title'	=> __( 'Post Views Counter', 'post-views-counter' ),
@@ -452,6 +481,16 @@ class Post_Views_Counter_Settings {
 				]
 			]
 		];
+
+		// submenu?
+		if ( $pvc->options['general']['menu_position'] === 'sub' ) {
+			$pages['post-views-counter']['type'] = 'settings_page';
+		// topmenu?
+		} else {
+			$pages['post-views-counter']['type'] = 'page';
+			$pages['post-views-counter']['icon'] = 'dashicons-chart-bar';
+			$pages['post-views-counter']['position'] = '99.3';
+		}
 
 		return $pages;
 	}

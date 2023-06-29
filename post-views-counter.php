@@ -646,7 +646,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 */
 		public function admin_enqueue_scripts( $page ) {
 			// register styles
-			wp_register_style( 'pvc-admin', POST_VIEWS_COUNTER_URL . '/css/admin.min.css' );
+			wp_register_style( 'pvc-admin', POST_VIEWS_COUNTER_URL . '/css/admin.min.css', [], $this->defaults['version'] );
 
 			// register scripts
 			wp_register_script( 'pvc-admin-settings', POST_VIEWS_COUNTER_URL . '/js/admin-settings.js', [ 'jquery' ], $this->defaults['version'] );
@@ -654,7 +654,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			wp_register_script( 'pvc-admin-quick-edit', POST_VIEWS_COUNTER_URL . '/js/admin-quick-edit.js', [ 'jquery', 'inline-edit-post' ], $this->defaults['version'] );
 
 			// load on pvc settings page
-			if ( $page === 'settings_page_post-views-counter' ) {
+			if ( in_array( $page, [ 'toplevel_page_post-views-counter', 'settings_page_post-views-counter' ], true ) ) {
 				wp_enqueue_script( 'pvc-admin-settings' );
 
 				// prepare script data

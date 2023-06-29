@@ -127,8 +127,13 @@ class Post_Views_Counter_Settings_API {
 			if ( empty( $data['type'] ) || ! array_key_exists( $data['type'], $types ) )
 				continue;
 
+			if ( $data['type'] === 'page' ) {
+				add_menu_page( $data['page_title'], $data['menu_title'], $data['capability'], $data['menu_slug'], ! empty( $data['callback'] ) ? $data['callback'] : [ $this, 'options_page' ], $data['icon'], $data['position'] );
+
+				// add page type
+				$types['page'][$data['menu_slug']] = $page;
 			// menu subpage?
-			if ( $data['type'] === 'subpage' ) {
+			} elseif ( $data['type'] === 'subpage' ) {
 				add_submenu_page( $data['parent_slug'], $data['page_title'], $data['menu_title'], $data['capability'], $data['menu_slug'], ! empty( $data['callback'] ) ? $data['callback'] : [ $this, 'options_page' ] );
 
 				// add subpage type
@@ -161,8 +166,15 @@ class Post_Views_Counter_Settings_API {
 		// get current screen
 		$screen = get_current_screen();
 
+		// display top level settings page?
+		if ( $pagenow === 'admin.php' && preg_match( '/^toplevel_page_(' . implode( '|', $this->page_types['page'] ) . ')$/', $screen->base, $matches ) === 1 && ! empty( $matches[1] ) ) {
+			$valid_page = true;
+			$page_type = 'page';
+			$url_page = 'admin.php';
+		}
+
 		// display sub level settings page?
-		if ( $pagenow === 'admin.php' && preg_match( '/^(?:toplevel|' . $this->prefix . ')_page_' . $this->prefix . '-(' . implode( '|', $this->page_types['subpage'] ) . ')-settings$/', $screen->base, $matches ) === 1 && ! empty( $matches[1] ) ) {
+		if ( ! $valid_page && $pagenow === 'admin.php' && preg_match( '/^(?:toplevel|' . $this->prefix . ')_page_' . $this->prefix . '-(' . implode( '|', $this->page_types['subpage'] ) . ')-settings$/', $screen->base, $matches ) === 1 && ! empty( $matches[1] ) ) {
 			$valid_page = true;
 			$page_type = 'subpage';
 			$url_page = 'admin.php';
@@ -182,6 +194,8 @@ class Post_Views_Counter_Settings_API {
 		echo '
 		<div class="wrap">
 			<h2>' . esc_html( $this->settings[$matches[1]]['label'] ) . '</h2>';
+
+		$tab_key = '';
 
 		// any tabs?
 		if ( array_key_exists( 'tabs', $this->pages[$this->page_types[$page_type][$matches[1]]] ) ) {
@@ -261,6 +275,9 @@ class Post_Views_Counter_Settings_API {
 		}
 
 		settings_fields( $setting );
+
+		do_action( $this->short . '_settings_form', $setting, $page_type, $url_page, $tab_key );
+
 		do_settings_sections( $setting );
 
 		if ( $display_form ) {

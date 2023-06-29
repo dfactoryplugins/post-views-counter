@@ -60,6 +60,15 @@
 			else
 				$( '.pvc_user_roles' ).slideUp( 'fast' );
 		} );
+
+		// menu position referer update
+		$( 'input[name="post_views_counter_settings_general[menu_position]"]' ).on( 'change', function() {
+			if ( $( this ).val() === 'top' ) {
+				$( 'input[data-pvc-menu="submenu"]' ).after( $( 'input[data-pvc-menu="topmenu"]' ) );
+			} else {
+				$( 'input[data-pvc-menu="submenu"]' ).before( $( 'input[data-pvc-menu="topmenu"]' ) );
+			}
+		} );
 	} );
 
 } )( jQuery );
