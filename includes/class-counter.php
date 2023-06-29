@@ -451,7 +451,8 @@ class Post_Views_Counter_Counter {
 			[
 				'post_id'	=> $post_id,
 				'counted'	=> ! ( $this->check_post( $post_id, $storage_data ) === null ),
-				'storage'	=> $this->storage
+				'storage'	=> $this->storage,
+				'type'		=> 'post'
 			]
 		);
 
@@ -513,7 +514,8 @@ class Post_Views_Counter_Counter {
 		return [
 			'post_id'	=> $post_id,
 			'counted'	=> ! ( $this->check_post( $post_id, $storage_data ) === null ),
-			'storage'	=> $this->storage
+			'storage'	=> $this->storage,
+			'type'		=> 'post'
 		];
 	}
 

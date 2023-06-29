@@ -87,7 +87,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 				try {
 					if ( typeof response === 'object' && response !== null ) {
 						if ( _this.args.dataStorage === 'cookieless' )
-							_this.saveStorageData.call( _this, name, response.storage );
+							_this.saveStorageData.call( _this, name, response.storage, response.type );
 						else
 							_this.saveCookieData( name, response.storage );
 
@@ -140,14 +140,15 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		 *
 		 * @param {string} name
 		 * @param {object} data
+		 * @param {string} type
 		 *
 		 * @return {void}
 		 */
-		saveStorageData: function( name, data ) {
-			if ( 'countAuthor' in this.args && this.args.countAuthor === true )
+		saveStorageData: function( name, data, type ) {
+			if ( 'countAuthor' in this.args && this.args.countAuthor === true && 'user' in data )
 				window.localStorage.setItem( 'pvc_visits_user' + ( this.args.multisite !== false ? '_' + parseInt( this.args.multisite ) : '' ), JSON.stringify( data['user'] ) );
 
-			window.localStorage.setItem( name, JSON.stringify( data['post'] ) );
+			window.localStorage.setItem( name, JSON.stringify( data[type] ) );
 		},
 
 		/**
