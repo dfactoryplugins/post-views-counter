@@ -546,13 +546,18 @@ class Post_Views_Counter_Dashboard {
 				else
 					$post_type_exists = $active_post_types[$post->post_type] = post_type_exists( $post->post_type );
 
+				$title = get_the_title( $post );
+
+				if ( $title === '' )
+					$title = __( '(no title)' );
+
 				// edit post link
 				if ( $post_type_exists && current_user_can( 'edit_post', $post->ID ) ) {
 					$html .= '
-					<td><a href="' . esc_url( get_edit_post_link( $post->ID ) ) . '">' . esc_html( get_the_title( $post ) ) . '</a></td>';
+					<td><a href="' . esc_url( get_edit_post_link( $post->ID ) ) . '">' . esc_html( $title ) . '</a></td>';
 				} else {
 					$html .= '
-					<td>' . esc_html( get_the_title( $post ) ). '</td>';
+					<td>' . esc_html( $title ). '</td>';
 				}
 
 				$html .= '
