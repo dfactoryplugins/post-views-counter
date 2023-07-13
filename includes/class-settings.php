@@ -251,7 +251,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Reset Data Interval', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'custom',
-					'description'	=> '',
+					'description'	=> sprintf( __( 'Delete single day post views data older than specified above. Enter %s if you want to preserve your data regardless of its age. Data will be deleted once a day.', 'post-views-counter' ), '<code>0</code>' ),
 					'min'			=> 0,
 					'max'			=> 999999,
 					'options'		=> $time_types,
@@ -263,12 +263,13 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Flush Object Cache Interval', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'custom',
+					'class'			=> 'pvc-pro',
 					'description'	=> '',
+					'skip_saving'	=> true,
 					'min'			=> 0,
 					'max'			=> 999999,
 					'options'		=> $time_types,
-					'callback'		=> [ $this, 'setting_flush_interval' ],
-					'validate'		=> [ $this, 'validate_flush_interval' ]
+					'callback'		=> [ $this, 'setting_flush_interval' ]
 				],
 				'exclude' => [
 					'tab'			=> 'general',
@@ -314,7 +315,6 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Menu Position', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'radio',
-					'skip_saving'	=> true,
 					'options'		=> [
 						'top'	=> __( 'Top menu', 'post-views-counter' ),
 						'sub'	=> __( 'Setting submenu', 'post-views-counter' )
@@ -619,8 +619,8 @@ class Post_Views_Counter_Settings {
 	/**
 	 * Validate label.
 	 *
-	 * @param array $input Input POST data
-	 * @param array $field Field options
+	 * @param array $input
+	 * @param array $field
 	 * @return array
 	 */
 	public function validate_label( $input, $field ) {
@@ -642,8 +642,8 @@ class Post_Views_Counter_Settings {
 	/**
 	 * Restore post views label to default value.
 	 *
-	 * @param array $default Default value
-	 * @param array $field Field options
+	 * @param array $default
+	 * @param array $field
 	 * @return array
 	 */
 	public function reset_label( $default, $field ) {
@@ -656,7 +656,7 @@ class Post_Views_Counter_Settings {
 	/**
 	 * Setting: display style.
 	 *
-	 * @param array $field Field options
+	 * @param array $field
 	 * @return string
 	 */
 	public function setting_display_style( $field ) {
@@ -677,8 +677,8 @@ class Post_Views_Counter_Settings {
 	/**
 	 * Validate display style.
 	 *
-	 * @param array $input Input POST data
-	 * @param array $field Field options
+	 * @param array $input
+	 * @param array $field
 	 * @return array
 	 */
 	public function validate_display_style( $input, $field ) {
@@ -707,7 +707,7 @@ class Post_Views_Counter_Settings {
 	/**
 	 * Setting: count interval.
 	 *
-	 * @param array $field Field options
+	 * @param array $field
 	 * @return string
 	 */
 	public function setting_time_between_counts( $field ) {
@@ -733,8 +733,8 @@ class Post_Views_Counter_Settings {
 	/**
 	 * Validate count interval.
 	 *
-	 * @param array $input Input POST data
-	 * @param array $field Field options
+	 * @param array $input
+	 * @param array $field
 	 * @return array
 	 */
 	public function validate_time_between_counts( $input, $field ) {
@@ -756,7 +756,7 @@ class Post_Views_Counter_Settings {
 	/**
 	 * Setting: reset data interval.
 	 *
-	 * @param array $field Field options
+	 * @param array $field
 	 * @return string
 	 */
 	public function setting_reset_counts( $field ) {
@@ -773,8 +773,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		$html .= '
-		</select>
-		<p class="description">' . sprintf( __( 'Delete single day post views data older than specified above. Enter %s if you want to preserve your data regardless of its age.', 'post-views-counter' ), '<code>0</code>' ) . '</p>';
+		</select>';
 
 		return $html;
 	}
@@ -782,8 +781,8 @@ class Post_Views_Counter_Settings {
 	/**
 	 * Validate reset data interval.
 	 *
-	 * @param array $input Input POST data
-	 * @param array $field Field options
+	 * @param array $input
+	 * @param array $field
 	 * @return array
 	 */
 	public function validate_reset_counts( $input, $field ) {
@@ -811,7 +810,7 @@ class Post_Views_Counter_Settings {
 	/**
 	 * Setting: flush object cache interval.
 	 *
-	 * @param array $field Field options
+	 * @param array $field
 	 * @return string
 	 */
 	public function setting_flush_interval( $field ) {
@@ -819,58 +818,29 @@ class Post_Views_Counter_Settings {
 		$pvc = Post_Views_Counter();
 
 		$html = '
-		<input size="6" type="number" min="' . ( (int) $field['min'] ) . '" max="' . ( (int) $field['max'] ) . '" name="post_views_counter_settings_general[flush_interval][number]" value="' . esc_attr( $pvc->options['general']['flush_interval']['number'] ) . '" />
-		<select class="pvc-chosen-short" name="post_views_counter_settings_general[flush_interval][type]">';
+		<input size="6" type="number" min="' . ( (int) $field['min'] ) . '" max="' . ( (int) $field['max'] ) . '" name="" value="0" disabled />
+		<select class="pvc-chosen-short" name="" disabled>';
 
 		foreach ( $field['options'] as $type => $type_name ) {
 			$html .= '
-			<option value="' . esc_attr( $type ) . '" ' . selected( $type, $pvc->options['general']['flush_interval']['type'], false ) . '>' . esc_html( $type_name ) . '</option>';
+			<option value="' . esc_attr( $type ) . '" ' . selected( $type, $pvc->defaults['general']['flush_interval']['type'], false ) . '>' . esc_html( $type_name ) . '</option>';
 		}
+
+		// check object cache
+		$wp_using_ext_object_cache = wp_using_ext_object_cache();
 
 		$html .= '
 		</select>
-		<p class="description">' . sprintf( __( 'How often to flush cached view counts from the object cache into the database. This feature is used only if a persistent object cache is detected and the interval is greater than %s. When used, view counts will be collected and stored in the object cache instead of the database and will then be asynchronously flushed to the database according to the specified interval.<br /><strong>Notice:</strong> Potential data loss may occur if the object cache is cleared/unavailable for the duration of the interval.', 'post-views-counter' ), '<code>0</code>' ) . '</p>';
+		<p class="">' . __( 'Persistent Object Cache', 'post-views-counter' ) . ': <span class="' . ( $wp_using_ext_object_cache ? '' : 'un' ) . 'available">' . ( $wp_using_ext_object_cache ? __( 'available', 'post-views-counter' ) : __( 'unavailable', 'post-views-counter' ) ) . '</span></p>
+		<p class="description">' . sprintf( __( 'How often to flush cached view counts from the object cache into the database. This feature is used only if a persistent object cache like %s or %s is detected and the interval is greater than %s. When used, view counts will be collected and stored in the object cache instead of the database and will then be asynchronously flushed to the database according to the specified interval.', 'post-views-counter' ), '<code>Redis</code>', '<code>Memcached</code>', '<code>0</code>' ) . '<br /><strong>' . __( 'Notice', 'post-views-counter' ) . ':</strong> ' . __( 'Potential data loss may occur if the object cache is cleared/unavailable for the duration of the interval.', 'post-views-counter' ) . '</p>';
 
 		return $html;
 	}
 
 	/**
-	 * Validate flush object cache interval.
-	 *
-	 * @param array $input Input POST data
-	 * @param array $field Field options
-	 * @return array
-	 */
-	public function validate_flush_interval( $input, $field ) {
-		// get main instance
-		$pvc = Post_Views_Counter();
-
-		// number
-		$input['flush_interval']['number'] = isset( $input['flush_interval']['number'] ) ? (int) $input['flush_interval']['number'] : $pvc->defaults['general']['flush_interval']['number'];
-
-		if ( $input['flush_interval']['number'] < $field['min'] || $input['flush_interval']['number'] > $field['max'] )
-			$input['flush_interval']['number'] = $pvc->defaults['general']['flush_interval']['number'];
-
-		// type
-		$input['flush_interval']['type'] = isset( $input['flush_interval']['type'], $field['options'][$input['flush_interval']['type']] ) ? $input['flush_interval']['type'] : $pvc->defaults['general']['flush_interval']['type'];
-
-		// Since the settings are about to be saved and cache flush interval could've changed,
-		// we want to make sure that any changes done on the settings page are in effect immediately
-		// (instead of having to wait for the previous schedule to occur).
-		// We achieve that by making sure to clear any previous cache flush schedules and
-		// schedule the new one if the specified interval is > 0
-		$pvc->remove_cache_flush();
-
-		if ( $input['flush_interval']['number'] > 0 )
-			$pvc->schedule_cache_flush();
-
-		return $input;
-	}
-
-	/**
 	 * Setting: exclude visitors.
 	 *
-	 * @param array $field Field options
+	 * @param array $field
 	 * @return string
 	 */
 	public function setting_exclude( $field ) {
@@ -903,8 +873,8 @@ class Post_Views_Counter_Settings {
 	/**
 	 * Validate exclude visitors.
 	 *
-	 * @param array $input Input POST data
-	 * @param array $field Field options
+	 * @param array $input
+	 * @param array $field
 	 * @return array
 	 */
 	public function validate_exclude( $input, $field ) {
@@ -973,8 +943,8 @@ class Post_Views_Counter_Settings {
 	/**
 	 * Validate exclude IP addresses.
 	 *
-	 * @param array $input Input POST data
-	 * @param array $field Field options
+	 * @param array $input
+	 * @param array $field
 	 * @return array
 	 */
 	public function validate_exclude_ips( $input, $field ) {
@@ -1016,7 +986,7 @@ class Post_Views_Counter_Settings {
 	/**
 	 * Setting: user type.
 	 *
-	 * @param array $field Field options
+	 * @param array $field
 	 * @return string
 	 */
 	public function setting_restrict_display( $field ) {
@@ -1052,8 +1022,8 @@ class Post_Views_Counter_Settings {
 	/**
 	 * Validate user type.
 	 *
-	 * @param array $input Input POST data
-	 * @param array $field Field options
+	 * @param array $input
+	 * @param array $field
 	 * @return array
 	 */
 	public function validate_restrict_display( $input, $field ) {

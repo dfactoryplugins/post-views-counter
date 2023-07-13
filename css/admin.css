@@ -18,6 +18,12 @@
 .post-views-counter-settings select {
 	vertical-align: top;
 }
+.post-views-counter-settings .available {
+	color: #00a32a;
+}
+.post-views-counter-settings .unavailable {
+	color: #d63638;
+}
 .pvc_user_roles {
 	margin-top: 12px;
 }

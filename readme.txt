@@ -68,7 +68,7 @@ No questions yet.
 * Fix: Invalid year in seconds
 * Fix: Possible invalid cookie data in views storage
 * Fix: Default database prefix
-* Tweak: Switch from wp_localize_script to wp_add_inline_script 
+* Tweak: Switch from wp_localize_script to wp_add_inline_script
 * Tweak: Updated bot detection
 
 

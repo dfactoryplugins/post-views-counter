@@ -10,11 +10,6 @@ if ( ! defined( 'ABSPATH' ) )
  */
 class Post_Views_Counter_Counter {
 
-	const GROUP = 'pvc';
-	const NAME_ALLKEYS = 'cached_key_names';
-	const CACHE_KEY_SEPARATOR = '.';
-	const MAX_INSERT_STRING_LENGTH = 25000;
-
 	private $storage = [];
 	private $storage_type = 'cookies';
 	private $storage_modified = false;
@@ -985,35 +980,26 @@ class Post_Views_Counter_Counter {
 	 * @return int
 	 */
 	private function count_visit( $id ) {
-		$cache_key_names = [];
-		$using_object_cache = $this->using_object_cache();
+		// increment amount
 		$increment_amount = (int) apply_filters( 'pvc_views_increment_amount', 1, $id, 'post' );
+
+		if ( $increment_amount < 1 )
+			$increment_amount = 1;
 
 		// get day, week, month and year
 		$date = explode( '-', date( 'W-d-m-Y-o', current_time( 'timestamp', true ) ) );
 
 		foreach ( [
-			0	 => $date[3] . $date[2] . $date[1], // day like 20140324
-			1	 => $date[4] . $date[0], // week like 201439
-			2	 => $date[3] . $date[2], // month like 201405
-			3	 => $date[3], // year like 2014
-			4	 => 'total'	   // total views
+			0 => $date[3] . $date[2] . $date[1],	// day like 20140324
+			1 => $date[4] . $date[0],				// week like 201439
+			2 => $date[3] . $date[2],				// month like 201405
+			3 => $date[3],							// year like 2014
+			4 => 'total'							// total views
 		] as $type => $period ) {
-			if ( $using_object_cache ) {
-				$cache_key = $id . self::CACHE_KEY_SEPARATOR . $type . self::CACHE_KEY_SEPARATOR . $period;
-				wp_cache_add( $cache_key, 0, self::GROUP );
-				wp_cache_incr( $cache_key, $increment_amount, self::GROUP );
-				$cache_key_names[] = $cache_key;
-			} else {
-				// hit the database directly
-				// @TODO: investigate queueing these queries on the 'shutdown' hook instead of running them instantly?
-				$this->db_insert( $id, $type, $period, $increment_amount );
-			}
+			// hit the database directly
+			// @TODO: investigate queueing these queries on the 'shutdown' hook instead of running them instantly?
+			$this->db_insert( $id, $type, $period, $increment_amount );
 		}
-
-		// update the list of cache keys to be flushed
-		if ( $using_object_cache && ! empty( $cache_key_names ) )
-			$this->update_cached_keys_list_if_needed( $cache_key_names );
 
 		do_action( 'pvc_after_count_visit', $id, 'post' );
 
@@ -1058,63 +1044,16 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Check if object cache is in use.
 	 *
-	 * @param bool $using
-	 * @return bool|null
+	 * @return bool
 	 */
-	public function using_object_cache( $using = null ) {
-		$using = wp_using_ext_object_cache( $using );
+	public function using_object_cache() {
+		$using = wp_using_ext_object_cache();
 
-		if ( $using ) {
-			// check if explicitly disabled by flush_interval setting/option <= 0
-			$flush_interval_number = Post_Views_Counter()->options['general']['flush_interval']['number'];
-			$using = ( $flush_interval_number <= 0 ) ? false : true;
-		}
+		// check if explicitly disabled by flush interval option
+		if ( $using && Post_Views_Counter()->options['general']['flush_interval']['number'] <= 0 )
+			$using = false;
 
 		return $using;
-	}
-
-	/**
-	 * Update the single cache key which holds a list of all the cache keys
-	 * that need to be flushed to the database.
-	 *
-	 * The value of that special cache key is a giant string containing key names separated with the `|` character.
-	 * Each such key name then consists of 3 elements: $id, $type, $period (separated by a `.` character).
-	 * Examples:
-	 * 62053.0.20150327|62053.1.201513|62053.2.201503|62053.3.2015|62053.4.total|62180.0.20150327|62180.1.201513|62180.2.201503|62180.3.2015|62180.4.total
-	 * A single key is `62053.0.20150327` and that key's data is: $id = 62053, $type = 0, $period = 20150327
-	 *
-	 * This data format proved more efficient (avoids the (un)serialization overhead completely + duplicates filtering is a string search now)
-	 *
-	 * @param array $key_names
-	 * @return void
-	 */
-	private function update_cached_keys_list_if_needed( $key_names = [] ) {
-		$existing_list = wp_cache_get( self::NAME_ALLKEYS, self::GROUP );
-
-		if ( ! $existing_list )
-			$existing_list = '';
-
-		$list_modified = false;
-
-		// modify the list contents if/when needed
-		if ( empty( $existing_list ) ) {
-			// the simpler case of an empty initial list where we just
-			// transform the specified key names into a string
-			$existing_list = implode( '|', $key_names );
-			$list_modified = true;
-		} else {
-			// search each specified key name and append it if it's not found
-			foreach ( $key_names as $key_name ) {
-				if ( false === strpos( $existing_list, $key_name ) ) {
-					$existing_list .= '|' . $key_name;
-					$list_modified = true;
-				}
-			}
-		}
-
-		// save modified list back in cache
-		if ( $list_modified )
-			wp_cache_set( self::NAME_ALLKEYS, $existing_list, self::GROUP );
 	}
 
 	/**
@@ -1124,7 +1063,7 @@ class Post_Views_Counter_Counter {
 	 * @return bool
 	 */
 	public function flush_cache_to_db() {
-		$key_names = wp_cache_get( self::NAME_ALLKEYS, self::GROUP );
+		$key_names = wp_cache_get( 'cached_key_names', 'pvc' );
 
 		if ( ! $key_names )
 			$key_names = [];
@@ -1135,27 +1074,27 @@ class Post_Views_Counter_Counter {
 
 		foreach ( $key_names as $key_name ) {
 			// get values stored within the key name itself
-			list( $id, $type, $period ) = explode( self::CACHE_KEY_SEPARATOR, $key_name );
+			list( $id, $type, $period ) = explode( '.', $key_name );
 
 			// get the cached count value
-			$count = wp_cache_get( $key_name, self::GROUP );
+			$count = wp_cache_get( $key_name, 'pvc' );
 
 			// store cached value in the db
 			$this->db_prepare_insert( $id, $type, $period, $count );
 
 			// clear the cache key we just flushed
-			wp_cache_delete( $key_name, self::GROUP );
+			wp_cache_delete( $key_name, 'pvc' );
 		}
 
 		// actually flush values to db (if any left)
 		$this->db_commit_insert();
 
 		// remember last flush to db time
-		wp_cache_set( 'last-flush', time(), self::GROUP );
+		wp_cache_set( 'last-flush', time(), 'pvc' );
 
 		// delete the key holding the list itself after we've successfully flushed it
 		if ( ! empty( $key_names ) )
-			wp_cache_delete( self::NAME_ALLKEYS, self::GROUP );
+			wp_cache_delete( 'cached_key_names', 'pvc' );
 
 		return true;
 	}
@@ -1166,18 +1105,20 @@ class Post_Views_Counter_Counter {
 	 * @global object $wpdb
 	 *
 	 * @param int $id
-	 * @param string $type
+	 * @param int $type
 	 * @param string $period
 	 * @param int $count
 	 * @return int|bool
 	 */
-	private function db_insert( $id, $type, $period, $count = 1 ) {
+	private function db_insert( $id, $type, $period, $count ) {
+		// check whether skip single query
+		$skip_single_query = (bool) apply_filters( 'pvc_skip_single_query', false, $id, $type, $period, $count, 'post' );
+
+		// skip query?
+		if ( $skip_single_query )
+			return false;
+
 		global $wpdb;
-
-		$count = (int) $count;
-
-		if ( ! $count )
-			$count = 1;
 
 		return $wpdb->query( $wpdb->prepare( "INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = count + %d", $id, $type, $period, $count, $count ) );
 	}
@@ -1186,7 +1127,7 @@ class Post_Views_Counter_Counter {
 	 * Prepare bulk insert or update views count.
 	 *
 	 * @param int $id
-	 * @param string $type
+	 * @param int $type
 	 * @param string $period
 	 * @param int $count
 	 * @return void
@@ -1205,7 +1146,7 @@ class Post_Views_Counter_Counter {
 		// append insert queries
 		$this->db_insert_values .= sprintf( '(%d, %d, "%s", %d)', $id, $type, $period, $count );
 
-		if ( strlen( $this->db_insert_values ) > self::MAX_INSERT_STRING_LENGTH )
+		if ( strlen( $this->db_insert_values ) > 25000 )
 			$this->db_commit_insert();
 	}
 

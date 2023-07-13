@@ -505,9 +505,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			add_option( 'post_views_counter_settings_general', $this->defaults['general'], null, false );
 			add_option( 'post_views_counter_settings_display', $this->defaults['display'], null, false );
 			add_option( 'post_views_counter_version', $this->defaults['version'], null, false );
-
-			// schedule cache flush
-			$this->schedule_cache_flush();
 		}
 
 		/**
@@ -575,8 +572,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			wp_clear_scheduled_hook( 'pvc_reset_counts' );
 
 			remove_action( 'pvc_reset_counts', [ $this->cron, 'reset_counts' ] );
-
-			$this->remove_cache_flush();
 		}
 
 		/**
@@ -595,27 +590,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 
 				restore_current_blog();
 			}
-		}
-
-		/**
-		 * Schedule cache flushing if it's not already scheduled.
-		 *
-		 * @param bool $forced
-		 * @return void
-		 */
-		public function schedule_cache_flush( $forced = true ) {
-			if ( $forced || ! wp_next_scheduled( 'pvc_flush_cached_counts' ) )
-				wp_schedule_event( time(), 'post_views_counter_flush_interval', 'pvc_flush_cached_counts' );
-		}
-
-		/**
-		 * Remove scheduled cache flush and the corresponding action.
-		 *
-		 * @return void
-		 */
-		public function remove_cache_flush() {
-			wp_clear_scheduled_hook( 'pvc_flush_cached_counts' );
-			remove_action( 'pvc_flush_cached_counts', [ Post_Views_Counter()->cron, 'flush_cached_counts' ] );
 		}
 
 		/**
