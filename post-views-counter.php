@@ -683,7 +683,17 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			if ( ! current_user_can( 'manage_options' ) )
 				return $links;
 
-			array_unshift( $links, sprintf( '<a href="%s">%s</a>', esc_url_raw( admin_url( 'options-general.php' ) ) . '?page=post-views-counter', esc_html__( 'Settings', 'post-views-counter' ) ) );
+			if ( ! current_user_can( 'manage_options' ) )
+				return $links;
+
+			// submenu?
+			if ( $this->options['general']['menu_position'] === 'sub' )
+				$url = admin_url( 'options-general.php?page=post-views-counter' );
+			// topmenu?
+			else
+				$url = admin_url( 'admin.php?page=post-views-counter' );
+
+			array_unshift( $links, sprintf( '<a href="%s">%s</a>', esc_url_raw( $url ), esc_html__( 'Settings', 'post-views-counter' ) ) );
 
 			return $links;
 		}
