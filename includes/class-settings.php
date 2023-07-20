@@ -267,8 +267,7 @@ class Post_Views_Counter_Settings {
 					'description'	=> '',
 					'skip_saving'	=> true,
 					'min'			=> 0,
-					'max'			=> 999999,
-					'options'		=> $time_types,
+					'max'			=> 1440,
 					'callback'		=> [ $this, 'setting_flush_interval' ]
 				],
 				'exclude' => [
@@ -716,7 +715,7 @@ class Post_Views_Counter_Settings {
 
 		$html = '
 		<input size="6" type="number" min="' . ( (int) $field['min'] ) . '" max="' . ( (int) $field['max'] ) . '" name="post_views_counter_settings_general[time_between_counts][number]" value="' . esc_attr( $pvc->options['general']['time_between_counts']['number'] ) . '" />
-		<select class="pvc-chosen-short" name="post_views_counter_settings_general[time_between_counts][type]">';
+		<select name="post_views_counter_settings_general[time_between_counts][type]">';
 
 		foreach ( $field['options'] as $type => $type_name ) {
 			$html .= '
@@ -765,7 +764,7 @@ class Post_Views_Counter_Settings {
 
 		$html = '
 		<input size="6" type="number" min="' . ( (int) $field['min'] ) . '" max="' . ( (int) $field['max'] ) . '" name="post_views_counter_settings_general[reset_counts][number]" value="' . esc_attr( $pvc->options['general']['reset_counts']['number'] ) . '" />
-		<select class="pvc-chosen-short" name="post_views_counter_settings_general[reset_counts][type]">';
+		<select name="post_views_counter_settings_general[reset_counts][type]">';
 
 		foreach ( array_slice( $field['options'], 2, null, true ) as $type => $type_name ) {
 			$html .= '
@@ -817,22 +816,13 @@ class Post_Views_Counter_Settings {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
-		$html = '
-		<input size="6" type="number" min="' . ( (int) $field['min'] ) . '" max="' . ( (int) $field['max'] ) . '" name="" value="0" disabled />
-		<select class="pvc-chosen-short" name="" disabled>';
-
-		foreach ( $field['options'] as $type => $type_name ) {
-			$html .= '
-			<option value="' . esc_attr( $type ) . '" ' . selected( $type, $pvc->defaults['general']['flush_interval']['type'], false ) . '>' . esc_html( $type_name ) . '</option>';
-		}
-
 		// check object cache
 		$wp_using_ext_object_cache = wp_using_ext_object_cache();
 
-		$html .= '
-		</select>
+		$html = '
+		<input size="4" type="number" min="' . ( (int) $field['min'] ) . '" max="' . ( (int) $field['max'] ) . '" name="" value="0" disabled /> <span>' . __( 'minutes', 'post-views-counter' ) . '</span>
 		<p class="">' . __( 'Persistent Object Cache', 'post-views-counter' ) . ': <span class="' . ( $wp_using_ext_object_cache ? '' : 'un' ) . 'available">' . ( $wp_using_ext_object_cache ? __( 'available', 'post-views-counter' ) : __( 'unavailable', 'post-views-counter' ) ) . '</span></p>
-		<p class="description">' . sprintf( __( 'How often to flush cached view counts from the object cache into the database. This feature is used only if a persistent object cache like %s or %s is detected and the interval is greater than %s. When used, view counts will be collected and stored in the object cache instead of the database and will then be asynchronously flushed to the database according to the specified interval.', 'post-views-counter' ), '<code>Redis</code>', '<code>Memcached</code>', '<code>0</code>' ) . '<br /><strong>' . __( 'Notice', 'post-views-counter' ) . ':</strong> ' . __( 'Potential data loss may occur if the object cache is cleared/unavailable for the duration of the interval.', 'post-views-counter' ) . '</p>';
+		<p class="description">' . sprintf( __( 'How often to flush cached view counts from the object cache into the database. This feature is used only if a persistent object cache like %s or %s is detected and the interval is greater than %s. When used, view counts will be collected and stored in the object cache instead of the database and will then be asynchronously flushed to the database according to the specified interval. The maximum value is %s which means 24 hours.', 'post-views-counter' ), '<code>Redis</code>', '<code>Memcached</code>', '<code>0</code>', '<code>1440</code>' );
 
 		return $html;
 	}

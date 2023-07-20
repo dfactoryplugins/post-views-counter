@@ -490,7 +490,7 @@ class Post_Views_Counter_Counter {
 
 		// invalid storage type?
 		if ( ! in_array( $storage_type, [ 'cookies', 'cookieless' ], true ) )
-			return new WP_Error( 'pvc_invalid_storage_type', __( 'Invalid storage type.', 'post-views-counter-pro' ), [ 'status' => 404 ] );
+			return new WP_Error( 'pvc_invalid_storage_type', __( 'Invalid storage type.', 'post-views-counter' ), [ 'status' => 404 ] );
 
 		// set storage type
 		$this->storage_type = $storage_type;
@@ -1009,15 +1009,23 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Remove post views from database when post is deleted.
 	 *
-	 * @global object $wpdb
-	 *
 	 * @param int $post_id
 	 * @return void
 	 */
 	public function delete_post_views( $post_id ) {
-		global $wpdb;
+		$where = [ 'id' => $post_id ];
+		$format = [ '%d' ];
 
-		$wpdb->delete( $wpdb->prefix . 'post_views', [ 'id' => $post_id ], [ '%d' ] );
+		// get number of columns
+		$noc = Post_Views_Counter()->functions->get_number_of_columns();
+
+		// content?
+		if ( $noc === 5 ) {
+			$where['content'] = 0;
+			$format[] = '%d';
+		}
+
+		$wpdb->delete( $wpdb->prefix . 'post_views', $where, $format );
 	}
 
 	/**

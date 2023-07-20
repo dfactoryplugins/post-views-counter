@@ -99,4 +99,18 @@ class Post_Views_Counter_Functions {
 
 		return $_taxonomies;
 	}
+
+	/**
+	 * Get number of columns in post_views table.
+	 *
+	 * @global object $wpdb
+	 *
+	 * @return int
+	 */
+	public function get_number_of_columns() {
+		global $wpdb;
+
+		// get number of columns
+		return (int) $wpdb->get_var( "SELECT COUNT(*) AS result FROM information_schema.columns WHERE table_schema = '" . $wpdb->dbname . "' AND table_name = '" . $wpdb->prefix . "post_views'" );
+	}
 }
