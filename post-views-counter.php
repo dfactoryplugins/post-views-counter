@@ -52,7 +52,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					'type'		=> 'hours'
 				],
 				'reset_counts'			=> [
-					'number'	=> 30,
+					'number'	=> 0,
 					'type'		=> 'days'
 				],
 				'flush_interval'		=> [

@@ -37,6 +37,7 @@ class Post_Views_Counter_Update {
 
 		// update 1.2.4+
 		if ( version_compare( $current_db_version, '1.2.4', '<=' ) ) {
+			// get general options
 			$general = $pvc->options['general'];
 
 			if ( $general['reset_counts']['number'] > 0 ) {
@@ -70,6 +71,32 @@ class Post_Views_Counter_Update {
 			}
 		}
 
+		// update 1.3.13+
+		if ( version_compare( $current_db_version, '1.3.13', '<=' ) && $pvc->options['general']['flush_interval']['number'] > 0 ) {
+			if ( $pvc->counter->using_object_cache() ) {
+				// flush data from cache
+				$pvc->counter->flush_cache_to_db();
+			}
+
+			// unschedule cron event
+			wp_clear_scheduled_hook( 'pvc_flush_cached_counts' );
+
+			// get general options
+			$general = $pvc->options['general'];
+
+			// disable cache
+			$general['flush_interval'] = [
+				'number'	=> 0,
+				'type'		=> 'minutes'
+			];
+
+			// update settings
+			update_option( 'post_views_counter_settings_general', $general );
+
+			// update general options
+			$pvc->options['general'] = $general;
+		}
+
 		if ( isset( $_POST['post_view_counter_update'], $_POST['post_view_counter_number'] ) ) {
 			if ( $_POST['post_view_counter_number'] === 'update_1' ) {
 				$this->update_1();
@@ -79,22 +106,22 @@ class Post_Views_Counter_Update {
 			}
 		}
 
-		$update_1_html = '
-		<form action="" method="post">
-			<input type="hidden" name="post_view_counter_number" value="update_1"/>
-			<p>' . __( '<strong>Post Views Counter</strong> - this version requires a database update. Make sure to back up your database first.', 'post-views-counter' ) . '</p>
-			<p><input type="submit" class="button button-primary" name="post_view_counter_update" value="' . __( 'Run the Update', 'post-views-counter' ) . '"/></p>
-		</form>';
-
 		// get current database version
 		$current_db_version = get_option( 'post_views_counter_version', '1.0.0' );
 
 		// new version?
 		if ( version_compare( $current_db_version, $pvc->defaults['version'], '<' ) ) {
 			// is update 1 required?
-			if ( version_compare( $current_db_version, '1.2.4', '<=' ) )
+			if ( version_compare( $current_db_version, '1.2.4', '<=' ) ) {
+				$update_1_html = '
+				<form action="" method="post">
+					<input type="hidden" name="post_view_counter_number" value="update_1"/>
+					<p>' . __( '<strong>Post Views Counter</strong> - this version requires a database update. Make sure to back up your database first.', 'post-views-counter' ) . '</p>
+					<p><input type="submit" class="button button-primary" name="post_view_counter_update" value="' . __( 'Run the Update', 'post-views-counter' ) . '"/></p>
+				</form>';
+
 				$pvc->add_notice( $update_1_html, 'notice notice-info', false );
-			else
+			} else
 				// update plugin version
 				update_option( 'post_views_counter_version', $pvc->defaults['version'], false );
 		}

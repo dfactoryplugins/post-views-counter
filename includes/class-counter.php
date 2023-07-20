@@ -1071,6 +1071,7 @@ class Post_Views_Counter_Counter {
 	 * @return bool
 	 */
 	public function flush_cache_to_db() {
+		// get keys
 		$key_names = wp_cache_get( 'cached_key_names', 'pvc' );
 
 		if ( ! $key_names )
@@ -1080,29 +1081,31 @@ class Post_Views_Counter_Counter {
 			$key_names = explode( '|', $key_names );
 		}
 
-		foreach ( $key_names as $key_name ) {
-			// get values stored within the key name itself
-			list( $id, $type, $period ) = explode( '.', $key_name );
+		// any data?
+		if ( ! empty( $key_names ) ) {
+			foreach ( $key_names as $key_name ) {
+				// get values stored within the key name itself
+				list( $id, $type, $period ) = explode( '.', $key_name );
 
-			// get the cached count value
-			$count = wp_cache_get( $key_name, 'pvc' );
+				// get the cached count value
+				$count = wp_cache_get( $key_name, 'pvc' );
 
-			// store cached value in the db
-			$this->db_prepare_insert( $id, $type, $period, $count );
+				// store cached value in the database
+				$this->db_prepare_insert( $id, $type, $period, $count );
 
-			// clear the cache key we just flushed
-			wp_cache_delete( $key_name, 'pvc' );
+				// clear the cache key we just flushed
+				wp_cache_delete( $key_name, 'pvc' );
+			}
+
+			// flush values to database
+			$this->db_commit_insert();
+
+			// delete the key holding the list
+			wp_cache_delete( 'cached_key_names', 'pvc' );
 		}
 
-		// actually flush values to db (if any left)
-		$this->db_commit_insert();
-
-		// remember last flush to db time
-		wp_cache_set( 'last-flush', time(), 'pvc' );
-
-		// delete the key holding the list itself after we've successfully flushed it
-		if ( ! empty( $key_names ) )
-			wp_cache_delete( 'cached_key_names', 'pvc' );
+		// remove last flush
+		wp_cache_delete( 'last-flush', 'pvc' );
 
 		return true;
 	}
