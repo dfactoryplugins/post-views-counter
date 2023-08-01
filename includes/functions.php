@@ -404,14 +404,11 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 		// prepare display
 		$label = apply_filters( 'pvc_post_views_label', ( function_exists( 'icl_t' ) ? icl_t( 'Post Views Counter', 'Post Views Label', $options['label'] ) : $options['label'] ), $post_id );
 
-		// get icon class
-		$icon_class = ( $options['icon_class'] !== '' ? esc_attr( $options['icon_class'] ) : '' );
-
 		// add dashicons class if needed
-		$icon_class = strpos( $icon_class, 'dashicons ' ) === 0 ? $icon_class : 'dashicons ' . $icon_class;
+		$icon_class = strpos( $options['icon_class'], 'dashicons ' ) === 0 ? $options['icon_class'] : 'dashicons ' . $options['icon_class'];
 
 		// prepare icon output
-		$icon = apply_filters( 'pvc_post_views_icon', '<span class="post-views-icon ' . $icon_class . '"></span> ', $post_id );
+		$icon = apply_filters( 'pvc_post_views_icon', '<span class="post-views-icon ' . esc_attr( $icon_class ) . '"></span> ', $post_id );
 
 		$html = apply_filters(
 			'pvc_post_views_html',

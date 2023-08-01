@@ -70,6 +70,7 @@
 		// update colors
 		$.each( config.data.datasets, function( i, dataset ) {
 			dataset.fill = args.design.fill;
+			dataset.tension = 0.4;
 			dataset.borderColor = args.design.borderColor;
 			dataset.backgroundColor = args.design.backgroundColor;
 			dataset.borderWidth = args.design.borderWidth;

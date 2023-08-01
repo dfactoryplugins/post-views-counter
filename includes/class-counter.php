@@ -1052,14 +1052,25 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Check if object cache is in use.
 	 *
+	 * @param bool $only_interval
 	 * @return bool
 	 */
-	public function using_object_cache() {
+	public function using_object_cache( $only_interval = false ) {
 		$using = wp_using_ext_object_cache();
 
-		// check if explicitly disabled by flush interval option
-		if ( $using && Post_Views_Counter()->options['general']['flush_interval']['number'] <= 0 )
-			$using = false;
+		// is object cache active?
+		if ( $using ) {
+			// get main instance
+			$pvc = Post_Views_Counter();
+
+			// check object cache
+			if ( ! $only_interval && ! $pvc->options['general']['object_cache'] )
+				$using = false;
+
+			// check interval
+			if ( $pvc->options['general']['flush_interval']['number'] <= 0 )
+				$using = false;
+		}
 
 		return $using;
 	}

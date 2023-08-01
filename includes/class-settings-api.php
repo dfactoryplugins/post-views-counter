@@ -418,7 +418,7 @@ class Post_Views_Counter_Settings_API {
 		if ( empty( $args ) || ! is_array( $args ) )
 			return;
 
-		$html = '<div id="' . $args['id'] . '_setting"' . ( ! empty( $args['class'] ) ? ' class="' . esc_attr( $args['class'] ) . '"' : '' ) . '>';
+		$html = '<div id="' . esc_attr( $args['id'] ) . '_setting"' . ( ! empty( $args['class'] ) ? ' class="' . esc_attr( $args['class'] ) . '"' : '' ) . '>';
 
 		if ( ! empty ( $args['before_field'] ) )
 			$html .= $args['before_field'];
@@ -479,6 +479,7 @@ class Post_Views_Counter_Settings_API {
 				$html .= '<span' . ( ! empty( $args['subclass'] ) ? ' class="' . esc_attr( $args['subclass'] ) . '"' : '' ) . '>' . esc_html( $args['text'] ) . '</span>';
 				break;
 
+			case 'class':
 			case 'input':
 			default:
 				$html .= ( ! empty( $args['prepend'] ) ? '<span>' . esc_html( $args['prepend'] ) . '</span> ' : '' );
@@ -564,6 +565,23 @@ class Post_Views_Counter_Settings_API {
 
 			case 'custom':
 				// do nothing
+				break;
+
+			case 'class':
+				$value = trim( $value );
+
+				// more than 1 class?
+				if ( strpos( $value, ' ' ) !== false ) {
+					// get unique valid HTML classes
+					$value = array_unique( array_filter( array_map( 'sanitize_html_class', explode( ' ', $value ) ) ) );
+
+					if ( ! empty( $value ) )
+						$value = implode( ' ', $value );
+					else
+						$value = '';
+				// single class
+				} else
+					$value = sanitize_html_class( $value, $args['default'] );
 				break;
 
 			case 'input':

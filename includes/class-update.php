@@ -72,29 +72,47 @@ class Post_Views_Counter_Update {
 		}
 
 		// update 1.3.13+
-		if ( version_compare( $current_db_version, '1.3.13', '<=' ) && $pvc->options['general']['flush_interval']['number'] > 0 ) {
-			if ( $pvc->counter->using_object_cache() ) {
-				// flush data from cache
-				$pvc->counter->flush_cache_to_db();
-			}
-
-			// unschedule cron event
-			wp_clear_scheduled_hook( 'pvc_flush_cached_counts' );
-
+		if ( version_compare( $current_db_version, '1.3.13', '<=' ) ) {
 			// get general options
 			$general = $pvc->options['general'];
 
-			// disable cache
-			$general['flush_interval'] = [
-				'number'	=> 0,
-				'type'		=> 'minutes'
-			];
+			// get default other options
+			$other_options = $pvc->defaults['other'];
 
-			// update settings
-			update_option( 'post_views_counter_settings_general', $general );
+			// set current options
+			$other_options['deactivation_delete'] = $general['deactivation_delete'];
+
+			// add other options
+			add_option( 'post_views_counter_settings_other', $other_options, null, false );
+
+			// update other options
+			$pvc->options['other'] = $other_options;
+
+			// remove old setting
+			unset( $general['deactivation_delete'] );
+
+			// flush cache enabled?
+			if ( $general['flush_interval']['number'] > 0 ) {
+				if ( $pvc->counter->using_object_cache( true ) ) {
+					// flush data from cache
+					$pvc->counter->flush_cache_to_db();
+				}
+
+				// unschedule cron event
+				wp_clear_scheduled_hook( 'pvc_flush_cached_counts' );
+
+				// disable cache
+				$general['flush_interval'] = [
+					'number'	=> 0,
+					'type'		=> 'minutes'
+				];
+			}
 
 			// update general options
 			$pvc->options['general'] = $general;
+
+			// update general options
+			update_option( 'post_views_counter_settings_general', $general );
 		}
 
 		if ( isset( $_POST['post_view_counter_update'], $_POST['post_view_counter_number'] ) ) {

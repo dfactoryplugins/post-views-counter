@@ -55,6 +55,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					'number'	=> 0,
 					'type'		=> 'days'
 				],
+				'object_cache'			=> false,
 				'flush_interval'		=> [
 					'number'	=> 0,
 					'type'		=> 'minutes'
@@ -65,8 +66,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				],
 				'exclude_ips'			=> [],
 				'strict_counts'			=> false,
-				'menu_position'			=> 'sub',
-				'deactivation_delete'	=> false,
 				'cron_run'				=> true,
 				'cron_update'			=> true,
 				'update_version'		=> 1,
@@ -90,6 +89,11 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				],
 				'icon_class'			=> 'dashicons-chart-bar',
 				'toolbar_statistics'	=> true
+			],
+			'other'		=> [
+				'menu_position'			=> 'sub',
+				'deactivation_delete'	=> false,
+				'license'				=> ''
 			],
 			'version'	=> '1.3.13'
 		];
@@ -226,7 +230,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			if ( defined( 'SHORTINIT' ) && SHORTINIT ) {
 				$this->options = [
 					'general'	 => array_merge( $this->defaults['general'], get_option( 'post_views_counter_settings_general', $this->defaults['general'] ) ),
-					'display'	 => array_merge( $this->defaults['display'], get_option( 'post_views_counter_settings_display', $this->defaults['display'] ) )
+					'display'	 => array_merge( $this->defaults['display'], get_option( 'post_views_counter_settings_display', $this->defaults['display'] ) ),
+					'other'		=> array_merge( $this->defaults['other'], get_option( 'post_views_counter_settings_other', $this->defaults['other'] ) )
 				];
 
 				return;
@@ -239,7 +244,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			// settings
 			$this->options = [
 				'general'	=> array_merge( $this->defaults['general'], get_option( 'post_views_counter_settings_general', $this->defaults['general'] ) ),
-				'display'	=> array_merge( $this->defaults['display'], get_option( 'post_views_counter_settings_display', $this->defaults['display'] ) )
+				'display'	=> array_merge( $this->defaults['display'], get_option( 'post_views_counter_settings_display', $this->defaults['display'] ) ),
+				'other'		=> array_merge( $this->defaults['other'], get_option( 'post_views_counter_settings_other', $this->defaults['other'] ) )
 			];
 
 			// actions
@@ -407,7 +413,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			if ( ! current_user_can( 'install_plugins' ) )
 				return;
 
-			if ( wp_verify_nonce( esc_attr( $_REQUEST['nonce'] ), 'pvc_dismiss_notice' ) ) {
+			if ( isset( $_REQUEST['nonce'] ) && wp_verify_nonce( $_REQUEST['nonce'], 'pvc_dismiss_notice' ) ) {
 				$notice_action = empty( $_REQUEST['notice_action'] ) || $_REQUEST['notice_action'] === 'hide' ? 'hide' : sanitize_text_field( $_REQUEST['notice_action'] );
 
 				switch ( $notice_action ) {
@@ -504,6 +510,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			// add default options
 			add_option( 'post_views_counter_settings_general', $this->defaults['general'], null, false );
 			add_option( 'post_views_counter_settings_display', $this->defaults['display'], null, false );
+			add_option( 'post_views_counter_settings_other', $this->defaults['other'], null, false );
 			add_option( 'post_views_counter_version', $this->defaults['version'], null, false );
 		}
 
@@ -546,16 +553,17 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 */
 		public function deactivate_site( $multi = false ) {
 			if ( $multi === true ) {
-				$options = get_option( 'post_views_counter_settings_general' );
+				$options = get_option( 'post_views_counter_settings_other' );
 				$check = $options['deactivation_delete'];
 			} else
-				$check = $this->options['general']['deactivation_delete'];
+				$check = $this->options['other']['deactivation_delete'];
 
 			// delete options if needed
 			if ( $check ) {
 				// delete options
 				delete_option( 'post_views_counter_settings_general' );
 				delete_option( 'post_views_counter_settings_display' );
+				delete_option( 'post_views_counter_settings_other' );
 				delete_option( 'post_views_counter_activation_date' );
 				delete_option( 'post_views_counter_version' );
 
@@ -687,7 +695,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				return $links;
 
 			// submenu?
-			if ( $this->options['general']['menu_position'] === 'sub' )
+			if ( $this->options['other']['menu_position'] === 'sub' )
 				$url = admin_url( 'options-general.php?page=post-views-counter' );
 			// topmenu?
 			else
