@@ -497,7 +497,7 @@ class Post_Views_Counter_Settings {
 			// add parameters
 			$pages['post-views-counter']['type'] = 'page';
 			$pages['post-views-counter']['icon'] = 'dashicons-chart-bar';
-			$pages['post-views-counter']['position'] = '99.3';
+			$pages['post-views-counter']['position'] = '99.301';
 
 			// add subpages
 			$pages['post-views-counter-general'] = [

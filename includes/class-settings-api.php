@@ -220,8 +220,14 @@ class Post_Views_Counter_Settings_API {
 				else
 					$url = admin_url( $url_page . '?page=' . $matches[1] . '&tab=' . $key );
 
+				if ( ! empty( $tab['disabled'] ) )
+					echo '<span class="nav-span-disabled">';
+
 				echo '
 				<a class="nav-tab' . ( $tab_key === $key ? ' nav-tab-active' : '' ) . ( ! empty( $tab['disabled'] ) ? ' nav-tab-disabled' : '' ) . ( ! empty( $tab['class'] ) ? ' ' . $tab['class'] : '' ) . '" href="' . ( $url !== '' ? esc_url( $url ) : '#' ) . '">' . esc_html( $tab['label'] ) . '</a>';
+
+				if ( ! empty( $tab['disabled'] ) )
+					echo '</span>';
 			}
 
 			echo '
