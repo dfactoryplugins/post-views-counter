@@ -62,6 +62,7 @@ class Post_Views_Counter_Settings_API {
 		// actions
 		add_action( 'admin_menu', [ $this, 'admin_menu_options' ], 11 );
 		add_action( 'admin_init', [ $this, 'register_settings' ], 11 );
+		add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
 	}
 
 	/**
@@ -107,6 +108,34 @@ class Post_Views_Counter_Settings_API {
 	 */
 	public function get_validated_settings() {
 		return $this->validated_settings;
+	}
+
+	/**
+	 * Load default scripts and styles.
+	 *
+	 * @return void
+	 */
+	public function admin_enqueue_scripts() {
+		$handler = $this->short . '-settings-api-style';
+
+		// register and enqueue styles
+		wp_register_style( $handler, false );
+		wp_enqueue_style( $handler );
+
+		// add styles
+		wp_add_inline_style( $handler, '.nav-tab-wrapper span.nav-span-disabled {
+			cursor: not-allowed;
+			float: left;
+		}
+		body.rtl .nav-tab-wrapper span.nav-span-disabled {
+			float: right;
+		}
+		.nav-tab-wrapper a.nav-tab.nav-tab-disabled {
+			pointer-events: none;
+		}
+		.nav-tab-wrapper a.nav-tab.nav-tab-disabled:hover {
+			cursor: not-allowed;
+		}' );
 	}
 
 	/**
@@ -489,7 +518,7 @@ class Post_Views_Counter_Settings_API {
 			case 'input':
 			default:
 				$html .= ( ! empty( $args['prepend'] ) ? '<span>' . esc_html( $args['prepend'] ) . '</span> ' : '' );
-				$html .= '<input id="' . $args['id'] . '"' . ( ! empty( $args['subclass'] ) ? ' class="' . esc_attr( $args['subclass'] ) . '"' : '' ) . ' type="text" value="' . esc_attr( $args['value'] ) . '" name="' . esc_attr( $args['name'] ) . '" />';
+				$html .= '<input id="' . $args['id'] . '"' . ( ! empty( $args['subclass'] ) ? ' class="' . esc_attr( $args['subclass'] ) . '"' : '' ) . ' type="text" value="' . esc_attr( $args['value'] ) . '" name="' . esc_attr( $args['name'] ) . '" ' . disabled( empty( $args['disabled'] ), false, false ) . '/>';
 				$html .= ( ! empty( $args['append'] ) ? ' <span>' . esc_html( $args['append'] ) . '</span>' : '' );
 		}
 

@@ -242,7 +242,7 @@ class Post_Views_Counter_Dashboard {
 		$now = getdate( current_time( 'timestamp', get_option( 'gmt_offset' ) ) );
 
 		// get colors
-		$color = $this->get_colors();
+		$colors = Post_Views_Counter()->functions->get_colors();
 
 		// set chart labels
 		switch ( $period ) {
@@ -251,11 +251,11 @@ class Post_Views_Counter_Dashboard {
 				$data = [
 					'design'	=> [
 						'fill'					=> true,
-						'backgroundColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
-						'borderColor'			=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'backgroundColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 0.2)',
+						'borderColor'			=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 1)',
 						'borderWidth'			=> 1.2,
 						'borderDash'			=> [],
-						'pointBorderColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'pointBorderColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 1)',
 						'pointBackgroundColor'	=> 'rgba(255, 255, 255, 1)',
 						'pointBorderWidth'		=> 1.2
 					]
@@ -297,11 +297,11 @@ class Post_Views_Counter_Dashboard {
 				$data = [
 					'design'	=> [
 						'fill'					=> true,
-						'backgroundColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
-						'borderColor'			=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'backgroundColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 0.2)',
+						'borderColor'			=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 1)',
 						'borderWidth'			=> 1.2,
 						'borderDash'			=> [],
-						'pointBorderColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'pointBorderColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 1)',
 						'pointBackgroundColor'	=> 'rgba(255, 255, 255, 1)',
 						'pointBorderWidth'		=> 1.2
 					]
@@ -386,11 +386,11 @@ class Post_Views_Counter_Dashboard {
 					'months'	=> $this->generate_months( $time ),
 					'design'	=> [
 						'fill'					=> true,
-						'backgroundColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
-						'borderColor'			=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'backgroundColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 0.2)',
+						'borderColor'			=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 1)',
 						'borderWidth'			=> 1.2,
 						'borderDash'			=> [],
-						'pointBorderColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'pointBorderColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 1)',
 						'pointBackgroundColor'	=> 'rgba(255, 255, 255, 1)',
 						'pointBorderWidth'		=> 1.2
 					]
@@ -725,57 +725,5 @@ class Post_Views_Counter_Dashboard {
 		}
 
 		return $timestamp;
-	}
-
-	/**
-	 * Get default color for charts.
-	 *
-	 * @global array $_wp_admin_css_colors
-	 *
-	 * @return array
-	 */
-	public function get_colors() {
-		// get global color scheme
-		global $_wp_admin_css_colors;
-
-		// set default colors
-		$colors = [
-			'r'	=> 105,
-			'g'	=> 168,
-			'b'	=> 187
-		];
-
-		if ( ! empty( $_wp_admin_css_colors ) ) {
-			// get current admin color scheme name
-			$current_color_scheme = get_user_option( 'admin_color' );
-
-			if ( empty( $current_color_scheme ) )
-				$current_color_scheme = 'fresh';
-
-			if ( isset( $_wp_admin_css_colors[$current_color_scheme] ) )
-				$colors = $this->hex2rgb( $_wp_admin_css_colors[$current_color_scheme]->colors[2] );
-		}
-
-		return $colors;
-	}
-
-	/**
-	 * Convert HEX to RGB color.
-	 *
-	 * @param string $color
-	 * @return bool|array
-	 */
-	public function hex2rgb( $color ) {
-		if ( $color[0] === '#' )
-			$color = substr( $color, 1 );
-
-		if ( strlen( $color ) == 6 )
-			list( $r, $g, $b ) = [ $color[0] . $color[1], $color[2] . $color[3], $color[4] . $color[5] ];
-		elseif ( strlen( $color ) == 3 )
-			list( $r, $g, $b ) = [ $color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2] ];
-		else
-			return false;
-
-		return [ 'r' => hexdec( $r ), 'g' => hexdec( $g ), 'b' => hexdec( $b ) ];
 	}
 }

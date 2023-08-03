@@ -679,6 +679,30 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			// media
 			elseif ( $page === 'upload.php' )
 				wp_enqueue_style( 'pvc-admin' );
+
+			// register and enqueue styles
+			wp_register_style( 'pvc-pro-style', false );
+			wp_enqueue_style( 'pvc-pro-style' );
+
+			// add styles
+			wp_add_inline_style( 'pvc-pro-style', '#toplevel_page_post-views-counter .wp-submenu li:nth-of-type(4) {
+				cursor: not-allowed;
+			}
+			#toplevel_page_post-views-counter .wp-submenu li:nth-of-type(4) a {
+				pointer-events: none;
+			}
+			#toplevel_page_post-views-counter .wp-submenu li:nth-of-type(4) a:after, .post-views-counter-settings tr.pvc-pro th:after, .nav-tab-wrapper a.nav-tab.nav-tab-disabled.pvc-pro:after, .post-views-counter-settings tr.pvc-pro-extended label[for="post_views_counter_general_counter_mode_ajax"]:after {
+				content: \'PRO\';
+				display: inline;
+				background-color: ' . esc_attr( $this->functions->get_current_scheme_color() ) . ';
+				color: white;
+				padding: 2px 4px;
+				text-align: center;
+				border-radius: 4px;
+				margin-left: 4px;
+				font-weight: bold;
+				font-size: 11px;
+			}' );
 		}
 
 		/**

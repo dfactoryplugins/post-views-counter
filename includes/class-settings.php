@@ -441,6 +441,17 @@ class Post_Views_Counter_Settings {
 					'skip_saving'	=> true,
 					'callback'		=> [ $this, 'setting_wp_postviews' ]
 				],
+				'license' => [
+					'tab'			=> 'other',
+					'title'			=> __( 'License', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_other_settings',
+					'type'			=> 'input',
+					'class'			=> 'pvc-pro',
+					'disabled'		=> true,
+					'skip_saving'	=> true,
+					'description'	=> __( 'Enter license key.', 'post-views-counter' ),
+					'subclass'		=> 'regular-text'
+				]
 			]
 		];
 

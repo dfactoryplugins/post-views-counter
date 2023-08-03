@@ -113,4 +113,100 @@ class Post_Views_Counter_Functions {
 		// get number of columns
 		return (int) $wpdb->get_var( "SELECT COUNT(*) AS result FROM information_schema.columns WHERE table_schema = '" . $wpdb->dbname . "' AND table_name = '" . $wpdb->prefix . "post_views'" );
 	}
+
+	/**
+	 * Get color scheme.
+	 *
+	 * @global array $_wp_admin_css_colors
+	 *
+	 * @return string
+	 */
+	public function get_current_scheme_color( $default_color = '' ) {
+		// get color scheme global
+		global $_wp_admin_css_colors;
+
+		// set default color;
+		$color = '#2271b1';
+
+		if ( ! empty( $_wp_admin_css_colors ) ) {
+			// get current admin color scheme name
+			$current_color_scheme = get_user_option( 'admin_color' );
+
+			if ( empty( $current_color_scheme ) )
+				$current_color_scheme = 'fresh';
+
+			$wp_scheme_colors = [
+				'coffee'	=> 2,
+				'ectoplasm'	=> 2,
+				'ocean'		=> 2,
+				'sunrise'	=> 2,
+				'midnight'	=> 3,
+				'blue'		=> 3,
+				'modern'	=> 1,
+				'light'		=> 1,
+				'fresh'		=> 2
+			];
+
+			// one of default wp schemes?
+			if ( array_key_exists( $current_color_scheme, $wp_scheme_colors ) ) {
+				$color_number = $wp_scheme_colors[$current_color_scheme];
+
+				// color exists?
+				if ( isset( $_wp_admin_css_colors[$current_color_scheme] ) && property_exists( $_wp_admin_css_colors[$current_color_scheme], 'colors' ) && isset( $_wp_admin_css_colors[$current_color_scheme]->colors[$color_number] ) )
+					$color = $_wp_admin_css_colors[$current_color_scheme]->colors[$color_number];
+			}
+		}
+
+		return $color;
+	}
+
+	/**
+	 * Convert HEX to RGB color.
+	 *
+	 * @param string $color
+	 * @return bool|array
+	 */
+	public function hex2rgb( $color ) {
+		if ( ! is_string( $color ) )
+			return false;
+
+		// with hash?
+		if ( $color[0] === '#' )
+			$color = substr( $color, 1 );
+
+		if ( sanitize_hex_color_no_hash( $color ) !== $color )
+			return false;
+
+		// 6 hex digits?
+		if ( strlen( $color ) === 6 )
+			list( $r, $g, $b ) = [ $color[0] . $color[1], $color[2] . $color[3], $color[4] . $color[5] ];
+		// 3 hex digits?
+		elseif ( strlen( $color ) === 3 )
+			list( $r, $g, $b ) = [ $color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2] ];
+		else
+			return false;
+
+		return [ 'r' => hexdec( $r ), 'g' => hexdec( $g ), 'b' => hexdec( $b ) ];
+	}
+
+	/**
+	 * Get default color.
+	 *
+	 * @return array
+	 */
+	public function get_colors() {
+		// get current color scheme
+		$color = $this->get_current_scheme_color();
+
+		// convert it to rgb
+		$color = $this->hex2rgb( $color );
+
+		// invalid color?
+		if ( $color === false ) {
+			// set default color
+			$color = [ 'r' => 34, 'g' => 113, 'b' => 177 ];
+		}
+
+		return $color;
+	}
 }
