@@ -12,7 +12,9 @@ class Post_Views_Counter_Counter {
 
 	private $storage = [];
 	private $storage_type = 'cookies';
+	/* COUNT_POST_AS_AUTHOR_VIEW | removed property
 	private $storage_modified = false;
+	*/
 	private $queue = [];
 	private $queue_mode = false;
 	private $db_insert_values = '';
@@ -48,6 +50,7 @@ class Post_Views_Counter_Counter {
 	 *
 	 * @return bool
 	 */
+	/* COUNT_POST_AS_AUTHOR_VIEW | removed function
 	public function set_storage( $data, $class ) {
 		if ( ! is_a( $class, 'Post_Views_Counter_Pro_Counter' ) )
 			return false;
@@ -68,6 +71,7 @@ class Post_Views_Counter_Counter {
 
 		return true;
 	}
+	*/
 
 	/**
 	 * Get storage type.
@@ -774,6 +778,7 @@ class Post_Views_Counter_Counter {
 			}
 		}
 
+		/* COUNT_POST_AS_AUTHOR_VIEW | removed additional data
 		if ( $this->storage_modified && ! empty( $this->storage ) ) {
 			foreach ( $this->storage as $key => $value ) {
 				foreach ( $value as $subkey => $subvalue ) {
@@ -781,6 +786,7 @@ class Post_Views_Counter_Counter {
 				}
 			}
 		}
+		*/
 
 		$this->storage = $cookies_data;
 
