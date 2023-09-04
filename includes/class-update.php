@@ -80,7 +80,7 @@ class Post_Views_Counter_Update {
 			$other_options = $pvc->defaults['other'];
 
 			// set current options
-			$other_options['deactivation_delete'] = $general['deactivation_delete'];
+			$other_options['deactivation_delete'] = isset( $general['deactivation_delete'] ) ? (bool) $general['deactivation_delete'] : false;
 
 			// add other options
 			add_option( 'post_views_counter_settings_other', $other_options, null, false );

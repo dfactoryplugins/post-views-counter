@@ -188,7 +188,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Counter Mode', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'radio',
-					'description'	=> __( 'Select the method of collecting post views data. If you are using any of the caching plugins select JavaScript or REST API (if available).', 'post-views-counter' ),
+					'description'	=> __( 'Select the method of collecting post views data. If you are using any of the caching plugins select JavaScript, REST API or Fast AJAX (if available).', 'post-views-counter' ),
 					'class'			=> 'pvc-pro-extended',
 					'options'		=> $this->get_counter_modes(),
 					'disabled'		=> [ 'ajax' ]
@@ -199,7 +199,7 @@ class Post_Views_Counter_Settings {
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'boolean',
 					'description'	=> '',
-					'label'			=> __( 'Enable to display post views count column for each of the selected post types.', 'post-views-counter' )
+					'label'			=> __( 'Enable to display post views count column for each of the selected content types.', 'post-views-counter' )
 				],
 				'data_storage' => [
 					'tab'			=> 'general',
@@ -208,7 +208,7 @@ class Post_Views_Counter_Settings {
 					'type'			=> 'radio',
 					'class'			=> 'pvc-pro',
 					'skip_saving'	=> true,
-					'description'	=> sprintf( __( 'Choose how the content views data should be stored. Cookieless method cannot be used with PHP counter mode. It means that data will be stored in %s but it will fall back to %s to maintain functionality if user\'s browser does not support it. It will also delete cookies if there are any and import them into %s object.', 'post-views-counter' ), '<code>localStorage</code>', '<code>cookies</code>', '<code>localStorage</code>' ),
+					'description'	=> __( "Choose how to store the content views data in the user's browser - with or without cookies.", 'post-views-counter' ),
 					'options'		=> [
 						'cookies'		=> __( 'Cookies', 'post-views-counter' ),
 						'cookieless'	=> __( 'Cookieless', 'post-views-counter' )
@@ -225,8 +225,8 @@ class Post_Views_Counter_Settings {
 					'disabled'		=> true,
 					'skip_saving'	=> true,
 					'value'			=> false,
-					'label'			=> __( 'Enable to support AMP.', 'post-views-counter' ),
-					'description'	=> sprintf( __( 'This feature requires official %s plugin installed and activated.', 'post-views-counter' ), '<code><a href="https://wordpress.org/plugins/amp/" target="_blank">AMP</a></code>' )
+					'label'			=> __( 'Enable to support Google AMP.', 'post-views-counter' ),
+					'description'	=> __( 'This feature requires official WordPress Google AMP plugin to be installed and activated.', 'post-views-counter' ),
 				],
 				'restrict_edit_views' => [
 					'tab'			=> 'general',
@@ -253,7 +253,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Reset Data Interval', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'custom',
-					'description'	=> sprintf( __( 'Delete single day post views data older than specified above. Enter %s if you want to preserve your data regardless of its age. Data will be deleted once a day.', 'post-views-counter' ), '<code>0</code>' ),
+					'description'	=> sprintf( __( 'Delete single day post views data older than specified above. Enter %s if you want to preserve your data regardless of its age.', 'post-views-counter' ), '<code>0</code>' ),
 					'min'			=> 0,
 					'max'			=> 999999,
 					'options'		=> $time_types,
@@ -269,8 +269,8 @@ class Post_Views_Counter_Settings {
 					'disabled'		=> true,
 					'value'			=> false,
 					'skip_saving'	=> true,
-					'label'			=> sprintf( __( 'Enable to use persistent object cache.', 'post-views-counter' ), '<code>Redis</code>', '<code>Memcached</code>' ),
-					'description'	=> sprintf( __( 'This feature requires a persistent object cache like %s or %s is detected and active.', 'post-views-counter' ), '<code>Redis</code>', '<code>Memcached</code>' )
+					'label'			=> sprintf( __( 'Enable to use object cache optimization.', 'post-views-counter' ), '<code>Redis</code>', '<code>Memcached</code>' ),
+					'description'	=> sprintf( __( 'This feature requires a persistent object cache like %s or %s to be installed and activated.', 'post-views-counter' ), '<code>Redis</code>', '<code>Memcached</code>' )
 				],
 				'exclude' => [
 					'tab'			=> 'general',
@@ -413,6 +413,16 @@ class Post_Views_Counter_Settings {
 					'description'	=> __( 'The post views chart will be displayed for the post types that are being counted.', 'post-views-counter' ),
 					'label'			=> __( 'Enable to display the post views chart at the toolbar.', 'post-views-counter' )
 				],
+				'license' => [
+					'tab'			=> 'other',
+					'title'			=> __( 'License', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_other_settings',
+					'type'			=> 'input',
+					'disabled'		=> true,
+					'skip_saving'	=> true,
+					'description'	=> __( 'Enter your Post Views Counter Pro license key.', 'post-views-counter' ),
+					'subclass'		=> 'regular-text'
+				],
 				'menu_position' => [
 					'tab'			=> 'other',
 					'title'			=> __( 'Menu Position', 'post-views-counter' ),
@@ -420,17 +430,9 @@ class Post_Views_Counter_Settings {
 					'type'			=> 'radio',
 					'options'		=> [
 						'top'	=> __( 'Top menu', 'post-views-counter' ),
-						'sub'	=> __( 'Setting submenu', 'post-views-counter' )
+						'sub'	=> __( 'Settings submenu', 'post-views-counter' )
 					],
 					'description'	=> __( 'Choose where to display the menu.', 'post-views-counter' ),
-				],
-				'deactivation_delete' => [
-					'tab'			=> 'other',
-					'title'			=> __( 'Deactivation', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_other_settings',
-					'type'			=> 'boolean',
-					'description'	=> __( 'It will delete all data related to the plugin from the database including post views.', 'post-views-counter' ),
-					'label'			=> __( 'Enable to delete all plugin data on deactivation.', 'post-views-counter' )
 				],
 				'wp_postviews' => [
 					'tab'			=> 'other',
@@ -441,16 +443,13 @@ class Post_Views_Counter_Settings {
 					'skip_saving'	=> true,
 					'callback'		=> [ $this, 'setting_wp_postviews' ]
 				],
-				'license' => [
+				'deactivation_delete' => [
 					'tab'			=> 'other',
-					'title'			=> __( 'License', 'post-views-counter' ),
+					'title'			=> __( 'Deactivation', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_other_settings',
-					'type'			=> 'input',
-					'class'			=> 'pvc-pro',
-					'disabled'		=> true,
-					'skip_saving'	=> true,
-					'description'	=> __( 'Enter license key.', 'post-views-counter' ),
-					'subclass'		=> 'regular-text'
+					'type'			=> 'boolean',
+					'description'	=> __( 'If you deactivate the plugin with this option enabled all plugin data will be deleted along with the number of post views.', 'post-views-counter' ),
+					'label'			=> __( 'Enable to delete all plugin data on deactivation.', 'post-views-counter' )
 				]
 			]
 		];

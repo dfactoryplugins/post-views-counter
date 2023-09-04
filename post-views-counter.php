@@ -701,7 +701,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			#toplevel_page_post-views-counter .wp-submenu li:nth-of-type(4) a:after, .post-views-counter-settings tr.pvc-pro th:after, .nav-tab-wrapper a.nav-tab.nav-tab-disabled.pvc-pro:after, .post-views-counter-settings tr.pvc-pro-extended label[for="post_views_counter_general_counter_mode_ajax"]:after {
 				content: \'PRO\';
 				display: inline;
-				background-color: ' . esc_attr( $this->functions->get_current_scheme_color() ) . ';
+				background-color: #6610f2;
 				color: white;
 				padding: 2px 4px;
 				text-align: center;
@@ -709,7 +709,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				margin-left: 4px;
 				font-weight: bold;
 				font-size: 11px;
-			}' );
+			}' ); 
+			// $this->functions->get_current_scheme_color()
 		}
 
 		/**
