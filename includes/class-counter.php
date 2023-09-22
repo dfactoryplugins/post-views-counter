@@ -1015,10 +1015,14 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Remove post views from database when post is deleted.
 	 *
+	 * @global object $wpdb
+	 *
 	 * @param int $post_id
 	 * @return void
 	 */
 	public function delete_post_views( $post_id ) {
+		global $wpdb;
+
 		$where = [ 'id' => $post_id ];
 		$format = [ '%d' ];
 
