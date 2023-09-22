@@ -42,6 +42,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				'post_types_count'		=> [ 'post' ],
 				'taxonomies_count'		=> false,
 				'users_count'			=> false,
+				'other_count'			=> false,
 				'data_storage'			=> 'cookies',
 				'amp_support'			=> false,
 				'counter_mode'			=> 'php',
@@ -709,8 +710,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				margin-left: 4px;
 				font-weight: bold;
 				font-size: 11px;
-			}' ); 
-			// $this->functions->get_current_scheme_color()
+			}' );
 		}
 
 		/**

@@ -183,6 +183,17 @@ class Post_Views_Counter_Settings {
 					'skip_saving'	=> true,
 					'callback'		=> [ $this, 'setting_users_count' ]
 				],
+				'other_count' => [
+					'tab'			=> 'general',
+					'title'			=> __( 'Other Count', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_settings',
+					'type'			=> 'boolean',
+					'label'			=> __( 'Enable to count visits of front page, post type and date archives, 404 and search pages.', 'post-views-counter' ),
+					'class'			=> 'pvc-pro',
+					'disabled'		=> true,
+					'skip_saving'	=> true,
+					'value'			=> false
+				],
 				'counter_mode' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Counter Mode', 'post-views-counter' ),
@@ -226,7 +237,7 @@ class Post_Views_Counter_Settings {
 					'skip_saving'	=> true,
 					'value'			=> false,
 					'label'			=> __( 'Enable to support Google AMP.', 'post-views-counter' ),
-					'description'	=> __( 'This feature requires official WordPress Google AMP plugin to be installed and activated.', 'post-views-counter' ),
+					'description'	=> __( 'This feature requires official WordPress Google AMP plugin to be installed and activated.', 'post-views-counter' )
 				],
 				'restrict_edit_views' => [
 					'tab'			=> 'general',
@@ -418,8 +429,6 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'License', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_other_settings',
 					'type'			=> 'input',
-					'disabled'		=> true,
-					'skip_saving'	=> true,
 					'description'	=> __( 'Enter your Post Views Counter Pro license key.', 'post-views-counter' ),
 					'subclass'		=> 'regular-text'
 				],
