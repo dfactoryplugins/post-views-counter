@@ -702,7 +702,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			#toplevel_page_post-views-counter .wp-submenu li:nth-of-type(4) a:after, .post-views-counter-settings tr.pvc-pro th:after, .nav-tab-wrapper a.nav-tab.nav-tab-disabled.pvc-pro:after, .post-views-counter-settings tr.pvc-pro-extended label[for="post_views_counter_general_counter_mode_ajax"]:after {
 				content: \'PRO\';
 				display: inline;
-				background-color: #6610f2;
+				background-color: #ffc107;
 				color: white;
 				padding: 2px 4px;
 				text-align: center;

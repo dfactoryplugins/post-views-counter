@@ -266,22 +266,40 @@ class Post_Views_Counter_Settings_API {
 		// skip for internal options page
 		if ( $page_type !== 'settings_page' )
 			settings_errors();
-
+		
+		$license_data = get_option( 'post_views_counter_pro_license' );
+		$has_license = ! empty( $license_data['id'] ) ? true : false;
+		$is_pro = class_exists( 'Post_Views_Counter_Pro' );
+		
 		echo '
 			<div class="' . $this->slug . '-settings">
-				<div class="df-credits">
-					<h3 class="hndle">' . $this->plugin . ' ' . $this->object->defaults['version'] . '</h3>
-					<div class="inside">
-						<h4 class="inner">' . __( 'Need support?', $this->domain ) . '</h4>
-						<p class="inner">' . sprintf( __( 'If you are having problems with this plugin, please browse it\'s <a href="%s" target="_blank">Documentation</a> or talk about them in the <a href="%s" target="_blank">Support forum</a>', $this->domain ), 'http://www.dfactory.co/docs/' . $this->slug . '/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=docs', 'http://www.dfactory.co/support/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=support' ) . '</p>
-						<hr />
-						<h4 class="inner">' . __( 'Do you like this plugin?', $this->domain ) . '</h4>
-						<p class="inner">' . sprintf( __( '<a href="%s" target="_blank">Rate it 5</a> on WordPress.org', $this->domain ), 'https://wordpress.org/support/plugin/' . $this->slug . '/reviews/?filter=5' ) . '<br />' .
-						sprintf( __( 'Blog about it & link to the <a href="%s" target="_blank">plugin page</a>.', $this->domain ), 'http://www.dfactory.co/products/' . $this->slug . '/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=blog-about' ) . '<br />' .
-						sprintf( __( 'Check out our other <a href="%s" target="_blank">WordPress plugins</a>.', $this->domain ), 'http://www.dfactory.co/products/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=other-plugins' ) . '
-						</p>
-						<hr />
-						<p class="df-link inner"><a href="http://www.dfactory.co/?utm_source=' . $this->slug . '-settings&utm_medium=link&utm_campaign=created-by" target="_blank" title="Digital Factory"><img src="//pvc-53eb.kxcdn.com/df-black-sm.png" alt="Digital Factory"></a></p>
+				<div class="post-views-sidebar">
+					<div class="post-views-credits">
+						<div class="inside">
+							<div class="inner">
+								<div class="pvc-sidebar-info">
+									<div class="pvc-sidebar-head">
+										<p>' . __( "You're using", $this->domain ) . '</p>
+										<h2>' . $this->plugin . '</h2>
+										<h2>' . ( $is_pro ? 'Professional' : 'Lite' ) . '</h2>
+									</div>
+									<div class="pvc-sidebar-body">
+										<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Get <b>more accurate information</b> about the number of views of your site, regardless of what the user is visiting.', $this->domain ) . '</p>
+										<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Unlock <b>optimization features</b> and speed up view count tracking.', $this->domain ) . '</p>
+										<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Take your insights to the next level with dedicated, <b>customizable reporting</b>.', $this->domain ) . '</p>
+									</div>';
+		
+		if ( ! $is_pro ) {
+			echo '
+									<div class="pvc-pricing-footer">
+										<a href="https://postviewscounter.com/" class="button button-secondary button-hero cn-button" target="_blank">' . esc_html__( 'Upgrade to Pro', $this->domain ) . '</a>
+									</div>';
+		}
+			
+		echo '
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>';
 
