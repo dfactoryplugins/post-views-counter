@@ -68,13 +68,13 @@
 		} );
 
 		// menu position referer update
-		$( 'input[name="post_views_counter_settings_other[menu_position]"]' ).on( 'change', function() {
-			if ( $( this ).val() === 'top' ) {
-				$( 'input[data-pvc-menu="submenu"]' ).after( $( 'input[data-pvc-menu="topmenu"]' ) );
-			} else {
-				$( 'input[data-pvc-menu="submenu"]' ).before( $( 'input[data-pvc-menu="topmenu"]' ) );
-			}
-		} );
+		// $( 'input[name="post_views_counter_settings_other[menu_position]"]' ).on( 'change', function() {
+			// if ( $( this ).val() === 'top' ) {
+				// $( 'input[data-pvc-menu="submenu"]' ).after( $( 'input[data-pvc-menu="topmenu"]' ) );
+			// } else {
+				// $( 'input[data-pvc-menu="submenu"]' ).before( $( 'input[data-pvc-menu="topmenu"]' ) );
+			// }
+		// } );
 	} );
 
 } )( jQuery );

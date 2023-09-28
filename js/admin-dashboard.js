@@ -262,17 +262,18 @@
 
 		var prev = months[0].getElementsByClassName( 'prev' )[0];
 		var next = months[0].getElementsByClassName( 'next' )[0];
+		var id = $( container ).closest( '.pvc-accordion-item' ).attr( 'id' );
 
-		if ( $( container ).closest( '.pvc-accordion-item' ).attr( 'id' ) === 'pvc-post-most-viewed' )
+		if ( id === 'pvc-post-most-viewed' )
 			prev.addEventListener( 'click', loadPostMostViewedData );
-		else
+		else if ( id === 'pvc-post-views' )
 			prev.addEventListener( 'click', loadPostViewsData );
 
 		// skip span
 		if ( next.tagName === 'A' ) {
-			if ( $( container ).closest( '.pvc-accordion-item' ).attr( 'id' ) === 'pvc-post-most-viewed' )
+			if ( id === 'pvc-post-most-viewed' )
 				next.addEventListener( 'click', loadPostMostViewedData );
-			else
+			else if ( id === 'pvc-post-views' )
 				next.addEventListener( 'click', loadPostViewsData );
 		}
 	}

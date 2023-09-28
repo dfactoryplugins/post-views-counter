@@ -92,7 +92,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				'toolbar_statistics'	=> true
 			],
 			'other'		=> [
-				'menu_position'			=> 'sub',
+				// 'menu_position'			=> 'sub',
 				'deactivation_delete'	=> false,
 				'license'				=> ''
 			],
@@ -727,11 +727,11 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				return $links;
 
 			// submenu?
-			if ( $this->options['other']['menu_position'] === 'sub' )
+			// if ( $this->options['other']['menu_position'] === 'sub' )
 				$url = admin_url( 'options-general.php?page=post-views-counter' );
 			// topmenu?
-			else
-				$url = admin_url( 'admin.php?page=post-views-counter' );
+			// else
+				// $url = admin_url( 'admin.php?page=post-views-counter' );
 
 			array_unshift( $links, sprintf( '<a href="%s">%s</a>', esc_url_raw( $url ), esc_html__( 'Settings', 'post-views-counter' ) ) );
 

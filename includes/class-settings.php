@@ -18,7 +18,8 @@ class Post_Views_Counter_Settings {
 	public function __construct() {
 		// actions
 		add_action( 'admin_init', [ $this, 'update_counter_mode' ], 12 );
-		add_action( 'pvc_settings_form', [ $this, 'settings_form' ], 10, 4 );
+		add_action( 'pvc_settings_sidebar', [ $this, 'settings_sidebar' ], 12 );
+		// add_action( 'pvc_settings_form', [ $this, 'settings_form' ], 10, 4 );
 
 		// filters
 		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_data' ] );
@@ -48,6 +49,51 @@ class Post_Views_Counter_Settings {
 			echo $topmenu . $submenu;
 		else
 			echo $submenu . $topmenu;
+	}
+
+	/**
+	 * Display settings sidebar.
+	 *
+	 * @return void
+	 */
+	public function settings_sidebar(  ) {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		$license_data = get_option( 'post_views_counter_pro_license', [] );
+		$has_license = ! empty( $license_data['id'] );
+		$is_pro = class_exists( 'Post_Views_Counter_Pro' );
+
+		echo '
+		<div class="post-views-sidebar">
+			<div class="post-views-credits">
+				<div class="inside">
+					<div class="inner">
+						<div class="pvc-sidebar-info">
+							<div class="pvc-sidebar-head">
+								<p>' . esc_html__( "You're using", 'post-views-counter' ) . '</p>
+								<h2>Post Views Counter</h2>
+								<h2>' . ( $is_pro ? 'Professional' : 'Lite' ) . '</h2>
+							</div>
+							<div class="pvc-sidebar-body">
+								<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Get <b>more accurate information</b> about the number of views of your site, regardless of what the user is visiting.', 'post-views-counter' ) . '</p>
+								<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Unlock <b>optimization features</b> and speed up view count tracking.', 'post-views-counter' ) . '</p>
+								<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Take your insights to the next level with dedicated, <b>customizable reporting</b>.', 'post-views-counter' ) . '</p>
+							</div>';
+
+		if ( ! $is_pro ) {
+			echo '
+							<div class="pvc-pricing-footer">
+								<a href="https://postviewscounter.com/" class="button button-secondary button-hero cn-button" target="_blank">' . esc_html__( 'Upgrade to Pro', 'post-views-counter' ) . '</a>
+							</div>';
+		}
+	
+		echo '
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>';
 	}
 
 	/**
@@ -428,21 +474,24 @@ class Post_Views_Counter_Settings {
 					'tab'			=> 'other',
 					'title'			=> __( 'License', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_other_settings',
+					'disabled'		=> true,
+					'value'			=> $pvc->options['other']['license'],
 					'type'			=> 'input',
 					'description'	=> __( 'Enter your Post Views Counter Pro license key.', 'post-views-counter' ),
-					'subclass'		=> 'regular-text'
+					'subclass'		=> 'regular-text',
+					'validate'		=> [ $this, 'validate_license' ],
 				],
-				'menu_position' => [
-					'tab'			=> 'other',
-					'title'			=> __( 'Menu Position', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_other_settings',
-					'type'			=> 'radio',
-					'options'		=> [
-						'top'	=> __( 'Top menu', 'post-views-counter' ),
-						'sub'	=> __( 'Settings submenu', 'post-views-counter' )
-					],
-					'description'	=> __( 'Choose where to display the menu.', 'post-views-counter' ),
-				],
+				// 'menu_position' => [
+					// 'tab'			=> 'other',
+					// 'title'			=> __( 'Menu Position', 'post-views-counter' ),
+					// 'section'		=> 'post_views_counter_other_settings',
+					// 'type'			=> 'radio',
+					// 'options'		=> [
+						// 'top'	=> __( 'Top menu', 'post-views-counter' ),
+						// 'sub'	=> __( 'Settings submenu', 'post-views-counter' )
+					// ],
+					// 'description'	=> __( 'Choose where to display the menu.', 'post-views-counter' ),
+				// ],
 				'wp_postviews' => [
 					'tab'			=> 'other',
 					'title'			=> __( 'Tools', 'post-views-counter' ),
@@ -480,7 +529,8 @@ class Post_Views_Counter_Settings {
 		$pages['post-views-counter'] = [
 			'menu_slug'		=> 'post-views-counter',
 			'page_title'	=> __( 'Post Views Counter Settings', 'post-views-counter' ),
-			'menu_title'	=> $pvc->options['other']['menu_position'] === 'sub' ? __( 'Post Views Counter', 'post-views-counter' ) : __( 'Post Views', 'post-views-counter' ),
+			// 'menu_title'	=> $pvc->options['other']['menu_position'] === 'sub' ? __( 'Post Views Counter', 'post-views-counter' ) : __( 'Post Views', 'post-views-counter' ),
+			'menu_title'	=> __( 'Post Views Counter', 'post-views-counter' ),
 			'capability'	=> apply_filters( 'pvc_settings_capability', 'manage_options' ),
 			'callback'		=> null,
 			'tabs'			=> [
@@ -506,10 +556,10 @@ class Post_Views_Counter_Settings {
 		];
 
 		// submenu?
-		if ( $pvc->options['other']['menu_position'] === 'sub' ) {
+		// if ( $pvc->options['other']['menu_position'] === 'sub' ) {
 			$pages['post-views-counter']['type'] = 'settings_page';
 		// topmenu?
-		} else {
+		/* } else {
 			// highlight submenus
 			add_filter( 'submenu_file', [ $this, 'submenu_file' ], 10, 2 );
 
@@ -558,7 +608,7 @@ class Post_Views_Counter_Settings {
 				'capability'	=> apply_filters( 'pvc_settings_capability', 'manage_options' ),
 				'callback'		=> null
 			];
-		}
+		} */
 
 		return $pages;
 	}
@@ -1134,5 +1184,17 @@ class Post_Views_Counter_Settings {
 			$input['restrict_display']['roles'] = [];
 
 		return $input;
+	}
+
+	/**
+	 * Validate license.
+	 *
+	 * @param array $input
+	 * @param array $field
+	 * @return array
+	 */
+	public function validate_license( $input, $field ) {
+		// save value from database
+		return $field['value'];
 	}
 }

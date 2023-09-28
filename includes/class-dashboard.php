@@ -99,13 +99,15 @@ class Post_Views_Counter_Dashboard {
 				'id'			=> 'post-views',
 				'title'			=> __( 'Post Views', 'post-views-counter' ),
 				'description'	=> __( 'Displays the chart of most viewed post types for a selected time period.', 'post-views-counter' ),
-				'content'		=> '<canvas id="pvc-post-views-chart" height="' . $this->calculate_canvas_size( Post_Views_Counter()->options['general']['post_types_count'] ) . '"></canvas>'
+				'content'		=> '<canvas id="pvc-post-views-chart" height="' . (int) $this->calculate_canvas_size( Post_Views_Counter()->options['general']['post_types_count'] ) . '"></canvas>',
+				'position'		=> 1
 			],
 			[
 				'id'			=> 'post-most-viewed',
 				'title'			=> __( 'Top Posts', 'post-views-counter' ),
 				'description'	=> __( 'Displays the list of most viewed posts and pages on your website.', 'post-views-counter' ),
-				'content'		=> '<div id="pvc-post-most-viewed-content" class="pvc-table-responsive"></div>'
+				'content'		=> '<div id="pvc-post-most-viewed-content" class="pvc-table-responsive"></div>',
+				'position'		=> 2
 			]
 		];
 
@@ -119,6 +121,9 @@ class Post_Views_Counter_Dashboard {
 				array_push( $items, $item );
 			}
 		}
+
+		// sort dashboard items by position
+		array_multisort( array_column( $items, 'position' ), SORT_ASC, SORT_NUMERIC, $items );
 
 		// set widget items
 		$this->widget_items = $items;
@@ -366,7 +371,7 @@ class Post_Views_Counter_Dashboard {
 				}
 
 				// this month all days
-				for ( $i = 1; $i <= 12; $i ++ ) {
+				for ( $i = 1; $i <= 12; $i++ ) {
 					// generate chart data
 					$data['data']['labels'][] = $i;
 					$data['data']['dates'][] = date_i18n( 'F Y', strtotime( date( 'Y' ) . '-' . str_pad( $i, 2, '0', STR_PAD_LEFT ) . '-01' ) );
@@ -456,7 +461,7 @@ class Post_Views_Counter_Dashboard {
 				}
 
 				// this month all days
-				for ( $i = 1; $i <= $date[2]; $i ++ ) {
+				for ( $i = 1; $i <= $date[2]; $i++ ) {
 					// generate chart data
 					$data['data']['labels'][] = ( $i % 2 === 0 ? '' : $i );
 					$data['data']['dates'][] = date_i18n( get_option( 'date_format' ), strtotime( $date[1] . '-' . $date[0] . '-' . str_pad( $i, 2, '0', STR_PAD_LEFT ) ) );
