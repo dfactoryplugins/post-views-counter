@@ -21,7 +21,7 @@ class Post_Views_Counter_Update {
 	}
 
 	/**
-	 * Check if there's a database update required.
+	 * Check whether update is required.
 	 *
 	 * @return void
 	 */
@@ -75,6 +75,9 @@ class Post_Views_Counter_Update {
 		if ( version_compare( $current_db_version, '1.3.13', '<=' ) ) {
 			// get general options
 			$general = $pvc->options['general'];
+
+			// disable strict counts
+			$general['strict_counts'] = false;
 
 			// get default other options
 			$other_options = $pvc->defaults['other'];
@@ -160,7 +163,7 @@ class Post_Views_Counter_Update {
 
 		// check whether index already exists
 		if ( $old_index > 0 ) {
-			// drop unwanted index which prevented saving views with indentical weeks and months
+			// drop unwanted index which prevented saving views with identical weeks and months
 			$wpdb->query( "ALTER TABLE `" . $wpdb->prefix . "post_views` DROP INDEX id_period" );
 		}
 
@@ -169,7 +172,7 @@ class Post_Views_Counter_Update {
 
 		// check whether index already exists
 		if ( $new_index === 0 ) {
-			// create new index for better performance of SQL queries
+			// create new index for better performance of sql queries
 			$wpdb->query( 'ALTER TABLE `' . $wpdb->prefix . 'post_views` ADD UNIQUE INDEX `id_type_period_count` (`id`, `type`, `period`, `count`) USING BTREE' );
 		}
 

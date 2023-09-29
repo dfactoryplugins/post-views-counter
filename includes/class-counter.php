@@ -247,29 +247,92 @@ class Post_Views_Counter_Counter {
 	/**
 	 * Check whether to count visit.
 	 *
-	 * @param int $id
+	 * @param int $post_id
 	 * @param array $content_data
 	 * @return void|int
 	 */
-	public function check_post( $id = 0, $content_data = [] ) {
-		// force check cookie in SHORTINIT mode
+	public function check_post( $post_id = 0, $content_data = [] ) {
+		// force check cookie in short init mode
 		if ( defined( 'SHORTINIT' ) && SHORTINIT )
 			$this->check_cookie();
 
 		// get post id
-		$id = (int) ( empty( $id ) ? get_the_ID() : $id );
+		$post_id = (int) ( empty( $post_id ) ? get_the_ID() : $post_id );
 
 		// empty id?
-		if ( empty( $id ) )
+		if ( empty( $post_id ) )
 			return;
+
+		// get main instance
+		$pvc = Post_Views_Counter();
 
 		// get user id, from current user or static var in rest api request
 		$user_id = get_current_user_id();
 
-		// get user IP address
+		// get user ip address
 		$user_ip = $this->get_user_ip();
 
-		do_action( 'pvc_before_check_visit', $id, $user_id, $user_ip, 'post' );
+		// before visit action
+		do_action( 'pvc_before_check_visit', $post_id, $user_id, $user_ip, 'post', $content_data );
+
+		// check all conditions to count visit
+		add_filter( 'pvc_count_conditions_met', [ $this, 'check_conditions' ], 10, 6 );
+
+		// check conditions - excluded ips, excluded groups
+		$conditions_met = apply_filters( 'pvc_count_conditions_met', true, $post_id, $user_id, $user_ip, 'post', $content_data );
+
+		// conditions failed?
+		if ( ! $conditions_met )
+			return;
+
+		// do not count visit by default
+		$count_visit = false;
+
+		// cookieless data storage?
+		if ( $pvc->options['general']['data_storage'] === 'cookieless' && $this->storage_type === 'cookieless' ) {
+			$count_visit = $this->save_data_storage( $post_id, 'post', $content_data );
+		} elseif ( $pvc->options['general']['data_storage'] === 'cookies' && $this->storage_type === 'cookies' ) {
+			// php counter mode?
+			if ( $pvc->options['general']['counter_mode'] === 'php' ) {
+				if ( $this->cookie['exists'] ) {
+					// update cookie
+					$count_visit = $this->save_cookie( $post_id, $this->cookie );
+				} else {
+					// set new cookie
+					$count_visit = $this->save_cookie( $post_id );
+				}
+			} else {
+				$count_visit = $this->save_cookie_storage( $post_id, $content_data );
+			}
+		}
+
+		// filter visit counting
+		$count_visit = (bool) apply_filters( 'pvc_count_visit', $count_visit, $post_id, $user_id, $user_ip, 'post', $content_data );
+
+		// count visit
+		if ( $count_visit ) {
+			// before count visit action
+			do_action( 'pvc_before_count_visit', $post_id, $user_id, $user_ip, 'post', $content_data );
+
+			return $this->count_visit( $post_id );
+		}
+	}
+
+	/**
+	 * Check whether counting conditions are met.
+	 *
+	 * @param bool $allow_counting
+	 * @param int $post_id
+	 * @param int $user_id
+	 * @param string $user_ip
+	 * @param string $content_type
+	 * @param array $content_data
+	 * @return bool
+	 */
+	public function check_conditions( $allow_counting, $post_id, $user_id, $user_ip, $content_type, $content_data ) {
+		// already failed?
+		if ( ! $allow_counting )
+			return false;
 
 		// get main instance
 		$pvc = Post_Views_Counter();
@@ -283,32 +346,11 @@ class Post_Views_Counter_Counter {
 			foreach ( $ips as $ip ) {
 				if ( strpos( $ip, '*' ) !== false ) {
 					if ( $this->ipv4_in_range( $user_ip, $ip ) )
-						return;
+						return false;
 				} else {
 					if ( $user_ip === $ip )
-						return;
+						return false;
 				}
-			}
-		}
-
-		// strict counts?
-		if ( $pvc->options['general']['strict_counts'] ) {
-			// get IP cached visits
-			$ip_cache = get_transient( 'post_views_counter_ip_cache' );
-
-			if ( ! $ip_cache )
-				$ip_cache = [];
-
-			// get user IP address
-			$user_ip = $this->encrypt_ip( $user_ip );
-
-			// visit exists in transient?
-			if ( isset( $ip_cache[$id][$user_ip] ) ) {
-				// get current time
-				$current_time = current_time( 'timestamp', true );
-
-				if ( $current_time < $ip_cache[$id][$user_ip] + $this->get_timestamp( $pvc->options['general']['time_between_counts']['type'], $pvc->options['general']['time_between_counts']['number'], false ) )
-					return;
 			}
 		}
 
@@ -319,50 +361,19 @@ class Post_Views_Counter_Counter {
 		if ( ! empty( $user_id ) ) {
 			// exclude logged in users?
 			if ( in_array( 'users', $groups, true ) )
-				return;
+				return false;
 			// exclude specific roles?
 			elseif ( in_array( 'roles', $groups, true ) && $this->is_user_role_excluded( $user_id, $pvc->options['general']['exclude']['roles'] ) )
-				return;
+				return false;
 		// exclude guests?
 		} elseif ( in_array( 'guests', $groups, true ) )
-			return;
+			return false;
 
 		// whether to count robots
 		if ( in_array( 'robots', $groups, true ) && $pvc->crawler->is_crawler() )
-			return;
+			return false;
 
-		// do not count visit by default
-		$count_visit = false;
-
-		// cookieless data storage?
-		if ( $pvc->options['general']['data_storage'] === 'cookieless' && $this->storage_type === 'cookieless' ) {
-			$count_visit = $this->save_data_storage( $id, 'post', $content_data );
-		} elseif ( $pvc->options['general']['data_storage'] === 'cookies' && $this->storage_type === 'cookies' ) {
-			// php counter mode?
-			if ( $pvc->options['general']['counter_mode'] === 'php' ) {
-				if ( $this->cookie['exists'] ) {
-					// update cookie
-					$count_visit = $this->save_cookie( $id, $this->cookie );
-				} else {
-					// set new cookie
-					$count_visit = $this->save_cookie( $id );
-				}
-			} else {
-				$count_visit = $this->save_cookie_storage( $id, $content_data );
-			}
-		}
-
-		// filter visit counting
-		$count_visit = (bool) apply_filters( 'pvc_count_visit', $count_visit, $id, 'post' );
-
-		// count visit
-		if ( $count_visit ) {
-			// strict counts?
-			if ( $pvc->options['general']['strict_counts'] )
-				$this->save_ip( $id );
-
-			return $this->count_visit( $id );
-		}
+		return $allow_counting;
 	}
 
 	/**
@@ -638,7 +649,7 @@ class Post_Views_Counter_Counter {
 		$count_visit = true;
 
 		// get expiration
-		$expiration = $pvc->counter->get_timestamp( $pvc->options['general']['time_between_counts']['type'], $pvc->options['general']['time_between_counts']['number'] );
+		$expiration = $this->get_timestamp( $pvc->options['general']['time_between_counts']['type'], $pvc->options['general']['time_between_counts']['number'] );
 
 		// is this a new cookie?
 		if ( empty( $content_data ) ) {
@@ -694,7 +705,7 @@ class Post_Views_Counter_Counter {
 		$count_visit = true;
 
 		// get expiration
-		$expiration = $pvc->counter->get_timestamp( $pvc->options['general']['time_between_counts']['type'], $pvc->options['general']['time_between_counts']['number'] );
+		$expiration = $this->get_timestamp( $pvc->options['general']['time_between_counts']['type'], $pvc->options['general']['time_between_counts']['number'] );
 
 		// assign cookie name
 		$cookie_name = 'pvc_visits' . ( is_multisite() ? '_' . get_current_blog_id() : '' );
@@ -931,52 +942,6 @@ class Post_Views_Counter_Counter {
 		}
 
 		return $count_visit;
-	}
-
-	/**
-	 * Save user IP address.
-	 *
-	 * @param int $id
-	 * @return void
-	 */
-	private function save_ip( $id ) {
-		// early return?
-		if ( apply_filters( 'pvc_maybe_set_ip', true, $id, 'post' ) !== true )
-			return;
-
-		// get ip cached visits
-		$ip_cache = get_transient( 'post_views_counter_ip_cache' );
-
-		if ( ! $ip_cache )
-			$ip_cache = [];
-
-		// get user ip address
-		$user_ip = $this->encrypt_ip( $this->get_user_ip() );
-
-		// get current time
-		$current_time = current_time( 'timestamp', true );
-
-		// visit exists in transient?
-		if ( isset( $ip_cache[$id][$user_ip] ) ) {
-			// get main instance
-			$pvc = Post_Views_Counter();
-
-			if ( $current_time > $ip_cache[$id][$user_ip] + $this->get_timestamp( $pvc->options['general']['time_between_counts']['type'], $pvc->options['general']['time_between_counts']['number'], false ) )
-				$ip_cache[$id][$user_ip] = $current_time;
-			else
-				return;
-		} else
-			$ip_cache[$id][$user_ip] = $current_time;
-
-		// keep it light, only 10 records per post and maximum 100 post records (max. 1000 ip entries)
-		// also, the data gets deleted after a week if there's no activity during this time
-		if ( count( $ip_cache[$id] ) > 10 )
-			$ip_cache[$id] = array_slice( $ip_cache[$id], -10, 10, true );
-
-		if ( count( $ip_cache ) > 100 )
-			$ip_cache = array_slice( $ip_cache, -100, 100, true );
-
-		set_transient( 'post_views_counter_ip_cache', $ip_cache, WEEK_IN_SECONDS );
 	}
 
 	/**
@@ -1285,76 +1250,6 @@ class Post_Views_Counter_Counter {
 			return false;
 
 		return true;
-	}
-
-	/**
-	 * Encrypt user IP.
-	 *
-	 * @param string $ip
-	 * @return string
-	 */
-	public function encrypt_ip( $ip ) {
-		$auth_key = defined( 'AUTH_KEY' ) ? AUTH_KEY : false;
-		$auth_iv = defined( 'NONCE_KEY' ) ? NONCE_KEY : false;
-		$cipher = 'AES-256-CBC';
-		$php_71x = version_compare( phpversion(), '7.1.0', '>=' ) && version_compare( phpversion(), '7.2.0', '<' );
-
-		// openssl encryption
-		if ( $auth_key && $auth_iv && function_exists( 'openssl_encrypt' ) && in_array( $cipher, array_map( 'strtoupper', openssl_get_cipher_methods() ) ) )
-			$encrypted_ip = base64_encode( openssl_encrypt( $ip, $cipher, $auth_key, 0, mb_strimwidth( $auth_iv, 0, openssl_cipher_iv_length( $cipher ), '', 'UTF-8' ) ) );
-		// mcrypt encryption
-		elseif ( $auth_key && $auth_iv && ! $php_71x && function_exists( 'mcrypt_encrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
-			// get max key size of the mcrypt mode
-			$max_key_size = mcrypt_get_key_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
-			$max_iv_size = mcrypt_get_iv_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
-
-			$encrypt_key = mb_strimwidth( $auth_key, 0, $max_key_size );
-			$encrypt_iv = mb_strimwidth( $auth_iv, 0, $max_iv_size );
-
-			$encrypted_ip = base64_encode( mcrypt_encrypt( MCRYPT_BLOWFISH, $encrypt_key, $ip, MCRYPT_MODE_CBC, $encrypt_iv ) );
-		// simple encryption
-		} elseif ( function_exists( 'gzdeflate' ) )
-			$encrypted_ip = base64_encode( convert_uuencode( gzdeflate( $ip ) ) );
-		// no encryption
-		else
-			$encrypted_ip = base64_encode( convert_uuencode( $ip ) );
-
-		return $encrypted_ip;
-	}
-
-	/**
-	 * Decrypt user IP.
-	 *
-	 * @param string $encrypted_ip
-	 * @return string
-	 */
-	public function decrypt_ip( $encrypted_ip ) {
-		$auth_key = defined( 'AUTH_KEY' ) ? AUTH_KEY : false;
-		$auth_iv = defined( 'NONCE_KEY' ) ? NONCE_KEY : false;
-		$cipher = 'AES-256-CBC';
-		$php_71x = version_compare( phpversion(), '7.1.0', '>=' ) && version_compare( phpversion(), '7.2.0', '<' );
-
-		// openssl decryption
-		if ( $auth_key && $auth_iv && function_exists( 'openssl_encrypt' ) && in_array( $cipher, array_map( 'strtoupper', openssl_get_cipher_methods() ) ) )
-			$ip = openssl_decrypt( base64_decode( $encrypted_ip ), $cipher, $auth_key, 0, mb_strimwidth( $auth_iv, 0, openssl_cipher_iv_length( $cipher ), '', 'UTF-8' ) );
-		// mcrypt decryption
-		elseif ( $auth_key && $auth_iv && ! $php_71x && function_exists( 'mcrypt_decrypt' ) && function_exists( 'mcrypt_get_key_size' ) && function_exists( 'mcrypt_get_iv_size' ) && defined( 'MCRYPT_BLOWFISH' ) ) {
-			// get max key size of the mcrypt mode
-			$max_key_size = mcrypt_get_key_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
-			$max_iv_size = mcrypt_get_iv_size( MCRYPT_BLOWFISH, MCRYPT_MODE_CBC );
-
-			$encrypt_key = mb_strimwidth( $auth_key, 0, $max_key_size );
-			$encrypt_iv = mb_strimwidth( $auth_iv, 0, $max_iv_size );
-
-			$ip = rtrim( mcrypt_decrypt( MCRYPT_BLOWFISH, $encrypt_key, base64_decode( $encrypted_ip ), MCRYPT_MODE_CBC, $encrypt_iv ), "\0" );
-		// simple decryption
-		} elseif ( function_exists( 'gzinflate' ) )
-			$ip = gzinflate( convert_uudecode( base64_decode( $encrypted_ip ) ) );
-		// no decryption
-		else
-			$ip = convert_uudecode( base64_decode( $encrypted_ip ) );
-
-		return $ip;
 	}
 
 	/**
