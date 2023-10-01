@@ -2,10 +2,10 @@
 /*
 Plugin Name: Post Views Counter
 Description: Post Views Counter allows you to display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
-Version: 1.3.13
+Version: 1.4
 Author: dFactory
-Author URI: http://www.dfactory.co/
-Plugin URI: http://www.dfactory.co/products/post-views-counter/
+Author URI: https://dfactory.co/
+Plugin URI: https://postviewscounter.com/
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 Text Domain: post-views-counter
@@ -30,7 +30,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 	 * Post Views Counter final class.
 	 *
 	 * @class Post_Views_Counter
-	 * @version	1.3.13
+	 * @version	1.4
 	 */
 	final class Post_Views_Counter {
 
@@ -96,7 +96,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				'deactivation_delete'	=> false,
 				'license'				=> ''
 			],
-			'version'	=> '1.3.13'
+			'version'	=> '1.4'
 		];
 
 		// instances
@@ -258,7 +258,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 
 			// filters
 			add_filter( 'plugin_action_links_' . POST_VIEWS_COUNTER_BASENAME, [ $this, 'plugin_settings_link' ] );
-			add_filter( 'plugin_row_meta', [ $this, 'plugin_extend_links' ], 10, 2 );
 		}
 
 		/**
@@ -312,7 +311,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				}
 
 				if ( ( ! empty( $this->options['general']['update_delay_date'] ) ? (int) $this->options['general']['update_delay_date'] : $current_time ) <= $current_time )
-					$this->add_notice( sprintf( __( "Hey, you've been using <strong>Post Views Counter</strong> for more than %s.", 'post-views-counter' ), human_time_diff( $activation_date, $current_time ) ) . '<br />' . __( 'Could you please do me a BIG favor and give it a 5-star rating on WordPress to help us spread the word and boost our motivation.', 'post-views-counter' ) . '<br /><br />' . __( 'Your help is much appreciated. Thank you very much', 'post-views-counter' ) . ' ~ <strong>Bartosz Arendt</strong>, ' . sprintf( __( 'founder of <a href="%s" target="_blank">Digital Factory</a> plugins.', 'post-views-counter' ), 'http://www.dfactory.co/' ) . '<br /><br />' . sprintf( __( '<a href="%s" class="pvc-dismissible-notice" target="_blank" rel="noopener">Ok, you deserve it</a><br /><a href="#" class="pvc-dismissible-notice pvc-delay-notice" rel="noopener">Nope, maybe later</a><br /><a href="#" class="pvc-dismissible-notice" rel="noopener">I already did</a>', 'post-views-counter' ), 'https://wordpress.org/support/plugin/post-views-counter/reviews/?filter=5#new-post' ), 'notice notice-info is-dismissible pvc-notice' );
+					$this->add_notice( sprintf( __( "Hey, you've been using <strong>Post Views Counter</strong> for more than %s.", 'post-views-counter' ), human_time_diff( $activation_date, $current_time ) ) . '<br />' . __( 'Could you please do me a BIG favor and give it a 5-star rating on WordPress to help us spread the word and boost our motivation.', 'post-views-counter' ) . '<br /><br />' . __( 'Your help is much appreciated. Thank you very much', 'post-views-counter' ) . ' ~ <strong>Bartosz Arendt</strong>, ' . sprintf( __( 'founder of <a href="%s" target="_blank">Digital Factory</a> plugins.', 'post-views-counter' ), 'https://dfactory.co/' ) . '<br /><br />' . sprintf( __( '<a href="%s" class="pvc-dismissible-notice" target="_blank" rel="noopener">Ok, you deserve it</a><br /><a href="#" class="pvc-dismissible-notice pvc-delay-notice" rel="noopener">Nope, maybe later</a><br /><a href="#" class="pvc-dismissible-notice" rel="noopener">I already did</a>', 'post-views-counter' ), 'https://wordpress.org/support/plugin/post-views-counter/reviews/?filter=5#new-post' ), 'notice notice-info is-dismissible pvc-notice' );
 			}
 		}
 
@@ -734,23 +733,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				// $url = admin_url( 'admin.php?page=post-views-counter' );
 
 			array_unshift( $links, sprintf( '<a href="%s">%s</a>', esc_url_raw( $url ), esc_html__( 'Settings', 'post-views-counter' ) ) );
-
-			return $links;
-		}
-
-		/**
-		 * Add link to Support Forum.
-		 *
-		 * @param array $links
-		 * @param string $file
-		 * @return array
-		 */
-		public function plugin_extend_links( $links, $file ) {
-			if ( ! current_user_can( 'install_plugins' ) )
-				return $links;
-
-			if ( $file === POST_VIEWS_COUNTER_BASENAME )
-				return array_merge( $links, [ sprintf( '<a href="http://www.dfactory.co/support/forum/post-views-counter/" target="_blank">%s</a>', esc_html__( 'Support', 'post-views-counter' ) ) ] );
 
 			return $links;
 		}

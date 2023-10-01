@@ -1,5 +1,5 @@
 /* Post Views Counter settings */
-.post-views-counter-settings {
+.post-views-counter-settings.has-sidebar {
 	margin-right: 300px;
 }
 .post-views-counter-settings form {
@@ -207,6 +207,59 @@ output {
 	height: 2px;
 	bottom: 10px;
 	background: #ffc107;
+}
+
+#post_views_counter_other_license_setting .pvc-icon {
+        box-sizing: border-box;
+        position: relative;
+        display: inline-block;
+        transform: scale(1);
+        width: 22px;
+        height: 22px;
+        border: 2px solid transparent;
+        border-radius: 40px;
+        vertical-align: middle;
+        margin-left: 3px;
+        top: -2px;
+        color: #b32d2e;
+}
+
+#post_views_counter_other_license_setting:not(.valid) .pvc-icon:before,
+#post_views_counter_other_license_setting:not(.valid) .pvc-icon:after {
+        content: "";
+        display: block;
+        box-sizing: border-box;
+        position: absolute;
+        width: 16px;
+        height: 2px;
+        background: currentColor;
+        transform: rotate(45deg);
+        border-radius: 5px;
+        top: 8px;
+        left: 1px
+}
+
+#post_views_counter_other_license_setting:not(.valid) .pvc-icon:after {
+        transform: rotate(-45deg)
+}
+
+#post_views_counter_other_license_setting.valid .pvc-icon {
+    color: #1da867;
+}
+
+#post_views_counter_other_license_setting.valid .pvc-icon:after {
+        content: "";
+        display: block;
+        box-sizing: border-box;
+        position: absolute;
+        left: 3px;
+        top: -1px;
+        width: 6px;
+        height: 10px;
+        border-width: 0 2px 2px 0;
+        border-style: solid;
+        transform-origin: bottom left;
+        transform: rotate(45deg);
 }
 
 /* All Mobile Sizes (devices and browser) */

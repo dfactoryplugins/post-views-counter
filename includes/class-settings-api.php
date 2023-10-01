@@ -266,9 +266,11 @@ class Post_Views_Counter_Settings_API {
 		// skip for internal options page
 		if ( $page_type !== 'settings_page' )
 			settings_errors();
+		
+		$settings_class = esc_html( apply_filters( 'pvc_settings_page_class', '' ) );
 
 		echo '
-			<div class="' . $this->slug . '-settings">';
+			<div class="' . $this->slug . '-settings ' . $settings_class . '">';
 
 		$display_form = true;
 
@@ -489,9 +491,9 @@ class Post_Views_Counter_Settings_API {
 				break;
 
 			case 'number':
-				$html .= ( ! empty( $args['prepend'] ) ? '<span>' . esc_html( $args['prepend'] ) . '</span> ' : '' );
+				$html .= ( ! empty( $args['prepend'] ) ? wp_kses_post( $args['prepend'] ) : '' );
 				$html .= '<input id="' . $args['id'] . '" type="text" value="' . esc_attr( $args['value'] ) . '" name="' . esc_attr( $args['name'] ) . '" />';
-				$html .= ( ! empty( $args['append'] ) ? ' <span>' . esc_html( $args['append'] ) . '</span>' : '' );
+				$html .= ( ! empty( $args['append'] ) ? wp_kses_post( $args['append'] ) : '' );
 				break;
 
 			case 'custom':
@@ -507,9 +509,9 @@ class Post_Views_Counter_Settings_API {
 			default:
 				$empty_disabled = empty( $args['disabled'] );
 
-				$html .= ( ! empty( $args['prepend'] ) ? '<span>' . esc_html( $args['prepend'] ) . '</span> ' : '' );
+				$html .= ( ! empty( $args['prepend'] ) ? wp_kses_post( $args['prepend'] ) : '' );
 				$html .= '<input id="' . $args['id'] . '"' . ( ! empty( $args['subclass'] ) ? ' class="' . esc_attr( $args['subclass'] ) . '"' : '' ) . ' type="text" value="' . esc_attr( $args['value'] ) . '" name="' . esc_attr( $args['name'] ) . '" ' . disabled( $empty_disabled, false, false ) . '/>';
-				$html .= ( ! empty( $args['append'] ) ? ' <span>' . esc_html( $args['append'] ) . '</span>' : '' );
+				$html .= ( ! empty( $args['append'] ) ? wp_kses_post( $args['append'] ) : '' );
 
 				if ( ! $empty_disabled )
 					$html .= '<input' . ( $empty_disabled ? '' : ' class="hidden"' ) . ' type="text" value="' . esc_attr( $args['value'] ) . '" name="' . esc_attr( $args['name'] ) . '">';

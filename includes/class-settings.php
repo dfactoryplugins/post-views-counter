@@ -24,6 +24,7 @@ class Post_Views_Counter_Settings {
 		// filters
 		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_data' ] );
 		add_filter( 'post_views_counter_settings_pages', [ $this, 'settings_page' ] );
+		add_filter( 'pvc_settings_page_class', [ $this, 'settings_Page_class' ] );
 	}
 
 	/**
@@ -64,36 +65,38 @@ class Post_Views_Counter_Settings {
 		$has_license = ! empty( $license_data['id'] );
 		$is_pro = class_exists( 'Post_Views_Counter_Pro' );
 
-		echo '
-		<div class="post-views-sidebar">
-			<div class="post-views-credits">
-				<div class="inside">
-					<div class="inner">
-						<div class="pvc-sidebar-info">
-							<div class="pvc-sidebar-head">
-								<p>' . esc_html__( "You're using", 'post-views-counter' ) . '</p>
-								<h2>Post Views Counter</h2>
-								<h2>' . ( $is_pro ? 'Professional' : 'Lite' ) . '</h2>
-							</div>
-							<div class="pvc-sidebar-body">
-								<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Get <b>more accurate information</b> about the number of views of your site, regardless of what the user is visiting.', 'post-views-counter' ) . '</p>
-								<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Unlock <b>optimization features</b> and speed up view count tracking.', 'post-views-counter' ) . '</p>
-								<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Take your insights to the next level with dedicated, <b>customizable reporting</b>.', 'post-views-counter' ) . '</p>
-							</div>';
-
 		if ( ! $is_pro ) {
-			echo '
-							<div class="pvc-pricing-footer">
-								<a href="https://postviewscounter.com/" class="button button-secondary button-hero cn-button" target="_blank">' . esc_html__( 'Upgrade to Pro', 'post-views-counter' ) . '</a>
-							</div>';
-		}
-	
 		echo '
+			<div class="post-views-sidebar">
+				<div class="post-views-credits">
+					<div class="inside">
+						<div class="inner">
+							<div class="pvc-sidebar-info">
+								<div class="pvc-sidebar-head">
+									<p>' . esc_html__( "You're using", 'post-views-counter' ) . '</p>
+									<h2>Post Views Counter</h2>
+									<h2>Lite</h2>
+								</div>
+								<div class="pvc-sidebar-body">
+									<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Get <b>more accurate information</b> about the number of views of your site, regardless of what the user is visiting.', 'post-views-counter' ) . '</p>
+									<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Unlock <b>optimization features</b> and speed up view count tracking.', 'post-views-counter' ) . '</p>
+									<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Take your insights to the next level with dedicated, <b>customizable reporting</b>.', 'post-views-counter' ) . '</p>
+								</div>';
+
+			if ( ! $is_pro ) {
+				echo '
+								<div class="pvc-pricing-footer">
+									<a href="https://postviewscounter.com/" class="button button-secondary button-hero cn-button" target="_blank">' . esc_html__( 'Upgrade to Pro', 'post-views-counter' ) . '</a>
+								</div>';
+			}
+
+			echo '
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>';
+			</div>';
+		}
 	}
 
 	/**
@@ -484,6 +487,7 @@ class Post_Views_Counter_Settings {
 					'description'	=> __( 'Enter your Post Views Counter Pro license key.', 'post-views-counter' ),
 					'subclass'		=> 'regular-text',
 					'validate'		=> [ $this, 'validate_license' ],
+					'append'		=> '<span class="pvc-icon license-icon"></span>'
 				],
 				// 'menu_position' => [
 					// 'tab'			=> 'other',
@@ -615,6 +619,18 @@ class Post_Views_Counter_Settings {
 		} */
 
 		return $pages;
+	}
+	
+	/**
+	 * Settings page CSS class.
+	 */
+	public function settings_page_class( $class ) {
+		$is_pro = class_exists( 'Post_Views_Counter_Pro' );
+		
+		if ( ! $is_pro )
+			$class = 'has-sidebar';
+			
+		return $class;
 	}
 
 	/**
