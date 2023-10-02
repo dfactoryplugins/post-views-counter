@@ -253,7 +253,7 @@ class Post_Views_Counter_Settings_API {
 					echo '<span class="nav-span-disabled">';
 
 				echo '
-				<a class="nav-tab' . ( $tab_key === $key ? ' nav-tab-active' : '' ) . ( ! empty( $tab['disabled'] ) ? ' nav-tab-disabled' : '' ) . ( ! empty( $tab['class'] ) ? ' ' . $tab['class'] : '' ) . '" href="' . ( $url !== '' ? esc_url( $url ) : '#' ) . '">' . esc_html( $tab['label'] ) . '</a>';
+				<a class="nav-tab' . ( $tab_key === $key ? ' nav-tab-active' : '' ) . ( ! empty( $tab['disabled'] ) ? ' nav-tab-disabled' : '' ) . ( ! empty( $tab['class'] ) ? ' ' . esc_attr( $tab['class'] ) : '' ) . '" href="' . ( $url !== '' ? esc_url( $url ) : '#' ) . '">' . esc_html( $tab['label'] ) . '</a>';
 
 				if ( ! empty( $tab['disabled'] ) )
 					echo '</span>';
@@ -266,11 +266,15 @@ class Post_Views_Counter_Settings_API {
 		// skip for internal options page
 		if ( $page_type !== 'settings_page' )
 			settings_errors();
-		
-		$settings_class = esc_html( apply_filters( 'pvc_settings_page_class', '' ) );
+
+		// get settings page classes
+		$settings_class = apply_filters( $this->prefix . '_settings_page_class', [ $this->slug . '-settings' ] );
+
+		// sanitize settings page classes
+		$settings_class = array_unique( array_filter( array_map( 'sanitize_html_class', $settings_class ) ) );
 
 		echo '
-			<div class="' . $this->slug . '-settings ' . $settings_class . '">';
+			<div class="' . implode( ' ', array_map( 'esc_attr', $settings_class ) ) . '">';
 
 		$display_form = true;
 
@@ -631,11 +635,6 @@ class Post_Views_Counter_Settings_API {
 	 * @return array
 	 */
 	public function validate_settings( $input ) {
-		// check capability
-//@TODO dodac tu capability
-		// if ( ! current_user_can( apply_filters( 'rl_lightbox_settings_capability', 'edit_lightbox_settings' ) ) )
-			// return $input;
-
 		// check capability
 		if ( ! current_user_can( 'manage_options' ) )
 			return $input;

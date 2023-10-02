@@ -24,7 +24,7 @@ class Post_Views_Counter_Settings {
 		// filters
 		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_data' ] );
 		add_filter( 'post_views_counter_settings_pages', [ $this, 'settings_page' ] );
-		add_filter( 'pvc_settings_page_class', [ $this, 'settings_Page_class' ] );
+		add_filter( 'post_views_counter_settings_page_class', [ $this, 'settings_page_class' ] );
 	}
 
 	/**
@@ -57,16 +57,15 @@ class Post_Views_Counter_Settings {
 	 *
 	 * @return void
 	 */
-	public function settings_sidebar(  ) {
+	public function settings_sidebar() {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
 		$license_data = get_option( 'post_views_counter_pro_license', [] );
-		$has_license = ! empty( $license_data['id'] );
 		$is_pro = class_exists( 'Post_Views_Counter_Pro' );
 
 		if ( ! $is_pro ) {
-		echo '
+			echo '
 			<div class="post-views-sidebar">
 				<div class="post-views-credits">
 					<div class="inside">
@@ -81,16 +80,10 @@ class Post_Views_Counter_Settings {
 									<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Get <b>more accurate information</b> about the number of views of your site, regardless of what the user is visiting.', 'post-views-counter' ) . '</p>
 									<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Unlock <b>optimization features</b> and speed up view count tracking.', 'post-views-counter' ) . '</p>
 									<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Take your insights to the next level with dedicated, <b>customizable reporting</b>.', 'post-views-counter' ) . '</p>
-								</div>';
-
-			if ( ! $is_pro ) {
-				echo '
+								</div>
 								<div class="pvc-pricing-footer">
 									<a href="https://postviewscounter.com/" class="button button-secondary button-hero cn-button" target="_blank">' . esc_html__( 'Upgrade to Pro', 'post-views-counter' ) . '</a>
-								</div>';
-			}
-
-			echo '
+								</div>
 							</div>
 						</div>
 					</div>
@@ -620,16 +613,19 @@ class Post_Views_Counter_Settings {
 
 		return $pages;
 	}
-	
+
 	/**
-	 * Settings page CSS class.
+	 * Settings page CSS class(es).
+	 *
+	 * @param array $class
+	 * @return array
 	 */
 	public function settings_page_class( $class ) {
 		$is_pro = class_exists( 'Post_Views_Counter_Pro' );
-		
+
 		if ( ! $is_pro )
-			$class = 'has-sidebar';
-			
+			$class[] = 'has-sidebar';
+
 		return $class;
 	}
 
