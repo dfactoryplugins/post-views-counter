@@ -127,9 +127,8 @@ class Post_Views_Counter_Frontend {
 		$display = false;
 
 		// post type check
-		if ( ! empty( $pvc->options['display']['post_types_display'] ) ) {
+		if ( ! empty( $pvc->options['display']['post_types_display'] ) )
 			$display = is_singular( $pvc->options['display']['post_types_display'] );
-		}
 
 		// page visibility check
 		if ( ! empty( $pvc->options['display']['page_types_display'] ) ) {
@@ -230,6 +229,13 @@ class Post_Views_Counter_Frontend {
 
 		// whether to count this post type or not
 		if ( empty( $post_types ) || ! is_singular( $post_types ) )
+			return;
+
+		// get currently queried object
+		$object = get_queried_object();
+
+		// do not count pages set as homepage or posts page
+		if ( $pvc->counter->is_posts_page( $object ) || $pvc->counter->is_homepage( $object ) )
 			return;
 
 		// get counter mode

@@ -377,6 +377,60 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
+	 * Check whether real home page is displayed.
+	 *
+	 * @param object $object
+	 * @return bool
+	 */
+	public function is_homepage( $object ) {
+		$is_homepage = false;
+
+		// get show on front option
+		$show_on_front = get_option( 'show_on_front' );
+
+		if ( $show_on_front === 'posts' )
+			$is_homepage = is_home() && is_front_page();
+		else {
+			// home page
+			$homepage = (int) get_option( 'page_on_front' );
+
+			// posts page
+			$postspage = (int) get_option( 'page_for_posts' );
+
+			// both pages are set
+			if ( $homepage && $postspage )
+				$is_homepage = is_front_page();
+			// only home page is set
+			elseif ( $homepage && ! $postspage )
+				$is_homepage = is_front_page();
+			// only posts page is set
+			elseif( ! $homepage && $postspage )
+				$is_homepage = is_home() && ( empty( $object ) || get_queried_object_id() === 0 );
+		}
+
+		return $is_homepage;
+	}
+
+	/**
+	 * Check whether posts page (archive) is displayed.
+	 *
+	 * @param object $object
+	 * @return bool
+	 */
+	public function is_posts_page( $object ) {
+		// get show on front option
+		$show_on_front = get_option( 'show_on_front' );
+
+		// get page for posts option
+		$page_for_posts = (int) get_option( 'page_for_posts' );
+
+		// check page
+		$result = ( $show_on_front === 'page' && ! empty( $object ) && is_home() && is_a( $object, 'WP_Post' ) && (int) $object->ID === $page_for_posts );
+
+		return apply_filters( 'pvc_is_posts_page', $result, $object );
+	}
+
+	/**
 	 * Check whether to count visit via PHP request.
 	 *
 	 * @return void
@@ -398,6 +452,13 @@ class Post_Views_Counter_Counter {
 
 		// whether to count this post type
 		if ( empty( $post_types ) || ! is_singular( $post_types ) )
+			return;
+
+		// get currently queried object
+		$object = get_queried_object();
+
+		// do not count pages set as homepage or posts page
+		if ( $pvc->counter->is_posts_page( $object ) || $pvc->counter->is_homepage( $object ) )
 			return;
 
 		$this->check_post( get_the_ID() );
