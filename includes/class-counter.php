@@ -440,6 +440,10 @@ class Post_Views_Counter_Counter {
 		if ( is_admin() && ! wp_doing_ajax() )
 			return;
 
+		// skip special requests
+		if ( is_preview() || is_feed() || is_trackback() || is_favicon() || is_customize_preview() )
+			return;
+
 		// get main instance
 		$pvc = Post_Views_Counter();
 
@@ -461,7 +465,7 @@ class Post_Views_Counter_Counter {
 		if ( $pvc->counter->is_posts_page( $object ) || $pvc->counter->is_homepage( $object ) )
 			return;
 
-		$this->check_post( get_the_ID() );
+		$this->check_post( (int) get_the_ID() );
 	}
 
 	/**

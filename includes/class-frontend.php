@@ -224,6 +224,10 @@ class Post_Views_Counter_Frontend {
 			wp_enqueue_style( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/css/frontend' . ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.min' : '' ) . '.css', [], $pvc->defaults['version'] );
 		}
 
+		// skip special requests
+		if ( is_preview() || is_feed() || is_trackback() || is_favicon() || is_customize_preview() )
+			return;
+
 		// get countable post types
 		$post_types = $pvc->options['general']['post_types_count'];
 
