@@ -100,14 +100,14 @@ class Post_Views_Counter_Dashboard {
 				'title'			=> __( 'Post Views', 'post-views-counter' ),
 				'description'	=> __( 'Displays the chart of most viewed post types for a selected time period.', 'post-views-counter' ),
 				'content'		=> '<canvas id="pvc-post-views-chart" height="' . (int) $this->calculate_canvas_size( Post_Views_Counter()->options['general']['post_types_count'] ) . '"></canvas>',
-				'position'		=> 1
+				'position'		=> 2
 			],
 			[
 				'id'			=> 'post-most-viewed',
 				'title'			=> __( 'Top Posts', 'post-views-counter' ),
 				'description'	=> __( 'Displays the list of most viewed posts and pages on your website.', 'post-views-counter' ),
 				'content'		=> '<div id="pvc-post-most-viewed-content" class="pvc-table-responsive"></div>',
-				'position'		=> 2
+				'position'		=> 3
 			]
 		];
 
@@ -228,14 +228,11 @@ class Post_Views_Counter_Dashboard {
 	 * @return void
 	 */
 	public function dashboard_post_views_chart() {
-		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) )
-			wp_die( _( 'You do not have permission to access this page.', 'post-views-counter' ) );
-
-		if ( ! check_ajax_referer( 'pvc-dashboard-widget', 'nonce' ) )
+		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) || ! check_ajax_referer( 'pvc-dashboard-widget', 'nonce' ) )
 			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
 		// get period
-		$period = isset( $_POST['period'] ) ? sanitize_text_field( $_POST['period'] ) : 'this_month';
+		$period = isset( $_POST['period'] ) ? preg_replace( '/[^a-z0-9_|]/', '', $_POST['period'] ) : 'this_month';
 
 		// get post types
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
@@ -252,7 +249,7 @@ class Post_Views_Counter_Dashboard {
 		// set chart labels
 		switch ( $period ) {
 			case 'this_week':
-				//@TODO
+//TODO
 				$data = [
 					'design'	=> [
 						'fill'					=> true,
@@ -481,10 +478,7 @@ class Post_Views_Counter_Dashboard {
 	 * @return void
 	 */
 	public function dashboard_post_most_viewed() {
-		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) )
-			wp_die( _( 'You do not have permission to access this page.', 'post-views-counter' ) );
-
-		if ( ! check_ajax_referer( 'pvc-dashboard-widget', 'nonce' ) )
+		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) || ! check_ajax_referer( 'pvc-dashboard-widget', 'nonce' ) )
 			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
 		// get main instance
@@ -494,7 +488,7 @@ class Post_Views_Counter_Dashboard {
 		$post_types = $pvc->options['general']['post_types_count'];
 
 		// get period
-		$period = isset( $_POST['period'] ) ? sanitize_text_field( $_POST['period'] ) : 'this_month';
+		$period = isset( $_POST['period'] ) ? preg_replace( '/[^a-z0-9_|]/', '', $_POST['period'] ) : 'this_month';
 
 		// convert period
 		$time = $this->period2timestamp( $period );
@@ -572,7 +566,7 @@ class Post_Views_Counter_Dashboard {
 		} else {
 			$html .= '
 				<tr class="no-posts">
-					<td colspan="3">' . esc_html__( 'No most viewed posts found', 'post-views-counter' ) . '</td>
+					<td colspan="3">' . esc_html__( 'No most viewed posts found.', 'post-views-counter' ) . '</td>
 				</tr>';
 		}
 

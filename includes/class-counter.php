@@ -551,7 +551,7 @@ class Post_Views_Counter_Counter {
 		if ( $pvc->options['general']['counter_mode'] !== 'rest_api' )
 			return new WP_Error( 'pvc_rest_api_disabled', __( 'REST API method is disabled.', 'post-views-counter' ), [ 'status' => 404 ] );
 
-		// @todo: get current user id in direct api endpoint calls
+//TODO get current user id in direct api endpoint calls
 		// check if post exists
 		$post = get_post( $post_id );
 
@@ -759,7 +759,7 @@ class Post_Views_Counter_Counter {
 	 */
 	private function save_cookie_storage( $content, $content_data ) {
 		// early return?
-// todo: check this filter in js
+//TODO check this filter in js
 		// if ( apply_filters( 'pvc_maybe_set_cookie', true, $content, $content_type, $content_data ) !== true )
 			// return;
 
@@ -1032,8 +1032,8 @@ class Post_Views_Counter_Counter {
 			3 => $date[3],							// year like 2014
 			4 => 'total'							// total views
 		] as $type => $period ) {
+//TODO investigate queueing these queries on the 'shutdown' hook instead of running them instantly?
 			// hit the database directly
-			// @TODO: investigate queueing these queries on the 'shutdown' hook instead of running them instantly?
 			$this->db_insert( $id, $type, $period, $increment_amount );
 		}
 
