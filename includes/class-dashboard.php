@@ -523,7 +523,7 @@ class Post_Views_Counter_Dashboard {
 				<tr>
 					<th scope="col">#</th>
 					<th scope="col">' . esc_html__( 'Post', 'post-views-counter' ) . '</th>
-					<th scope="col">' . esc_html__( 'Post Views', 'post-views-counter' ) . '</th>
+					<th scope="col">' . esc_html__( 'Views', 'post-views-counter' ) . '</th>
 				</tr>
 			</thead>
 			<tbody>';
