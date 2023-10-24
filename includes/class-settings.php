@@ -82,7 +82,7 @@ class Post_Views_Counter_Settings {
 									<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Take your insights to the next level with dedicated, <b>customizable reporting</b>.', 'post-views-counter' ) . '</p>
 								</div>
 								<div class="pvc-pricing-footer">
-									<a href="https://postviewscounter.com/" class="button button-secondary button-hero cn-button" target="_blank">' . esc_html__( 'Upgrade to Pro', 'post-views-counter' ) . '</a>
+									<a href="https://postviewscounter.com/upgrade/?utm_source=post-views-counter-lite&utm_medium=button&utm_campaign=upgrade-to-pro" class="button button-secondary button-hero cn-button" target="_blank">' . esc_html__( 'Upgrade to Pro', 'post-views-counter' ) . '</a>
 								</div>
 							</div>
 						</div>
