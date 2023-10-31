@@ -235,13 +235,6 @@ class Post_Views_Counter_Frontend {
 		if ( empty( $post_types ) || ! is_singular( $post_types ) )
 			return;
 
-		// get currently queried object
-		$object = get_queried_object();
-
-		// do not count pages set as homepage or posts page
-		if ( $pvc->counter->is_posts_page( $object ) || $pvc->counter->is_homepage( $object ) )
-			return;
-
 		// get counter mode
 		$mode = $pvc->options['general']['counter_mode'];
 
