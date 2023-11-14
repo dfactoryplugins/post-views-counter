@@ -268,7 +268,7 @@ class Post_Views_Counter_Settings_API {
 			settings_errors();
 
 		// get settings page classes
-		$settings_class = apply_filters( $this->prefix . '_settings_page_class', [ $this->slug . '-settings' ] );
+		$settings_class = apply_filters( $this->prefix . '_settings_page_class', [ $this->slug . '-settings', $tab_key . '-settings' ] );
 
 		// sanitize settings page classes
 		$settings_class = array_unique( array_filter( array_map( 'sanitize_html_class', $settings_class ) ) );

@@ -82,7 +82,7 @@ class Post_Views_Counter_Settings {
 									<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Take your insights to the next level with dedicated, <b>customizable reporting</b>.', 'post-views-counter' ) . '</p>
 								</div>
 								<div class="pvc-pricing-footer">
-									<a href="https://postviewscounter.com/upgrade/?utm_source=post-views-counter-lite&utm_medium=button&utm_campaign=upgrade-to-pro" class="button button-secondary button-hero cn-button" target="_blank">' . esc_html__( 'Upgrade to Pro', 'post-views-counter' ) . '</a>
+									<a href="https://postviewscounter.com/upgrade/?utm_source=post-views-counter-lite&utm_medium=button&utm_campaign=upgrade-to-pro" class="button button-secondary button-hero pvc-button" target="_blank">' . esc_html__( 'Upgrade to Pro', 'post-views-counter' ) . '</a>
 								</div>
 							</div>
 						</div>
@@ -188,8 +188,8 @@ class Post_Views_Counter_Settings {
 					'tab'	=> 'display'
 				],
 				'post_views_counter_reports_settings'	=> [
-					'callback'	=> null,
-					'tab'		=> 'reports'
+					'tab'		=> 'reports',
+					'callback'  => [ $this, 'section_reports_placeholder' ]
 				],
 				'post_views_counter_other_settings'		=> [
 					'tab'	=> 'other'
@@ -482,17 +482,17 @@ class Post_Views_Counter_Settings {
 					'validate'		=> [ $this, 'validate_license' ],
 					'append'		=> '<span class="pvc-icon license-icon"></span>'
 				],
-				// 'menu_position' => [
-					// 'tab'			=> 'other',
-					// 'title'			=> __( 'Menu Position', 'post-views-counter' ),
-					// 'section'		=> 'post_views_counter_other_settings',
-					// 'type'			=> 'radio',
-					// 'options'		=> [
-						// 'top'	=> __( 'Top menu', 'post-views-counter' ),
-						// 'sub'	=> __( 'Settings submenu', 'post-views-counter' )
-					// ],
-					// 'description'	=> __( 'Choose where to display the menu.', 'post-views-counter' ),
-				// ],
+				'menu_position' => [
+					'tab'			=> 'other',
+					'title'			=> __( 'Menu Position', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_other_settings',
+					'type'			=> 'radio',
+					'options'		=> [
+						'top'	=> __( 'Top menu', 'post-views-counter' ),
+						'sub'	=> __( 'Settings submenu', 'post-views-counter' )
+					],
+					'description'	=> __( "Choose where to display the plugin's menu.", 'post-views-counter' ),
+				],
 				'wp_postviews' => [
 					'tab'			=> 'other',
 					'title'			=> __( 'Tools', 'post-views-counter' ),
@@ -530,8 +530,7 @@ class Post_Views_Counter_Settings {
 		$pages['post-views-counter'] = [
 			'menu_slug'		=> 'post-views-counter',
 			'page_title'	=> __( 'Post Views Counter Settings', 'post-views-counter' ),
-			// 'menu_title'	=> $pvc->options['other']['menu_position'] === 'sub' ? __( 'Post Views Counter', 'post-views-counter' ) : __( 'Post Views', 'post-views-counter' ),
-			'menu_title'	=> __( 'Post Views Counter', 'post-views-counter' ),
+			'menu_title'	=> $pvc->options['other']['menu_position'] === 'sub' ? __( 'Post Views Counter', 'post-views-counter' ) : __( 'Post Views', 'post-views-counter' ),
 			'capability'	=> apply_filters( 'pvc_settings_capability', 'manage_options' ),
 			'callback'		=> null,
 			'tabs'			=> [
@@ -546,8 +545,6 @@ class Post_Views_Counter_Settings {
 				'reports'	=> [
 					'label'			=> __( 'Reports', 'post-views-counter' ),
 					'option_name'	=> 'post_views_counter_settings_reports',
-					'disabled'		=> true,
-					'class'			=> 'pvc-pro'
 				],
 				'other'		=> [
 					'label'			=> __( 'Other', 'post-views-counter' ),
@@ -557,10 +554,10 @@ class Post_Views_Counter_Settings {
 		];
 
 		// submenu?
-		// if ( $pvc->options['other']['menu_position'] === 'sub' ) {
+		if ( $pvc->options['other']['menu_position'] === 'sub' ) {
 			$pages['post-views-counter']['type'] = 'settings_page';
 		// topmenu?
-		/* } else {
+		} else {
 			// highlight submenus
 			add_filter( 'submenu_file', [ $this, 'submenu_file' ], 10, 2 );
 
@@ -609,7 +606,7 @@ class Post_Views_Counter_Settings {
 				'capability'	=> apply_filters( 'pvc_settings_capability', 'manage_options' ),
 				'callback'		=> null
 			];
-		} */
+		}
 
 		return $pages;
 	}
@@ -1201,7 +1198,28 @@ class Post_Views_Counter_Settings {
 
 		return $input;
 	}
-
+	
+	/**
+	 * Reports page placeholder.
+	 */
+	public function section_reports_placeholder() {
+		echo '
+		<form action="#">
+			<div id="pvc-reports-placeholder">
+				<img id="pvc-reports-bg" src="' . esc_url( POST_VIEWS_COUNTER_URL ) . '/css/page-reports.png" alt="Post Views Counter - Reports" />
+				<div id="pvc-reports-upgrade">
+					<div id="pvc-reports-modal">
+						<h2>' . esc_html__( 'Display Reports and Export Views to CSV/XML', 'post-views-counter' ) . '</h2>
+						<p>' . esc_html__( 'View detailed stats about the popularity of your content.', 'post-views-counter' ) . '</p>
+						<p>' . esc_html__( 'Generate views reports in any date range you need.', 'post-views-counter' ) . '</p>
+						<p>' . esc_html__( 'Export, download and share your website views data.', 'post-views-counter' ) . '</p>
+						<p><a href="https://postviewscounter.com/upgrade/?utm_source=post-views-counter-lite&utm_medium=button&utm_campaign=upgrade-to-pro" class="button button-secondary button-hero pvc-button" target="_blank">' . esc_html__( 'Upgrade to Pro', 'post-views-counter' ) . '</a></p>
+					</div>
+				</div>
+			</div>
+		</form>';
+	}
+ 
 	/**
 	 * Validate license.
 	 *

@@ -3,8 +3,8 @@ Contributors: dfactory
 Tags: counter, postviews, statistics, stats, analytics, pageviews, tracking
 Requires at least: 5.1
 Requires PHP: 5.4.0
-Tested up to: 6.4
-Stable tag: 1.4.1
+Tested up to: 6.4.1
+Stable tag: 1.4.2
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -52,6 +52,9 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.4.2 =
+* New: Option to select position of the plugin menu
 
 = 1.4.1 =
 * Fix: Frontpage views not recorded properly
@@ -264,5 +267,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.4.1 =
-* Fix: Frontpage views not recorded properly
+= 1.4.2 =
+* New: Option to select position of the plugin menu
