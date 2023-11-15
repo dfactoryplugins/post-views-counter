@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Views Counter\n"
-"POT-Creation-Date: 2023-11-14 16:17+0100\n"
+"POT-Creation-Date: 2023-11-15 14:45+0100\n"
 "PO-Revision-Date: 2015-04-08 18:59+0100\n"
 "Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
 "Language-Team: dFactory <info@dfactory.eu>\n"
@@ -254,7 +254,7 @@ msgstr ""
 
 #: ../includes/class-settings.php:255
 msgid ""
-"Enable to display post views count column for each of the selected content "
+"Enable to display post views count column for each of the selected post "
 "types."
 msgstr ""
 

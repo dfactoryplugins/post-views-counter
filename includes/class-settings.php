@@ -19,7 +19,7 @@ class Post_Views_Counter_Settings {
 		// actions
 		add_action( 'admin_init', [ $this, 'update_counter_mode' ], 12 );
 		add_action( 'pvc_settings_sidebar', [ $this, 'settings_sidebar' ], 12 );
-		// add_action( 'pvc_settings_form', [ $this, 'settings_form' ], 10, 4 );
+		add_action( 'pvc_settings_form', [ $this, 'settings_form' ], 10, 4 );
 
 		// filters
 		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_data' ] );
@@ -252,7 +252,7 @@ class Post_Views_Counter_Settings {
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'boolean',
 					'description'	=> '',
-					'label'			=> __( 'Enable to display post views count column for each of the selected content types.', 'post-views-counter' )
+					'label'			=> __( 'Enable to display post views count column for each of the selected post types.', 'post-views-counter' )
 				],
 				'data_storage' => [
 					'tab'			=> 'general',
