@@ -235,6 +235,15 @@ class Post_Views_Counter_Frontend {
 		if ( empty( $post_types ) || ! is_singular( $post_types ) )
 			return;
 
+		if ( $pvc->options['general']['other_count'] ) {
+			// get currently queried object
+			$object = get_queried_object();
+
+			// do not count pages set as homepage or posts page
+			if ( $pvc->counter->is_posts_page( $object ) || $pvc->counter->is_homepage( $object ) )
+				return;
+		}
+
 		// get counter mode
 		$mode = $pvc->options['general']['counter_mode'];
 
@@ -245,7 +254,7 @@ class Post_Views_Counter_Frontend {
 			// prepare args
 			$args = [
 				'mode'			=> $mode,
-				'postID'		=> get_the_ID(),
+				'postID'		=> (int) get_the_ID(),
 				'requestURL'	=> '',
 				'nonce'			=> '',
 				'dataStorage'	=> $pvc->options['general']['data_storage'],

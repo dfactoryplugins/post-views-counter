@@ -301,9 +301,8 @@ class Post_Views_Counter_Counter {
 					// set new cookie
 					$count_visit = $this->save_cookie( $post_id );
 				}
-			} else {
+			} else
 				$count_visit = $this->save_cookie_storage( $post_id, $content_data );
-			}
 		}
 
 		// filter visit counting
@@ -457,6 +456,15 @@ class Post_Views_Counter_Counter {
 		// whether to count this post type
 		if ( empty( $post_types ) || ! is_singular( $post_types ) )
 			return;
+
+		if ( $pvc->options['general']['other_count'] ) {
+			// get currently queried object
+			$object = get_queried_object();
+
+			// do not count pages set as homepage or posts page
+			if ( $this->is_posts_page( $object ) || $this->is_homepage( $object ) )
+				return;
+		}
 
 		$this->check_post( (int) get_the_ID() );
 	}

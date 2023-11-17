@@ -240,6 +240,14 @@ class Post_Views_Counter_Settings_API {
 			// get current tab
 			$tab_key = ! empty( $_GET['tab'] ) && array_key_exists( $_GET['tab'], $tabs ) ? $_GET['tab'] : $first_tab;
 
+			// check current tab
+			if ( ! empty( $_GET['tab'] ) )
+				$tab_key = sanitize_key( $_GET['tab'] );
+
+			// invalid tab?
+			if ( ! array_key_exists( $tab_key, $tabs ) )
+				$tab_key = $first_tab;
+
 			echo '
 			<h2 class="nav-tab-wrapper">';
 

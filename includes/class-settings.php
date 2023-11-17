@@ -544,7 +544,7 @@ class Post_Views_Counter_Settings {
 				],
 				'reports'	=> [
 					'label'			=> __( 'Reports', 'post-views-counter' ),
-					'option_name'	=> 'post_views_counter_settings_reports',
+					'option_name'	=> 'post_views_counter_settings_reports'
 				],
 				'other'		=> [
 					'label'			=> __( 'Other', 'post-views-counter' ),
@@ -1198,7 +1198,7 @@ class Post_Views_Counter_Settings {
 
 		return $input;
 	}
-	
+
 	/**
 	 * Reports page placeholder.
 	 */
@@ -1219,7 +1219,7 @@ class Post_Views_Counter_Settings {
 			</div>
 		</form>';
 	}
- 
+
 	/**
 	 * Validate license.
 	 *

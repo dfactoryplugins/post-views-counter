@@ -123,7 +123,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		public function __wakeup() {}
 
 		/**
-		 * Main plugin instance, insures that only one instance of the plugin exists in memory at one time.
+		 * Main plugin instance, insures that only one instance of the class exists in memory at one time.
 		 *
 		 * @return object
 		 */
@@ -359,7 +359,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				]
 			);
 
-			foreach( $this->notices as $notice ) {
+			foreach ( $this->notices as $notice ) {
 				echo '
 				<div class="' . esc_attr( $notice['status'] ) . '">
 					' . ( $notice['paragraph'] ? '<p>' : '' ) . '
@@ -717,9 +717,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			if ( ! current_user_can( 'manage_options' ) )
 				return $links;
 
-			if ( ! current_user_can( 'manage_options' ) )
-				return $links;
-
 			// submenu?
 			if ( $this->options['other']['menu_position'] === 'sub' )
 				$url = admin_url( 'options-general.php?page=post-views-counter' );
@@ -735,7 +732,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 }
 
 /**
- * Initialise Post Views Counter.
+ * Initialize Post Views Counter.
  *
  * @return object
  */

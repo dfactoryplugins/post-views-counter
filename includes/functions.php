@@ -103,7 +103,7 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 		if ( is_array( $args['post_type'] ) && ! empty( $args['post_type'] ) ) {
 			$post_types = [];
 
-			foreach( $args['post_type'] as $post_type ) {
+			foreach ( $args['post_type'] as $post_type ) {
 				$post_types[] = "'" . $post_type . "'";
 			}
 
@@ -359,7 +359,7 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 				$results = $wpdb->get_results( $query );
 
 				if ( ! empty( $results ) ) {
-					foreach( $results as $row ) {
+					foreach ( $results as $row ) {
 						$range[$row->period] = (int) $row->post_views;
 					}
 				}

@@ -10,9 +10,8 @@
 		$( document ).on( 'click', '.reset_pvc_settings', function() {
 			var result = confirm( pvcArgsSettings.resetToDefaults );
 
-			if ( result && $( this ).hasClass( 'reset_post_views_counter_settings_general' ) ) {
+			if ( result && $( this ).hasClass( 'reset_post_views_counter_settings_general' ) )
 				$( 'input[data-pvc-menu="submenu"]' ).before( $( 'input[data-pvc-menu="topmenu"]' ) );
-			}
 
 			return result;
 		} );
@@ -69,11 +68,10 @@
 
 		// menu position referer update
 		$( 'input[name="post_views_counter_settings_other[menu_position]"]' ).on( 'change', function() {
-			if ( $( this ).val() === 'top' ) {
+			if ( $( this ).val() === 'top' )
 				$( 'input[data-pvc-menu="submenu"]' ).after( $( 'input[data-pvc-menu="topmenu"]' ) );
-			} else {
+			else
 				$( 'input[data-pvc-menu="submenu"]' ).before( $( 'input[data-pvc-menu="topmenu"]' ) );
-			}
 		} );
 	} );
 
