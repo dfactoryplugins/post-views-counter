@@ -2,7 +2,7 @@
 /*
 Plugin Name: Post Views Counter
 Description: Post Views Counter allows you to display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
-Version: 1.4.2
+Version: 1.4.3
 Author: dFactory
 Author URI: https://dfactory.co/
 Plugin URI: https://postviewscounter.com/
@@ -30,7 +30,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 	 * Post Views Counter final class.
 	 *
 	 * @class Post_Views_Counter
-	 * @version	1.4.2
+	 * @version	1.4.3
 	 */
 	final class Post_Views_Counter {
 
@@ -96,7 +96,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				'deactivation_delete'	=> false,
 				'license'				=> ''
 			],
-			'version'	=> '1.4.2'
+			'version'	=> '1.4.3'
 		];
 
 		// instances
@@ -311,7 +311,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				}
 
 				if ( ( ! empty( $this->options['general']['update_delay_date'] ) ? (int) $this->options['general']['update_delay_date'] : $current_time ) <= $current_time )
-					$this->add_notice( sprintf( __( "Hey, you've been using <strong>Post Views Counter</strong> for more than %s.", 'post-views-counter' ), human_time_diff( $activation_date, $current_time ) ) . '<br />' . __( 'Could you please do me a BIG favor and give it a 5-star rating on WordPress to help us spread the word and boost our motivation.', 'post-views-counter' ) . '<br /><br />' . __( 'Your help is much appreciated. Thank you very much', 'post-views-counter' ) . ' ~ <strong>Bartosz Arendt</strong>, ' . sprintf( __( 'founder of <a href="%s" target="_blank">Digital Factory</a> plugins.', 'post-views-counter' ), 'https://dfactory.co/' ) . '<br /><br />' . sprintf( __( '<a href="%s" class="pvc-dismissible-notice" target="_blank" rel="noopener">Ok, you deserve it</a><br /><a href="#" class="pvc-dismissible-notice pvc-delay-notice" rel="noopener">Nope, maybe later</a><br /><a href="#" class="pvc-dismissible-notice" rel="noopener">I already did</a>', 'post-views-counter' ), 'https://wordpress.org/support/plugin/post-views-counter/reviews/?filter=5#new-post' ), 'notice notice-info is-dismissible pvc-notice' );
+					$this->add_notice( sprintf( __( "Hey, you've been using <strong>Post Views Counter</strong> for more than %s.", 'post-views-counter' ), human_time_diff( $activation_date, $current_time ) ) . '<br />' . __( 'Could you please do me a BIG favor and give it a 5-star rating on WordPress to help us spread the word and boost our motivation.', 'post-views-counter' ) . '<br /><br />' . __( 'Your help is much appreciated. Thank you very much', 'post-views-counter' ) . ' ~ <strong>Bartosz Arendt</strong>, ' . __( 'founder of', 'post-views-counter' ) . ' <a href="https://postviewscounter.com/" target="_blank">Post Views Counter</a>.' . '<br /><br />' . '<a href="https://wordpress.org/support/plugin/post-views-counter/reviews/?filter=5#new-post" class="pvc-dismissible-notice" target="_blank" rel="noopener">' . __( 'Ok, you deserve it', 'post-views-counter' ) . '</a><br /><a href="#" class="pvc-dismissible-notice pvc-delay-notice" rel="noopener">' . __( 'Nope, maybe later', 'post-views-counter' ) . '</a><br /><a href="#" class="pvc-dismissible-notice" rel="noopener">' . __( 'I already did', 'post-views-counter' ) . '</a>', 'notice notice-info is-dismissible pvc-notice' );
 			}
 		}
 

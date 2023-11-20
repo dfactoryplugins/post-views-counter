@@ -1004,7 +1004,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		$html .= '
-				<p class="description">' . __( 'Use it exclude specific user roles from post views count.', 'post-views-counter' ) . '</p>
+				<p class="description">' . __( 'Use it to exclude specific user roles from post views count.', 'post-views-counter' ) . '</p>
 			</div>';
 
 		return $html;

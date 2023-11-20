@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Views Counter\n"
-"POT-Creation-Date: 2023-11-15 14:45+0100\n"
+"POT-Creation-Date: 2023-11-20 18:57+0100\n"
 "PO-Revision-Date: 2015-04-08 18:59+0100\n"
 "Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
 "Language-Team: dFactory <info@dfactory.eu>\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid "You are not allowed to edit this item."
 msgstr ""
 
-#: ../includes/class-admin.php:108 ../includes/class-counter.php:552
+#: ../includes/class-admin.php:108 ../includes/class-counter.php:559
 msgid "Invalid post ID."
 msgstr ""
 
@@ -50,15 +50,15 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: ../includes/class-counter.php:545
+#: ../includes/class-counter.php:552
 msgid "REST API method is disabled."
 msgstr ""
 
-#: ../includes/class-counter.php:559
+#: ../includes/class-counter.php:566
 msgid "Post type excluded."
 msgstr ""
 
-#: ../includes/class-counter.php:566
+#: ../includes/class-counter.php:573
 msgid "Invalid storage type."
 msgstr ""
 
@@ -108,15 +108,15 @@ msgstr ""
 msgid "No most viewed posts found."
 msgstr ""
 
-#: ../includes/class-settings-api.php:320
+#: ../includes/class-settings-api.php:328
 msgid "Reset to defaults"
 msgstr ""
 
-#: ../includes/class-settings-api.php:689
+#: ../includes/class-settings-api.php:697
 msgid "Settings saved."
 msgstr ""
 
-#: ../includes/class-settings-api.php:715
+#: ../includes/class-settings-api.php:723
 msgid "Settings restored to defaults."
 msgstr ""
 
@@ -585,7 +585,7 @@ msgid "Use it exclude specific user groups from post views count."
 msgstr ""
 
 #: ../includes/class-settings.php:1007
-msgid "Use it exclude specific user roles from post views count."
+msgid "Use it to exclude specific user roles from post views count."
 msgstr ""
 
 #: ../includes/class-settings.php:1066 ../includes/class-settings.php:1072
@@ -751,19 +751,19 @@ msgid "Your help is much appreciated. Thank you very much"
 msgstr ""
 
 #: ../post-views-counter.php:314
-#, php-format
-msgid ""
-"founder of <a href=\"%s\" target=\"_blank\">Digital Factory</a> plugins."
+msgid "founder of"
 msgstr ""
 
 #: ../post-views-counter.php:314
-#, php-format
-msgid ""
-"<a href=\"%s\" class=\"pvc-dismissible-notice\" target=\"_blank\" "
-"rel=\"noopener\">Ok, you deserve it</a><br /><a href=\"#\" class=\"pvc-"
-"dismissible-notice pvc-delay-notice\" rel=\"noopener\">Nope, maybe later</"
-"a><br /><a href=\"#\" class=\"pvc-dismissible-notice\" rel=\"noopener\">I "
-"already did</a>"
+msgid "Ok, you deserve it"
+msgstr ""
+
+#: ../post-views-counter.php:314
+msgid "Nope, maybe later"
+msgstr ""
+
+#: ../post-views-counter.php:314
+msgid "I already did"
 msgstr ""
 
 #: ../post-views-counter.php:651
@@ -774,6 +774,6 @@ msgstr ""
 msgid "Are you sure you want to delete all existing data?"
 msgstr ""
 
-#: ../post-views-counter.php:730
+#: ../post-views-counter.php:727
 msgid "Settings"
 msgstr ""
