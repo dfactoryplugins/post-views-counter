@@ -228,6 +228,7 @@ class Post_Views_Counter_Counter {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
+		// actions
 		add_action( 'wp_ajax_pvc-view-posts', [ $this, 'queue_count' ] );
 		add_action( 'wp_ajax_nopriv_pvc-view-posts', [ $this, 'queue_count' ] );
 		add_action( 'wp_print_footer_scripts', [ $this, 'print_queue_count' ], 11 );
@@ -457,16 +458,14 @@ class Post_Views_Counter_Counter {
 		if ( empty( $post_types ) || ! is_singular( $post_types ) )
 			return;
 
-		if ( $pvc->options['general']['other_count'] ) {
-			// get currently queried object
-			$object = get_queried_object();
+		// get current post id
+		$post_id = (int) get_the_ID();
 
-			// do not count pages set as homepage or posts page
-			if ( $this->is_posts_page( $object ) || $this->is_homepage( $object ) )
-				return;
-		}
+		// allow to run check post?
+		if ( ! (bool) apply_filters( 'pvc_run_check_post', true, $post_id ) )
+			return;
 
-		$this->check_post( (int) get_the_ID() );
+		$this->check_post( $post_id );
 	}
 
 	/**
