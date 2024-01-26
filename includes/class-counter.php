@@ -240,9 +240,10 @@ class Post_Views_Counter_Counter {
 		elseif ( $pvc->options['general']['counter_mode'] === 'js' ) {
 			add_action( 'wp_ajax_pvc-check-post', [ $this, 'check_post_js' ] );
 			add_action( 'wp_ajax_nopriv_pvc-check-post', [ $this, 'check_post_js' ] );
-		// rest api counter
-		} elseif ( $pvc->options['general']['counter_mode'] === 'rest_api' )
-			add_action( 'rest_api_init', [ $this, 'rest_api_init' ] );
+		}
+		
+		// rest api
+		add_action( 'rest_api_init', [ $this, 'rest_api_init' ] );
 	}
 
 	/**
@@ -1331,7 +1332,7 @@ class Post_Views_Counter_Counter {
 				'methods'				 => [ 'POST' ],
 				'callback'				 => [ $this, 'check_post_rest_api' ],
 				'permission_callback'	 => [ $this, 'post_view_permissions_check' ],
-				'args'					 => [
+				'args'					 => apply_filters( 'pvc_rest_api_view_post_args', [
 					'id'			=> [
 						'default'			 => 0,
 						'sanitize_callback'	 => 'absint'
@@ -1342,7 +1343,7 @@ class Post_Views_Counter_Counter {
 					'storage_data'	=> [
 						'default'			 => ''
 					]
-				]
+				] )
 			]
 		);
 
@@ -1354,12 +1355,18 @@ class Post_Views_Counter_Counter {
 				'methods'				 => [ 'GET', 'POST' ],
 				'callback'				 => [ $this, 'get_post_views_rest_api' ],
 				'permission_callback'	 => [ $this, 'get_post_views_permissions_check' ],
-				'args'					 => [
+				'args'					 => apply_filters( 'pvc_rest_api_get_post_views_args', [
 					'id' => [
 						'default'			=> 0,
 						'sanitize_callback'	=> [ $this, 'validate_rest_api_data' ]
+					],
+					'period' => [
+						'default'			=> 'total',
+						'validate_callback' => function( $param, $request, $key ) {
+							return is_string( $param );
+						}
 					]
-				]
+				] )
 			]
 		);
 	}
@@ -1371,7 +1378,9 @@ class Post_Views_Counter_Counter {
 	 * @return int
 	 */
 	public function get_post_views_rest_api( $request ) {
-		return pvc_get_post_views( $request->get_param( 'id' ) );
+		$params = apply_filters( 'pvc_rest_api_get_post_views_params', $request->get_params(), $request );
+		
+		return call_user_func_array( 'pvc_get_post_views', $params );
 	}
 
 	/**

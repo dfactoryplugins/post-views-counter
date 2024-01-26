@@ -98,14 +98,14 @@ class Post_Views_Counter_Dashboard {
 			[
 				'id'			=> 'post-views',
 				'title'			=> __( 'Post Views', 'post-views-counter' ),
-				'description'	=> __( 'Displays the chart of most viewed post types for a selected time period.', 'post-views-counter' ),
+				'description'	=> __( 'Displays a chart of most viewed post types.', 'post-views-counter' ),
 				'content'		=> '<canvas id="pvc-post-views-chart" height="' . (int) $this->calculate_canvas_size( Post_Views_Counter()->options['general']['post_types_count'] ) . '"></canvas>',
 				'position'		=> 2
 			],
 			[
 				'id'			=> 'post-most-viewed',
 				'title'			=> __( 'Top Posts', 'post-views-counter' ),
-				'description'	=> __( 'Displays the list of most viewed posts and pages on your website.', 'post-views-counter' ),
+				'description'	=> __( 'Displays a list of most viewed single posts or pages.', 'post-views-counter' ),
 				'content'		=> '<div id="pvc-post-most-viewed-content" class="pvc-table-responsive"></div>',
 				'position'		=> 3
 			]

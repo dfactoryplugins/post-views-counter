@@ -303,10 +303,10 @@ class Post_Views_Counter_Settings {
 				],
 				'reset_counts' => [
 					'tab'			=> 'general',
-					'title'			=> __( 'Reset Data Interval', 'post-views-counter' ),
+					'title'			=> __( 'Cleanup Interval', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'custom',
-					'description'	=> sprintf( __( 'Delete single day post views data older than specified above. Enter %s if you want to preserve your data regardless of its age.', 'post-views-counter' ), '<code>0</code>' ),
+					'description'	=> sprintf( __( 'Delete single day post views data older than specified above. Enter %s if you want to preserve your daily views data regardless of its age.', 'post-views-counter' ), '<code>0</code>' ),
 					'min'			=> 0,
 					'max'			=> 999999,
 					'options'		=> $time_types,
@@ -361,13 +361,26 @@ class Post_Views_Counter_Settings {
 				],
 				'label' => [
 					'tab'			=> 'display',
-					'title'			=> __( 'Post Views Label', 'post-views-counter' ),
+					'title'			=> __( 'Views Label', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'input',
 					'description'	=> __( 'Enter the label for the post views counter field.', 'post-views-counter' ),
 					'subclass'		=> 'regular-text',
 					'validate'		=> [ $this, 'validate_label' ],
 					'reset'			=> [ $this, 'reset_label' ]
+				],
+				'display_period' => [
+					'tab'			=> 'display',
+					'title'			=> __( 'Time Period', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_display_settings',
+					'type'			=> 'select',
+					'class'			=> 'pvc-pro',
+					'disabled'		=> true,
+					'skip_saving'	=> true,
+					'description'	=> __( 'Select the time period to be included when displaying the number of views. The default display is the total number of views of the post.', 'post-views-counter' ),
+					'options'		=> 	[
+						'total'		=> __( 'Total Views', 'post-views-counter' ),
+					]
 				],
 				'display_style' => [
 					'tab'			=> 'display',
@@ -401,6 +414,15 @@ class Post_Views_Counter_Settings {
 						'after'		=> __( 'after the content', 'post-views-counter' ),
 						'manual'	=> __( 'manual', 'post-views-counter' )
 					]
+				],
+				'use_format' => [
+					'tab'			=> 'display',
+					'title'			=> __( 'Format Number', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_display_settings',
+					'type'			=> 'boolean',
+
+					'value'			=> true,
+					'label'			=> __( 'Enable to display the views number formatted based on the locale (using the WP number_format_i18n function).', 'post-views-counter' )
 				],
 				'taxonomies_display' => [
 					'tab'			=> 'display',
@@ -493,14 +515,23 @@ class Post_Views_Counter_Settings {
 					],
 					'description'	=> __( "Choose where to display the plugin's menu.", 'post-views-counter' ),
 				],
-				'wp_postviews' => [
+				'import_views' => [
 					'tab'			=> 'other',
-					'title'			=> __( 'Tools', 'post-views-counter' ),
+					'title'			=> __( 'Import Views', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_other_settings',
 					'type'			=> 'custom',
 					'description'	=> '',
 					'skip_saving'	=> true,
-					'callback'		=> [ $this, 'setting_wp_postviews' ]
+					'callback'		=> [ $this, 'setting_import_views' ]
+				],
+				'delete_views' => [
+					'tab'			=> 'other',
+					'title'			=> __( 'Delete Views', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_other_settings',
+					'type'			=> 'custom',
+					'description'	=> '',
+					'skip_saving'	=> true,
+					'callback'		=> [ $this, 'setting_delete_views' ]
 				],
 				'deactivation_delete' => [
 					'tab'			=> 'other',
@@ -664,6 +695,11 @@ class Post_Views_Counter_Settings {
 
 		// use internal settings api to validate settings first
 		$input = $pvc->settings_api->validate_settings( $input );
+		
+		// update meta key on save changes
+		if ( isset( $_POST['post_views_counter_import_meta_key'] ) && isset( $_POST['save_post_views_counter_settings_other'] ) ) {	
+			$input['import_meta_key'] = sanitize_key( $_POST['post_views_counter_import_meta_key'] );
+		}
 
 		// import post views data from another plugin
 		if ( isset( $_POST['post_views_counter_import_wp_postviews'] ) ) {
@@ -671,7 +707,10 @@ class Post_Views_Counter_Settings {
 			$input = $pvc->options['other'];
 
 			// get views key
-			$meta_key = sanitize_key( apply_filters( 'pvc_import_meta_key', 'views' ) );
+			$meta_key =  sanitize_key( apply_filters( 'pvc_import_meta_key', ( isset( $_POST['post_views_counter_import_meta_key'] ) ? $_POST['post_views_counter_import_meta_key'] : $pvc->options['other']['import_meta_key'] ) ) );
+			
+			// set meta_key option
+			$input['import_meta_key'] = $meta_key;
 
 			// get views
 			$views = $wpdb->get_results( "SELECT post_id, meta_value FROM " . $wpdb->postmeta . " WHERE meta_key = '" . $meta_key . "'", ARRAY_A, 0 );
@@ -996,7 +1035,7 @@ class Post_Views_Counter_Settings {
 
 		$html .= '
 			<p class="description">' . __( 'Use it exclude specific user groups from post views count.', 'post-views-counter' ) . '</p>
-			<div class="pvc_user_roles"' . ( in_array( 'roles', $pvc->options['general']['exclude']['groups'], true ) ? '' : ' style="display: none;"' ) . '>';
+			<div class="pvc_user_roles pvc_subfield"' . ( in_array( 'roles', $pvc->options['general']['exclude']['groups'], true ) ? '' : ' style="display: none;"' ) . '>';
 
 		foreach ( $field['options']['roles'] as $role => $role_name ) {
 			$html .= '
@@ -1113,12 +1152,31 @@ class Post_Views_Counter_Settings {
 	 *
 	 * @return string
 	 */
-	public function setting_wp_postviews() {
+	public function setting_import_views() {
+		$pvc = Post_Views_Counter();
+
 		$html = '
-		<input type="submit" class="button button-secondary" name="post_views_counter_import_wp_postviews" value="' . __( 'Import views', 'post-views-counter' ) . '"/> <label><input id="pvc-wp-postviews" type="checkbox" name="post_views_counter_import_wp_postviews_override" value="1" />' . __( 'Override existing views data during import.', 'post-views-counter' ) . '</label>
-		<p class="description">' . __( 'Import post views data from WP-PostViews plugin.', 'post-views-counter' ) . '</p>
-		<br /><input type="submit" class="button button-secondary" name="post_views_counter_reset_views" value="' . __( 'Delete views', 'post-views-counter' ) . '" />
-		<p class="description">' . __( 'Delete all the existing post views data.', 'post-views-counter' ) . '</p>';
+		<div>
+			<input type="text" class="regular-text" name="post_views_counter_import_meta_key" value="' . $pvc->options['other']['import_meta_key'] . '"/>
+			<p class="description">' . __( 'Enter the meta key from which the views data is to be retrieved during import.', 'post-views-counter' ) . '</p>
+		</div>
+		<div class="pvc-subfield">
+			<input type="submit" class="button button-secondary" name="post_views_counter_import_wp_postviews" value="' . __( 'Import Views', 'post-views-counter' ) . '"/> <label><input id="pvc-wp-postviews" type="checkbox" name="post_views_counter_import_wp_postviews_override" value="1" />' . __( 'Override existing views data during import.', 'post-views-counter' ) . '</label>
+			<p class="description">' . __( 'Click Import Views to start importing the views data.', 'post-views-counter' ) . '</p>
+		</div>';
+
+		return $html;
+	}
+	
+	/**
+	 * Setting: delete views.
+	 *
+	 * @return string
+	 */
+	public function setting_delete_views() {
+		$html = '
+		<input type="submit" class="button button-secondary" name="post_views_counter_reset_views" value="' . __( 'Delete Views', 'post-views-counter' ) . '" />
+		<p class="description">' . __( 'Delete ALL the existing post views data. Note that this is an irreversible process!', 'post-views-counter' ) . '</p>';
 
 		return $html;
 	}
@@ -1145,7 +1203,7 @@ class Post_Views_Counter_Settings {
 
 		$html .= '
 			<p class="description">' . __( 'Use it to hide the post views counter from selected type of visitors.', 'post-views-counter' ) . '</p>
-			<div class="pvc_user_roles"' . ( in_array( 'roles', $pvc->options['display']['restrict_display']['groups'], true ) ? '' : ' style="display: none;"' ) . '>';
+			<div class="pvc_user_roles pvc-subfield"' . ( in_array( 'roles', $pvc->options['display']['restrict_display']['groups'], true ) ? '' : ' style="display: none;"' ) . '>';
 
 		foreach ( $field['options']['roles'] as $role => $role_name ) {
 			$html .= '

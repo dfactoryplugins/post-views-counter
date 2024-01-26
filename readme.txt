@@ -2,7 +2,7 @@
 Contributors: dfactory
 Tags: counter, postviews, statistics, stats, analytics, pageviews, tracking
 Requires at least: 5.1
-Requires PHP: 5.4.0
+Requires PHP: 7.3.0
 Tested up to: 6.4.1
 Stable tag: 1.4.3
 License: MIT License
