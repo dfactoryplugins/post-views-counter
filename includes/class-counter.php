@@ -1054,19 +1054,14 @@ class Post_Views_Counter_Counter {
 	public function delete_post_views( $post_id ) {
 		global $wpdb;
 
-		$where = [ 'id' => $post_id ];
-		$format = [ '%d' ];
+		$data = [
+			'where'		=> [ 'id' => $post_id ],
+			'format'	=> [ '%d' ]
+		];
 
-		// get number of columns
-		$noc = Post_Views_Counter()->functions->get_number_of_columns();
+		$data = apply_filters( 'pvc_delete_post_views_where_clause', $data, $post_id );
 
-		// content?
-		if ( $noc === 5 ) {
-			$where['content'] = 0;
-			$format[] = '%d';
-		}
-
-		$wpdb->delete( $wpdb->prefix . 'post_views', $where, $format );
+		$wpdb->delete( $wpdb->prefix . 'post_views', $data['where'], $data['format'] );
 	}
 
 	/**
