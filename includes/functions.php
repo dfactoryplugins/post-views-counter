@@ -23,6 +23,11 @@ if ( ! defined( 'ABSPATH' ) )
 if ( ! function_exists( 'pvc_get_post_views' ) ) {
 
 	function pvc_get_post_views( $post_id = 0, $period = 'total' ) {
+		global $wpdb;
+
+		// sanitize period
+		$period = sanitize_key( $period );
+
 		if ( empty( $post_id ) )
 			$post_id = get_the_ID();
 
@@ -31,10 +36,10 @@ if ( ! function_exists( 'pvc_get_post_views' ) ) {
 		else
 			$post_id = (int) $post_id;
 
-		global $wpdb;
-		
-		// set sql clauses
-		$where = [ "type = 4" ];
+		// set where clause
+		$where = [ 'type = 4' ];
+
+		// update where clause
 		$where = apply_filters( 'pvc_get_post_views_period_where', $where, $period, $post_id );
 
 		$query = "SELECT SUM(count) AS views
@@ -398,14 +403,12 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 
 		// get display options
 		$options = Post_Views_Counter()->options['display'];
-		$period = Post_Views_Counter()->options['display']['display_period'];
-		$use_format = (bool) Post_Views_Counter()->options['display']['use_format'];
 
 		// get post views
-		$views = pvc_get_post_views( $post_id, $period );
+		$views = pvc_get_post_views( $post_id, $options['display_period'] );
 		
 		// use number format?
-		$views = $use_format ? number_format_i18n( $views ) : $views;
+		$views = $options['use_format'] ? number_format_i18n( $views ) : $views;
 
 		// container class
 		$class = apply_filters( 'pvc_post_views_class', 'post-views content-post post-' . $post_id . ' entry-meta', $post_id );
