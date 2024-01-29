@@ -44,15 +44,14 @@ class Post_Views_Counter_Cron {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
-		// get number of columns
-		$noc = $pvc->functions->get_number_of_columns();
+		// default where clause
+		$where = [ 'type = 0', 'CAST( period AS SIGNED ) < CAST( ' . date( 'Ymd', strtotime( '-' . ( (int) ( $counter[$pvc->options['general']['reset_counts']['type']] * $pvc->options['general']['reset_counts']['number'] ) ) . ' days' ) ) . ' AS SIGNED)' ];
 
-		if ( $noc === 5 )
-			$where = ' AND content = 0';
-		else
-			$where = '';
+		// update where clause
+		$where = apply_filters( 'pvc_reset_counts_where_clause', $where );
 
-		$wpdb->query( 'DELETE FROM ' . $wpdb->prefix . 'post_views WHERE type = 0' . $where . ' AND CAST( period AS SIGNED ) < CAST( ' . date( 'Ymd', strtotime( '-' . ( (int) ( $counter[$pvc->options['general']['reset_counts']['type']] * $pvc->options['general']['reset_counts']['number'] ) ) . ' days' ) ) . ' AS SIGNED)' );
+		// delete views
+		$wpdb->query( 'DELETE FROM ' . $wpdb->prefix . 'post_views WHERE ' . implode( ' AND ', $where ) );
 	}
 
 	/**
