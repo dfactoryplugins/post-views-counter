@@ -38,7 +38,7 @@ if ( ! function_exists( 'pvc_get_post_views' ) ) {
 			$post_id = (int) $post_id;
 
 		// set where clause
-		$where = [ 'type = 4' ];
+		$where = [ 'type' => 'type = 4' ];
 
 		// update where clause
 		$where = apply_filters( 'pvc_get_post_views_period_where', $where, $period, $post_id );
