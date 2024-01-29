@@ -379,7 +379,7 @@ class Post_Views_Counter_Settings {
 					'skip_saving'	=> true,
 					'description'	=> __( 'Select the time period to be included when displaying the number of views. The default display is the total number of views of the post.', 'post-views-counter' ),
 					'options'		=> 	[
-						'total'		=> __( 'Total Views', 'post-views-counter' ),
+						'total'		=> __( 'Total Views', 'post-views-counter' )
 					]
 				],
 				'display_style' => [
@@ -695,11 +695,10 @@ class Post_Views_Counter_Settings {
 
 		// use internal settings api to validate settings first
 		$input = $pvc->settings_api->validate_settings( $input );
-		
+
 		// update meta key on save changes
-		if ( isset( $_POST['post_views_counter_import_meta_key'] ) && isset( $_POST['save_post_views_counter_settings_other'] ) ) {	
+		if ( isset( $_POST['post_views_counter_import_meta_key'] ) && isset( $_POST['save_post_views_counter_settings_other'] ) )
 			$input['import_meta_key'] = sanitize_key( $_POST['post_views_counter_import_meta_key'] );
-		}
 
 		// import post views data from another plugin
 		if ( isset( $_POST['post_views_counter_import_wp_postviews'] ) ) {
@@ -708,7 +707,7 @@ class Post_Views_Counter_Settings {
 
 			// get views key
 			$meta_key =  sanitize_key( apply_filters( 'pvc_import_meta_key', ( isset( $_POST['post_views_counter_import_meta_key'] ) ? $_POST['post_views_counter_import_meta_key'] : $pvc->options['other']['import_meta_key'] ) ) );
-			
+
 			// set meta_key option
 			$input['import_meta_key'] = $meta_key;
 
@@ -1165,7 +1164,7 @@ class Post_Views_Counter_Settings {
 
 		return $html;
 	}
-	
+
 	/**
 	 * Setting: delete views.
 	 *

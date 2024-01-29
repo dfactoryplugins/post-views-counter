@@ -241,7 +241,7 @@ class Post_Views_Counter_Counter {
 			add_action( 'wp_ajax_pvc-check-post', [ $this, 'check_post_js' ] );
 			add_action( 'wp_ajax_nopriv_pvc-check-post', [ $this, 'check_post_js' ] );
 		}
-		
+
 		// rest api
 		add_action( 'rest_api_init', [ $this, 'rest_api_init' ] );
 	}
@@ -1379,7 +1379,7 @@ class Post_Views_Counter_Counter {
 	 */
 	public function get_post_views_rest_api( $request ) {
 		$params = apply_filters( 'pvc_rest_api_get_post_views_params', $request->get_params(), $request );
-		
+
 		return call_user_func_array( 'pvc_get_post_views', $params );
 	}
 

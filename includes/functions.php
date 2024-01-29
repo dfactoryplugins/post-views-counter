@@ -18,6 +18,7 @@ if ( ! defined( 'ABSPATH' ) )
  * @global object $wpdb
  *
  * @param int|array $post_id
+ * @param string $period
  * @return int
  */
 if ( ! function_exists( 'pvc_get_post_views' ) ) {
@@ -406,7 +407,7 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 
 		// get post views
 		$views = pvc_get_post_views( $post_id, $options['display_period'] );
-		
+
 		// use number format?
 		$views = $options['use_format'] ? number_format_i18n( $views ) : $views;
 
@@ -421,7 +422,7 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 
 		// prepare icon output
 		$icon = apply_filters( 'pvc_post_views_icon', '<span class="post-views-icon ' . esc_attr( $icon_class ) . '"></span> ', $post_id );
-		
+
 		// final views
 		$views = apply_filters( 'pvc_post_views_number_format', $views, $post_id );
 
