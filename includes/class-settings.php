@@ -1153,16 +1153,14 @@ class Post_Views_Counter_Settings {
 	 * @return string
 	 */
 	public function setting_import_views() {
-		$pvc = Post_Views_Counter();
-
 		$html = '
 		<div>
-			<input type="text" class="regular-text" name="post_views_counter_import_meta_key" value="' . $pvc->options['other']['import_meta_key'] . '"/>
-			<p class="description">' . __( 'Enter the meta key from which the views data is to be retrieved during import.', 'post-views-counter' ) . '</p>
+			<input type="text" class="regular-text" name="post_views_counter_import_meta_key" value="' . esc_attr( Post_Views_Counter()->options['other']['import_meta_key'] ) . '"/>
+			<p class="description">' . esc_html__( 'Enter the meta key from which the views data is to be retrieved during import.', 'post-views-counter' ) . '</p>
 		</div>
 		<div class="pvc-subfield">
-			<input type="submit" class="button button-secondary" name="post_views_counter_import_wp_postviews" value="' . __( 'Import Views', 'post-views-counter' ) . '"/> <label><input id="pvc-wp-postviews" type="checkbox" name="post_views_counter_import_wp_postviews_override" value="1" />' . __( 'Override existing views data during import.', 'post-views-counter' ) . '</label>
-			<p class="description">' . __( 'Click Import Views to start importing the views data.', 'post-views-counter' ) . '</p>
+			<input type="submit" class="button button-secondary" name="post_views_counter_import_wp_postviews" value="' . esc_attr__( 'Import Views', 'post-views-counter' ) . '"/> <label><input id="pvc-wp-postviews" type="checkbox" name="post_views_counter_import_wp_postviews_override" value="1" />' . esc_html__( 'Override existing views data during import.', 'post-views-counter' ) . '</label>
+			<p class="description">' . esc_html__( 'Click Import Views to start importing the views data.', 'post-views-counter' ) . '</p>
 		</div>';
 
 		return $html;
@@ -1175,8 +1173,8 @@ class Post_Views_Counter_Settings {
 	 */
 	public function setting_delete_views() {
 		$html = '
-		<input type="submit" class="button button-secondary" name="post_views_counter_reset_views" value="' . __( 'Delete Views', 'post-views-counter' ) . '" />
-		<p class="description">' . __( 'Delete ALL the existing post views data. Note that this is an irreversible process!', 'post-views-counter' ) . '</p>';
+		<input type="submit" class="button button-secondary" name="post_views_counter_reset_views" value="' . esc_attr__( 'Delete Views', 'post-views-counter' ) . '" />
+		<p class="description">' . esc_html__( 'Delete ALL the existing post views data. Note that this is an irreversible process!', 'post-views-counter' ) . '</p>';
 
 		return $html;
 	}
