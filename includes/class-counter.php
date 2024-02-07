@@ -1326,7 +1326,7 @@ class Post_Views_Counter_Counter {
 			[
 				'methods'				 => [ 'POST' ],
 				'callback'				 => [ $this, 'check_post_rest_api' ],
-				'permission_callback'	 => [ $this, 'post_view_permissions_check' ],
+				'permission_callback'	 => [ $this, 'view_post_permissions_check' ],
 				'args'					 => apply_filters( 'pvc_rest_api_view_post_args', [
 					'id'			=> [
 						'default'			 => 0,
@@ -1354,12 +1354,6 @@ class Post_Views_Counter_Counter {
 					'id' => [
 						'default'			=> 0,
 						'sanitize_callback'	=> [ $this, 'validate_rest_api_data' ]
-					],
-					'period' => [
-						'default'			=> 'total',
-						'validate_callback' => function( $param, $request, $key ) {
-							return is_string( $param );
-						}
 					]
 				] )
 			]
@@ -1373,19 +1367,7 @@ class Post_Views_Counter_Counter {
 	 * @return int
 	 */
 	public function get_post_views_rest_api( $request ) {
-		$params = apply_filters( 'pvc_rest_api_get_post_views_params', $request->get_params(), $request );
-
-		return call_user_func_array( 'pvc_get_post_views', $params );
-	}
-
-	/**
-	 * Check if a given request has access to view post.
-	 *
-	 * @param object $request
-	 * @return bool
-	 */
-	public function post_view_permissions_check( $request ) {
-		return (bool) apply_filters( 'pvc_rest_api_post_views_check', true, $request );
+		return pvc_get_post_views( $request->get_param( 'id' ) );
 	}
 
 	/**
@@ -1396,6 +1378,16 @@ class Post_Views_Counter_Counter {
 	 */
 	public function get_post_views_permissions_check( $request ) {
 		return (bool) apply_filters( 'pvc_rest_api_get_post_views_check', true, $request );
+	}
+	
+	/**
+	 * Check if a given request has access to view post.
+	 *
+	 * @param object $request
+	 * @return bool
+	 */
+	public function view_post_permissions_check( $request ) {
+		return (bool) apply_filters( 'pvc_rest_api_view_post_check', true, $request );
 	}
 
 	/**

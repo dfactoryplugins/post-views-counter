@@ -371,7 +371,7 @@ class Post_Views_Counter_Settings {
 				],
 				'display_period' => [
 					'tab'			=> 'display',
-					'title'			=> __( 'Time Period', 'post-views-counter' ),
+					'title'			=> __( 'Views Period', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'select',
 					'class'			=> 'pvc-pro',
@@ -400,6 +400,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Icon Class', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'class',
+					'default'		=> '',
 					'description'	=> sprintf( __( 'Enter the post views icon class. Any of the <a href="%s" target="_blank">Dashicons</a> classes are available.', 'post-views-counter' ), 'https://developer.wordpress.org/resource/dashicons/' ),
 					'subclass'		=> 'regular-text'
 				],
@@ -499,7 +500,7 @@ class Post_Views_Counter_Settings {
 					'disabled'		=> true,
 					'value'			=> $pvc->options['other']['license'],
 					'type'			=> 'input',
-					'description'	=> __( 'Enter your Post Views Counter Pro license key.', 'post-views-counter' ),
+					'description'	=> __( 'Enter your Post Views Counter Pro license key (requires Pro version to be installed and active).', 'post-views-counter' ),
 					'subclass'		=> 'regular-text',
 					'validate'		=> [ $this, 'validate_license' ],
 					'append'		=> '<span class="pvc-icon license-icon"></span>'

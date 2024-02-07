@@ -418,7 +418,7 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 		$label = apply_filters( 'pvc_post_views_label', ( function_exists( 'icl_t' ) ? icl_t( 'Post Views Counter', 'Post Views Label', $options['label'] ) : $options['label'] ), $post_id );
 
 		// add dashicons class if needed
-		$icon_class = strpos( $options['icon_class'], 'dashicons ' ) === 0 ? $options['icon_class'] : 'dashicons ' . $options['icon_class'];
+		$icon_class = strpos( $options['icon_class'], 'dashicons' ) === false ? $options['icon_class'] : 'dashicons ' . $options['icon_class'];
 
 		// prepare icon output
 		$icon = apply_filters( 'pvc_post_views_icon', '<span class="post-views-icon ' . esc_attr( $icon_class ) . '"></span> ', $post_id );
@@ -429,8 +429,8 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 		$html = apply_filters(
 			'pvc_post_views_html',
 			'<div class="' . esc_attr( $class ) . '">
-				' . ( $options['display_style']['icon'] && $icon_class !== '' ? $icon : '' )
-				. ( $options['display_style']['text'] && $label !== '' ? '<span class="post-views-label">' . esc_html( $label ) . '</span> ' : '' )
+				' . ( $options['display_style']['icon'] ? $icon : '' )
+				. ( $options['display_style']['text'] ? '<span class="post-views-label">' . esc_html( $label ) . '</span> ' : '' )
 				. '<span class="post-views-count">' . $views . '</span>
 			</div>',
 			$post_id,
