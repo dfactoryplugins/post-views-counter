@@ -197,11 +197,12 @@ class Post_Views_Counter_Crawler_Detect {
 	 * @return array
 	 */
 	protected function get_crawlers_list() {
-		return [
+		return array(
 			' YLT',
 			'^Aether',
 			'^Amazon Simple Notification Service Agent$',
 			'^Amazon-Route53-Health-Check-Service',
+			'^Amazon CloudFront',
 			'^b0t$',
 			'^bluefish ',
 			'^Calypso v\/',
@@ -339,7 +340,6 @@ class Post_Views_Counter_Crawler_Detect {
 			'a\.pr-cy\.ru',
 			'B-l-i-t-z-B-O-T',
 			'Backlink-Ceck',
-			'backlink-check',
 			'BacklinkHttpStatus',
 			'BackStreet',
 			'BackupLand',
@@ -603,6 +603,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'forensiq',
 			'ForusP',
 			'FoundSeoTool',
+			'fragFINN\.de',
 			'free thumbnails',
 			'Freeuploader',
 			'FreshRSS',
@@ -654,13 +655,13 @@ class Post_Views_Counter_Crawler_Detect {
 			'Google PP Default',
 			'Google Search Console',
 			'Google Web Preview',
-			'Google-Ads-Creatives-Assistant',
-			'Google-Ads-Overview',
+			'Google-Ads',
 			'Google-Adwords',
 			'Google-Apps-Script',
 			'Google-Calendar-Importer',
 			'Google-HotelAdsVerifier',
 			'Google-HTTP-Java-Client',
+			'Google-InspectionTool',
 			'Google-Podcast',
 			'Google-Publisher-Plugin',
 			'Google-Read-Aloud',
@@ -797,6 +798,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'intraVnews',
 			'IODC',
 			'IOI',
+			'Inboxb0t',
 			'iplabel',
 			'ips-agent',
 			'IPS\/[0-9]',
@@ -869,6 +871,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'Link Valet',
 			'LinkAlarm\/',
 			'LinkAnalyser',
+			'link-check',
 			'linkCheck',
 			'linkdex',
 			'LinkExaminer',
@@ -977,6 +980,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'Nameprotect',
 			'nationalarchives',
 			'Navroad',
+			'nbertaupete95',
 			'NearSite',
 			'Needle',
 			'Nessus',
@@ -1304,9 +1308,11 @@ class Post_Views_Counter_Crawler_Detect {
 			'SpamExperts',
 			'Spammen',
 			'Spanner',
+			'Spawning-AI',
 			'spaziodati',
 			'SPDYCheck',
 			'Specificfeeds',
+			'SpeedKit',
 			'speedy',
 			'SPEng',
 			'Spinn3r',
@@ -1538,6 +1544,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'worldping-api',
 			'wotbox',
 			'WP Engine Install Performance API',
+			'WP Rocket',
 			'wpif',
 			'wprecon\.com survey',
 			'WPScan',
@@ -1592,8 +1599,8 @@ class Post_Views_Counter_Crawler_Detect {
 			'Zoom\.Mac',
 			'ZoteroTranslationServer',
 			'ZyBorg',
-			'[a-z0-9\-_]*(bot|crawl|archiver|transcoder|spider|uptime|validator|fetcher|cron|checker|reader|extractor|monitoring|analyzer|scraper)'
-		];
+			'[a-z0-9\-_]*(bot|crawl|archiver|transcoder|spider|uptime|validator|fetcher|cron|checker|reader|extractor|monitoring|analyzer|scraper)',
+		);
 	}
 
 	/**
