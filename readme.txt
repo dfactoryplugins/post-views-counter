@@ -53,7 +53,7 @@ No questions yet.
 
 == Changelog ==
 
-= 1.4.3 =
+= 1.4.4 =
 * New: Option to enter meta_key for importing the views
 * New: Revamped Reports for Views by Date, Views by Post and Views by Author (Pro)
 * New: REST API support for post, site, term and user views (Pro)
