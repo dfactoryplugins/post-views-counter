@@ -3,8 +3,8 @@ Contributors: dfactory
 Tags: counter, postviews, statistics, stats, analytics, pageviews, tracking
 Requires at least: 5.1
 Requires PHP: 7.3.0
-Tested up to: 6.4.1
-Stable tag: 1.4.3
+Tested up to: 6.4.3
+Stable tag: 1.4.4
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -52,6 +52,15 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.4.3 =
+* New: Option to enter meta_key for importing the views
+* New: Revamped Reports for Views by Date, Views by Post and Views by Author (Pro)
+* New: REST API support for post, site, term and user views (Pro)
+* New: Views Period option to display views from a selected time period instead of total (Pro)
+* New: [site-views] shortcode for total site views display (Pro)
+* Tweak: Improved icon handling
+* Tweak: Updated crawler detection
 
 = 1.4.3 =
 * Tweak: Update languages file
@@ -270,5 +279,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.4.3 =
-* Tweak: Update languages file
+= 1.4.4 =
+Option to enter meta_key for importing the views, Revamped Reports for Views by Date, Views by Post and Views by Author (Pro), REST API support for post, site, term and user views (Pro), Views Period option to display views from a selected time period instead of total (Pro), [site-views] shortcode for total site views display (Pro)
