@@ -421,8 +421,6 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Format Number', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'boolean',
-
-					'value'			=> true,
 					'label'			=> __( 'Enable to display the views number formatted based on the locale (using the WP number_format_i18n function).', 'post-views-counter' )
 				],
 				'taxonomies_display' => [
