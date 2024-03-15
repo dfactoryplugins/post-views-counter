@@ -310,19 +310,22 @@ class Post_Views_Counter_Columns {
 	 * @return void
 	 */
 	function save_bulk_post_views() {
+		global $wpdb;
+
+		// check nonce
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'pvc_save_bulk_post_views' ) )
+			exit;
+
 		$count = null;
 
-		if ( isset( $_POST['post_views'] ) ) {
-			if ( is_numeric( trim( $_POST['post_views'] ) ) ) {
-				$count = (int) $_POST['post_views'];
+		if ( isset( $_POST['post_views'] ) && is_numeric( trim( $_POST['post_views'] ) ) ) {
+			$count = (int) $_POST['post_views'];
 
-				if ( $count < 0 )
-					$count = 0;
-			} else
-				$count = null;
+			if ( $count < 0 )
+				$count = 0;
 		}
 
-		// check post IDs
+		// check post ids
 		$post_ids = ( ! empty( $_POST['post_ids'] ) && is_array( $_POST['post_ids'] ) ) ? array_map( 'absint', $_POST['post_ids'] ) : [];
 
 		if ( is_null( $count ) )
@@ -334,15 +337,12 @@ class Post_Views_Counter_Columns {
 		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			exit;
 
-		// any post IDs?
+		// any post ids?
 		if ( ! empty( $post_ids ) ) {
 			foreach ( $post_ids as $post_id ) {
-
 				// break if current user can't edit this post
 				if ( ! current_user_can( 'edit_post', $post_id ) )
 					continue;
-
-				global $wpdb;
 
 				// insert or update db post views count
 				$wpdb->query( $wpdb->prepare( "INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $count, $count ) );
