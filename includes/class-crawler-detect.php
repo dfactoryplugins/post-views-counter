@@ -197,7 +197,7 @@ class Post_Views_Counter_Crawler_Detect {
 	 * @return array
 	 */
 	protected function get_crawlers_list() {
-		return array(
+		return [
 			' YLT',
 			'^Aether',
 			'^Amazon Simple Notification Service Agent$',
@@ -1544,7 +1544,6 @@ class Post_Views_Counter_Crawler_Detect {
 			'worldping-api',
 			'wotbox',
 			'WP Engine Install Performance API',
-			'WP Rocket',
 			'wpif',
 			'wprecon\.com survey',
 			'WPScan',
@@ -1599,8 +1598,8 @@ class Post_Views_Counter_Crawler_Detect {
 			'Zoom\.Mac',
 			'ZoteroTranslationServer',
 			'ZyBorg',
-			'[a-z0-9\-_]*(bot|crawl|archiver|transcoder|spider|uptime|validator|fetcher|cron|checker|reader|extractor|monitoring|analyzer|scraper)',
-		);
+			'[a-z0-9\-_]*(bot|crawl|archiver|transcoder|spider|uptime|validator|fetcher|cron|checker|reader|extractor|monitoring|analyzer|scraper)'
+		];
 	}
 
 	/**
