@@ -4,7 +4,7 @@ Tags: counter, postviews, statistics, stats, analytics, pageviews, tracking
 Requires at least: 5.1
 Requires PHP: 7.3.0
 Tested up to: 6.4.3
-Stable tag: 1.4.4
+Stable tag: 1.4.5
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -52,6 +52,10 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.4.5 =
+* Fix: Post views bulk saving security
+* Tweak: Removed WP Rocket as bot in crawler detection
 
 = 1.4.4 =
 * New: Option to enter meta_key for importing the views
@@ -279,5 +283,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.4.4 =
-Option to enter meta_key for importing the views, Revamped Reports for Views by Date, Views by Post and Views by Author (Pro), REST API support for post, site, term and user views (Pro), Views Period option to display views from a selected time period instead of total (Pro), [site-views] shortcode for total site views display (Pro)
+= 1.4.5 =
+* Fix: Post views bulk saving security
