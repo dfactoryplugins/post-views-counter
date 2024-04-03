@@ -137,7 +137,7 @@
 					var config = {
 						type: 'line',
 						options: {
-							maintainAspectRatio: true,
+							maintainAspectRatio: false,
 							responsive: true,
 							plugins: {
 								legend: {
