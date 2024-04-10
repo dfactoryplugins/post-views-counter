@@ -705,20 +705,20 @@ class Post_Views_Counter_Settings {
 			$input = $pvc->options['other'];
 
 			// get views key
-			$meta_key =  sanitize_key( apply_filters( 'pvc_import_meta_key', ( isset( $_POST['post_views_counter_import_meta_key'] ) ? $_POST['post_views_counter_import_meta_key'] : $pvc->options['other']['import_meta_key'] ) ) );
+			$meta_key = sanitize_key( apply_filters( 'pvc_import_meta_key', ( isset( $_POST['post_views_counter_import_meta_key'] ) ? $_POST['post_views_counter_import_meta_key'] : $pvc->options['other']['import_meta_key'] ) ) );
 
 			// set meta_key option
 			$input['import_meta_key'] = $meta_key;
 
 			// get views
-			$views = $wpdb->get_results( "SELECT post_id, meta_value FROM " . $wpdb->postmeta . " WHERE meta_key = '" . $meta_key . "'", ARRAY_A, 0 );
+			$views = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM " . $wpdb->postmeta . " WHERE meta_key = %s", $meta_key ), ARRAY_A, 0 );
 
 			// any views?
 			if ( ! empty( $views ) ) {
 				$sql = [];
 
 				foreach ( $views as $view ) {
-					$sql[] = "(" . (int) $view['post_id'] . ", 4, 'total', " . (int) $view['meta_value'] . ")";
+					$sql[] = $wpdb->prepare( "(%d, 4, 'total', %d)", (int) $view['post_id'], (int) $view['meta_value'] );
 				}
 
 				$wpdb->query( "INSERT INTO " . $wpdb->prefix . "post_views(id, type, period, count) VALUES " . implode( ',', $sql ) . " ON DUPLICATE KEY UPDATE count = " . ( isset( $_POST['post_views_counter_import_wp_postviews_override'] ) ? '' : 'count + ' ) . "VALUES(count)" );
