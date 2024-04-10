@@ -90,12 +90,20 @@ var initPostViewsCounter = function() {
 			} ).then( function( response ) {
 				try {
 					if ( typeof response === 'object' && response !== null ) {
-						if ( _this.args.dataStorage === 'cookieless' )
-							_this.saveStorageData.call( _this, name, response.storage, response.type );
-						else
-							_this.saveCookieData( name, response.storage );
+						if ( 'success' in response && response.success === false ) {
+							console.log( 'Request error' );
+							console.log( response.data );
+						} else {
+							if ( _this.args.dataStorage === 'cookieless' )
+								_this.saveStorageData.call( _this, name, response.storage, response.type );
+							else
+								_this.saveCookieData( name, response.storage );
 
-						_this.triggerEvent( 'pvcCheckPost', response );
+							_this.triggerEvent( 'pvcCheckPost', response );
+						}
+					} else {
+						console.log( 'Invalid object' );
+						console.log( response );
 					}
 				} catch( error ) {
 					console.log( 'Invalid JSON data' );
