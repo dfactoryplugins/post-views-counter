@@ -442,7 +442,7 @@ class Post_Views_Counter_Counter {
 			return;
 
 		// skip special requests
-		if ( is_preview() || is_feed() || is_trackback() || is_favicon() || is_customize_preview() )
+		if ( is_preview() || is_feed() || is_trackback() || ( function_exists( 'is_favicon' ) && is_favicon() ) || is_customize_preview() )
 			return;
 
 		// get main instance
@@ -1379,7 +1379,7 @@ class Post_Views_Counter_Counter {
 	public function get_post_views_permissions_check( $request ) {
 		return (bool) apply_filters( 'pvc_rest_api_get_post_views_check', true, $request );
 	}
-	
+
 	/**
 	 * Check if a given request has access to view post.
 	 *

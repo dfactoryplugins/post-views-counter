@@ -225,7 +225,7 @@ class Post_Views_Counter_Frontend {
 		}
 
 		// skip special requests
-		if ( is_preview() || is_feed() || is_trackback() || is_favicon() || is_customize_preview() )
+		if ( is_preview() || is_feed() || is_trackback() || ( function_exists( 'is_favicon' ) && is_favicon() ) || is_customize_preview() )
 			return;
 
 		// get countable post types
