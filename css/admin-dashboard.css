@@ -191,3 +191,14 @@
 .pvc-collapsed .pvc-accordion-content {
 	display: none;
 }
+.pvc-dashboard-block {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fafafa;
+    color: #787c82;
+    font-size: 13px;
+    font-style: italic;
+    padding: 13px;
+    margin-top: 0;
+}

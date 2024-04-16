@@ -3,8 +3,8 @@ Contributors: dfactory
 Tags: counter, postviews, statistics, stats, analytics, pageviews, tracking
 Requires at least: 5.1
 Requires PHP: 7.3.0
-Tested up to: 6.4.3
-Stable tag: 1.4.5
+Tested up to: 6.5.2
+Stable tag: 1.4.6
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -52,6 +52,14 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.4.6 =
+* Fix: Bulk posts selection
+* Fix: Additional SQL queries escaping
+* Tweak: Call to undefined function is_favicon()
+* Tweak: Enqueue main script in header instead of footer
+* Tweak: Better JS error handling
+* Tweak: Updated Chart.js to 4.4.2
 
 = 1.4.5 =
 * Fix: Post views bulk saving security
@@ -283,5 +291,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.4.5 =
-* Fix: Post views bulk saving security
+= 1.4.6 =
+Fix: Bulk posts selection, Fix: Additional SQL queries escaping

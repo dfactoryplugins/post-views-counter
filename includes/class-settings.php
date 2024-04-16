@@ -241,7 +241,7 @@ class Post_Views_Counter_Settings {
 					'title'			=> __( 'Counter Mode', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'radio',
-					'description'	=> __( 'Select the method of collecting post views data. If you are using any of the caching plugins select JavaScript, REST API or Fast AJAX (if available).', 'post-views-counter' ),
+					'description'	=> __( 'Select the method of collecting post views data. If you are using any of the caching plugins select JavaScript, REST API or Fast AJAX (up to <code>10+</code> times faster!).', 'post-views-counter' ),
 					'class'			=> 'pvc-pro-extended',
 					'options'		=> $this->get_counter_modes(),
 					'disabled'		=> [ 'ajax' ]
