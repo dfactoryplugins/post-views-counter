@@ -50,7 +50,30 @@ class Post_Views_Counter_Query {
 	 * @return void
 	 */
 	public function extend_pre_query( $query ) {
-		if ( isset( $query->query_vars['orderby'] ) && $query->query_vars['orderby'] === 'post_views' )
+		// skip empty sort order
+		if ( empty( $query->query_vars['orderby'] ) )
+			return;
+
+		if ( is_string( $query->query_vars['orderby'] ) ) {
+			// simple order by post_views
+			if ( $query->query_vars['orderby'] === 'post_views' )
+				$query->pvc_orderby = true;
+			// multisort post_views as string
+			elseif ( strpos( $query->query_vars['orderby'], 'post_views' ) !== false ) {
+				// explode orderby
+				$sort = explode( ' ', $query->query_vars['orderby'] );
+
+				// make sure only full string is available
+				if ( ! empty( $sort ) ) {
+					// clear it
+					$sort = array_filter( $sort );
+
+					if ( in_array( 'post_views', $sort, true ) )
+						$query->pvc_orderby = true;
+				}
+			}
+		// post_views in array
+		} elseif ( is_array( $query->query_vars['orderby'] ) && array_key_exists( 'post_views', $query->query_vars['orderby'] ) )
 			$query->pvc_orderby = true;
 	}
 
@@ -331,8 +354,66 @@ class Post_Views_Counter_Query {
 		if ( ( isset( $query->pvc_orderby ) && $query->pvc_orderby ) ) {
 			global $wpdb;
 
+			// get order
 			$order = $query->get( 'order' );
-			$orderby = 'post_views ' . $order . ', ' . $wpdb->prefix . 'posts.ID ' . $order;
+
+			// get original orderby (before parsing)
+			$org_orderby = $query->get( 'orderby' );
+
+			// orderby as string
+			if ( is_string( $org_orderby ) ) {
+				if ( $org_orderby === 'post_views' )
+					$orderby = 'post_views ' . $order;
+				elseif ( strpos( $org_orderby, 'post_views' ) !== false ) {
+					// explode orderby
+					$sort = explode( ' ', $org_orderby );
+
+					if ( ! empty( $sort ) ) {
+						// clear it
+						$sort = array_values( array_filter( $sort ) );
+
+						// make sure only full string is available
+						if ( in_array( 'post_views', $sort, true ) ) {
+							// sort only by post views
+							if ( count( $sort ) === 1 )
+								$orderby = 'post_views ' . $order;
+							else {
+								// post_views as first value
+								if ( $sort[0] === 'post_views' )
+									$orderby = 'post_views ' . $order . ', ' . $orderby;
+								else {
+//todo find a way to recognize other sorting options based on original order and parsed order by wordpress
+									$orderby = 'post_views ' . $order . ', ' . $orderby;
+								}
+							}
+						}
+					}
+				}
+			// orderby as array
+			} elseif ( is_array( $org_orderby ) && array_key_exists( 'post_views', $org_orderby ) ) {
+				// sort only by post views
+				if ( count( $org_orderby ) === 1 )
+					$orderby = 'post_views ' . $order;
+				else {
+					// post_views as first key
+					if ( array_key_first( $org_orderby ) === 'post_views' ) {
+						$sanitized_orderby = sanitize_sql_orderby( 'post_views ' . strtoupper( $org_orderby['post_views'] ) );
+
+						if ( $sanitized_orderby !== false )
+							$orderby = $sanitized_orderby . ', ' . $orderby;
+						else
+							$orderby = 'post_views ' . $order . ', ' . $orderby;
+					} else {
+//todo find a way to recognize other sorting options based on original order and parsed order by wordpress
+						$sanitized_orderby = sanitize_sql_orderby( 'post_views ' . strtoupper( $org_orderby['post_views'] ) );
+
+						if ( $sanitized_orderby !== false )
+							$orderby = $sanitized_orderby . ', ' . $orderby;
+						else
+							$orderby = 'post_views ' . $order . ', ' . $orderby;
+					}
+				}
+			}
 		}
 
 		return $orderby;
