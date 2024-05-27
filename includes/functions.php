@@ -413,6 +413,9 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 
 		// container class
 		$class = apply_filters( 'pvc_post_views_class', 'post-views content-post post-' . $post_id . ' entry-meta', $post_id );
+		
+		// dynamic loading?
+		$class .= $options['dynamic_loading'] === true ? ' load-dynamic' : ' load-static';
 
 		// prepare display
 		$label = apply_filters( 'pvc_post_views_label', ( function_exists( 'icl_t' ) ? icl_t( 'Post Views Counter', 'Post Views Label', $options['label'] ) : $options['label'] ), $post_id );

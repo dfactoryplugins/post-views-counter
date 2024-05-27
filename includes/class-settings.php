@@ -416,6 +416,14 @@ class Post_Views_Counter_Settings {
 						'manual'	=> __( 'manual', 'post-views-counter' )
 					]
 				],
+				'dynamic_loading' => [
+					'tab'			=> 'display',
+					'title'			=> __( 'Dynamic Loading', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_display_settings',
+					'type'			=> 'boolean',
+					'class'			=> 'pvc-pro',
+					'label'			=> __( 'Enable dynamic loading and prevent caching of the displayed views count.', 'post-views-counter' )
+				],
 				'use_format' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Format Number', 'post-views-counter' ),

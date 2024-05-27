@@ -40,6 +40,8 @@ class Post_Views_Counter_Frontend {
 	 * @return string
 	 */
 	public function post_views_shortcode( $args ) {
+		$views = 0;
+		
 		$defaults = [
 			'id'	=> get_the_ID(),
 			'type'	=> 'post'
@@ -69,12 +71,11 @@ class Post_Views_Counter_Frontend {
 		$args = shortcode_atts( $defaults, $args );
 
 		// default type?
-		if ( $args['type'] === 'post' )
+		if ( $args['type'] === 'post' ) {
 			$views = pvc_post_views( $args['id'], false );
-		else
-			$views = apply_filters( 'pvc_post_views_shortcode', '', $args );
+		}
 
-		return $views;
+		return apply_filters( 'pvc_post_views_shortcode', $views, $args );
 	}
 
 	/**

@@ -85,6 +85,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					'roles'	 => []
 				],
 				'position'				=> 'after',
+				'dynamic_loading'		=> false,
 				'use_format'			=> true,
 				'display_style'			=> [
 					'icon'	 => true,
