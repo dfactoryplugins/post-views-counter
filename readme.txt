@@ -3,8 +3,8 @@ Contributors: dfactory
 Tags: counter, postviews, statistics, stats, analytics, pageviews, tracking
 Requires at least: 5.1
 Requires PHP: 7.3.0
-Tested up to: 6.5.2
-Stable tag: 1.4.6
+Tested up to: 6.5.4
+Stable tag: 1.4.7
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -52,6 +52,10 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.4.7 =
+* New: Dynamic views loading option (Pro)
+* Fix: Multi-sorting queries with post_views orderby parameter
 
 = 1.4.6 =
 * Fix: Bulk posts selection
@@ -291,5 +295,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.4.6 =
-Fix: Bulk posts selection, Fix: Additional SQL queries escaping
+= 1.4.7 =
+New: Dynamic views loading option (Pro), Fix: Multi-sorting queries with post_views
