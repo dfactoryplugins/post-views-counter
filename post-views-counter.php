@@ -256,12 +256,48 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			// actions
 			add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
 			add_action( 'wp_loaded', [ $this, 'load_pluggable_functions' ] );
+			add_action( 'init', [ $this, 'register_blocks' ] );
 			add_action( 'admin_init', [ $this, 'update_notice' ] );
 			add_action( 'wp_initialize_site', [ $this, 'initialize_new_network_site' ] );
 			add_action( 'wp_ajax_pvc_dismiss_notice', [ $this, 'dismiss_notice' ] );
 
 			// filters
 			add_filter( 'plugin_action_links_' . POST_VIEWS_COUNTER_BASENAME, [ $this, 'plugin_settings_link' ] );
+		}
+
+		public function block_editor_enqueue_scripts() {
+			// enqueue script
+			wp_enqueue_script( 'post-views-counter-block-editor-script', POST_VIEWS_COUNTER_URL . '/js/dummy.js', [] );
+
+			$block_image_sizes = [];
+
+			// image sizes
+			$image_sizes = array_merge( [ 'full' ], get_intermediate_image_sizes() );
+
+			// sort image sizes by name, ascending
+			sort( $image_sizes, SORT_STRING );
+
+			foreach ( $image_sizes as $image_size ) {
+				$block_image_sizes[] = [
+					'label'	=> $image_size,
+					'value'	=> $image_size
+				];
+			}
+
+			// prepare script data
+			$script_data = [
+				'postTypes'		=> Post_Views_Counter()->functions->get_post_types(),
+				'imageSizes'	=> $block_image_sizes
+			];
+
+			wp_add_inline_script( 'post-views-counter-block-editor-script', 'var pvcBlockEditorData = ' . wp_json_encode( $script_data ) . ";\n", 'before' );
+		}
+
+		public function register_blocks() {
+			// actions
+			add_action( 'enqueue_block_editor_assets', [ $this, 'block_editor_enqueue_scripts' ] );
+
+			register_block_type( __DIR__ . '/blocks/most-viewed-posts/build' );
 		}
 
 		/**

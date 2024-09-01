@@ -1,0 +1,66 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "post-views-counter/most-viewed-posts",
+	"version": "1.0.0",
+	"title": "Most Viewed Posts",
+	"category": "widgets",
+	"icon": "list-view",
+	"description": "Displays a list of the most viewed posts.",
+	"example": {},
+	"attributes": {
+		"title": {
+			"type": "string",
+			"default": "Most Viewed Posts"
+		},
+		"postTypes": {
+			"type": "array",
+			"default": []
+		},
+		"numberOfPosts": {
+			"type": "integer",
+			"default": 5
+		},
+		"noPostsMessage": {
+			"type": "string",
+			"default": "No most viewed posts found"
+		},
+		"order": {
+			"type": "string",
+			"default": "asc"
+		},
+		"listType": {
+			"type": "string",
+			"default": "unordered"
+		},
+		"displayPostViews": {
+			"type": "boolean",
+			"default": false
+		},
+		"displayPostExcerpt": {
+			"type": "boolean",
+			"default": false
+		},
+		"displayPostAuthor": {
+			"type": "boolean",
+			"default": false
+		},
+		"displayPostThumbnail": {
+			"type": "boolean",
+			"default": false
+		},
+		"thumbnailSize": {
+			"type": "string",
+			"default": "thumbnail"
+		}
+	},
+	"supports": {
+		"html": false
+	},
+	"textdomain": "copyright-date-block",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php",
+	"viewScript": "file:./view.js"
+}
