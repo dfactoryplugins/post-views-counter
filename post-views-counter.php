@@ -265,6 +265,37 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			add_filter( 'plugin_action_links_' . POST_VIEWS_COUNTER_BASENAME, [ $this, 'plugin_settings_link' ] );
 		}
 
+		/**
+		 * Register blocks.
+		 *
+		 * @global object @wp_version
+		 *
+		 * @return void
+		 */
+		public function register_blocks() {
+			global $wp_version;
+
+			// actions
+			add_action( 'enqueue_block_editor_assets', [ $this, 'block_editor_enqueue_scripts' ] );
+
+			// filters
+			if ( version_compare( $wp_version, '5.8', '>=' ) )
+				add_filter( 'block_categories_all', [ $this, 'add_block_category' ] );
+			else
+				add_filter( 'block_categories', [ $this, 'add_block_category' ] );
+
+			add_filter( 'register_block_type_args', [ $this, 'update_block_args' ], 10, 2 );
+
+			register_block_type( __DIR__ . '/blocks/most-viewed-posts/build' );
+		}
+
+		/**
+		 * Enqueue block scripts.
+		 *
+		 * @global object @wp_version
+		 *
+		 * @return void
+		 */
 		public function block_editor_enqueue_scripts() {
 			// enqueue script
 			wp_enqueue_script( 'post-views-counter-block-editor-script', POST_VIEWS_COUNTER_URL . '/js/dummy.js', [] );
@@ -284,20 +315,103 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				];
 			}
 
+			$post_types = Post_Views_Counter()->functions->get_post_types();
+
 			// prepare script data
 			$script_data = [
-				'postTypes'		=> Post_Views_Counter()->functions->get_post_types(),
+				'postTypesKeys'	=> array_combine( array_keys( $post_types ), array_fill( 0, count( $post_types ), false ) ),
+				'postTypes'		=> $post_types,
 				'imageSizes'	=> $block_image_sizes
 			];
+
+			// force post as enabled
+			$script_data['postTypesKeys']['post'] = true;
+
+			// prepare script data
+			$script_data['periods'] = [	[
+				'label'		=> __( 'Total Views', 'post-views-counter' ),
+				'value'		=> 'total'
+			] ];
+
+			$script_data = apply_filters( 'pvc_block_editor_data', $script_data );
 
 			wp_add_inline_script( 'post-views-counter-block-editor-script', 'var pvcBlockEditorData = ' . wp_json_encode( $script_data ) . ";\n", 'before' );
 		}
 
-		public function register_blocks() {
-			// actions
-			add_action( 'enqueue_block_editor_assets', [ $this, 'block_editor_enqueue_scripts' ] );
+		/**
+		 * Update block arguments.
+		 *
+		 * @param array @args
+		 * @param string @block_type
+		 *
+		 * @return array
+		 */
+		function update_block_args( $args, $block_type ) {
+			// update only most viewed posts block
+			if ( $block_type !== 'post-views-counter/most-viewed-posts' )
+				return $args;
 
-			register_block_type( __DIR__ . '/blocks/most-viewed-posts/build' );
+			$args['render_callback'] = [ $this, 'most_viewed_posts_render_callback' ];
+
+			return $args;
+		}
+
+		/**
+		 * Server side block renderer.
+		 *
+		 * @param array @attributes
+		 * @param string @content
+		 *
+		 * @return array
+		 */
+		function most_viewed_posts_render_callback( $attributes, $content ) {
+			$post_types = [];
+
+			foreach ( $attributes['postTypes'] as $post_type => $enabled ) {
+				if ( $enabled === true || $enabled === 'true' )
+					$post_types[] = $post_type;
+			}
+
+			// map block attributes
+			$args = [
+				'number_of_posts'		=> max( 1, (int) $attributes['numberOfPosts'] ),
+				'post_type'				=> $post_types,
+				'period'				=> $attributes['period'],
+				'order'					=> $attributes['order'],
+				'thumbnail_size'		=> $attributes['thumbnailSize'],
+				'list_type'				=> $attributes['listType'],
+				'show_post_views'		=> (bool) $attributes['displayPostViews'],
+				'show_post_thumbnail'	=> (bool) $attributes['displayPostThumbnail'],
+				'show_post_author'		=> (bool) $attributes['displayPostAuthor'],
+				'show_post_excerpt'		=> (bool) $attributes['displayPostExcerpt'],
+				'no_posts_message'		=> $attributes['noPostsMessage']
+			];
+
+			$html = '
+			<div ' . get_block_wrapper_attributes() . '>
+				<h2 class="widget-title">' . esc_html( $attributes['title'] ) . '</h2>';
+
+			$html .= pvc_most_viewed_posts( $args, false );
+
+			$html .= '
+			</div>';
+
+			return $html;
+		}
+
+		/**
+		 * Add new blocks category.
+		 *
+		 * @param array $categories
+		 * @return array
+		 */
+		function add_block_category( $categories ) {
+			$categories[] = [
+				'slug'	=> 'post-views-counter',
+				'title'	=> 'Post Views Counter'
+			];
+
+			return $categories;
 		}
 
 		/**

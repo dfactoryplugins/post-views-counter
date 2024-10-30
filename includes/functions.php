@@ -19,10 +19,10 @@ if ( ! defined( 'ABSPATH' ) )
  *
  * @param int|array $post_id
  * @param string $period
+ *
  * @return int
  */
 if ( ! function_exists( 'pvc_get_post_views' ) ) {
-
 	function pvc_get_post_views( $post_id = 0, $period = 'total' ) {
 		global $wpdb;
 
@@ -112,7 +112,6 @@ if ( ! function_exists( 'pvc_get_post_views' ) ) {
 
 		return (int) apply_filters( 'pvc_get_post_views', $post_views, $post_id, $period );
 	}
-
 }
 
 /**
@@ -121,12 +120,11 @@ if ( ! function_exists( 'pvc_get_post_views' ) ) {
  * @global object $wpdb
  *
  * @param array $args
+ *
  * @return int|array
  */
 if ( ! function_exists( 'pvc_get_views' ) ) {
-
 	function pvc_get_views( $args = [] ) {
-
 		global $wpdb;
 
 		$range = [];
@@ -453,18 +451,17 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 
 		return apply_filters( 'pvc_get_views', $post_views );
 	}
-
 }
 
 /**
  * Display post views for a given post.
  *
- * @param int|array $post_id
+ * @param int $post_id
  * @param bool $display
+ *
  * @return string|void
  */
 if ( ! function_exists( 'pvc_post_views' ) ) {
-
 	function pvc_post_views( $post_id = 0, $display = true ) {
 		// get all data
 		$post_id = (int) ( empty( $post_id ) ? get_the_ID() : $post_id );
@@ -514,27 +511,31 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 		else
 			return $html;
 	}
-
 }
 
 /**
  * Get most viewed posts.
  *
  * @param array $args
+ *
  * @return array
  */
 if ( ! function_exists( 'pvc_get_most_viewed_posts' ) ) {
-
 	function pvc_get_most_viewed_posts( $args = [] ) {
 		$args = array_merge(
 			[
-				'posts_per_page' => 10,
-				'order'			 => 'desc',
-				'post_type'		 => 'post',
-				'fields'		 => ''
+				'posts_per_page'	=> 10,
+				'order'				=> 'desc',
+				'post_type'			=> [ 'post' ],
+				'post_status'		=> [ 'publish' ],
+				'fields'			=> 'all',
+				'period'			=> 'total'
 			],
 			$args
 		);
+
+		if ( ( is_array( $args['post_type'] ) && in_array( 'attachment', $args['post_type'], true ) ) || ( is_string( $args['post_type'] ) && $args['post_type'] === 'attachment' ) )
+			$args['post_status'][] = 'inherit';
 
 		$args = apply_filters( 'pvc_get_most_viewed_posts_args', $args );
 
@@ -546,18 +547,17 @@ if ( ! function_exists( 'pvc_get_most_viewed_posts' ) ) {
 
 		return apply_filters( 'pvc_get_most_viewed_posts', get_posts( $args ), $args );
 	}
-
 }
 
 /**
  * Display a list of most viewed posts.
  *
- * @param array $post_id
+ * @param array $args
  * @param bool $display
- * @return mixed
+ *
+ * @return void|string
  */
 if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
-
 	function pvc_most_viewed_posts( $args = [], $display = true ) {
 		$defaults = [
 			'number_of_posts'		=> 5,
@@ -569,25 +569,31 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 			'show_post_thumbnail'	=> false,
 			'show_post_author'		=> false,
 			'show_post_excerpt'		=> false,
-			'no_posts_message'		=> __( 'No Posts', 'post-views-counter' ),
+			'no_posts_message'		=> __( 'No most viewed posts found.', 'post-views-counter' ),
 			'item_before'			=> '',
-			'item_after'			=> ''
+			'item_after'			=> '',
+			'period'				=> 'total'
 		];
 
 		$args = apply_filters( 'pvc_most_viewed_posts_args', wp_parse_args( $args, $defaults ) );
 
+		// get periods
+		$periods = apply_filters( 'pvc_display_period_options', [ 'total' => __( 'Total Views', 'post-views-counter' ) ] );
+
+		// sanitize arguments
 		$args['show_post_views'] = (bool) $args['show_post_views'];
 		$args['show_post_thumbnail'] = (bool) $args['show_post_thumbnail'];
 		$args['show_post_author'] = (bool) $args['show_post_author'];
 		$args['show_post_excerpt'] = (bool) $args['show_post_excerpt'];
+		$args['period'] = isset( $args['period'] ) && array_key_exists( $args['period'], $periods ) ? $args['period'] : $defaults['period'];
 
-		$posts = pvc_get_most_viewed_posts(
-			[
-				'posts_per_page' => ( isset( $args['number_of_posts'] ) ? (int) $args['number_of_posts'] : $defaults['number_of_posts'] ),
-				'order'			 => ( isset( $args['order'] ) ? $args['order'] : $defaults['order'] ),
-				'post_type'		 => ( isset( $args['post_type'] ) ? $args['post_type'] : $defaults['post_type'] )
-			]
-		);
+		// get posts
+		$posts = pvc_get_most_viewed_posts( [
+			'posts_per_page'	=> isset( $args['number_of_posts'] ) ? (int) $args['number_of_posts'] : $defaults['number_of_posts'],
+			'order'				=> isset( $args['order'] ) ? $args['order'] : $defaults['order'],
+			'post_type'			=> isset( $args['post_type'] ) ? $args['post_type'] : $defaults['post_type'],
+			'period'			=> $args['period']
+		] );
 
 		if ( ! empty( $posts ) ) {
 			$html = ( $args['list_type'] === 'unordered' ? '<ul>' : '<ol>' );
@@ -595,24 +601,18 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 			foreach ( $posts as $post ) {
 				setup_postdata( $post );
 
-			$html .= '
-			<li>';
-
+				$html .= '<li>';
 				$html .= apply_filters( 'pvc_most_viewed_posts_item_before', $args['item_before'], $post );
 
 				if ( $args['show_post_thumbnail'] && has_post_thumbnail( $post->ID ) ) {
-					$html .= '
-					<span class="post-thumbnail">
-					' . get_the_post_thumbnail( $post->ID, $args['thumbnail_size'] ) . '
-					</span>';
+					$html .= '<span class="post-thumbnail">' . get_the_post_thumbnail( $post->ID, $args['thumbnail_size'] ) . '</span>';
 				}
 
-				$html .= '
-					<a class="post-title" href="' . get_permalink( $post->ID ) . '">' . get_the_title( $post->ID ) . '</a>' . ( $args['show_post_author'] ? ' <span class="author">(' . get_the_author_meta( 'display_name', $post->post_author ) . ')</span> ' : '' ) . ( $args['show_post_views'] ? ' <span class="count">(' . number_format_i18n( pvc_get_post_views( $post->ID ) ) . ')</span>' : '' );
-
-				$excerpt = '';
+				$html .= '<a class="post-title" href="' . get_permalink( $post->ID ) . '">' . get_the_title( $post->ID ) . '</a>' . ( $args['show_post_author'] ? ' <span class="author">(' . get_the_author_meta( 'display_name', $post->post_author ) . ')</span> ' : '' ) . ( $args['show_post_views'] ? ' <span class="count">(' . number_format_i18n( (int) ( property_exists( $post, 'post_views' ) ? $post->post_views : pvc_get_post_views( $post->ID, $args['period'] ) ) ) . ')</span>' : '' );
 
 				if ( $args['show_post_excerpt'] ) {
+					$excerpt = '';
+
 					if ( empty( $post->post_excerpt ) )
 						$text = $post->post_content;
 					else
@@ -620,17 +620,13 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 
 					if ( ! empty( $text ) )
 						$excerpt = wp_trim_words( str_replace( ']]>', ']]&gt;', strip_shortcodes( $text ) ), apply_filters( 'excerpt_length', 55 ), apply_filters( 'excerpt_more', ' ' . '[&hellip;]' ) );
+
+					if ( ! empty( $excerpt ) )
+						$html .= '<div class="post-excerpt">' . esc_html( $excerpt ) . '</div>';
 				}
 
-				if ( ! empty( $excerpt ) )
-					$html .= '
-
-				<div class="post-excerpt">' . esc_html( $excerpt ) . '</div>';
-
 				$html .= apply_filters( 'pvc_most_viewed_posts_item_after', $args['item_after'], $post );
-
-				$html .= '
-			</li>';
+				$html .= '</li>';
 			}
 
 			wp_reset_postdata();
@@ -646,7 +642,6 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 		else
 			return $html;
 	}
-
 }
 
 /**
@@ -654,8 +649,9 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
  *
  * @global object $wpdb
  *
- * @param int $post_id Post ID
- * @param int $post_views Number of post views
+ * @param int $post_id
+ * @param int $post_views
+ *
  * @return bool|int
  */
 function pvc_update_post_views( $post_id = 0, $post_views = 0 ) {
@@ -703,6 +699,7 @@ function pvc_update_post_views( $post_id = 0, $post_views = 0 ) {
  *
  * @param int $post_id
  * @param bool $bypass_content
+ *
  * @return bool
  */
 function pvc_view_post( $post_id = 0, $bypass_content = false ) {

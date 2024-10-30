@@ -4,7 +4,7 @@
 	"name": "post-views-counter/most-viewed-posts",
 	"version": "1.0.0",
 	"title": "Most Viewed Posts",
-	"category": "widgets",
+	"category": "post-views-counter",
 	"icon": "list-view",
 	"description": "Displays a list of the most viewed posts.",
 	"example": {},
@@ -14,8 +14,11 @@
 			"default": "Most Viewed Posts"
 		},
 		"postTypes": {
-			"type": "array",
-			"default": []
+			"type": "object"
+		},
+		"period": {
+			"type": "string",
+			"default": "total"
 		},
 		"numberOfPosts": {
 			"type": "integer",
@@ -23,11 +26,11 @@
 		},
 		"noPostsMessage": {
 			"type": "string",
-			"default": "No most viewed posts found"
+			"default": "No most viewed posts found."
 		},
 		"order": {
 			"type": "string",
-			"default": "asc"
+			"default": "desc"
 		},
 		"listType": {
 			"type": "string",
@@ -57,10 +60,7 @@
 	"supports": {
 		"html": false
 	},
-	"textdomain": "copyright-date-block",
+	"textdomain": "post-views-counter",
 	"editorScript": "file:./index.js",
-	"editorStyle": "file:./index.css",
-	"style": "file:./style-index.css",
-	"render": "file:./render.php",
-	"viewScript": "file:./view.js"
+	"style": "file:./style-index.css"
 }
