@@ -1,0 +1,31 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "post-views-counter/post-views",
+	"version": "1.0.0",
+	"title": "Post Views",
+	"category": "post-views-counter",
+	"icon": "list-view",
+	"description": "Display post views for a given post.",
+	"example": {},
+	"attributes": {
+		"title": {
+			"type": "string",
+			"default": "Post Views:"
+		},
+		"postID": {
+			"type": "integer",
+			"default": 0
+		},
+		"period": {
+			"type": "string",
+			"default": "total"
+		}
+	},
+	"supports": {
+		"html": false
+	},
+	"textdomain": "post-views-counter",
+	"editorScript": "file:./index.js",
+	"style": "file:./style-index.css"
+}

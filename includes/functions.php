@@ -462,7 +462,7 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
  * @return string|void
  */
 if ( ! function_exists( 'pvc_post_views' ) ) {
-	function pvc_post_views( $post_id = 0, $display = true ) {
+	function pvc_post_views( $post_id = 0, $display = true, $period = '' ) {
 		// get all data
 		$post_id = (int) ( empty( $post_id ) ? get_the_ID() : $post_id );
 
@@ -470,7 +470,7 @@ if ( ! function_exists( 'pvc_post_views' ) ) {
 		$options = Post_Views_Counter()->options['display'];
 
 		// get post views
-		$views = pvc_get_post_views( $post_id, $options['display_period'] );
+		$views = pvc_get_post_views( $post_id, $period !== '' ? $period : $options['display_period'] );
 
 		// use number format?
 		$views = $options['use_format'] ? number_format_i18n( $views ) : $views;

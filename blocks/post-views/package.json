@@ -1,0 +1,21 @@
+{
+	"name": "post-views-counter-post-views",
+	"version": "1.0.0",
+	"description": "Display post views for a given post.",
+	"author": "Digital Factory",
+	"license": "GPL-2.0-or-later",
+	"main": "build/index.js",
+	"scripts": {
+		"build": "wp-scripts build --webpack-copy-php",
+		"format": "wp-scripts format",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"start": "wp-scripts start --webpack-copy-php"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^30.4.0"
+	},
+	"dependencies": {
+		"@wordpress/server-side-render": "^5.11.0"
+	}
+}

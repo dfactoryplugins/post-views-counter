@@ -287,6 +287,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			add_filter( 'register_block_type_args', [ $this, 'update_block_args' ], 10, 2 );
 
 			register_block_type( __DIR__ . '/blocks/most-viewed-posts/build' );
+			register_block_type( __DIR__ . '/blocks/post-views/build' );
 		}
 
 		/**
@@ -347,17 +348,18 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @return array
 		 */
 		function update_block_args( $args, $block_type ) {
-			// update only most viewed posts block
-			if ( $block_type !== 'post-views-counter/most-viewed-posts' )
-				return $args;
-
-			$args['render_callback'] = [ $this, 'most_viewed_posts_render_callback' ];
+			// most viewed posts block
+			if ( $block_type === 'post-views-counter/most-viewed-posts' )
+				$args['render_callback'] = [ $this, 'most_viewed_posts_render_callback' ];
+			// post views block
+			elseif ( $block_type === 'post-views-counter/post-views' )
+				$args['render_callback'] = [ $this, 'post_views_render_callback' ];
 
 			return $args;
 		}
 
 		/**
-		 * Server side block renderer.
+		 * Server side block renderer for most viewed posts.
 		 *
 		 * @param array @attributes
 		 * @param string @content
@@ -387,14 +389,43 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				'no_posts_message'		=> $attributes['noPostsMessage']
 			];
 
+			$title = trim( $attributes['title'] );
+
 			$html = '
-			<div ' . get_block_wrapper_attributes() . '>
-				<h2 class="widget-title">' . esc_html( $attributes['title'] ) . '</h2>';
+			<div ' . get_block_wrapper_attributes() . '>';
+
+			if ( $title !== '' )
+				$html .= '<h2 class="block-title">' . esc_html( $title ) . '</h2>';
 
 			$html .= pvc_most_viewed_posts( $args, false );
-
 			$html .= '
 			</div>';
+
+			return $html;
+		}
+
+		/**
+		 * Server side block renderer for post views.
+		 *
+		 * @param array @attributes
+		 * @param string @content
+		 *
+		 * @return array
+		 */
+		function post_views_render_callback( $attributes, $content ) {
+			$title = trim( $attributes['title'] );
+
+			$html = '
+			<div ' . get_block_wrapper_attributes() . '>';
+
+			if ( $title !== '' )
+				$html .= '<h2 class="block-title">' . esc_html( $title ) . '</h2>';
+
+			$html .= pvc_post_views( (int) $attributes['postID'], false, $attributes['period'] );
+			$html .= '
+			</div>';
+
+			// preg_replace( '/(<a.*?)>/s', '$1 class="rl-deactivate-plugin-modal">', $links['deactivate'] )
 
 			return $html;
 		}
