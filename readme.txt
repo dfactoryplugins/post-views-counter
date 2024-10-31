@@ -1,9 +1,9 @@
 === Post Views Counter ===
 Contributors: dfactory
 Tags: counter, postviews, statistics, stats, analytics, pageviews, tracking
-Requires at least: 5.1
-Requires PHP: 7.3.0
-Tested up to: 6.5.4
+Requires at least: 6.3.0
+Requires PHP: 7.4.0
+Tested up to: 6.6.2
 Stable tag: 1.4.7
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
