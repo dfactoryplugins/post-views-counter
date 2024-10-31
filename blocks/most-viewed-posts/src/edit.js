@@ -29,6 +29,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						label={ __( 'Title', 'post-view-counter' ) }
 						value={ title }
 						onChange={ ( value ) => setAttributes( { title: value } ) }
+						help={ __( 'Enter empty text to hide title.', 'post-view-counter' ) }
 					/>
 					<BaseControl
 						__nextHasNoMarginBottom
