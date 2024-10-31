@@ -9,10 +9,6 @@
 	"description": "Display post views for a given post.",
 	"example": {},
 	"attributes": {
-		"title": {
-			"type": "string",
-			"default": "Post Views:"
-		},
 		"postID": {
 			"type": "integer",
 			"default": 0
@@ -26,6 +22,5 @@
 		"html": false
 	},
 	"textdomain": "post-views-counter",
-	"editorScript": "file:./index.js",
-	"style": "file:./style-index.css"
+	"editorScript": "file:./index.js"
 }

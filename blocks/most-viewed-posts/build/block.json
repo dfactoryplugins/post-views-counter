@@ -61,6 +61,5 @@
     "html": false
   },
   "textdomain": "post-views-counter",
-  "editorScript": "file:./index.js",
-  "style": "file:./style-index.css"
+  "editorScript": "file:./index.js"
 }

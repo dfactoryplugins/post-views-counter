@@ -23,17 +23,17 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Settings', 'post-view-counter' ) }>
+				<PanelBody title={ __( 'Settings', 'post-views-counter' ) }>
 					<TextControl
 						__nextHasNoMarginBottom
-						label={ __( 'Title', 'post-view-counter' ) }
+						label={ __( 'Title', 'post-views-counter' ) }
 						value={ title }
 						onChange={ ( value ) => setAttributes( { title: value } ) }
-						help={ __( 'Enter empty text to hide title.', 'post-view-counter' ) }
+						help={ __( 'Enter empty text to hide title.', 'post-views-counter' ) }
 					/>
 					<BaseControl
 						__nextHasNoMarginBottom
-						label={ __( 'Post types', 'post-view-counter' ) }
+						label={ __( 'Post types', 'post-views-counter' ) }
 					>
 						{ (
 							Object.keys( pvcBlockEditorData.postTypes ).map( ( postType ) => (
@@ -59,72 +59,72 @@ export default function Edit( { attributes, setAttributes } ) {
 					<SelectControl
 						__nextHasNoMarginBottom
 						disabled={ pvcBlockEditorData.periods.length === 1 }
-						label={ __( 'Views period', 'post-view-counter-pro' ) }
+						label={ __( 'Views period', 'post-views-counter' ) }
 						value={ period }
 						options={ pvcBlockEditorData.periods }
 						onChange={ ( value ) => setAttributes( { period: value } ) }
 					/>
 					<TextControl
 						__nextHasNoMarginBottom
-						label={ __( 'Number of posts to show', 'post-view-counter' ) }
+						label={ __( 'Number of posts to show', 'post-views-counter' ) }
 						value={ numberOfPosts }
 						onChange={ ( value ) => setAttributes( { numberOfPosts: Number( value ) } ) }
 					/>
 					<TextControl
 						__nextHasNoMarginBottom
-						label={ __( 'No posts message', 'post-view-counter' ) }
+						label={ __( 'No posts message', 'post-views-counter' ) }
 						value={ noPostsMessage }
 						onChange={ ( value ) => setAttributes( { noPostsMessage: value } ) }
 					/>
 					<RadioControl
-						label={ __( 'Order', 'post-view-counter' ) }
+						label={ __( 'Order', 'post-views-counter' ) }
 						selected={ order }
 						options={ [
-							{ label: __( 'Ascending', 'post-view-counter' ), value: 'asc' },
-							{ label: __( 'Descending', 'post-view-counter' ), value: 'desc' }
+							{ label: __( 'Ascending', 'post-views-counter' ), value: 'asc' },
+							{ label: __( 'Descending', 'post-views-counter' ), value: 'desc' }
 						] }
 						onChange={ ( value ) => setAttributes( { order: value } ) }
 					/>
 					<RadioControl
-						label={ __( 'Display style', 'post-view-counter' ) }
+						label={ __( 'Display style', 'post-views-counter' ) }
 						selected={ listType }
 						options={ [
-							{ label: __( 'Unordered list', 'post-view-counter' ), value: 'unordered' },
-							{ label: __( 'Ordered list', 'post-view-counter' ), value: 'ordered' }
+							{ label: __( 'Unordered list', 'post-views-counter' ), value: 'unordered' },
+							{ label: __( 'Ordered list', 'post-views-counter' ), value: 'ordered' }
 						] }
 						onChange={ ( value ) => setAttributes( { listType: value } ) }
 					/>
 					<BaseControl
 						__nextHasNoMarginBottom
-						label={ __( 'Display Data', 'post-view-counter' ) }
+						label={ __( 'Display Data', 'post-views-counter' ) }
 					>
 						<CheckboxControl
 							__nextHasNoMarginBottom
-							label={ __( 'Post views', 'post-view-counter' ) }
+							label={ __( 'Post views', 'post-views-counter' ) }
 							checked={ displayPostViews }
 							onChange={ ( value ) => setAttributes( { displayPostViews: value } ) }
 						/>
 						<CheckboxControl
 							__nextHasNoMarginBottom
-							label={ __( 'Post excerpt', 'post-view-counter' ) }
+							label={ __( 'Post excerpt', 'post-views-counter' ) }
 							checked={ displayPostExcerpt }
 							onChange={ ( value ) => setAttributes( { displayPostExcerpt: value } ) }
 						/>
 						<CheckboxControl
 							__nextHasNoMarginBottom
-							label={ __( 'Post author', 'post-view-counter' ) }
+							label={ __( 'Post author', 'post-views-counter' ) }
 							checked={ displayPostAuthor }
 							onChange={ ( value ) => setAttributes( { displayPostAuthor: value } ) }
 						/>
 						<CheckboxControl
 							__nextHasNoMarginBottom
-							label={ __( 'Post thumbnail', 'post-view-counter' ) }
+							label={ __( 'Post thumbnail', 'post-views-counter' ) }
 							checked={ displayPostThumbnail }
 							onChange={ ( value ) => setAttributes( { displayPostThumbnail: value } ) }
 						/>
 						{ displayPostThumbnail && <SelectControl
 							__nextHasNoMarginBottom
-							label={ __( 'Thumbnail size', 'post-view-counter' ) }
+							label={ __( 'Thumbnail size', 'post-views-counter' ) }
 							value={ thumbnailSize }
 							options={ pvcBlockEditorData.imageSizes }
 							onChange={ ( value ) => setAttributes( { thumbnailSize: value } ) }

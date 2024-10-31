@@ -5,7 +5,7 @@ import ServerSideRender from '@wordpress/server-side-render';
 
 export default function Edit( { attributes, setAttributes } ) {
 	// attributes
-	const { title, postID, period } = attributes;
+	const { postID, period } = attributes;
 
 	// spinner
 	const spinner = () => {
@@ -19,24 +19,18 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Settings', 'post-view-counter' ) }>
+				<PanelBody title={ __( 'Settings', 'post-views-counter' ) }>
 					<TextControl
 						__nextHasNoMarginBottom
-						label={ __( 'Title', 'post-view-counter' ) }
-						value={ title }
-						onChange={ ( value ) => setAttributes( { title: value } ) }
-					/>
-					<TextControl
-						__nextHasNoMarginBottom
-						label={ __( 'Post ID', 'post-view-counter' ) }
+						label={ __( 'Post ID', 'post-views-counter' ) }
 						value={ postID }
 						onChange={ ( value ) => setAttributes( { postID: Number( value ) } ) }
-						help={ __( 'Enter 0 to use current visited post.', 'post-view-counter' ) }
+						help={ __( 'Enter 0 to use current visited post.', 'post-views-counter' ) }
 					/>
 					<SelectControl
 						__nextHasNoMarginBottom
 						disabled={ pvcBlockEditorData.periods.length === 1 }
-						label={ __( 'Views period', 'post-view-counter' ) }
+						label={ __( 'Views period', 'post-views-counter' ) }
 						value={ period }
 						options={ pvcBlockEditorData.periods }
 						onChange={ ( value ) => setAttributes( { period: value } ) }
