@@ -14,7 +14,10 @@
       "default": "Most Viewed Posts"
     },
     "postTypes": {
-      "type": "object"
+      "type": "object",
+      "default": {
+        "post": true
+      }
     },
     "period": {
       "type": "string",
