@@ -413,19 +413,9 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @return array
 		 */
 		function post_views_render_callback( $attributes, $content ) {
-			$title = trim( $attributes['title'] );
-
-			$html = '
-			<div ' . get_block_wrapper_attributes() . '>';
-
-			if ( $title !== '' )
-				$html .= '<h2 class="block-title">' . esc_html( $title ) . '</h2>';
-
+			$html = '<div ' . get_block_wrapper_attributes() . '>';
 			$html .= pvc_post_views( (int) $attributes['postID'], false, $attributes['period'] );
-			$html .= '
-			</div>';
-
-			// preg_replace( '/(<a.*?)>/s', '$1 class="rl-deactivate-plugin-modal">', $links['deactivate'] )
+			$html .= '</div>';
 
 			return $html;
 		}
