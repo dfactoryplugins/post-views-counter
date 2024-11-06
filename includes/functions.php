@@ -586,54 +586,60 @@ if ( ! function_exists( 'pvc_most_viewed_posts' ) ) {
 		$args['show_post_author'] = (bool) $args['show_post_author'];
 		$args['show_post_excerpt'] = (bool) $args['show_post_excerpt'];
 		$args['period'] = isset( $args['period'] ) && array_key_exists( $args['period'], $periods ) ? $args['period'] : $defaults['period'];
+		$args['post_type'] = isset( $args['post_type'] ) ? $args['post_type'] : $defaults['post_type'];
 
-		// get posts
-		$posts = pvc_get_most_viewed_posts( [
-			'posts_per_page'	=> isset( $args['number_of_posts'] ) ? (int) $args['number_of_posts'] : $defaults['number_of_posts'],
-			'order'				=> isset( $args['order'] ) ? $args['order'] : $defaults['order'],
-			'post_type'			=> isset( $args['post_type'] ) ? $args['post_type'] : $defaults['post_type'],
-			'period'			=> $args['period']
-		] );
-
-		if ( ! empty( $posts ) ) {
-			$html = ( $args['list_type'] === 'unordered' ? '<ul>' : '<ol>' );
-
-			foreach ( $posts as $post ) {
-				setup_postdata( $post );
-
-				$html .= '<li>';
-				$html .= apply_filters( 'pvc_most_viewed_posts_item_before', $args['item_before'], $post );
-
-				if ( $args['show_post_thumbnail'] && has_post_thumbnail( $post->ID ) ) {
-					$html .= '<span class="post-thumbnail">' . get_the_post_thumbnail( $post->ID, $args['thumbnail_size'] ) . '</span>';
-				}
-
-				$html .= '<a class="post-title" href="' . get_permalink( $post->ID ) . '">' . get_the_title( $post->ID ) . '</a>' . ( $args['show_post_author'] ? ' <span class="author">(' . get_the_author_meta( 'display_name', $post->post_author ) . ')</span> ' : '' ) . ( $args['show_post_views'] ? ' <span class="count">(' . number_format_i18n( (int) ( property_exists( $post, 'post_views' ) ? $post->post_views : pvc_get_post_views( $post->ID, $args['period'] ) ) ) . ')</span>' : '' );
-
-				if ( $args['show_post_excerpt'] ) {
-					$excerpt = '';
-
-					if ( empty( $post->post_excerpt ) )
-						$text = $post->post_content;
-					else
-						$text = $post->post_excerpt;
-
-					if ( ! empty( $text ) )
-						$excerpt = wp_trim_words( str_replace( ']]>', ']]&gt;', strip_shortcodes( $text ) ), apply_filters( 'excerpt_length', 55 ), apply_filters( 'excerpt_more', ' ' . '[&hellip;]' ) );
-
-					if ( ! empty( $excerpt ) )
-						$html .= '<div class="post-excerpt">' . esc_html( $excerpt ) . '</div>';
-				}
-
-				$html .= apply_filters( 'pvc_most_viewed_posts_item_after', $args['item_after'], $post );
-				$html .= '</li>';
-			}
-
-			wp_reset_postdata();
-
-			$html .= ( $args['list_type'] === 'unordered' ? '</ul>' : '</ol>' );
-		} else
+		// no post types?
+		if ( empty( $args['post_type'] ) )
 			$html = $args['no_posts_message'];
+		else {
+			// get posts
+			$posts = pvc_get_most_viewed_posts( [
+				'posts_per_page'	=> isset( $args['number_of_posts'] ) ? (int) $args['number_of_posts'] : $defaults['number_of_posts'],
+				'order'				=> isset( $args['order'] ) ? $args['order'] : $defaults['order'],
+				'post_type'			=> $args['post_type'],
+				'period'			=> $args['period']
+			] );
+
+			if ( ! empty( $posts ) ) {
+				$html = ( $args['list_type'] === 'unordered' ? '<ul>' : '<ol>' );
+
+				foreach ( $posts as $post ) {
+					setup_postdata( $post );
+
+					$html .= '<li>';
+					$html .= apply_filters( 'pvc_most_viewed_posts_item_before', $args['item_before'], $post );
+
+					if ( $args['show_post_thumbnail'] && has_post_thumbnail( $post->ID ) ) {
+						$html .= '<span class="post-thumbnail">' . get_the_post_thumbnail( $post->ID, $args['thumbnail_size'] ) . '</span>';
+					}
+
+					$html .= '<a class="post-title" href="' . get_permalink( $post->ID ) . '">' . get_the_title( $post->ID ) . '</a>' . ( $args['show_post_author'] ? ' <span class="author">(' . get_the_author_meta( 'display_name', $post->post_author ) . ')</span> ' : '' ) . ( $args['show_post_views'] ? ' <span class="count">(' . number_format_i18n( (int) ( property_exists( $post, 'post_views' ) ? $post->post_views : pvc_get_post_views( $post->ID, $args['period'] ) ) ) . ')</span>' : '' );
+
+					if ( $args['show_post_excerpt'] ) {
+						$excerpt = '';
+
+						if ( empty( $post->post_excerpt ) )
+							$text = $post->post_content;
+						else
+							$text = $post->post_excerpt;
+
+						if ( ! empty( $text ) )
+							$excerpt = wp_trim_words( str_replace( ']]>', ']]&gt;', strip_shortcodes( $text ) ), apply_filters( 'excerpt_length', 55 ), apply_filters( 'excerpt_more', ' ' . '[&hellip;]' ) );
+
+						if ( ! empty( $excerpt ) )
+							$html .= '<div class="post-excerpt">' . esc_html( $excerpt ) . '</div>';
+					}
+
+					$html .= apply_filters( 'pvc_most_viewed_posts_item_after', $args['item_after'], $post );
+					$html .= '</li>';
+				}
+
+				wp_reset_postdata();
+
+				$html .= ( $args['list_type'] === 'unordered' ? '</ul>' : '</ol>' );
+			} else
+				$html = $args['no_posts_message'];
+		}
 
 		$html = apply_filters( 'pvc_most_viewed_posts_html', $html, $args );
 
