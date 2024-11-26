@@ -425,11 +425,11 @@ class Post_Views_Counter_Settings {
 				],
 				'post_views_column' => [
 					'tab'			=> 'display',
-					'title'			=> __( 'Views Column', 'post-views-counter' ),
+					'title'			=> __( 'Admin Column', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'boolean',
 					'description'	=> '',
-					'label'			=> __( 'Enable to display post views count column for each of the selected post types.', 'post-views-counter' )
+					'label'			=> __( 'Enable to display post views count admin column for each counted content type.', 'post-views-counter' )
 				],
 				'taxonomies_display' => [
 					'tab'			=> 'display',
