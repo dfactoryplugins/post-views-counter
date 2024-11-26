@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Views Counter\n"
-"POT-Creation-Date: 2024-11-26 19:19+0100\n"
+"POT-Creation-Date: 2024-11-26 19:23+0100\n"
 "PO-Revision-Date: 2015-04-08 18:59+0100\n"
 "Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
 "Language-Team: dFactory <info@dfactory.eu>\n"
@@ -643,7 +643,7 @@ msgstr ""
 
 #: ../includes/class-settings.php:576 ../includes/class-settings.php:612
 #: ../includes/class-settings.php:613
-msgid "General"
+msgid "Counting"
 msgstr ""
 
 #: ../includes/class-settings.php:580 ../includes/class-settings.php:622

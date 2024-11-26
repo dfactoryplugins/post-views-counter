@@ -573,7 +573,7 @@ class Post_Views_Counter_Settings {
 			'callback'		=> null,
 			'tabs'			=> [
 				'general'	 => [
-					'label'			=> __( 'General', 'post-views-counter' ),
+					'label'			=> __( 'Counting', 'post-views-counter' ),
 					'option_name'	=> 'post_views_counter_settings_general'
 				],
 				'display'	 => [
@@ -609,8 +609,8 @@ class Post_Views_Counter_Settings {
 				'menu_slug'		=> 'post-views-counter',
 				'parent_slug'	=> 'post-views-counter',
 				'type'			=> 'subpage',
-				'page_title'	=> __( 'General', 'post-views-counter' ),
-				'menu_title'	=> __( 'General', 'post-views-counter' ),
+				'page_title'	=> __( 'Counting', 'post-views-counter' ),
+				'menu_title'	=> __( 'Counting', 'post-views-counter' ),
 				'capability'	=> apply_filters( 'pvc_settings_capability', 'manage_options' ),
 				'callback'		=> null
 			];
