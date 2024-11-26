@@ -246,14 +246,6 @@ class Post_Views_Counter_Settings {
 					'options'		=> $this->get_counter_modes(),
 					'disabled'		=> [ 'ajax' ]
 				],
-				'post_views_column' => [
-					'tab'			=> 'general',
-					'title'			=> __( 'Post Views Column', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
-					'type'			=> 'boolean',
-					'description'	=> '',
-					'label'			=> __( 'Enable to display post views count column for each of the selected post types.', 'post-views-counter' )
-				],
 				'data_storage' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Data Storage', 'post-views-counter' ),
@@ -301,6 +293,18 @@ class Post_Views_Counter_Settings {
 					'callback'		=> [ $this, 'setting_time_between_counts' ],
 					'validate'		=> [ $this, 'validate_time_between_counts' ]
 				],
+				'strict_counts' => [
+					'tab'			=> 'general',
+					'title'			=> __( 'Strict counts', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_settings',
+					'type'			=> 'boolean',
+					'class'			=> 'pvc-pro',
+					'disabled'		=> true,
+					'skip_saving'	=> true,
+					'value'			=> false,
+					'description'	=> '',
+					'label'			=> __( 'Enable to prevent bypassing the counts interval (for e.g. using incognito browser window or by clearing cookies).', 'post-views-counter' )
+				],
 				'reset_counts' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Cleanup Interval', 'post-views-counter' ),
@@ -346,18 +350,6 @@ class Post_Views_Counter_Settings {
 					'description'	=> '',
 					'callback'		=> [ $this, 'setting_exclude_ips' ],
 					'validate'		=> [ $this, 'validate_exclude_ips' ]
-				],
-				'strict_counts' => [
-					'tab'			=> 'general',
-					'title'			=> __( 'Strict counts', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
-					'type'			=> 'boolean',
-					'class'			=> 'pvc-pro',
-					'disabled'		=> true,
-					'skip_saving'	=> true,
-					'value'			=> false,
-					'description'	=> '',
-					'label'			=> __( 'Enable to prevent bypassing the counts interval (for e.g. using incognito browser window or by clearing cookies).', 'post-views-counter' )
 				],
 				'label' => [
 					'tab'			=> 'display',
@@ -430,6 +422,14 @@ class Post_Views_Counter_Settings {
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'boolean',
 					'label'			=> __( 'Enable to display the views number formatted based on the locale (using the WP number_format_i18n function).', 'post-views-counter' )
+				],
+				'post_views_column' => [
+					'tab'			=> 'display',
+					'title'			=> __( 'Views Column', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_display_settings',
+					'type'			=> 'boolean',
+					'description'	=> '',
+					'label'			=> __( 'Enable to display post views count column for each of the selected post types.', 'post-views-counter' )
 				],
 				'taxonomies_display' => [
 					'tab'			=> 'display',

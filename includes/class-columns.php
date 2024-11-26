@@ -154,7 +154,7 @@ class Post_Views_Counter_Columns {
 		$pvc = Post_Views_Counter();
 
 		// is posts views column active?
-		if ( ! $pvc->options['general']['post_views_column'] )
+		if ( ! $pvc->options['display']['post_views_column'] )
 			return;
 
 		// get post types
@@ -279,7 +279,7 @@ class Post_Views_Counter_Columns {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
-		if ( ! $pvc->options['general']['post_views_column'] || ! in_array( $post_type, $pvc->options['general']['post_types_count'] ) )
+		if ( ! $pvc->options['display']['post_views_column'] || ! in_array( $post_type, $pvc->options['general']['post_types_count'] ) )
 			return;
 
 		// break if views editing is restricted

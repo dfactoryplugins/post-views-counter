@@ -2,7 +2,7 @@
 /*
 Plugin Name: Post Views Counter
 Description: Post Views Counter allows you to display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
-Version: 1.4.7
+Version: 1.5.0
 Author: dFactory
 Author URI: https://dfactory.co/
 Plugin URI: https://postviewscounter.com/
@@ -30,7 +30,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 	 * Post Views Counter final class.
 	 *
 	 * @class Post_Views_Counter
-	 * @version	1.4.7
+	 * @version	1.5.0
 	 */
 	final class Post_Views_Counter {
 
@@ -46,7 +46,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				'data_storage'			=> 'cookies',
 				'amp_support'			=> false,
 				'counter_mode'			=> 'php',
-				'post_views_column'		=> true,
 				'restrict_edit_views'	=> false,
 				'time_between_counts'	=> [
 					'number'	=> 24,
@@ -76,6 +75,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			'display'	=> [
 				'label'					=> 'Post Views:',
 				'display_period'		=> 'total',
+				'post_views_column'		=> true,
 				'taxonomies_display'	=> [],
 				'user_display'			=> false,
 				'post_types_display'	=> [ 'post' ],
@@ -100,7 +100,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				'deactivation_delete'	=> false,
 				'license'				=> ''
 			],
-			'version'	=> '1.4.7'
+			'version'	=> '1.5.0'
 		];
 
 		// instances
@@ -268,7 +268,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		/**
 		 * Register blocks.
 		 *
-		 * @global object @wp_version
+		 * @global object $wp_version
 		 *
 		 * @return void
 		 */
@@ -293,7 +293,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		/**
 		 * Enqueue block scripts.
 		 *
-		 * @global object @wp_version
+		 * @global object $wp_version
 		 *
 		 * @return void
 		 */
@@ -342,8 +342,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		/**
 		 * Update block arguments.
 		 *
-		 * @param array @args
-		 * @param string @block_type
+		 * @param array $args
+		 * @param string $block_type
 		 *
 		 * @return array
 		 */
@@ -361,8 +361,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		/**
 		 * Server side block renderer for most viewed posts.
 		 *
-		 * @param array @attributes
-		 * @param string @content
+		 * @param array $attributes
+		 * @param string $content
 		 *
 		 * @return array
 		 */
@@ -391,15 +391,13 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 
 			$title = trim( $attributes['title'] );
 
-			$html = '
-			<div ' . get_block_wrapper_attributes() . '>';
+			$html = '<div ' . get_block_wrapper_attributes() . '>';
 
 			if ( $title !== '' )
 				$html .= '<h2 class="block-title">' . esc_html( $title ) . '</h2>';
 
 			$html .= pvc_most_viewed_posts( $args, false );
-			$html .= '
-			</div>';
+			$html .= '</div>';
 
 			return $html;
 		}
@@ -407,8 +405,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		/**
 		 * Server side block renderer for post views.
 		 *
-		 * @param array @attributes
-		 * @param string @content
+		 * @param array $attributes
+		 * @param string $content
 		 *
 		 * @return array
 		 */
@@ -424,6 +422,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * Add new blocks category.
 		 *
 		 * @param array $categories
+		 *
 		 * @return array
 		 */
 		function add_block_category( $categories ) {
@@ -497,6 +496,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @param string $status Notice status
 		 * @param bool $paragraph Whether to use paragraph
 		 * @param bool $network
+		 *
 		 * @return void
 		 */
 		public function add_notice( $html = '', $status = 'error', $paragraph = true, $network = false ) {
@@ -639,6 +639,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @global object $wpdb
 		 *
 		 * @param bool $network
+		 *
 		 * @return void
 		 */
 		public function activation( $network ) {
@@ -702,6 +703,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @global object $wpdb
 		 *
 		 * @param bool $network
+		 *
 		 * @return void
 		 */
 		public function deactivation( $network ) {
@@ -731,6 +733,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @global object $wpdb
 		 *
 		 * @param bool $multi
+		 *
 		 * @return void
 		 */
 		public function deactivate_site( $multi = false ) {
@@ -768,6 +771,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * Initialize new network site.
 		 *
 		 * @param object $site
+		 *
 		 * @return void
 		 */
 		public function initialize_new_network_site( $site ) {
@@ -807,6 +811,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * @global string $wp_version
 		 *
 		 * @param string $page
+		 *
 		 * @return void
 		 */
 		public function admin_enqueue_scripts( $page ) {
@@ -895,6 +900,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		 * Add link to Settings page.
 		 *
 		 * @param array $links
+		 *
 		 * @return array
 		 */
 		public function plugin_settings_link( $links ) {
