@@ -39,6 +39,7 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 
 	private $pvc_defaults;
 	private $pvc_order_types;
+	public $pvc_periods;
 	private $pvc_list_types;
 	private $pvc_image_sizes;
 
@@ -61,6 +62,7 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 		$this->pvc_defaults = [
 			'title'					=> __( 'Most Viewed Posts', 'post-views-counter' ),
 			'number_of_posts'		=> 5,
+			'period'				=> 'total',
 			'thumbnail_size'		=> 'thumbnail',
 			'post_type'				=> [],
 			'order'					=> 'desc',
@@ -76,6 +78,11 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 		$this->pvc_order_types = [
 			'asc'	 => __( 'Ascending', 'post-views-counter' ),
 			'desc'	 => __( 'Descending', 'post-views-counter' )
+		];
+
+		// periods
+		$this->pvc_periods = [
+			'total' => __( 'Total Views', 'post-views-counter' )
 		];
 
 		// list types
@@ -133,9 +140,22 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 			<input id="' . esc_attr( $this->get_field_id( 'post_type' ) . '-' . $post_type ) . '" type="checkbox" name="' . esc_attr( $this->get_field_name( 'post_type' ) ) . '[]" value="' . esc_attr( $post_type ) . '" ' . checked( ( ! isset( $instance['post_type'] ) ? true : in_array( $post_type, $instance['post_type'], true ) ), true, false ) . '><label for="' . esc_attr( $this->get_field_id( 'post_type' ) . '-' . $post_type ) . '">' . esc_html( $post_type_name ) . '</label>';
 		}
 
+		$html .= '
+		</p>
+		<p>
+			<label for="' . esc_attr( $this->get_field_id( 'period' ) ) . '">' . esc_html__( 'Views Period', 'post-views-counter' ) . ':</label>
+			<select id="' . esc_attr( $this->get_field_id( 'period' ) ) . '" name="' . esc_attr( $this->get_field_name( 'period' ) ) . '">';
+
+		// periods
+		foreach ( $this->pvc_periods as $period => $label ) {
+			$html .= '
+				<option value="' . esc_attr( $period ) . '" ' . selected( $period, ( isset( $instance['period'] ) ? $instance['period'] : $this->pvc_defaults['period'] ), false ) . '>' . esc_html( $label ) . '</option>';
+		}
+
 		$show_post_thumbnail = isset( $instance['show_post_thumbnail'] ) ? $instance['show_post_thumbnail'] : $this->pvc_defaults['show_post_thumbnail'];
 
 		$html .= '
+			</select>
 		</p>
 		<p>
 			<label for="' . esc_attr( $this->get_field_id( 'number_of_posts' ) ) . '">' . esc_html__( 'Number of posts to show', 'post-views-counter' ) . ':</label>
@@ -212,6 +232,9 @@ class Post_Views_Counter_List_Widget extends WP_Widget {
 
 		// order
 		$old_instance['order'] = isset( $new_instance['order'] ) && in_array( $new_instance['order'], array_keys( $this->pvc_order_types ), true ) ? $new_instance['order'] : $this->pvc_defaults['order'];
+
+		// period
+		$old_instance['period'] = isset( $new_instance['period'] ) && in_array( $new_instance['period'], array_keys( $this->pvc_periods ), true ) ? $new_instance['period'] : $this->pvc_defaults['period'];
 
 		// list type
 		$old_instance['list_type'] = isset( $new_instance['list_type'] ) && in_array( $new_instance['list_type'], array_keys( $this->pvc_list_types ), true ) ? $new_instance['list_type'] : $this->pvc_defaults['list_type'];
