@@ -46,6 +46,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				'data_storage'			=> 'cookies',
 				'amp_support'			=> false,
 				'counter_mode'			=> 'php',
+				'post_views_column'		=> true,
 				'restrict_edit_views'	=> false,
 				'time_between_counts'	=> [
 					'number'	=> 24,
@@ -75,7 +76,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			'display'	=> [
 				'label'					=> 'Post Views:',
 				'display_period'		=> 'total',
-				'post_views_column'		=> true,
 				'taxonomies_display'	=> [],
 				'user_display'			=> false,
 				'post_types_display'	=> [ 'post' ],

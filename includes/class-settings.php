@@ -246,6 +246,14 @@ class Post_Views_Counter_Settings {
 					'options'		=> $this->get_counter_modes(),
 					'disabled'		=> [ 'ajax' ]
 				],
+				'post_views_column' => [
+					'tab'			=> 'general',
+					'title'			=> __( 'Admin Column', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_display_settings',
+					'type'			=> 'boolean',
+					'description'	=> '',
+					'label'			=> __( 'Enable to display post views count admin column for each counted content type.', 'post-views-counter' )
+				],
 				'data_storage' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Data Storage', 'post-views-counter' ),
@@ -422,14 +430,6 @@ class Post_Views_Counter_Settings {
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'boolean',
 					'label'			=> __( 'Enable to display the views number formatted based on the locale (using the WP number_format_i18n function).', 'post-views-counter' )
-				],
-				'post_views_column' => [
-					'tab'			=> 'display',
-					'title'			=> __( 'Admin Column', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
-					'type'			=> 'boolean',
-					'description'	=> '',
-					'label'			=> __( 'Enable to display post views count admin column for each counted content type.', 'post-views-counter' )
 				],
 				'taxonomies_display' => [
 					'tab'			=> 'display',
