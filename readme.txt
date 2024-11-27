@@ -1,10 +1,10 @@
 === Post Views Counter ===
 Contributors: dfactory
-Tags: counter, postviews, statistics, stats, analytics, pageviews, tracking
+Tags: counter, postviews, statistics, analytics, pageviews
 Requires at least: 6.3.0
 Requires PHP: 7.4.0
 Tested up to: 6.7.1
-Stable tag: 1.5.0
+Stable tag: 1.4.8
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -53,9 +53,9 @@ No questions yet.
 
 == Changelog ==
 
-= 1.5.0 =
-* New: Introducing PVC blocks - Post Views and Most Viewed Posts
-* Tweak: Move the Post views column option to Display page
+= 1.4.8 =
+* New: Introducing Post Views block
+* New: Introducing Most Viewed Posts block
 * Tweak: Updated Chart.js to 4.4.6
 
 = 1.4.7 =
@@ -300,5 +300,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.5.0 =
-* New: Introducing PVC blocks - Post Views and Most Viewed Posts
+= 1.4.8 =
+* New: Introducing Post Views and Most Viewed Posts blocks

@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Views Counter\n"
-"POT-Creation-Date: 2024-11-26 19:23+0100\n"
+"POT-Creation-Date: 2024-11-27 21:43+0100\n"
 "PO-Revision-Date: 2015-04-08 18:59+0100\n"
 "Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
 "Language-Team: dFactory <info@dfactory.eu>\n"
@@ -184,7 +184,7 @@ msgid "You do not have permission to access this page."
 msgstr ""
 
 #: ../includes/class-dashboard.php:313 ../includes/class-dashboard.php:402
-#: ../includes/class-settings.php:374 ../includes/class-widgets.php:85
+#: ../includes/class-settings.php:382 ../includes/class-widgets.php:85
 #: ../includes/functions.php:581 ../post-views-counter.php:333
 msgid "Total Views"
 msgstr ""
@@ -347,188 +347,188 @@ msgid ""
 msgstr ""
 
 #: ../includes/class-settings.php:251
+msgid "Admin Column"
+msgstr ""
+
+#: ../includes/class-settings.php:255
+msgid ""
+"Enable to display post views count admin column for each counted content "
+"type."
+msgstr ""
+
+#: ../includes/class-settings.php:259
+msgid "Admin Edit"
+msgstr ""
+
+#: ../includes/class-settings.php:263
+msgid "Enable to restrict post views editing to admins only."
+msgstr ""
+
+#: ../includes/class-settings.php:267
 msgid "Data Storage"
 msgstr ""
 
-#: ../includes/class-settings.php:256
+#: ../includes/class-settings.php:272
 msgid ""
 "Choose how to store the content views data in the user's browser - with or "
 "without cookies."
 msgstr ""
 
-#: ../includes/class-settings.php:258
+#: ../includes/class-settings.php:274
 msgid "Cookies"
 msgstr ""
 
-#: ../includes/class-settings.php:259
+#: ../includes/class-settings.php:275
 msgid "Cookieless"
 msgstr ""
 
-#: ../includes/class-settings.php:266
+#: ../includes/class-settings.php:282
 msgid "AMP Support"
 msgstr ""
 
-#: ../includes/class-settings.php:273
+#: ../includes/class-settings.php:289
 msgid "Enable to support Google AMP."
 msgstr ""
 
-#: ../includes/class-settings.php:274
+#: ../includes/class-settings.php:290
 msgid ""
 "This feature requires official WordPress Google AMP plugin to be installed "
 "and activated."
 msgstr ""
 
-#: ../includes/class-settings.php:278
-msgid "Restrict Edit"
-msgstr ""
-
-#: ../includes/class-settings.php:282
-msgid "Enable to restrict post views editing to admins only."
-msgstr ""
-
-#: ../includes/class-settings.php:286
+#: ../includes/class-settings.php:294
 msgid "Count Interval"
 msgstr ""
 
-#: ../includes/class-settings.php:298
+#: ../includes/class-settings.php:306
 msgid "Strict counts"
 msgstr ""
 
-#: ../includes/class-settings.php:306
+#: ../includes/class-settings.php:314
 msgid ""
 "Enable to prevent bypassing the counts interval (for e.g. using incognito "
 "browser window or by clearing cookies)."
 msgstr ""
 
-#: ../includes/class-settings.php:310
+#: ../includes/class-settings.php:318
 msgid "Cleanup Interval"
 msgstr ""
 
-#: ../includes/class-settings.php:313
+#: ../includes/class-settings.php:321
 #, php-format
 msgid ""
 "Delete single day post views data older than specified above. Enter %s if "
 "you want to preserve your daily views data regardless of its age."
 msgstr ""
 
-#: ../includes/class-settings.php:322
+#: ../includes/class-settings.php:330
 msgid "Object Cache Support"
 msgstr ""
 
-#: ../includes/class-settings.php:329
+#: ../includes/class-settings.php:337
 msgid "Enable to use object cache optimization."
 msgstr ""
 
-#: ../includes/class-settings.php:330
+#: ../includes/class-settings.php:338
 #, php-format
 msgid ""
 "This feature requires a persistent object cache like %s or %s to be "
 "installed and activated."
 msgstr ""
 
-#: ../includes/class-settings.php:334
+#: ../includes/class-settings.php:342
 msgid "Exclude Visitors"
 msgstr ""
 
-#: ../includes/class-settings.php:347
+#: ../includes/class-settings.php:355
 msgid "Exclude IPs"
 msgstr ""
 
-#: ../includes/class-settings.php:356
+#: ../includes/class-settings.php:364
 msgid "Views Label"
 msgstr ""
 
-#: ../includes/class-settings.php:359
+#: ../includes/class-settings.php:367
 msgid "Enter the label for the post views counter field."
 msgstr ""
 
-#: ../includes/class-settings.php:366 ../includes/class-widgets.php:146
+#: ../includes/class-settings.php:374 ../includes/class-widgets.php:146
 msgid "Views Period"
 msgstr ""
 
-#: ../includes/class-settings.php:372
+#: ../includes/class-settings.php:380
 msgid ""
 "Select the time period to be included when displaying the number of views. "
 "The default display is the total number of views of the post."
 msgstr ""
 
-#: ../includes/class-settings.php:379 ../includes/class-widgets.php:182
+#: ../includes/class-settings.php:387 ../includes/class-widgets.php:182
 msgid "Display Style"
 msgstr ""
 
-#: ../includes/class-settings.php:382
+#: ../includes/class-settings.php:390
 msgid "Choose how to display the post views counter."
 msgstr ""
 
-#: ../includes/class-settings.php:386
+#: ../includes/class-settings.php:394
 msgid "icon"
 msgstr ""
 
-#: ../includes/class-settings.php:387
+#: ../includes/class-settings.php:395
 msgid "label"
 msgstr ""
 
-#: ../includes/class-settings.php:392
+#: ../includes/class-settings.php:400
 msgid "Icon Class"
 msgstr ""
 
-#: ../includes/class-settings.php:396
+#: ../includes/class-settings.php:404
 #, php-format
 msgid ""
 "Enter the post views icon class. Any of the <a href=\"%s\" "
 "target=\"_blank\">Dashicons</a> classes are available."
 msgstr ""
 
-#: ../includes/class-settings.php:401
+#: ../includes/class-settings.php:409
 msgid "Position"
 msgstr ""
 
-#: ../includes/class-settings.php:404
+#: ../includes/class-settings.php:412
 #, php-format
 msgid ""
 "Select where would you like to display the post views counter. Use %s "
 "shortcode for manual display."
 msgstr ""
 
-#: ../includes/class-settings.php:406
+#: ../includes/class-settings.php:414
 msgid "before the content"
 msgstr ""
 
-#: ../includes/class-settings.php:407
+#: ../includes/class-settings.php:415
 msgid "after the content"
 msgstr ""
 
-#: ../includes/class-settings.php:408
+#: ../includes/class-settings.php:416
 msgid "manual"
 msgstr ""
 
-#: ../includes/class-settings.php:413
+#: ../includes/class-settings.php:421
 msgid "Dynamic Loading"
 msgstr ""
 
-#: ../includes/class-settings.php:417
+#: ../includes/class-settings.php:425
 msgid ""
 "Enable dynamic loading and prevent caching of the displayed views count."
 msgstr ""
 
-#: ../includes/class-settings.php:421
+#: ../includes/class-settings.php:429
 msgid "Format Number"
-msgstr ""
-
-#: ../includes/class-settings.php:424
-msgid ""
-"Enable to display the views number formatted based on the locale (using the "
-"WP number_format_i18n function)."
-msgstr ""
-
-#: ../includes/class-settings.php:428
-msgid "Admin Column"
 msgstr ""
 
 #: ../includes/class-settings.php:432
 msgid ""
-"Enable to display post views count admin column for each counted content "
-"type."
+"Enable to display the views number formatted based on the locale (using the "
+"WP number_format_i18n function)."
 msgstr ""
 
 #: ../includes/class-settings.php:436
@@ -781,17 +781,17 @@ msgstr ""
 msgid "Export, download and share your website views data."
 msgstr ""
 
-#: ../includes/class-update.php:159
+#: ../includes/class-update.php:140
 msgid ""
 "<strong>Post Views Counter</strong> - this version requires a database "
 "update. Make sure to back up your database first."
 msgstr ""
 
-#: ../includes/class-update.php:160
+#: ../includes/class-update.php:141
 msgid "Run the Update"
 msgstr ""
 
-#: ../includes/class-update.php:198
+#: ../includes/class-update.php:179
 msgid "Thank you! Datebase was successfully updated."
 msgstr ""
 
