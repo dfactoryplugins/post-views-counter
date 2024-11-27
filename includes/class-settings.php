@@ -249,10 +249,18 @@ class Post_Views_Counter_Settings {
 				'post_views_column' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Admin Column', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'boolean',
 					'description'	=> '',
 					'label'			=> __( 'Enable to display post views count admin column for each counted content type.', 'post-views-counter' )
+				],
+				'restrict_edit_views' => [
+					'tab'			=> 'general',
+					'title'			=> __( 'Admin Edit', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_settings',
+					'type'			=> 'boolean',
+					'description'	=> '',
+					'label'			=> __( 'Enable to restrict post views editing to admins only.', 'post-views-counter' )
 				],
 				'data_storage' => [
 					'tab'			=> 'general',
@@ -280,14 +288,6 @@ class Post_Views_Counter_Settings {
 					'value'			=> false,
 					'label'			=> __( 'Enable to support Google AMP.', 'post-views-counter' ),
 					'description'	=> __( 'This feature requires official WordPress Google AMP plugin to be installed and activated.', 'post-views-counter' )
-				],
-				'restrict_edit_views' => [
-					'tab'			=> 'general',
-					'title'			=> __( 'Restrict Edit', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
-					'type'			=> 'boolean',
-					'description'	=> '',
-					'label'			=> __( 'Enable to restrict post views editing to admins only.', 'post-views-counter' )
 				],
 				'time_between_counts' => [
 					'tab'			=> 'general',
