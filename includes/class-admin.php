@@ -145,13 +145,28 @@ class Post_Views_Counter_Admin {
 		wp_enqueue_script( 'pvc-block-editor', POST_VIEWS_COUNTER_URL . '/js/block-editor.min.js', [ 'wp-element', 'wp-components', 'wp-edit-post', 'wp-data', 'wp-plugins' ], $pvc->defaults['version'] );
 
 		// restrict editing
+		$can_edit = false;
+		
 		$restrict = (bool) $pvc->options['general']['restrict_edit_views'];
+		
+		if ( $restrict === false || ( $restrict === true && current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) ) )
+			$can_edit = true;
+		
+		// get total post views
+		$id =  get_the_ID();
+		$count = pvc_get_post_views( $id );
+
+		// disable views display and editing?
+		if ( apply_filters( 'pvc_admin_display_views', true, $id ) === false ) {
+			$count = '—';
+			$can_edit = false;
+		}
 
 		// prepare script data
 		$script_data = [
-			'postID'		=> get_the_ID(),
-			'postViews'		=> pvc_get_post_views( get_the_ID() ),
-			'canEdit'		=> ( $restrict === false || ( $restrict === true && current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) ) ),
+			'postID'		=> $id,
+			'postViews'		=> $count,
+			'canEdit'		=> $can_edit,
 			'nonce'			=> wp_create_nonce( 'wp_rest' ),
 			'wpGreater53'	=> version_compare( $wp_version, '5.3', '>=' ),
 			'textPostViews'	=> esc_html__( 'Post Views', 'post-views-counter' ),

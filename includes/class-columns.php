@@ -40,13 +40,18 @@ class Post_Views_Counter_Columns {
 
 		// get main instance
 		$pvc = Post_Views_Counter();
+		
+		$can_view = true;
 
 		// incorrect post type?
 		if ( ! in_array( $post->post_type, (array) $pvc->options['general']['post_types_count'] ) )
-			return;
+			$can_view = false;
 
 		// break if current user can't edit this post
 		if ( ! current_user_can( 'edit_post', $post->ID ) )
+			$can_view = false;
+		
+		if ( apply_filters( 'pvc_admin_display_views', $can_view, $post->ID ) === false )
 			return;
 
 		// get total post views
@@ -155,7 +160,7 @@ class Post_Views_Counter_Columns {
 
 		// is posts views column active?
 		if ( ! $pvc->options['general']['post_views_column'] )
-			return;
+			return false;
 
 		// get post types
 		$post_types = $pvc->options['general']['post_types_count'];
@@ -197,6 +202,19 @@ class Post_Views_Counter_Columns {
 	 * @return array
 	 */
 	public function register_sortable_custom_column( $columns ) {
+		// get main instance
+		$pvc = Post_Views_Counter();
+		
+		// break if views editing is restricted
+		$restrict = (bool) $pvc->options['general']['restrict_edit_views'];
+
+		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+			return $columns;
+		
+		// break if display is disabled
+		if ( apply_filters( 'pvc_admin_display_views', true, $id = 0 ) === false )
+			return $columns;
+		
 		// add new sortable column
 		$columns['post_views'] = 'post_views';
 
@@ -253,6 +271,9 @@ class Post_Views_Counter_Columns {
 		if ( $column_name === 'post_views' ) {
 			// get total post views
 			$count = pvc_get_post_views( $id );
+			
+			if ( apply_filters( 'pvc_admin_display_views', true, $id ) === false )
+				$count = '—';
 
 			echo esc_html( $count );
 		}
@@ -268,7 +289,7 @@ class Post_Views_Counter_Columns {
 	 * @return void
 	 */
 	function quick_edit_custom_box( $column_name, $post_type ) {
-		global $pagenow;
+		global $pagenow, $post;
 
 		if ( $pagenow !== 'edit.php' )
 			return;
@@ -276,10 +297,17 @@ class Post_Views_Counter_Columns {
 		if ( $column_name !== 'post_views' )
 			return;
 
+		if ( ! $post )
+			return;
+		
 		// get main instance
 		$pvc = Post_Views_Counter();
 
 		if ( ! $pvc->options['general']['post_views_column'] || ! in_array( $post_type, $pvc->options['general']['post_types_count'] ) )
+			return;
+		
+		// break if display is not allowed
+		if ( apply_filters( 'pvc_admin_display_views', $can_view, $post->ID ) === false )
 			return;
 
 		// break if views editing is restricted
@@ -403,12 +431,17 @@ class Post_Views_Counter_Columns {
 		// frontend?
 		} elseif ( is_singular() )
 			global $post;
+		
+		$can_view = true;
 
 		// get countable post types
 		$post_types = $pvc->options['general']['post_types_count'];
 
 		// whether to allow this post type or not
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
+			$can_view = false;
+
+		if ( apply_filters( 'pvc_admin_display_views', $can_view, $post->ID ) === false )
 			return;
 
 		$dt = new DateTime();
@@ -499,9 +532,14 @@ class Post_Views_Counter_Columns {
 
 		// get countable post types
 		$post_types = $pvc->options['general']['post_types_count'];
+		
+		$can_view = true;
 
 		// whether to allow this post type or not
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
+			$can_view = false;
+
+		if ( apply_filters( 'pvc_admin_display_views', $can_view, $post->ID ) === false )
 			return;
 
 		// add admin bar
