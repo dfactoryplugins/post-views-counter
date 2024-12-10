@@ -205,7 +205,7 @@ class Post_Views_Counter_Dashboard {
 
 		<div id="pvc-<?php esc_attr_e( $item['id'] ); ?>" class="pvc-accordion-item<?php echo ( in_array( $item['id'], $menu_items, true ) ? ' pvc-collapsed' : '' ); ?>">
 			<div class="pvc-accordion-header">
-				<div class="pvc-accordion-toggle"><span class="pvc-accordion-title"><?php esc_html_e( $item['title'] ); ?></span><span class="pvc-tooltip" aria-label="><?php esc_html_e( $item['description'] ); ?>" data-microtip-position="top" data-microtip-size="large" role="tooltip"><span class="pvc-tooltip-icon"></span></span></div>
+				<div class="pvc-accordion-toggle"><span class="pvc-accordion-title"><?php esc_html_e( $item['title'] ); ?></span><span class="pvc-tooltip" aria-label="<?php esc_html_e( $item['description'] ); ?>" data-microtip-position="top" data-microtip-size="large" role="tooltip"><span class="pvc-tooltip-icon"></span></span></div>
 				<div class="pvc-accordion-actions">
 					<!--<a href="javascript:void(0);" class="pvc-accordion-action dashicons dashicons-admin-generic"></a>-->
 					<a href="javascript:void(0);" class="pvc-accordion-action pvc-toggle-indicator"></a>
