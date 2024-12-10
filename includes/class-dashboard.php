@@ -165,8 +165,8 @@ class Post_Views_Counter_Dashboard {
 		// get menu items
 		$menu_items = ! empty( $user_options['menu_items'] ) ? $user_options['menu_items'] : [];
 
-		// generate months
-		$months_html = wp_kses_post( $this->generate_months( current_time( 'timestamp', false ) ) );
+		// generate dates
+		$dates_html = wp_kses_post( $this->generate_months( current_time( 'timestamp', false ) ) );
 
 		// get widget items
 		$items = $this->widget_items;
@@ -175,7 +175,7 @@ class Post_Views_Counter_Dashboard {
 		<div id="pvc-dashboard-accordion" class="pvc-accordion">';
 
 		foreach ( $items as $item ) {
-			$html .= $this->generate_dashboard_widget_item( $item, $menu_items, $months_html );
+			$html .= $this->generate_dashboard_widget_item( $item, $menu_items, $dates_html );
 		}
 
 		$html .= '
@@ -190,10 +190,10 @@ class Post_Views_Counter_Dashboard {
 	 *
 	 * @param array $item
 	 * @param array $menu_items
-	 * @param string $esc_months_html
+	 * @param string $dates_html
 	 * @return string
 	 */
-	public function generate_dashboard_widget_item( $item, $menu_items, $esc_months_html ) {
+	public function generate_dashboard_widget_item( $item, $menu_items, $dates_html ) {
 		// get allowed html tags
 		$allowed_html = wp_kses_allowed_html( 'post' );
 		$allowed_html['canvas'] = [
@@ -213,13 +213,19 @@ class Post_Views_Counter_Dashboard {
 			</div>
 			<div class="pvc-accordion-content">
 				<div class="pvc-dashboard-container loading">
-					<?php do_action( 'pvc_dashboard_widget_content_before', $item['id'] ); ?>
+					<div class="pvc-dashboard-content-top">
+						<?php do_action( 'pvc_dashboard_widget_content_top', $item['id'] ); ?>
+					</div>
 					<div class="pvc-data-container">
 						<?php echo wp_kses( $item['content'], $allowed_html ); ?>
 						<span class="spinner"></span>
 					</div>
-					<div class="pvc-months"><?php echo $esc_months_html; ?></div>
-					<?php do_action( 'pvc_dashboard_widget_content_after', $item['id'] ); ?>
+					<div class="pvc-dashboard-content-bottom pvc-date-nav">
+						<div class="pvc-date-nav pvc-months">
+							<?php echo $dates_html; ?>
+						</div>
+						<?php do_action( 'pvc_dashboard_widget_content_bottom', $item['id'] ); ?>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -401,7 +407,7 @@ class Post_Views_Counter_Dashboard {
 				$date = explode( ' ', date( "m Y t F", $time ) );
 
 				$data = [
-					'months'	=> $this->generate_months( $time ),
+					'dates'	=> $this->generate_months( $time ),
 					'design'	=> [
 						'fill'					=> true,
 						'backgroundColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 0.2)',
@@ -529,7 +535,7 @@ class Post_Views_Counter_Dashboard {
 		$posts = pvc_get_most_viewed_posts( $query_args );
 
 		$data = [
-			'months'	=> $this->generate_months( $time ),
+			'dates'		=> $this->generate_months( $time ),
 			'html'		=> ''
 		];
 
@@ -565,15 +571,17 @@ class Post_Views_Counter_Dashboard {
 
 				if ( $title === '' )
 					$title = __( '(no title)' );
+				
+				// post link
+				$link = '<a href="' . esc_url( get_permalink( $post->ID ) ) . '" target="_blank">' . esc_html( $title ) . '</a>';
 
 				// edit post link
 				if ( $post_type_exists && current_user_can( 'edit_post', $post->ID ) ) {
-					$html .= '
-					<td><a href="' . esc_url( get_edit_post_link( $post->ID ) ) . '">' . esc_html( $title ) . '</a></td>';
-				} else {
-					$html .= '
-					<td>' . esc_html( $title ). '</td>';
+					$link .= ' <a href="' . esc_url( get_edit_post_link( $post->ID ) ) . '" class="cn-edit-link" target="_blank">' . esc_html__( 'Edit', 'post-views-counter' ) . '</a>';
 				}
+				
+				$html .= '
+					<td>' . $link . '</td>';
 
 				$html .= '
 					<td>' . number_format_i18n( $post->post_views ) . '</td>
@@ -617,13 +625,13 @@ class Post_Views_Counter_Dashboard {
 		else
 			$next = '<a class="next" href="#" data-date="' . ( $dates[2][0] . '|' . $dates[2][2] ) . '">' . $dates[2][1] . ' ' . $dates[2][2] . ' ›</a>';
 
-		$dates = [
+		$dates_formatted = [
 			'prev'		=> '<a class="prev" href="#" data-date="' . ( $dates[0][0] . '|' . $dates[0][2] ) . '">‹ ' . $dates[0][1] . ' ' . $dates[0][2] . '</a>',
 			'current'	=> '<span class="current">' . $dates[1][1] . ' ' . $dates[1][2] . '</span>',
 			'next'		=> $next
 		];
 
-		return $dates['prev'] . $dates['current'] . $dates['next'];
+		return $dates_formatted['prev'] . $dates_formatted['current'] . $dates_formatted['next'];
 	}
 
 	/**

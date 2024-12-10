@@ -105,7 +105,7 @@
 
 				// next call?
 				if ( ! init )
-					bindMonthEvents( response.months, container );
+					bindDateEvents( response.dates, container );
 
 				$( container ).find( '#pvc-post-most-viewed-content' ).html( response.html );
 			}
@@ -215,7 +215,7 @@
 
 					window.pvcPostViewsChart = new Chart( document.getElementById( 'pvc-post-views-chart' ).getContext( '2d' ), config );
 				} else {
-					bindMonthEvents( response.months, container );
+					bindDateEvents( response.dates, container );
 
 					window.pvcPostViewsChart.config = pvcUpdateConfig( window.pvcPostViewsChart.config, response );
 					window.pvcPostViewsChart.update();
@@ -231,7 +231,7 @@
 		var container = $( '#pvc-post-views' ).find( '.pvc-dashboard-container' );
 
 		if ( $( container ).length > 0 ) {
-			bindMonthEvents( false, container );
+			bindDateEvents( false, container );
 
 			getPostViewsData( true, period, container );
 		}
@@ -244,24 +244,24 @@
 		var container = $( '#pvc-post-most-viewed' ).find( '.pvc-dashboard-container' );
 
 		if ( $( container ).length > 0 ) {
-			bindMonthEvents( false, container );
+			bindDateEvents( false, container );
 
 			getPostMostViewedData( true, period, container );
 		}
 	}
 
 	/**
-	 * Bind month events.
+	 * Bind date events.
 	 */
-	function bindMonthEvents( newMonths, container ) {
-		var months = $( container ).find( '.pvc-months' );
+	function bindDateEvents( newDates, container ) {
+		var dates = $( container ).find( '.pvc-date-nav' );
 
-		// replace months?
-		if ( newMonths !== false )
-			months[0].innerHTML = newMonths;
+		// replace dates?
+		if ( newDates !== false )
+			dates[0].innerHTML = newDates;
 
-		var prev = months[0].getElementsByClassName( 'prev' )[0];
-		var next = months[0].getElementsByClassName( 'next' )[0];
+		var prev = dates[0].getElementsByClassName( 'prev' )[0];
+		var next = dates[0].getElementsByClassName( 'next' )[0];
 		var id = $( container ).closest( '.pvc-accordion-item' ).attr( 'id' );
 
 		if ( id === 'pvc-post-most-viewed' )

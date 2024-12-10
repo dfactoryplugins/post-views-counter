@@ -1,10 +1,13 @@
 .pvc-dashboard-container {
     min-height: 260px;
     margin: 0 -4px;
-    text-align: center;
     position: relative;
     display: flex;
     flex-direction: column;
+}
+
+.pvc-dashboard-container * {
+    box-sizing: border-box;
 }
 .pvc-dashboard-container .spinner {
     position: absolute;
@@ -35,17 +38,26 @@
     padding-bottom: 3px;
     border-bottom: 1px solid #ececec;
 }
-.pvc-dashboard-container .pvc-months {
+.pvc-dashboard-container .pvc-date-nav {
     display: flex;
     justify-content: space-between;
-    margin: 6px 10px 0 10px;
     color: #aaa;
+    width: 100%;
 }
-.pvc-dashboard-container .pvc-months .current {
+.pvc-dashboard-container .pvc-date-nav .current {
     color: #212529;
+}
+.pvc-dashboard-content-top {
+    padding: 0 6px;
+}
+.pvc-dashboard-content-bottom {
+    padding: 0 6px;
 }
 .pvc-data-container {
     min-height: 230px;
+}
+.pvc-data-container a {
+    text-decoration: none;
 }
 .pvc-table-responsive {
     overflow-x: auto;
@@ -100,6 +112,20 @@
     background-color: transparent;
     border-bottom-width: 1px;
     box-shadow: inset 0 0 0 9999px transparent;
+}
+.pvc-table .cn-edit-link {
+    display: none;
+}
+.pvc-table .cn-edit-link:before {
+    content: '(';
+    display: inline-block;
+}
+.pvc-table .cn-edit-link:after {
+    content: ')';
+    display: inline-block;
+}
+.pvc-table tr:hover .cn-edit-link {
+    display: inline-block;
 }
 #pvc_dashboard .inside {
     margin: 0;
