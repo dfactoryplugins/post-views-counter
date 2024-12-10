@@ -51,7 +51,7 @@ class Post_Views_Counter_Columns {
 		if ( ! current_user_can( 'edit_post', $post->ID ) )
 			$can_view = false;
 		
-		if ( apply_filters( 'pvc_admin_display_views', $can_view, $post->ID ) === false )
+		if ( apply_filters( 'pvc_admin_display_post_views', $can_view, $post->ID ) === false )
 			return;
 
 		// get total post views
@@ -212,7 +212,7 @@ class Post_Views_Counter_Columns {
 			return $columns;
 		
 		// break if display is disabled
-		if ( apply_filters( 'pvc_admin_display_views', true, $id = 0 ) === false )
+		if ( apply_filters( 'pvc_admin_display_post_views', true, $id = 0 ) === false )
 			return $columns;
 		
 		// add new sortable column
@@ -272,7 +272,7 @@ class Post_Views_Counter_Columns {
 			// get total post views
 			$count = pvc_get_post_views( $id );
 			
-			if ( apply_filters( 'pvc_admin_display_views', true, $id ) === false )
+			if ( apply_filters( 'pvc_admin_display_post_views', true, $id ) === false )
 				$count = '—';
 
 			echo esc_html( $count );
@@ -307,7 +307,7 @@ class Post_Views_Counter_Columns {
 			return;
 		
 		// break if display is not allowed
-		if ( apply_filters( 'pvc_admin_display_views', $can_view, $post->ID ) === false )
+		if ( apply_filters( 'pvc_admin_display_post_views', $can_view, $post->ID ) === false )
 			return;
 
 		// break if views editing is restricted
@@ -441,7 +441,7 @@ class Post_Views_Counter_Columns {
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
 			$can_view = false;
 
-		if ( apply_filters( 'pvc_admin_display_views', $can_view, $post->ID ) === false )
+		if ( apply_filters( 'pvc_admin_display_post_views', $can_view, $post->ID ) === false )
 			return;
 
 		$dt = new DateTime();
@@ -539,7 +539,7 @@ class Post_Views_Counter_Columns {
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
 			$can_view = false;
 
-		if ( apply_filters( 'pvc_admin_display_views', $can_view, $post->ID ) === false )
+		if ( apply_filters( 'pvc_admin_display_post_views', $can_view, $post->ID ) === false )
 			return;
 
 		// add admin bar

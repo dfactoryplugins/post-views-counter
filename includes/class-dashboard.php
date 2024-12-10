@@ -200,27 +200,33 @@ class Post_Views_Counter_Dashboard {
 			'id' => [],
 			'height' => []
 		];
+		
+		ob_start(); ?>
 
-		return '
-		<div id="pvc-' . esc_attr( $item['id'] ) . '" class="pvc-accordion-item' . ( in_array( $item['id'], $menu_items, true ) ? ' pvc-collapsed' : '' ) . '">
+		<div id="pvc-<?php esc_attr_e( $item['id'] ); ?>" class="pvc-accordion-item<?php echo ( in_array( $item['id'], $menu_items, true ) ? ' pvc-collapsed' : '' ); ?>">
 			<div class="pvc-accordion-header">
-				<div class="pvc-accordion-toggle"><span class="pvc-accordion-title">' . esc_html( $item['title'] ) . '</span><span class="pvc-tooltip" aria-label="' . esc_html( $item['description'] ) . '" data-microtip-position="top" data-microtip-size="large" role="tooltip"><span class="pvc-tooltip-icon"></span></span></div>
-				<!--
+				<div class="pvc-accordion-toggle"><span class="pvc-accordion-title"><?php esc_html_e( $item['title'] ); ?></span><span class="pvc-tooltip" aria-label="><?php esc_html_e( $item['description'] ); ?>" data-microtip-position="top" data-microtip-size="large" role="tooltip"><span class="pvc-tooltip-icon"></span></span></div>
 				<div class="pvc-accordion-actions">
-					<a href="javascript:void(0);" class="pvc-accordion-action dashicons dashicons-admin-generic"></a>
+					<!--<a href="javascript:void(0);" class="pvc-accordion-action dashicons dashicons-admin-generic"></a>-->
+					<a href="javascript:void(0);" class="pvc-accordion-action pvc-toggle-indicator"></a>
 				</div>
-				-->
 			</div>
 			<div class="pvc-accordion-content">
 				<div class="pvc-dashboard-container loading">
+					<?php do_action( 'pvc_dashboard_widget_content_before', $item['id'] ); ?>
 					<div class="pvc-data-container">
-						' . wp_kses( $item['content'], $allowed_html ) . '
+						<?php echo wp_kses( $item['content'], $allowed_html ); ?>
 						<span class="spinner"></span>
 					</div>
-					<div class="pvc-months">' . $esc_months_html . '</div>
+					<div class="pvc-months"><?php echo $esc_months_html; ?></div>
+					<?php do_action( 'pvc_dashboard_widget_content_after', $item['id'] ); ?>
 				</div>
 			</div>
-		</div>';
+		</div>
+		
+		<?php
+		// Output current buffer
+		return ob_get_clean();
 	}
 
 	/**
@@ -246,6 +252,15 @@ class Post_Views_Counter_Dashboard {
 
 		// get colors
 		$colors = Post_Views_Counter()->functions->get_colors();
+		
+		// parameters to be used in filter
+		$args = [
+			'widget'		=> 'post_views',
+			'period'		=> $period,
+			'post_types'	=> $post_types,
+			'user_options'	=> $user_options,
+			'current_date'	=> $now
+		];
 
 		// set chart labels
 		switch ( $period ) {
@@ -468,7 +483,7 @@ class Post_Views_Counter_Dashboard {
 				break;
 		}
 
-		echo wp_json_encode( $data );
+		echo wp_json_encode( apply_filters( 'pvc_dashboard_widget_data', $data, $args ) );
 
 		exit;
 	}
