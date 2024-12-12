@@ -4,8 +4,8 @@
 	 * Load initial data.
 	 */
 	window.addEventListener( 'load', function () {
-		updatePostViewsWidget( 'this_month' );
-		updatePostMostViewedWidget( 'this_month' );
+		pvcUpdatePostViewsWidget( 'this_month' );
+		pvcUpdatePostMostViewedWidget( 'this_month' );
 	} );
 
 	/**
@@ -30,14 +30,14 @@
 			}
 
 			// update user options
-			updateUserOptions( {menu_items: menuItems} );
+			pvcUpdateUserOptions( {menu_items: menuItems} );
 		} );
 	} );
 
 	/**
 	 * Update user options.
 	 */
-	updateUserOptions = function ( options ) {
+	pvcUpdateUserOptions = function ( options ) {
 		$.ajax( {
 			url: pvcArgs.ajaxURL,
 			type: 'POST',
@@ -54,7 +54,7 @@
 	/**
 	 * Update configuration.
 	 */
-	updateConfig = function ( config, args ) {
+	pvcUpdateConfig = function ( config, args ) {
 		// update datasets
 		config.data = args.data;
 
@@ -86,7 +86,7 @@
 	/**
 	 * Get post most viewed data.
 	 */
-	function getPostMostViewedData( init, period, container ) {
+	function pvcGetPostMostViewedData( init, period, container ) {
 		$( container ).addClass( 'loading' ).find( '.spinner' ).addClass( 'is-active' );
 
 		$.ajax( {
@@ -105,12 +105,12 @@
 
 				// next call?
 				if ( ! init )
-					bindDateEvents( response.dates, container );
+					pvcBindDateEvents( response.dates, container );
 
 				$( container ).find( '#pvc-post-most-viewed-content' ).html( response.html );
 
 				// trigger js event
-				triggerEvent( 'pvc-dashboard-widget-loaded', response );
+				pvcTriggerEvent( 'pvc-dashboard-widget-loaded', response );
 			}
 		} );
 	}
@@ -118,7 +118,7 @@
 	/**
 	 * Get post views data.
 	 */
-	function getPostViewsData( init, period, container ) {
+	function pvcGetPostViewsData( init, period, container ) {
 		$( container ).addClass( 'loading' ).find( '.spinner' ).addClass( 'is-active' );
 
 		$.ajax( {
@@ -169,7 +169,7 @@
 										ci.update();
 
 										// update user options
-										updateUserOptions( {
+										pvcUpdateUserOptions( {
 											post_type: ci.data.datasets[index].post_type,
 											hidden: meta.hidden
 										} );
@@ -214,18 +214,18 @@
 						}
 					};
 
-					config = updateConfig( config, response );
+					config = pvcUpdateConfig( config, response );
 
 					window.postViewsChart = new Chart( document.getElementById( 'pvc-post-views-chart' ).getContext( '2d' ), config );
 				} else {
-					bindDateEvents( response.dates, container );
+					pvcBindDateEvents( response.dates, container );
 
-					window.postViewsChart.config = updateConfig( window.postViewsChart.config, response );
+					window.postViewsChart.config = pvcUpdateConfig( window.postViewsChart.config, response );
 					window.postViewsChart.update();
 				}
 				
 				// trigger js event
-				triggerEvent( 'pvc-dashboard-widget-loaded', response );
+				pvcTriggerEvent( 'pvc-dashboard-widget-loaded', response );
 			}
 		} );
 	}
@@ -233,33 +233,33 @@
 	/**
 	 * Update post views widget.
 	 */
-	function updatePostViewsWidget( period ) {
+	function pvcUpdatePostViewsWidget( period ) {
 		var container = $( '#pvc-post-views' ).find( '.pvc-dashboard-container' );
 
 		if ( $( container ).length > 0 ) {
-			bindDateEvents( false, container );
+			pvcBindDateEvents( false, container );
 
-			getPostViewsData( true, period, container );
+			pvcGetPostViewsData( true, period, container );
 		}
 	}
 
 	/**
 	 * Update post most viewed widget.
 	 */
-	function updatePostMostViewedWidget( period ) {
+	function pvcUpdatePostMostViewedWidget( period ) {
 		var container = $( '#pvc-post-most-viewed' ).find( '.pvc-dashboard-container' );
 
 		if ( $( container ).length > 0 ) {
-			bindDateEvents( false, container );
+			pvcBindDateEvents( false, container );
 
-			getPostMostViewedData( true, period, container );
+			pvcGetPostMostViewedData( true, period, container );
 		}
 	}
 
 	/**
 	 * Bind date events.
 	 */
-	function bindDateEvents( newDates, container ) {
+	function pvcBindDateEvents( newDates, container ) {
 		var dates = $( container ).find( '.pvc-date-nav' );
 
 		// replace dates?
@@ -271,45 +271,45 @@
 		var id = $( container ).closest( '.pvc-accordion-item' ).attr( 'id' );
 
 		if ( id === 'pvc-post-most-viewed' )
-			prev.addEventListener( 'click', loadPostMostViewedData );
+			prev.addEventListener( 'click', pvcLoadPostMostViewedData );
 		else if ( id === 'pvc-post-views' )
-			prev.addEventListener( 'click', loadPostViewsData );
+			prev.addEventListener( 'click', pvcLoadPostViewsData );
 
 		// skip span
 		if ( next.tagName === 'A' ) {
 			if ( id === 'pvc-post-most-viewed' )
-				next.addEventListener( 'click', loadPostMostViewedData );
+				next.addEventListener( 'click', pvcLoadPostMostViewedData );
 			else if ( id === 'pvc-post-views' )
-				next.addEventListener( 'click', loadPostViewsData );
+				next.addEventListener( 'click', pvcLoadPostViewsData );
 		}
 	}
 
 	/**
 	 * Load post views data.
 	 */
-	function loadPostViewsData( e ) {
+	function pvcLoadPostViewsData( e ) {
 		e.preventDefault();
 
 		var container = $( '#pvc-post-views' ).find( '.pvc-dashboard-container' );
 
-		getPostViewsData( false, e.target.dataset.date, container );
+		pvcGetPostViewsData( false, e.target.dataset.date, container );
 	}
 
 	/**
 	 * Load post most viewed data.
 	 */
-	function loadPostMostViewedData( e ) {
+	function pvcLoadPostMostViewedData( e ) {
 		e.preventDefault();
 
 		var container = $( '#pvc-post-most-viewed' ).find( '.pvc-dashboard-container' );
 
-		getPostMostViewedData( false, e.target.dataset.date, container );
+		pvcGetPostMostViewedData( false, e.target.dataset.date, container );
 	}
 	
 	/**
 	 * Trigger load widget JS event.
 	 */
-	function triggerEvent( name, response ) {
+	function pvcTriggerEvent( name, response ) {
 		// remove unneeded data
 		const remove = [ 'dates', 'html', 'design' ]
 
