@@ -1,9 +1,9 @@
-( function( $ ) {
+( function ( $ ) {
 
 	/**
 	 * Load initial data.
 	 */
-	window.addEventListener( 'load', function() {
+	window.addEventListener( 'load', function () {
 		updatePostViewsWidget( 'this_month' );
 		updatePostMostViewedWidget( 'this_month' );
 	} );
@@ -11,16 +11,16 @@
 	/**
 	 * Ready event.
 	 */
-	$( function() {
+	$( function () {
 		// toggle collapse items
-		$( '.pvc-accordion-header' ).on( 'click', function( e ) {
+		$( '.pvc-accordion-header' ).on( 'click', function ( e ) {
 			$( this ).closest( '.pvc-accordion-item' ).toggleClass( 'pvc-collapsed' );
 
 			var items = $( '#pvc-dashboard-accordion' ).find( '.pvc-accordion-item' );
 			var menuItems = {};
 
 			if ( items.length > 0 ) {
-				$( items ).each( function( index, item ) {
+				$( items ).each( function ( index, item ) {
 					var itemName = $( item ).attr( 'id' );
 
 					itemName = itemName.replace( 'pvc-', '' );
@@ -30,14 +30,14 @@
 			}
 
 			// update user options
-			pvcUpdateUserOptions( { menu_items: menuItems } );
+			updateUserOptions( {menu_items: menuItems} );
 		} );
 	} );
 
 	/**
 	 * Update user options.
 	 */
-	pvcUpdateUserOptions = function( options ) {
+	updateUserOptions = function ( options ) {
 		$.ajax( {
 			url: pvcArgs.ajaxURL,
 			type: 'POST',
@@ -47,28 +47,28 @@
 				nonce: pvcArgs.nonceUser,
 				options: options
 			},
-			success: function() {}
+			success: function () {}
 		} );
 	}
 
 	/**
 	 * Update configuration.
 	 */
-	pvcUpdateConfig = function( config, args ) {
+	updateConfig = function ( config, args ) {
 		// update datasets
 		config.data = args.data;
 
 		// update tooltips with new dates
 		config.options.plugins.tooltip = {
 			callbacks: {
-				title: function( tooltip ) {
+				title: function ( tooltip ) {
 					return args.data.dates[tooltip[0].dataIndex];
 				}
 			}
 		};
 
 		// update colors
-		$.each( config.data.datasets, function( i, dataset ) {
+		$.each( config.data.datasets, function ( i, dataset ) {
 			dataset.fill = args.design.fill;
 			dataset.tension = 0.4;
 			dataset.borderColor = args.design.borderColor;
@@ -98,7 +98,7 @@
 				nonce: pvcArgs.nonce,
 				period: period
 			},
-			success: function( response ) {
+			success: function ( response ) {
 				// remove loader
 				$( container ).removeClass( 'loading' );
 				$( container ).find( '.spinner' ).removeClass( 'is-active' );
@@ -108,6 +108,9 @@
 					bindDateEvents( response.dates, container );
 
 				$( container ).find( '#pvc-post-most-viewed-content' ).html( response.html );
+
+				// trigger js event
+				triggerEvent( 'pvc-dashboard-widget-loaded', response );
 			}
 		} );
 	}
@@ -127,7 +130,7 @@
 				nonce: pvcArgs.nonce,
 				period: period
 			},
-			success: function( response ) {
+			success: function ( response ) {
 				// remove loader
 				$( container ).removeClass( 'loading' );
 				$( container ).find( '.spinner' ).removeClass( 'is-active' );
@@ -145,13 +148,13 @@
 									position: 'bottom',
 									align: 'center',
 									fullSize: true,
-									onHover: function( e ) {
+									onHover: function ( e ) {
 										e.native.target.style.cursor = 'pointer';
 									},
-									onLeave: function( e ) {
+									onLeave: function ( e ) {
 										e.native.target.style.cursor = 'default';
 									},
-									onClick: function( e, element, legend ) {
+									onClick: function ( e, element, legend ) {
 										var index = element.datasetIndex;
 										var ci = legend.chart;
 										var meta = ci.getDatasetMeta( index );
@@ -166,7 +169,7 @@
 										ci.update();
 
 										// update user options
-										pvcUpdateUserOptions( {
+										updateUserOptions( {
 											post_type: ci.data.datasets[index].post_type,
 											hidden: meta.hidden
 										} );
@@ -211,15 +214,18 @@
 						}
 					};
 
-					config = pvcUpdateConfig( config, response );
+					config = updateConfig( config, response );
 
-					window.pvcPostViewsChart = new Chart( document.getElementById( 'pvc-post-views-chart' ).getContext( '2d' ), config );
+					window.postViewsChart = new Chart( document.getElementById( 'pvc-post-views-chart' ).getContext( '2d' ), config );
 				} else {
 					bindDateEvents( response.dates, container );
 
-					window.pvcPostViewsChart.config = pvcUpdateConfig( window.pvcPostViewsChart.config, response );
-					window.pvcPostViewsChart.update();
+					window.postViewsChart.config = updateConfig( window.postViewsChart.config, response );
+					window.postViewsChart.update();
 				}
+				
+				// trigger js event
+				triggerEvent( 'pvc-dashboard-widget-loaded', response );
 			}
 		} );
 	}
@@ -298,6 +304,25 @@
 		var container = $( '#pvc-post-most-viewed' ).find( '.pvc-dashboard-container' );
 
 		getPostMostViewedData( false, e.target.dataset.date, container );
+	}
+	
+	/**
+	 * Trigger load widget JS event.
+	 */
+	function triggerEvent( name, response ) {
+		// remove unneeded data
+		const remove = [ 'dates', 'html', 'design' ]
+
+		remove.forEach( function ( prop ) {
+			delete response[prop];
+		} );
+
+		// trigger event
+		const event = new CustomEvent( name, {
+			detail: response
+		} );
+		
+		window.dispatchEvent( event );
 	}
 
 } )( jQuery );

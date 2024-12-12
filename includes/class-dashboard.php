@@ -264,8 +264,7 @@ class Post_Views_Counter_Dashboard {
 			'widget'		=> 'post_views',
 			'period'		=> $period,
 			'post_types'	=> $post_types,
-			'user_options'	=> $user_options,
-			'current_date'	=> $now
+			'user_options'	=> $user_options
 		];
 
 		// set chart labels
@@ -273,6 +272,7 @@ class Post_Views_Counter_Dashboard {
 			case 'this_week':
 //TODO
 				$data = [
+					'widget'	=> 'post-views',
 					'design'	=> [
 						'fill'					=> true,
 						'backgroundColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 0.2)',
@@ -319,6 +319,7 @@ class Post_Views_Counter_Dashboard {
 
 			case 'this_year':
 				$data = [
+					'widget'	=> 'post-views',
 					'design'	=> [
 						'fill'					=> true,
 						'backgroundColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 0.2)',
@@ -407,6 +408,7 @@ class Post_Views_Counter_Dashboard {
 				$date = explode( ' ', date( "m Y t F", $time ) );
 
 				$data = [
+					'widget'	=> 'post-views',
 					'dates'	=> $this->generate_months( $time ),
 					'design'	=> [
 						'fill'					=> true,
@@ -535,6 +537,7 @@ class Post_Views_Counter_Dashboard {
 		$posts = pvc_get_most_viewed_posts( $query_args );
 
 		$data = [
+			'widget'	=> 'post-most-viewed',
 			'dates'		=> $this->generate_months( $time ),
 			'html'		=> ''
 		];
