@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) )
  * https://github.com/JayBizzle/Crawler-Detect/blob/master/src/CrawlerDetect.php
  *
  * @since 1.2.4
+ * @version 1.3.0
  * @class Post_Views_Counter_Crawler_Detect
  */
 class Post_Views_Counter_Crawler_Detect {
@@ -388,7 +389,6 @@ class Post_Views_Counter_Crawler_Detect {
 			'Branch Metrics API',
 			'Branch-Passthrough',
 			'Brandprotect',
-			'BrandVerity',
 			'Brandwatch',
 			'Brodie\/',
 			'Browsershots',
@@ -402,6 +402,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'Butterfly\/',
 			'BuzzSumo',
 			'CAAM\/[0-9]',
+			'caam dot crwlr at gmail dot com',
 			'CakePHP',
 			'Calculon',
 			'Canary%20Mail',
@@ -555,6 +556,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'Extreme Picture Finder',
 			'EyeNetIE',
 			'ezooms',
+			'facebookcatalog',
 			'facebookexternalhit',
 			'facebookexternalua',
 			'facebookplatform',
@@ -614,6 +616,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'g00g1e\.net',
 			'ganarvisitas',
 			'gdnplus\.com',
+			'GeedoProductSearch',
 			'geek-tools',
 			'Genieo',
 			'GentleSource',
@@ -675,6 +678,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'Google-Youtube-Links',
 			'GoogleDocs',
 			'GoogleHC\/',
+			'GoogleOther',
 			'GoogleProber',
 			'GoogleProducer',
 			'GoogleSites',
@@ -892,6 +896,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'longurl-r-package',
 			'looid\.com',
 			'looksystems\.net',
+			'lscache_runner',
 			'ltx71',
 			'lua-resty-http',
 			'Lucee \(CFML Engine\)',
@@ -937,6 +942,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'Microsoft Windows Network Diagnostics',
 			'Microsoft-WebDAV-MiniRedir',
 			'Microsoft\.Data\.Mashup',
+			'MicrosoftPreview',
 			'MIDown tool',
 			'MIIxpc',
 			'Mindjet',
@@ -1135,6 +1141,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'PrintFriendly',
 			'PritTorrent',
 			'Prlog',
+			'probely\.com',
 			'probethenet',
 			'Project ?25499',
 			'Project-Resonance',
@@ -1146,6 +1153,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'pshtt, https scanning',
 			'PTST ',
 			'PTST\/[0-9]+',
+			'pulsetic\.com',
 			'Pump',
 			'Python-httplib2',
 			'python-httpx',
@@ -1194,6 +1202,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'RPT-HTTPClient',
 			'RSSMix\/',
 			'RSSOwl',
+			'RuxitSynthetic',
 			'RyowlEngine',
 			'safe-agent-scanner',
 			'SalesIntelligent',
@@ -1435,6 +1444,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'VB Project',
 			'vBSEO',
 			'VCI',
+			'Verity',
 			'via ggpht\.com GoogleImageProxy',
 			'Virusdie',
 			'visionutils',
@@ -1585,6 +1595,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'Zabbix',
 			'Zade',
 			'Zao',
+			'Zapier',
 			'Zauba',
 			'Zemanta Aggregator',
 			'Zend\\\\Http\\\\Client',
@@ -1598,7 +1609,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'Zoom\.Mac',
 			'ZoteroTranslationServer',
 			'ZyBorg',
-			'[a-z0-9\-_]*(bot|crawl|archiver|transcoder|spider|uptime|validator|fetcher|cron|checker|reader|extractor|monitoring|analyzer|scraper)'
+			'[a-z0-9\-_]*(bot|crawl|archiver|transcoder|spider|uptime|validator|fetcher|cron|checker|reader|extractor|monitoring|analyzer|scraper)',
 		];
 	}
 
@@ -1680,7 +1691,9 @@ class Post_Views_Counter_Crawler_Detect {
 			'HTTP_X_UCBROWSER_DEVICE_UA',
 			// Sometimes, bots (especially Google) use a genuine user agent, but fill this header in with their email address
 			'HTTP_FROM',
-			'HTTP_X_SCANNER' // Seen in use by Netsparker
+			'HTTP_X_SCANNER', // Seen in use by Netsparker
+			// Observed that Facebook will omit identifying itself in User Agent headers but will persist HeadlessChrome in this header for mobile requests
+			'HTTP_SEC_CH_UA',
 		];
 	}
 }
