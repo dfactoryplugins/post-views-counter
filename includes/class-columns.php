@@ -45,13 +45,13 @@ class Post_Views_Counter_Columns {
 
 		// incorrect post type?
 		if ( ! in_array( $post->post_type, (array) $pvc->options['general']['post_types_count'] ) )
-			$can_view = false;
+			return;
 
 		// break if current user can't edit this post
 		if ( ! current_user_can( 'edit_post', $post->ID ) )
-			$can_view = false;
+			return;
 		
-		if ( apply_filters( 'pvc_admin_display_post_views', $can_view, $post->ID ) === false )
+		if ( apply_filters( 'pvc_admin_display_post_views', true, $post->ID ) === false )
 			return;
 
 		// get total post views
@@ -307,7 +307,7 @@ class Post_Views_Counter_Columns {
 			return;
 		
 		// break if display is not allowed
-		if ( apply_filters( 'pvc_admin_display_post_views', $can_view, $post->ID ) === false )
+		if ( apply_filters( 'pvc_admin_display_post_views', true, $post->ID ) === false )
 			return;
 
 		// break if views editing is restricted
@@ -431,17 +431,15 @@ class Post_Views_Counter_Columns {
 		// frontend?
 		} elseif ( is_singular() )
 			global $post;
-		
-		$can_view = true;
 
 		// get countable post types
 		$post_types = $pvc->options['general']['post_types_count'];
 
 		// whether to allow this post type or not
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
-			$can_view = false;
+			return;
 
-		if ( apply_filters( 'pvc_admin_display_post_views', $can_view, $post->ID ) === false )
+		if ( apply_filters( 'pvc_admin_display_post_views', true ) === false )
 			return;
 
 		$dt = new DateTime();
@@ -532,14 +530,12 @@ class Post_Views_Counter_Columns {
 
 		// get countable post types
 		$post_types = $pvc->options['general']['post_types_count'];
-		
-		$can_view = true;
 
 		// whether to allow this post type or not
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
-			$can_view = false;
+			return;
 
-		if ( apply_filters( 'pvc_admin_display_post_views', $can_view, $post->ID ) === false )
+		if ( apply_filters( 'pvc_admin_display_post_views', true ) === false )
 			return;
 
 		// add admin bar

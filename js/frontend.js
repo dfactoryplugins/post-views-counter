@@ -200,6 +200,11 @@ var initPostViewsCounter = function() {
 			if ( document.location.protocol === 'https:' )
 				cookieSecure = ';secure';
 
+			if ( data.hasOwnProperty( 'name' ) === false ) {
+				console.log( 'Error saveCookieData' );
+				return;
+			}
+			
 			for ( let i = 0; i < data.name.length; i++ ) {
 				var cookieDate = new Date();
 				var expiration = parseInt( data.expiry[i] );
