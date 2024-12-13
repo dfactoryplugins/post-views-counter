@@ -735,3 +735,93 @@ function pvc_view_post( $post_id = 0, $bypass_content = false ) {
 
 	return true;
 }
+
+/**
+ * Convert string to date.
+ *
+ * @param string $period
+ * @return DateTiem object
+ */
+if ( ! function_exists( 'pvc_period2date' ) ) {
+	function pvc_period2date( $period ) {
+		$datetime = false;
+		
+		// check requested period by string length
+		$length = is_string( $period ) ? strlen( $period ) : 0;
+
+		if ( $length ) {
+			switch ( $length ) {
+				// day
+				case 8:
+					$datetime = date_create_from_format( 'Ymd' , $period );
+					$datetime->period = 'day';
+					break;
+
+				// week
+				case 7:
+					// get year and week from string
+					$period_year = (int) substr( $period, 0, -3 );
+					$period_week = (int) substr( $period, 4, -1 );
+
+					$datetime = new DateTime();
+					$datetime->setISODate( $period_year, $period_week );
+					
+					$datetime->period = 'week';
+					break;
+
+				// month
+				case 6:
+					$datetime = date_create_from_format( 'Ym' , $period );
+					$datetime->period = 'month';
+					break;
+				// year
+				case 4:
+					$datetime = date_create_from_format( 'Y' , $period );
+					$datetime->period = 'year';
+					break;
+
+				default:
+					$datetime = new DateTime();
+					$datetime->period = 'now';
+			}
+		}
+		
+		return $datetime;
+	}
+}
+
+/**
+* Convert period to timestamp.
+*
+* @param string $period
+* @return int
+*/
+if ( ! function_exists( 'pvc_period2timestamp' ) ) {
+	function pvc_period2timestamp( $period ) {
+		$period = preg_replace( '/[^a-z0-9_|]/', '', $_POST['period'] );
+		
+		// default time
+		$timestamp = current_time( 'timestamp', false );
+		
+		// whitelisted period?
+		if ( in_array( $period, [ 'this_week', 'this_year', 'this_month' ], true ) ) {
+			$timestamp = current_time( 'timestamp', false );
+		// backward compatibility
+		} else if ( preg_match( '/^([0-9]{2}\|[0-9]{4})$/', $period ) === 1 ) {
+			// month|year
+			$date = explode( '|', $period, 2 );
+
+			// get timestamp
+			$timestamp = strtotime( (string) $date[1] . '-' . (string) $date[0] . '-13' );
+		} else {
+			// convert string to DateTime()
+			$d = pvc_period2date( $period );
+			
+			if ( $d ) {
+				$timestamp = $d->getTimestamp();
+			}
+		}
+
+		return $timestamp;
+	}
+}

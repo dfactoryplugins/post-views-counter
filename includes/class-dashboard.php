@@ -402,7 +402,7 @@ class Post_Views_Counter_Dashboard {
 			case 'this_month':
 			default:
 				// convert period
-				$time = $this->period2timestamp( $period );
+				$time = pvc_period2timestamp( $period );
 
 				// get date chunks
 				$date = explode( ' ', date( "m Y t F", $time ) );
@@ -515,7 +515,7 @@ class Post_Views_Counter_Dashboard {
 		$period = isset( $_POST['period'] ) ? preg_replace( '/[^a-z0-9_|]/', '', $_POST['period'] ) : 'this_month';
 
 		// convert period
-		$time = $this->period2timestamp( $period );
+		$time = pvc_period2timestamp( $period );
 
 		// get date chunks
 		$date = explode( ' ', date( "m Y t F", $time ) );
@@ -607,6 +607,25 @@ class Post_Views_Counter_Dashboard {
 
 		exit;
 	}
+	
+	/**
+	 * Generate dashboard widget dates navigation HTML.
+	 *
+	 * @aparam string $type
+	 * @param int $timestamp
+	 * @return string
+	 */
+	public function generate_dates( $type, $timestamp ) {
+		$dates_nav = '';
+			
+		switch ( $type ) {
+			case 'months':
+			default:
+				$dates_nav = $this->generate_months( $timestamp );
+		}
+		
+		return apply_filters( 'pvc_dashboard_widget_generate_dates', $dates_nav, $type, $timestamp );
+	}
 
 	/**
 	 * Generate dashboard widget months HTML.
@@ -616,25 +635,25 @@ class Post_Views_Counter_Dashboard {
 	 */
 	public function generate_months( $timestamp ) {
 		$dates = [
-			explode( ' ', date( "m F Y", strtotime( "-1 months", $timestamp ) ) ),
-			explode( ' ', date( "m F Y", $timestamp ) ),
-			explode( ' ', date( "m F Y", strtotime( "+1 months", $timestamp ) ) )
+			explode( ' ', date( 'm F Y', strtotime( '-1 months', $timestamp ) ) ),
+			explode( ' ', date( 'm F Y', $timestamp ) ),
+			explode( ' ', date( 'm F Y', strtotime( '+1 months', $timestamp ) ) )
 		];
 
-		$current = date( "Ym", current_time( 'timestamp', false ) );
+		$current = date( 'Ym', current_time( 'timestamp', false ) );
 
 		if ( (int) $current <= (int) ( $dates[1][2] . $dates[1][0] ) )
 			$next = '<span class="next">' . $dates[2][1] . ' ' . $dates[2][2] . ' ›</span>';
 		else
-			$next = '<a class="next" href="#" data-date="' . ( $dates[2][0] . '|' . $dates[2][2] ) . '">' . $dates[2][1] . ' ' . $dates[2][2] . ' ›</a>';
+			$next = '<a class="next" href="#" data-date="' . ( $dates[2][2] . $dates[2][0] ) . '">' . $dates[2][1] . ' ' . $dates[2][2] . ' ›</a>';
 
-		$dates_formatted = [
-			'prev'		=> '<a class="prev" href="#" data-date="' . ( $dates[0][0] . '|' . $dates[0][2] ) . '">‹ ' . $dates[0][1] . ' ' . $dates[0][2] . '</a>',
+		$dates_formatted = apply_filters( 'pvc_dashboard_widget_generate_months_formatted', [
+			'prev'		=> '<a class="prev" href="#" data-date="' . ( $dates[0][2] . $dates[0][0] ) . '">‹ ' . $dates[0][1] . ' ' . $dates[0][2] . '</a>',
 			'current'	=> '<span class="current">' . $dates[1][1] . ' ' . $dates[1][2] . '</span>',
 			'next'		=> $next
-		];
+		], $timestamp );
 
-		return $dates_formatted['prev'] . $dates_formatted['current'] . $dates_formatted['next'];
+		return wp_kses_post( $dates_formatted['prev'] . $dates_formatted['current'] . $dates_formatted['next'] );
 	}
 
 	/**
@@ -728,28 +747,16 @@ class Post_Views_Counter_Dashboard {
 
 		return $user_options[$data_type];
 	}
-
+	
 	/**
 	 * Convert period to timestamp.
-	 *
+	 * 
+	 * @deprecated
 	 * @param string $period
 	 * @return int
 	 */
 	public function period2timestamp( $period ) {
-		// whitelisted period?
-		if ( in_array( $period, [ 'this_week', 'this_year', 'this_month' ], true ) ) {
-			$timestamp = current_time( 'timestamp', false );
-		} else {
-			if ( preg_match( '/^([0-9]{2}\|[0-9]{4})$/', $period ) === 1 ) {
-				// month|year
-				$date = explode( '|', $period, 2 );
-
-				// get timestamp
-				$timestamp = strtotime( (string) $date[1] . '-' . (string) $date[0] . '-13' );
-			} else
-				$timestamp = current_time( 'timestamp', false );
-		}
-
-		return $timestamp;
+		return pvc_period2timestamp( $period );
 	}
+
 }
