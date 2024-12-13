@@ -35,6 +35,8 @@ if ( ! function_exists( 'pvc_get_post_views' ) ) {
 		if ( is_array( $post_id ) ) {
 			$numbers = array_filter( array_unique( array_map( 'intval', $post_id ) ) );
 			$post_id = implode( ',', $numbers );
+		} else if ( $post_id === 'all' ) {
+			$numbers = [];
 		} else {
 			$post_id = (int) $post_id;
 			$numbers = [ $post_id ];
@@ -66,11 +68,18 @@ if ( ! function_exists( 'pvc_get_post_views' ) ) {
 		$ids_count = count( $numbers );
 
 		$where_clause = '';
+		
+		// add post ids if needed
+		if ( $ids_count ) {
+			$where_clause .= " WHERE id IN (" . implode( ',', array_fill( 0, $ids_count, '%d' ) ) . ") AND";
+		} else {
+			$where_clause .= " WHERE";
+		}
 
 		// validate where clause
 		foreach( $_where as $index => $value ) {
 			if ( $index === 'type' ) {
-				$where_clause .= ' AND type = %d';
+				$where_clause .= ' type = %d';
 				$numbers[] = (int) $value;
 			} elseif ( $index === 'content' ) {
 				$where_clause .= ' AND content = %d';
@@ -90,7 +99,7 @@ if ( ! function_exists( 'pvc_get_post_views' ) ) {
 		}
 
 		// prepare query
-		$query = $wpdb->prepare( "SELECT SUM(count) AS views FROM " . $wpdb->prefix . "post_views WHERE id IN (" . implode( ',', array_fill( 0, $ids_count, '%d' ) ) . ")" . $where_clause, $numbers );
+		$query = $wpdb->prepare( "SELECT SUM(count) AS views FROM " . $wpdb->prefix . "post_views" . $where_clause, $numbers );
 
 		// calculate query hash
 		$query_hash = md5( $query );
@@ -193,6 +202,9 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 			$query_data = array_merge( $query_data, array_values( $args['post_id'] ) );
 		else
 			$query_data = array_merge( $query_data, array_values( $args['post_id'] ), array_values( $args['post_type'] ) );
+		
+		// set where clause
+		$where = apply_filters( 'pvc_get_views_period_where', [], $args );
 
 		// check fields
 		if ( ! in_array( $args['fields'], [ 'views', 'date=>views' ], true ) )
@@ -276,33 +288,48 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 						// year
 						if ( isset( $chunk['year'] ) ) {
 							// year, week
-							if ( isset( $chunk['week'] ) )
-								$views_query .= " AND pvc.type = 1 AND CAST( pvc.period AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['year'] . $chunk['week'] );
+							if ( isset( $chunk['week'] ) ) {
+								$where['type'] = 'pvc.type = 1';
+								$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( pvc.period AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['year'] . $chunk['week'] );
+							}
 							// year, month
 							elseif ( isset( $chunk['month'] ) ) {
 								// year, month, day
-								if ( isset( $chunk['day'] ) )
-									$views_query .= " AND pvc.type = 0 AND CAST( pvc.period AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['year'] . $chunk['month'] . $chunk['day'] );
+								if ( isset( $chunk['day'] ) ) {
+									$where['type'] = 'pvc.type = 0';
+									$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( pvc.period AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['year'] . $chunk['month'] . $chunk['day'] );
+								}
 								// year, month
-								else
-									$views_query .= " AND pvc.type = 2 AND CAST( pvc.period AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['year'] . $chunk['month'] );
+								else {
+									$where['type'] = 'pvc.type = 2';
+									$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( pvc.period AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['year'] . $chunk['month'] );
+								}
 							// year
-							} else
-								$views_query .= " AND pvc.type = 3 AND CAST( pvc.period AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['year'] );
+							} else {
+								$where['type'] = 'pvc.type = 3';
+								$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( pvc.period AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['year'] );
+							}
 						// month
 						} elseif ( isset( $chunk['month'] ) ) {
 							// month, day
 							if ( isset( $chunk['day'] ) ) {
-								$views_query .= " AND pvc.type = 0 AND CAST( RIGHT( pvc.period, 4 ) AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['month'] . $chunk['day'] );
+								$where['type'] = 'pvc.type = 0';
+								$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( RIGHT( pvc.period, 4 ) AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['month'] . $chunk['day'] );
 							// month
-							} else
-								$views_query .= " AND pvc.type = 2 AND CAST( RIGHT( pvc.period, 2 ) AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['month'] );
+							} else {
+								$where['type'] = 'pvc.type = 2';
+								$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( RIGHT( pvc.period, 2 ) AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['month'] );
+							}
 						// week
-						} elseif ( isset( $chunk['week'] ) )
-							$views_query .= " AND pvc.type = 1 AND CAST( RIGHT( pvc.period, 2 ) AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['week'] );
+						} elseif ( isset( $chunk['week'] ) ) {
+								$where['type'] = 'pvc.type = 1';
+								$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( RIGHT( pvc.period, 2 ) AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['week'] );
+						}
 						// day
-						elseif ( isset( $chunk['day'] ) )
-							$views_query .= " AND pvc.type = 0 AND CAST( RIGHT( pvc.period, 2 ) AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['day'] );
+						elseif ( isset( $chunk['day'] ) ) {
+							$where['type'] = 'pvc.type = 0';
+							$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( RIGHT( pvc.period, 2 ) AS SIGNED ) " . $chunk['type'] . " " . (int) ( $chunk['day'] );
+						}
 					}
 				}
 			}
@@ -353,9 +380,12 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 						// get month of sunday
 						$sunday_month = $date->format( 'm' );
 
-						$views_query = " AND pvc.type = 0 AND CAST( pvc.period AS SIGNED ) >= " . (int) ( $year . $monday_month . $monday ) . " AND CAST( pvc.period AS SIGNED ) <= " . (int) ( $date->format( 'Y' ) . $sunday_month . $date->format( 'd' ) );
-					} else
-						$views_query = " AND pvc.type = 1 AND CAST( pvc.period AS SIGNED ) = " . (int) ( $year . $week );
+						$where['type'] = 'pvc.type = 0';
+						$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( pvc.period AS SIGNED ) >= " . (int) ( $year . $monday_month . $monday ) . " AND CAST( pvc.period AS SIGNED ) <= " . (int) ( $date->format( 'Y' ) . $sunday_month . $date->format( 'd' ) );
+					} else {
+						$where['type'] = 'pvc.type = 1';
+						$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( pvc.period AS SIGNED ) = " . (int) ( $year . $week );
+					}
 				// year, month
 				} elseif ( isset( $month ) ) {
 					// year, month, day
@@ -364,7 +394,8 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 							// prepare range
 							$range[(string) ( $year . $month . $day )] = 0;
 
-						$views_query = " AND pvc.type = 0 AND CAST( pvc.period AS SIGNED ) = " . (int) ( $year . $month . $day );
+						$where['type'] = 'pvc.type = 0';
+						$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( pvc.period AS SIGNED ) = " . (int) ( $year . $month . $day );
 					// year, month
 					} else {
 						if ( $args['fields'] === 'date=>views' ) {
@@ -379,9 +410,12 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 								$range[(string) ( $year . $month . str_pad( $i, 2, 0, STR_PAD_LEFT ) )] = 0;
 							}
 
-							$views_query = " AND pvc.type = 0 AND CAST( pvc.period AS SIGNED ) >= " . (int) ( $year . $month ) . "01 AND CAST( pvc.period AS SIGNED ) <= " . (int) ( $year . $month . $last );
-						} else
-							$views_query = " AND pvc.type = 2 AND CAST( pvc.period AS SIGNED ) = " . (int) ( $year . $month );
+							$where['type'] = 'pvc.type = 0';
+							$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( pvc.period AS SIGNED ) >= " . (int) ( $year . $month ) . "01 AND CAST( pvc.period AS SIGNED ) <= " . (int) ( $year . $month . $last );
+						} else {
+							$where['type'] = 'pvc.type = 2';
+							$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( pvc.period AS SIGNED ) = " . (int) ( $year . $month );
+						}
 					}
 				// year
 				} else {
@@ -394,32 +428,42 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 						// create date
 						$date = new DateTime( $year . '-12-01' );
 
-						$views_query = " AND pvc.type = 2 AND CAST( pvc.period AS SIGNED ) >= " . (int) ( $year ) . "01 AND CAST( pvc.period AS SIGNED ) <= " . (int) ( $year ) . "12";
-					} else
-						$views_query = " AND pvc.type = 3 AND CAST( pvc.period AS SIGNED ) = " . (int) ( $year );
+						$where['type'] = 'pvc.type = 2';
+						$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( pvc.period AS SIGNED ) >= " . (int) ( $year ) . "01 AND CAST( pvc.period AS SIGNED ) <= " . (int) ( $year ) . "12";
+					} else {
+						$where['type'] = 'pvc.type = 3';
+						$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( pvc.period AS SIGNED ) = " . (int) ( $year );
+					}
 				}
 			// month
 			} elseif ( isset( $month ) ) {
 				// month, day
 				if ( isset( $day ) ) {
-					$views_query = " AND pvc.type = 0 AND CAST( RIGHT( pvc.period, 4 ) AS SIGNED ) = " . (int) ( $month . $day );
+					$where['type'] = 'pvc.type = 0';
+					$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( RIGHT( pvc.period, 4 ) AS SIGNED ) = " . (int) ( $month . $day );
 				// month
 				} else {
-					$views_query = " AND pvc.type = 2 AND CAST( RIGHT( pvc.period, 2 ) AS SIGNED ) = " . (int) ( $month );
+					$where['type'] = 'pvc.type = 2';
+					$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( RIGHT( pvc.period, 2 ) AS SIGNED ) = " . (int) ( $month );
 				}
 			// week
 			} elseif ( isset( $week ) ) {
-				$views_query = " AND pvc.type = 1 AND CAST( RIGHT( pvc.period, 2 ) AS SIGNED ) = " . (int) ( $week );
+				$where['type'] = 'pvc.type = 1';
+				$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( RIGHT( pvc.period, 2 ) AS SIGNED ) = " . (int) ( $week );
 			// day
 			} elseif ( isset( $day ) ) {
-				$views_query = " AND pvc.type = 0 AND CAST( RIGHT( pvc.period, 2 ) AS SIGNED ) = " . (int) ( $day );
+				$where['type'] = 'pvc.type = 0';
+				$views_query .= ' AND ' . implode( ' AND ', $where ) . " AND CAST( RIGHT( pvc.period, 2 ) AS SIGNED ) = " . (int) ( $day );
 			}
 		}
+
+		// update where clause
+		$where['type'] = [ 'pvc.type = 4' ];
 
 		$query = $wpdb->prepare(
 			"SELECT " . ( $args['fields'] === 'date=>views' ? 'pvc.period, ' : '' ) . "SUM( COALESCE( pvc.count, 0 ) ) AS post_views
 			FROM " . $wpdb->prefix . "posts wpp
-			LEFT JOIN " . $wpdb->prefix . "post_views pvc ON pvc.id = wpp.ID AND 1 = %d" . ( $views_query !== '' ? ' ' . $views_query : ' AND pvc.type = 4' ) . ( ! empty( $args['post_id'] ) ? ' AND pvc.id IN (' . implode( ',', array_fill( 0, $post_ids_count, '%d' ) ) . ')' : '' ) . "
+			LEFT JOIN " . $wpdb->prefix . "post_views pvc ON pvc.id = wpp.ID AND 1 = %d" . ( $views_query !== '' ? ' ' . $views_query : ' AND ' . implode( ' AND ', $where ) ) . ( ! empty( $args['post_id'] ) ? ' AND pvc.id IN (' . implode( ',', array_fill( 0, $post_ids_count, '%d' ) ) . ')' : '' ) . "
 			" . ( ! empty( $args['post_type'] ) ? 'WHERE wpp.post_type IN (' . implode( ',', array_fill( 0, $post_types_count, '%s' ) ) . ')' : '' ) . "
 			" . ( $views_query !== '' && $special_views_query === false ? 'GROUP BY pvc.period HAVING post_views > 0' : '' ),
 			$query_data
