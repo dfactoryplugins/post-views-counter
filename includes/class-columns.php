@@ -40,11 +40,9 @@ class Post_Views_Counter_Columns {
 
 		// get main instance
 		$pvc = Post_Views_Counter();
-		
-		$can_view = true;
 
 		// incorrect post type?
-		if ( ! in_array( $post->post_type, (array) $pvc->options['general']['post_types_count'] ) )
+		if ( ! $pvc->options['general']['post_views_column'] || ! in_array( $post_type, $pvc->options['general']['post_types_count'] ) )
 			return;
 
 		// break if current user can't edit this post
