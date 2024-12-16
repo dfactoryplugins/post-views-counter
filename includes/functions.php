@@ -798,7 +798,6 @@ if ( ! function_exists( 'pvc_period2date' ) ) {
 				// day
 				case 8:
 					$datetime = date_create_from_format( 'Ymd' , $period );
-					$datetime->period = 'day';
 					break;
 
 				// week
@@ -809,28 +808,23 @@ if ( ! function_exists( 'pvc_period2date' ) ) {
 
 					$datetime = new DateTime();
 					$datetime->setISODate( $period_year, $period_week );
-					
-					$datetime->period = 'week';
 					break;
 
 				// month
 				case 6:
 					$datetime = date_create_from_format( 'Ym' , $period );
-					$datetime->period = 'month';
 					break;
 				// year
 				case 4:
 					$datetime = date_create_from_format( 'Y' , $period );
-					$datetime->period = 'year';
 					break;
 
 				default:
 					$datetime = new DateTime();
-					$datetime->period = 'now';
 			}
 		}
 		
-		return $datetime;
+		return apply_filters( 'pvc_period2date', $datetime, $period );
 	}
 }
 

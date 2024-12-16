@@ -249,6 +249,13 @@ class Post_Views_Counter_Dashboard {
 
 		// get post types
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+		
+		// empty options?
+		if ( empty( $post_types ) || ! is_array( $post_types ) )
+			$post_types = [];
+
+		// sanitize post_types
+		$post_types = map_deep( $post_types, 'sanitize_text_field' );
 
 		// get dashboard user options
 		$user_options = $this->get_dashboard_user_options( get_current_user_id(), 'post_types' );
@@ -305,8 +312,6 @@ class Post_Views_Counter_Dashboard {
 		// get date
 		$year = (int) $date_chunks[0];
 		$month = sanitize_text_field( $date_chunks[1] );
-		$week = sanitize_text_field( $date_chunks[2] );
-		$day = (int) $date_chunks[3];
 		$days_number = (int) $date_chunks[4];
 
 		// get previous date chunks
@@ -314,21 +319,11 @@ class Post_Views_Counter_Dashboard {
 		$previous_date = date( 'Y m W d t', $previous_time );
 		$previous_date_chunks = explode( ' ', $previous_date );
 
-		// get previous date
-		$previous_year = (int) $previous_date_chunks[0];
-		$previous_month = sanitize_text_field( $previous_date_chunks[1] );
-		$previous_week = sanitize_text_field( $previous_date_chunks[2] );
-		$previous_day = (int) $previous_date_chunks[3];
-		$previous_days_number = (int) $previous_date_chunks[4];
-
 		// get current date
 		$current_date = date_create( 'now', wp_timezone() )->format('Y m W d t');
 		$current_date_chunks = explode( ' ', $current_date );
-		$current_year = (int) $current_date_chunks[0];
-		$current_month = sanitize_text_field( $current_date_chunks[1] );
-		$current_week = sanitize_text_field( $current_date_chunks[2] );
 
-		// set chart labels
+		// generate chart data
 		switch ( $period ) {
 			case 'this_month':
 			default:
@@ -400,7 +395,6 @@ class Post_Views_Counter_Dashboard {
 		}
 
 		echo wp_json_encode( apply_filters( 'pvc_dashboard_widget_data', $data, $args ) );
-
 		exit;
 	}
 
@@ -417,102 +411,129 @@ class Post_Views_Counter_Dashboard {
 		$pvc = Post_Views_Counter();
 
 		// get post types
-		$post_types = $pvc->options['general']['post_types_count'];
+		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+		
+		// empty options?
+		if ( empty( $post_types ) || ! is_array( $post_types ) )
+			$post_types = [];
+
+		// sanitize post_types
+		$post_types = map_deep( $post_types, 'sanitize_text_field' );
 
 		// get period
 		$period = isset( $_POST['period'] ) ? preg_replace( '/[^a-z0-9_|]/', '', $_POST['period'] ) : 'this_month';
+		
+		// parameters to be used in filter
+		$args = [
+			'widget'		=> 'post_most_viewed',
+			'period'		=> $period,
+			'post_types'	=> $post_types
+		];
+
+		$data = [
+			'widget'	=> 'post-most-viewed',
+			'html'		=> ''
+		];
 
 		// convert period
 		$time = pvc_period2timestamp( $period );
 
 		// get date chunks
-		$date = explode( ' ', date( "m Y t F", $time ) );
+		$date = date( 'Y m W d t', $time );
+		$date_chunks = explode( ' ', $date );
 
-		// get stats
-		$query_args = [
-			'post_type'			=> $post_types,
-			'posts_per_page'	=> 10,
-			'paged'				=> false,
-			'suppress_filters'	=> false,
-			'no_found_rows'		=> true,
-			'views_query'		=> [
-				'year'			=> $date[1],
-				'month'			=> $date[0],
-				'hide_empty'	=> true
-			]
-		];
+		// get date
+		$year = (int) $date_chunks[0];
+		$month = sanitize_text_field( $date_chunks[1] );
+		
+		// generate chart data
+		switch ( $period ) {
+			case 'this_month':
+			default:
+				// generate dates
+				$data['dates'] = $this->generate_months( $time );
+		
+				// get stats
+				$query_args = [
+					'post_type'			=> $post_types,
+					'posts_per_page'	=> 10,
+					'paged'				=> false,
+					'suppress_filters'	=> false,
+					'no_found_rows'		=> true,
+					'views_query'		=> [
+						'year'			=> $year,
+						'month'			=> $month,
+						'hide_empty'	=> true
+					]
+				];
 
-		$posts = pvc_get_most_viewed_posts( $query_args );
+				$posts = pvc_get_most_viewed_posts( $query_args );
 
-		$data = [
-			'widget'	=> 'post-most-viewed',
-			'dates'		=> $this->generate_months( $time ),
-			'html'		=> ''
-		];
+				$html = '
+				<table id="pvc-post-most-viewed-table" class="pvc-table pvc-table-hover">
+					<thead>
+						<tr>
+							<th scope="col">#</th>
+							<th scope="col">' . esc_html__( 'Post', 'post-views-counter' ) . '</th>
+							<th scope="col">' . esc_html__( 'Views', 'post-views-counter' ) . '</th>
+						</tr>
+					</thead>
+					<tbody>';
 
-		$html = '
-		<table id="pvc-post-most-viewed-table" class="pvc-table pvc-table-hover">
-			<thead>
-				<tr>
-					<th scope="col">#</th>
-					<th scope="col">' . esc_html__( 'Post', 'post-views-counter' ) . '</th>
-					<th scope="col">' . esc_html__( 'Views', 'post-views-counter' ) . '</th>
-				</tr>
-			</thead>
-			<tbody>';
+				if ( $posts ) {
+					// active post types
+					$active_post_types = [];
 
-		if ( $posts ) {
-			// active post types
-			$active_post_types = [];
+					foreach ( $posts as $index => $post ) {
+						setup_postdata( $post );
 
-			foreach ( $posts as $index => $post ) {
-				setup_postdata( $post );
+						$html .= '
+						<tr>
+							<th scope="col">' . ( $index + 1 ) . '</th>';
 
-				$html .= '
-				<tr>
-					<th scope="col">' . ( $index + 1 ) . '</th>';
+						// check post type existence
+						if ( array_key_exists( $post->post_type, $active_post_types ) )
+							$post_type_exists = $active_post_types[$post->post_type];
+						else
+							$post_type_exists = $active_post_types[$post->post_type] = post_type_exists( $post->post_type );
 
-				// check post type existence
-				if ( array_key_exists( $post->post_type, $active_post_types ) )
-					$post_type_exists = $active_post_types[$post->post_type];
-				else
-					$post_type_exists = $active_post_types[$post->post_type] = post_type_exists( $post->post_type );
+						$title = get_the_title( $post );
 
-				$title = get_the_title( $post );
+						if ( $title === '' )
+							$title = __( '(no title)' );
 
-				if ( $title === '' )
-					$title = __( '(no title)' );
-				
-				// post link
-				$link = '<a href="' . esc_url( get_permalink( $post->ID ) ) . '" target="_blank">' . esc_html( $title ) . '</a>';
+						// post link
+						$link = '<a href="' . esc_url( get_permalink( $post->ID ) ) . '" target="_blank">' . esc_html( $title ) . '</a>';
 
-				// edit post link
-				if ( $post_type_exists && current_user_can( 'edit_post', $post->ID ) ) {
-					$link .= ' <a href="' . esc_url( get_edit_post_link( $post->ID ) ) . '" class="cn-edit-link" target="_blank">' . esc_html__( 'Edit', 'post-views-counter' ) . '</a>';
+						// edit post link
+						if ( $post_type_exists && current_user_can( 'edit_post', $post->ID ) ) {
+							$link .= ' <a href="' . esc_url( get_edit_post_link( $post->ID ) ) . '" class="cn-edit-link" target="_blank">' . esc_html__( 'Edit', 'post-views-counter' ) . '</a>';
+						}
+
+						$html .= '
+							<td>' . $link . '</td>';
+
+						$html .= '
+							<td>' . number_format_i18n( $post->post_views ) . '</td>
+						</tr>';
+					}
+				} else {
+					$html .= '
+						<tr class="no-posts">
+							<td colspan="3">' . esc_html__( 'No most viewed posts found.', 'post-views-counter' ) . '</td>
+						</tr>';
 				}
-				
-				$html .= '
-					<td>' . $link . '</td>';
 
 				$html .= '
-					<td>' . number_format_i18n( $post->post_views ) . '</td>
-				</tr>';
-			}
-		} else {
-			$html .= '
-				<tr class="no-posts">
-					<td colspan="3">' . esc_html__( 'No most viewed posts found.', 'post-views-counter' ) . '</td>
-				</tr>';
+					</tbody>
+				</table>';
+				
+				$data['html'] = $html;
+				
+			break;
 		}
 
-		$html .= '
-			</tbody>
-		</table>';
-
-		$data['html'] = $html;
-
-		echo wp_json_encode( $data );
-
+		echo wp_json_encode( apply_filters( 'pvc_dashboard_widget_data', $data, $args ) );
 		exit;
 	}
 
