@@ -271,39 +271,51 @@
 		var id = $( container ).closest( '.pvc-accordion-item' ).attr( 'id' );
 
 		if ( id === 'pvc-post-most-viewed' )
-			prev.addEventListener( 'click', pvcLoadPostMostViewedData );
+			prev.addEventListener( 'click', function( e ) {
+				e.preventDefault();
+
+				pvcLoadPostMostViewedData( e.target.dataset.date );
+			} );
 		else if ( id === 'pvc-post-views' )
-			prev.addEventListener( 'click', pvcLoadPostViewsData );
+			prev.addEventListener( 'click', function( e ) {
+				e.preventDefault();
+
+				pvcLoadPostViewsData( e.target.dataset.date );
+			} );
 
 		// skip span
 		if ( next.tagName === 'A' ) {
 			if ( id === 'pvc-post-most-viewed' )
-				next.addEventListener( 'click', pvcLoadPostMostViewedData );
+				next.addEventListener( 'click', function( e ) {
+					e.preventDefault();
+					
+					pvcLoadPostMostViewedData( e.target.dataset.date );
+				} );
 			else if ( id === 'pvc-post-views' )
-				next.addEventListener( 'click', pvcLoadPostViewsData );
+				next.addEventListener( 'click', function( e ) {
+					e.preventDefault();
+					
+					pvcLoadPostViewsData( e.target.dataset.date );
+				} );
 		}
 	}
 
 	/**
 	 * Load post views data.
 	 */
-	function pvcLoadPostViewsData( e ) {
-		e.preventDefault();
-
+	function pvcLoadPostViewsData( period = '' ) {
 		var container = $( '#pvc-post-views' ).find( '.pvc-dashboard-container' );
 
-		pvcGetPostViewsData( false, e.target.dataset.date, container );
+		pvcGetPostViewsData( false, period, container );
 	}
 
 	/**
 	 * Load post most viewed data.
 	 */
-	function pvcLoadPostMostViewedData( e ) {
-		e.preventDefault();
-
+	function pvcLoadPostMostViewedData( period = ''  ) {
 		var container = $( '#pvc-post-most-viewed' ).find( '.pvc-dashboard-container' );
 
-		pvcGetPostMostViewedData( false, e.target.dataset.date, container );
+		pvcGetPostMostViewedData( false, period, container );
 	}
 	
 	/**
