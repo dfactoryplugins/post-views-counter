@@ -836,7 +836,7 @@ if ( ! function_exists( 'pvc_period2date' ) ) {
 */
 if ( ! function_exists( 'pvc_period2timestamp' ) ) {
 	function pvc_period2timestamp( $period ) {
-		$period = preg_replace( '/[^a-z0-9_|]/', '', $_POST['period'] );
+		$period = preg_replace( '/[^a-z0-9_|]/', '', $period );
 		
 		// default time
 		$timestamp = current_time( 'timestamp', false );

@@ -4,8 +4,8 @@
 	 * Load initial data.
 	 */
 	window.addEventListener( 'load', function () {
-		pvcUpdatePostViewsWidget( 'this_month' );
-		pvcUpdatePostMostViewedWidget( 'this_month' );
+		pvcUpdatePostViewsWidget();
+		pvcUpdatePostMostViewedWidget();
 	} );
 
 	/**
@@ -233,7 +233,7 @@
 	/**
 	 * Update post views widget.
 	 */
-	function pvcUpdatePostViewsWidget( period ) {
+	function pvcUpdatePostViewsWidget( period = '' ) {
 		var container = $( '#pvc-post-views' ).find( '.pvc-dashboard-container' );
 
 		if ( $( container ).length > 0 ) {
@@ -246,7 +246,7 @@
 	/**
 	 * Update post most viewed widget.
 	 */
-	function pvcUpdatePostMostViewedWidget( period ) {
+	function pvcUpdatePostMostViewedWidget( period = '' ) {
 		var container = $( '#pvc-post-most-viewed' ).find( '.pvc-dashboard-container' );
 
 		if ( $( container ).length > 0 ) {
