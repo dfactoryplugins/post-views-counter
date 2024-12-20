@@ -34,11 +34,59 @@
 		} );
 	} );
 
+	// jQuery on an empty object, we are going to use this as our Queue
+	var pvcAjaxQueue = $( {} );
+
+	/**
+	 * Put AJAX requests in a queue, run one request at a time and prevent overwriting user options.
+	 * 
+	 * @param {type} ajaxOpts
+	 */
+	$.pvcAjaxQueue = function ( ajaxOpts ) {
+		var jqXHR,
+			dfd = $.Deferred(),
+			promise = dfd.promise();
+
+		// run the actual query
+		function doRequest( next ) {
+			jqXHR = $.ajax( ajaxOpts );
+			jqXHR.done( dfd.resolve )
+				.fail( dfd.reject )
+				.then( next, next );
+		}
+
+		// queue our ajax request
+		pvcAjaxQueue.queue( doRequest );
+
+		// add the abort method
+		promise.abort = function ( statusText ) {
+
+			// proxy abort to the jqXHR if it is active
+			if ( jqXHR ) {
+				return jqXHR.abort( statusText );
+			}
+
+			// if there wasn't already a jqXHR we need to remove from queue
+			var queue = pvcAjaxQueue.queue(),
+				index = $.inArray( doRequest, queue );
+
+			if ( index > - 1 ) {
+				queue.splice( index, 1 );
+			}
+
+			// and then reject the deferred
+			dfd.rejectWith( ajaxOpts.context || ajaxOpts, [promise, statusText, ""] );
+			return promise;
+		};
+
+		return promise;
+	};
+
 	/**
 	 * Update user options.
 	 */
 	pvcUpdateUserOptions = function ( options ) {
-		$.ajax( {
+		$.pvcAjaxQueue( {
 			url: pvcArgs.ajaxURL,
 			type: 'POST',
 			dataType: 'json',
@@ -223,7 +271,7 @@
 					window.postViewsChart.config = pvcUpdateConfig( window.postViewsChart.config, response );
 					window.postViewsChart.update();
 				}
-				
+
 				// trigger js event
 				pvcTriggerEvent( 'pvc-dashboard-widget-loaded', response );
 			}
@@ -240,7 +288,7 @@
 			pvcBindDateEvents( false, container );
 
 			pvcGetPostViewsData( true, period, container );
-		}
+	}
 	}
 
 	/**
@@ -253,7 +301,7 @@
 			pvcBindDateEvents( false, container );
 
 			pvcGetPostMostViewedData( true, period, container );
-		}
+	}
 	}
 
 	/**
@@ -271,13 +319,13 @@
 		var id = $( container ).closest( '.pvc-accordion-item' ).attr( 'id' );
 
 		if ( id === 'pvc-post-most-viewed' )
-			prev.addEventListener( 'click', function( e ) {
+			prev.addEventListener( 'click', function ( e ) {
 				e.preventDefault();
 
 				pvcLoadPostMostViewedData( e.target.dataset.date );
 			} );
 		else if ( id === 'pvc-post-views' )
-			prev.addEventListener( 'click', function( e ) {
+			prev.addEventListener( 'click', function ( e ) {
 				e.preventDefault();
 
 				pvcLoadPostViewsData( e.target.dataset.date );
@@ -286,15 +334,15 @@
 		// skip span
 		if ( next.tagName === 'A' ) {
 			if ( id === 'pvc-post-most-viewed' )
-				next.addEventListener( 'click', function( e ) {
+				next.addEventListener( 'click', function ( e ) {
 					e.preventDefault();
-					
+
 					pvcLoadPostMostViewedData( e.target.dataset.date );
 				} );
 			else if ( id === 'pvc-post-views' )
-				next.addEventListener( 'click', function( e ) {
+				next.addEventListener( 'click', function ( e ) {
 					e.preventDefault();
-					
+
 					pvcLoadPostViewsData( e.target.dataset.date );
 				} );
 		}
@@ -312,18 +360,18 @@
 	/**
 	 * Load post most viewed data.
 	 */
-	function pvcLoadPostMostViewedData( period = ''  ) {
+	function pvcLoadPostMostViewedData( period = '' ) {
 		var container = $( '#pvc-post-most-viewed' ).find( '.pvc-dashboard-container' );
 
 		pvcGetPostMostViewedData( false, period, container );
 	}
-	
+
 	/**
 	 * Trigger load widget JS event.
 	 */
 	function pvcTriggerEvent( name, response ) {
 		// remove unneeded data
-		const remove = [ 'dates', 'html', 'design' ]
+		const remove = ['dates', 'html', 'design']
 
 		remove.forEach( function ( prop ) {
 			delete response[prop];
@@ -333,7 +381,7 @@
 		const event = new CustomEvent( name, {
 			detail: response
 		} );
-		
+
 		window.dispatchEvent( event );
 	}
 
