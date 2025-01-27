@@ -4,7 +4,7 @@ Tags: counter, postviews, statistics, analytics, pageviews
 Requires at least: 6.3.0
 Requires PHP: 7.4.0
 Tested up to: 6.7.1
-Stable tag: 1.4.8
+Stable tag: 1.5.0
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -52,6 +52,18 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.5.0 =
+* Fix: Deprecated DateTime dynamic property
+* Tweak:Implement AJAX queue for saving dashboard user options
+* Tweak: Update bot detection class
+* Tweak: Add widget loaded JS event
+* Tweak: Fix typo in widget tooltip
+* Tweak: Improve dahboard widgets UI
+* New: Dashboard widgets revamp (Pro)
+* New: Added weekly and yearly dashboard widgets navigation (Pro)
+* New: Added trend (increase/decrease) to dashboard widget charts (Pro)
+* New: Taxonomy & Terms selection in Views by Post reports (Pro)
 
 = 1.4.8 =
 * New: Introducing Post Views block
@@ -300,5 +312,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.4.8 =
-* New: Introducing Post Views and Most Viewed Posts blocks
+= 1.5.0 =
+Multiple dashboard widget tweaks, Complete dashboard widgets revamp (Pro)
