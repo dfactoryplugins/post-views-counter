@@ -4,7 +4,7 @@ Tags: counter, postviews, statistics, analytics, pageviews
 Requires at least: 6.3.0
 Requires PHP: 7.4.0
 Tested up to: 6.7.1
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -52,6 +52,9 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.5.1 =
+* Fix: Undefined variable $post_type warning in admin columns
 
 = 1.5.0 =
 * Fix: Deprecated DateTime dynamic property
@@ -312,5 +315,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.5.0 =
-Multiple dashboard widget tweaks, Complete dashboard widgets revamp (Pro)
+= 1.5.1 =
+Fix undefined variable $post_type warning in admin columns
