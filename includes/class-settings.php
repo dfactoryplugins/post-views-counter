@@ -422,6 +422,9 @@ class Post_Views_Counter_Settings {
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'boolean',
 					'class'			=> 'pvc-pro',
+					'disabled'		=> true,
+					'skip_saving'	=> true,
+					'value'			=> false,
 					'label'			=> __( 'Enable dynamic loading and prevent caching of the displayed views count.', 'post-views-counter' )
 				],
 				'use_format' => [
