@@ -140,6 +140,10 @@ class Post_Views_Counter_Functions {
 				// color exists?
 				if ( isset( $_wp_admin_css_colors[$current_color_scheme] ) && property_exists( $_wp_admin_css_colors[$current_color_scheme], 'colors' ) && isset( $_wp_admin_css_colors[$current_color_scheme]->colors[$color_number] ) )
 					$color = $_wp_admin_css_colors[$current_color_scheme]->colors[$color_number];
+			} else if ( $current_color_scheme == 'argon' ) {
+				if ( get_option('argon_theme_color') != '' ) {
+					$color = get_option( 'argon_theme_color' );
+				}
 			}
 		}
 
