@@ -1044,8 +1044,10 @@ class Post_Views_Counter_Settings {
 		$html = '';
 
 		foreach ( $field['options']['groups'] as $type => $type_name ) {
+			$is_disabled = ! empty( $field['disabled']['groups'] ) && in_array( $type, $field['disabled']['groups'], true );
+
 			$html .= '
-			<label for="' . esc_attr( 'pvc_exclude-' . $type ) . '"><input id="' . esc_attr( 'pvc_exclude-' . $type ) . '" type="checkbox" name="post_views_counter_settings_general[exclude][groups][' . esc_attr( $type ) . ']" value="1" ' . checked( in_array( $type, $pvc->options['general']['exclude']['groups'], true ), true, false ) . ' ' . disabled( ! empty( $field['disabled']['groups'] ) && in_array( $type, $field['disabled']['groups'], true ), true, false ) . ' />' . esc_html( $type_name ) . '</label>';
+			<label for="' . esc_attr( 'pvc_exclude-' . $type ) . '"><input id="' . esc_attr( 'pvc_exclude-' . $type ) . '" type="checkbox" name="post_views_counter_settings_general[exclude][groups][' . esc_attr( $type ) . ']" value="1" ' . checked( in_array( $type, $pvc->options['general']['exclude']['groups'], true ) && ! $is_disabled, true, false ) . ' ' . disabled( $is_disabled, true, false ) . ' />' . esc_html( $type_name ) . '</label>';
 		}
 
 		$html .= '
