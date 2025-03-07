@@ -239,6 +239,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'^pnpm\/',
 			'^RMA\/',
 			'^Ruby|Ruby\/[0-9]',
+			"^symbolicator\\/",
 			'^Swurl ',
 			'^TLS tester ',
 			'^twine\/',
@@ -349,6 +350,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'Badass',
 			'baidu\.com',
 			'Bandit',
+			'Barracuda Sentinel \(EE\)',
 			'basicstate',
 			'BatchFTP',
 			'Battleztar Bazinga',
@@ -712,7 +714,6 @@ class Post_Views_Counter_Crawler_Detect {
 			'Hatena',
 			'Havij',
 			'HaxerMen',
-			'HeadlessChrome',
 			'HEADMasterSEO',
 			'HeartRails_Capture',
 			'help@dataminr\.com',
@@ -740,7 +741,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'http-request\/',
 			'HTTP-Tiny',
 			'HTTP::Lite',
-			'http:\/\/www.neomo.de\/', //'Francis [Bot]'
+			'http:\/\/www.neomo.de\/', // 'Francis [Bot]'
 			'HttpComponents',
 			'httphr',
 			'HTTPie',
@@ -851,6 +852,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'knows\.is',
 			'KOCMOHABT',
 			'kouio',
+			'krawler\.dk',
 			'kube-probe',
 			'kubectl',
 			'kulturarw3',
@@ -909,6 +911,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'L\.webis',
 			'mabontland',
 			'MacOutlook\/',
+			'MagentaNews\/',
 			'Mag-Net',
 			'MagpieRSS',
 			'Mail::STS',
@@ -925,6 +928,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'masscan\/',
 			'Mata Hari',
 			'mattermost',
+			'MatchorySearch\/',
 			'Mediametric',
 			'Mediapartners-Google',
 			'mediawords',
@@ -963,6 +967,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'Monitority\/',
 			'Monit\/',
 			'montastic',
+			'MonSpark',
 			'MonTools',
 			'Moreover',
 			'Morfeus Fucking Scanner',
@@ -1609,7 +1614,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'Zoom\.Mac',
 			'ZoteroTranslationServer',
 			'ZyBorg',
-			'[a-z0-9\-_]*(bot|crawl|archiver|transcoder|spider|uptime|validator|fetcher|cron|checker|reader|extractor|monitoring|analyzer|scraper)',
+			'[a-z0-9\-_]*(bot|crawl|headless|archiver|transcoder|spider|uptime|validator|fetcher|cron|checker|reader|extractor|monitoring|analyzer|scraper)'
 		];
 	}
 
@@ -1667,7 +1672,11 @@ class Post_Views_Counter_Crawler_Detect {
 			'; IDbot',
 			'; ID bot',
 			'; POWER BOT',
-			'OCTOPUS-CORE'
+			'OCTOPUS-CORE',
+			'htc_botdugls',
+			'super\/\d+\/Android\/\d+',
+			'"Yandex"',
+			'YandexModule2'
 		];
 	}
 
@@ -1693,7 +1702,7 @@ class Post_Views_Counter_Crawler_Detect {
 			'HTTP_FROM',
 			'HTTP_X_SCANNER', // Seen in use by Netsparker
 			// Observed that Facebook will omit identifying itself in User Agent headers but will persist HeadlessChrome in this header for mobile requests
-			'HTTP_SEC_CH_UA',
+			'HTTP_SEC_CH_UA'
 		];
 	}
 }
