@@ -147,10 +147,12 @@ class Post_Views_Counter_Crawler_Detect {
 	/**
 	 * Build the user agent regex.
 	 *
+	 * @param array $crawlers
+	 *
 	 * @return string
 	 */
-	public function get_regex() {
-		return '(' . implode( '|', $this->crawlers ) . ')';
+	public function get_regex( $crawlers = [] ) {
+		return '(' . implode( '|', empty( $crawlers ) ? $this->crawlers : $crawlers ) . ')';
 	}
 
 	/**
@@ -169,13 +171,16 @@ class Post_Views_Counter_Crawler_Detect {
 	 * @return bool
 	 */
 	public function is_crawler( $user_agent = null ) {
+		// update crawlers
+		$crawlers = apply_filters( 'pvc_crawlers_list', $this->crawlers );
+
 		$agent = (string)( is_null( $user_agent ) ? $this->user_agent : $user_agent );
 		$agent = preg_replace( '/' . $this->get_exclusions() . '/i', '', $agent );
 
 		if ( strlen( trim( $agent ) ) === 0 )
 			return false;
 		else
-			$result = preg_match( '/' . $this->get_regex() . '/i', trim( $agent ), $matches );
+			$result = preg_match( '/' . $this->get_regex( $crawlers ) . '/i', trim( $agent ), $matches );
 
 		if ( $matches )
 			$this->matches = $matches;

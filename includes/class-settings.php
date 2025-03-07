@@ -135,6 +135,7 @@ class Post_Views_Counter_Settings {
 	 * Add settings data.
 	 *
 	 * @param array $settings
+	 *
 	 * @return array
 	 */
 	public function settings_data( $settings ) {
@@ -153,7 +154,8 @@ class Post_Views_Counter_Settings {
 
 		// user groups
 		$groups = [
-			'robots'	=> __( 'robots', 'post-views-counter' ),
+			'robots'	=> __( 'crawlers', 'post-views-counter' ),
+			'ai_bots'	=> __( 'AI bots', 'post-views-counter' ),
 			'users'		=> __( 'logged in users', 'post-views-counter' ),
 			'guests'	=> __( 'guests', 'post-views-counter' ),
 			'roles'		=> __( 'selected user roles', 'post-views-counter' )
@@ -343,9 +345,13 @@ class Post_Views_Counter_Settings {
 					'section'		=> 'post_views_counter_general_settings',
 					'type'			=> 'custom',
 					'description'	=> '',
+					'class'			=> 'pvc-pro-extended',
 					'options'		=> [
 						'groups'	=> $groups,
 						'roles'		=> $user_roles
+					],
+					'disabled'		=> [
+						'groups'	=> [ 'ai_bots' ]
 					],
 					'callback'		=> [ $this, 'setting_exclude' ],
 					'validate'		=> [ $this, 'validate_exclude' ]
@@ -1039,7 +1045,7 @@ class Post_Views_Counter_Settings {
 
 		foreach ( $field['options']['groups'] as $type => $type_name ) {
 			$html .= '
-			<label><input id="' . esc_attr( 'pvc_exclude-' . $type ) . '" type="checkbox" name="post_views_counter_settings_general[exclude][groups][' . esc_attr( $type ) . ']" value="1" ' . checked( in_array( $type, $pvc->options['general']['exclude']['groups'], true ), true, false ) . ' />' . esc_html( $type_name ) . '</label>';
+			<label for="' . esc_attr( 'pvc_exclude-' . $type ) . '"><input id="' . esc_attr( 'pvc_exclude-' . $type ) . '" type="checkbox" name="post_views_counter_settings_general[exclude][groups][' . esc_attr( $type ) . ']" value="1" ' . checked( in_array( $type, $pvc->options['general']['exclude']['groups'], true ), true, false ) . ' ' . disabled( ! empty( $field['disabled']['groups'] ) && in_array( $type, $field['disabled']['groups'], true ), true, false ) . ' />' . esc_html( $type_name ) . '</label>';
 		}
 
 		$html .= '
@@ -1071,6 +1077,10 @@ class Post_Views_Counter_Settings {
 			$groups = [];
 
 			foreach ( $input['exclude']['groups'] as $group => $set ) {
+				// disallow disabled checkboxes
+				if ( ! empty( $field['disabled']['groups'] ) && in_array( $group, $field['disabled']['groups'], true ) )
+					continue;
+
 				if ( isset( $field['options']['groups'][$group] ) )
 					$groups[] = $group;
 			}
@@ -1192,6 +1202,7 @@ class Post_Views_Counter_Settings {
 	 * Setting: user type.
 	 *
 	 * @param array $field
+	 *
 	 * @return string
 	 */
 	public function setting_restrict_display( $field ) {
@@ -1201,7 +1212,7 @@ class Post_Views_Counter_Settings {
 		$html = '';
 
 		foreach ( $field['options']['groups'] as $type => $type_name ) {
-			if ( $type === 'robots' )
+			if ( $type === 'robots' || $type === 'ai_bots' )
 				continue;
 
 			$html .= '
@@ -1229,6 +1240,7 @@ class Post_Views_Counter_Settings {
 	 *
 	 * @param array $input
 	 * @param array $field
+	 *
 	 * @return array
 	 */
 	public function validate_restrict_display( $input, $field ) {
@@ -1237,7 +1249,7 @@ class Post_Views_Counter_Settings {
 			$groups = [];
 
 			foreach ( $input['restrict_display']['groups'] as $group => $set ) {
-				if ( $group === 'robots' )
+				if ( $group === 'robots' || $group === 'ai_bots' )
 					continue;
 
 				if ( isset( $field['options']['groups'][$group] ) )

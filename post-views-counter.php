@@ -882,7 +882,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 
 			// add styles
 			wp_add_inline_style( 'pvc-pro-style', '
-			.post-views-counter-settings tr.pvc-pro th:after, .nav-tab-wrapper a.nav-tab.nav-tab-disabled.pvc-pro:after, .post-views-counter-settings tr.pvc-pro-extended label[for="post_views_counter_general_counter_mode_ajax"]:after {
+			.post-views-counter-settings tr.pvc-pro th:after, .nav-tab-wrapper a.nav-tab.nav-tab-disabled.pvc-pro:after, .post-views-counter-settings tr.pvc-pro-extended label[for="post_views_counter_general_counter_mode_ajax"]:after,
+			.post-views-counter-settings tr.pvc-pro-extended label[for="pvc_exclude-ai_bots"]:after {
 				content: \'PRO\';
 				display: inline;
 				background-color: #ffc107;
