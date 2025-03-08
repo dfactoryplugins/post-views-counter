@@ -61,10 +61,7 @@ class Post_Views_Counter_Settings {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
-		$license_data = get_option( 'post_views_counter_pro_license', [] );
-		$is_pro = class_exists( 'Post_Views_Counter_Pro' );
-
-		if ( ! $is_pro ) {
+		if ( ! class_exists( 'Post_Views_Counter_Pro' ) ) {
 			echo '
 			<div class="post-views-sidebar">
 				<div class="post-views-credits">
