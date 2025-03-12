@@ -3,8 +3,8 @@ Contributors: dfactory
 Tags: counter, postviews, statistics, analytics, pageviews
 Requires at least: 6.3.0
 Requires PHP: 7.4.0
-Tested up to: 6.7.1
-Stable tag: 1.5.1
+Tested up to: 6.7.2
+Stable tag: 1.5.2
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -52,6 +52,14 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.5.2 =
+* Tweak: Updated crawlers list
+* Tweak: Updated Chart.js to 4.4.8
+* New: Add orderby post_views support to Elementor Pro posts query (Pro)
+* New: Add orderby post_views support to Divi theme blog module (Pro)
+* New: Add orderby post_views support to GenerateBlocks query (Pro)
+* New: Option to exclude AI bots visits from counting (Pro)
 
 = 1.5.1 =
 * Fix: Undefined variable $post_type warning in admin columns
@@ -315,5 +323,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.5.1 =
-Fix undefined variable $post_type warning in admin columns
+= 1.5.2 =
+Updated crawlers list and Chart.js to 4.4.8, (Pro) Integrations with Elementor Pro, Divi and GenerateBlocks
