@@ -143,7 +143,7 @@ class Post_Views_Counter_Functions {
 			}
 		}
 
-		return $color;
+		return sanitize_hex_color( apply_filters( 'pvc_current_scheme_color', $color ) );
 	}
 
 	/**
