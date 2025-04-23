@@ -1,52 +1,17 @@
 // required
-const path = require( 'path' );
-const webpack = require( 'webpack' );
+const path = require('path');
+const webpack = require('webpack');
 const devMode = false; //process.env.NODE_ENV !== 'production';
-const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
-const OptimizeCssAssetsPlugin = require( 'optimize-css-assets-webpack-plugin' );
-const FixStyleOnlyEntriesPlugin = require( 'webpack-fix-style-only-entries' );
-const UglifyJsPlugin = require( 'uglifyjs-webpack-plugin' )
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const FixStyleOnlyEntriesPlugin = require('webpack-fix-style-only-entries');
 
 // extract sass
-const extractSCSS = new MiniCssExtractPlugin( {
-	path: path.resolve( __dirname ),
+const extractSCSS = new MiniCssExtractPlugin({
 	filename: '[name].css'
-} );
+});
 
 // fix separate styles
 const fixSCSS = new FixStyleOnlyEntriesPlugin();
-
-// scss config
-const scssConfig = [
-	/* extract into separate scss files
-	{
-		loader: 'file-loader',
-		options: {
-			name: '[name].min.css',
-			context: './',
-			outputPath: '/',
-			publicPath: path.resolve( __dirname, 'css' ),
-		}
-	},
-	{
-		loader: 'extract-loader'
-	},
-	*/
-	devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
-	'css-loader',
-	{
-		loader: 'sass-loader',
-		options: {
-			outputStyle: devMode ? 'expanded' : 'compressed'
-		}
-	}
-];
-
-// webpack plugins
-const plugins = [
-	extractSCSS,
-	fixSCSS
-];
 
 // webpack config
 module.exports = {
@@ -59,11 +24,8 @@ module.exports = {
 		"css/block-editor.min": './src/block-editor.scss'
 	},
 	output: {
-		path: path.resolve( __dirname ),
+		path: path.resolve(__dirname),
 		filename: '[name].js',
-		/* filename: ( chunkData ) => {
-			return chunkData.chunk.name === 'css/block-editor.min' ? '[name].css': '[name].js';
-		}, */
 	},
 	watch: false,
 	module: {
@@ -80,24 +42,49 @@ module.exports = {
 			{
 				test: /\.(sa|sc|c)ss$/,
 				exclude: /node_modules/,
-				use: scssConfig
+				use: [
+					/* extract into separate scss files
+					{
+						loader: 'file-loader',
+						options: {
+							name: '[name].min.css',
+							context: './',
+							outputPath: '/',
+							publicPath: path.resolve( __dirname, 'css' ),
+						}
+					},
+					{
+						loader: 'extract-loader'
+					},
+					*/
+					// Inject CSS into the DOM.
+					devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+					{
+						// This loader resolves url() and @imports inside CSS
+						loader: 'css-loader',
+					},
+					{
+						// Then we apply postCSS fixes like autoprefixer and minifying
+						loader: 'postcss-loader',
+					},
+					{
+						// First we transform SASS to standard CSS
+						loader: 'sass-loader',
+						options: {
+							implementation: require('sass'),
+							sassOptions: {
+								style: devMode ? 'expanded' : 'compressed'
+							}
+						}
+					}
+				]
 			},
 		]
 	},
 	optimization: {
-		// minimize in dev mode only
-		minimizer: ! devMode
-			? [
-				// enable the js minification plugin
-				new UglifyJsPlugin( {
-					cache: false,
-					parallel: true,
-					extractComments: false
-				} ),
-				// enable the css minification plugin
-				new OptimizeCssAssetsPlugin( { } )
-			]
-			: [ ]
 	},
-	plugins: plugins
+	plugins: [
+		extractSCSS,
+		fixSCSS
+	]
 };
