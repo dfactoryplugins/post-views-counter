@@ -17,7 +17,7 @@ class Post_Views_Counter_Update {
 	 */
 	public function __construct() {
 		// actions
-		add_action( 'init', [ $this, 'check_update' ] );
+		add_action( 'admin_init', [ $this, 'check_update' ] );
 	}
 
 	/**
@@ -116,6 +116,29 @@ class Post_Views_Counter_Update {
 
 			// update general options
 			update_option( 'post_views_counter_settings_general', $general );
+		}
+
+		// update 1.5.2+
+		if ( version_compare( $current_db_version, '1.5.2', '<=' ) ) {
+			// get options
+			$general = $pvc->options['general'];
+			$display = $pvc->options['display'];
+
+			// copy values
+			$display['post_views_column'] = $general['post_views_column'];
+			$display['restrict_edit_views'] = $general['restrict_edit_views'];
+
+			// remove old values
+			unset( $general['post_views_column'] );
+			unset( $general['restrict_edit_views'] );
+
+			// update settings
+			update_option( 'post_views_counter_settings_general', $general );
+			update_option( 'post_views_counter_settings_display', $display );
+
+			// update options
+			$pvc->options['general'] = $general;
+			$pvc->options['display'] = $display;
 		}
 
 		if ( isset( $_POST['post_view_counter_update'], $_POST['post_view_counter_number'] ) ) {

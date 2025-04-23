@@ -75,7 +75,7 @@ class Post_Views_Counter_Admin {
 			return new WP_Error( 'pvc-user-not-allowed', __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
 
 		// break if views editing is restricted
-		if ( (bool) Post_Views_Counter()->options['general']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+		if ( (bool) Post_Views_Counter()->options['display']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			return new WP_Error( 'pvc-user-not-allowed', __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
 
 		return true;
@@ -112,7 +112,7 @@ class Post_Views_Counter_Admin {
 			return wp_send_json_error( __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
 
 		// break if views editing is restricted
-		if ( (bool) $pvc->options['general']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+		if ( (bool) $pvc->options['display']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			return wp_send_json_error( __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
 
 		// update post views
@@ -147,7 +147,7 @@ class Post_Views_Counter_Admin {
 		// restrict editing
 		$can_edit = false;
 		
-		$restrict = (bool) $pvc->options['general']['restrict_edit_views'];
+		$restrict = (bool) $pvc->options['display']['restrict_edit_views'];
 		
 		if ( $restrict === false || ( $restrict === true && current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) ) )
 			$can_edit = true;

@@ -245,22 +245,6 @@ class Post_Views_Counter_Settings {
 					'options'		=> $this->get_counter_modes(),
 					'disabled'		=> [ 'ajax' ]
 				],
-				'post_views_column' => [
-					'tab'			=> 'general',
-					'title'			=> __( 'Admin Column', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
-					'type'			=> 'boolean',
-					'description'	=> '',
-					'label'			=> __( 'Enable to display post views count admin column for each counted content type.', 'post-views-counter' )
-				],
-				'restrict_edit_views' => [
-					'tab'			=> 'general',
-					'title'			=> __( 'Admin Edit', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
-					'type'			=> 'boolean',
-					'description'	=> '',
-					'label'			=> __( 'Enable to restrict post views editing to admins only.', 'post-views-counter' )
-				],
 				'data_storage' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Data Storage', 'post-views-counter' ),
@@ -418,6 +402,22 @@ class Post_Views_Counter_Settings {
 						'after'		=> __( 'after the content', 'post-views-counter' ),
 						'manual'	=> __( 'manual', 'post-views-counter' )
 					]
+				],
+				'post_views_column' => [
+					'tab'			=> 'display',
+					'title'			=> __( 'Admin Column', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_display_settings',
+					'type'			=> 'boolean',
+					'description'	=> '',
+					'label'			=> __( 'Enable to display post views count admin column for each counted content type.', 'post-views-counter' )
+				],
+				'restrict_edit_views' => [
+					'tab'			=> 'display',
+					'title'			=> __( 'Admin Edit', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_display_settings',
+					'type'			=> 'boolean',
+					'description'	=> '',
+					'label'			=> __( 'Enable to restrict post views editing to admins only.', 'post-views-counter' )
 				],
 				'dynamic_loading' => [
 					'tab'			=> 'display',
