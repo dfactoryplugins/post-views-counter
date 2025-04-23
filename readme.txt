@@ -3,8 +3,8 @@ Contributors: dfactory
 Tags: counter, postviews, statistics, analytics, pageviews
 Requires at least: 6.3.0
 Requires PHP: 7.4.0
-Tested up to: 6.7.2
-Stable tag: 1.5.2
+Tested up to: 6.8
+Stable tag: 1.5.3
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -52,6 +52,11 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.5.3 =
+* Tweak: WordPress 6.8 compatibility
+* Tweak: Move admin column options to Display settings
+* Tweak: Added pvc_current_scheme_color filter hook to adjust chart colors
 
 = 1.5.2 =
 * Tweak: Updated crawlers list
@@ -323,5 +328,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.5.2 =
-Updated crawlers list and Chart.js to 4.4.8, (Pro) Integrations with Elementor Pro, Divi and GenerateBlocks
+= 1.5.3 =
+WordPress 6.8 compatibility, Move admin column options to Display settings
