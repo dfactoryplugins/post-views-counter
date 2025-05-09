@@ -723,6 +723,8 @@ class Post_Views_Counter_Settings_API {
 			add_settings_error( $setting_name, 'settings_restored', __( 'Settings restored to defaults.', $this->domain ), 'updated' );
 		}
 
+		do_action( $this->short . '_configuration_updated', 'settings', $input );
+
 		return $input;
 	}
 
