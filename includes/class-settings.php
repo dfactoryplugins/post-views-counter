@@ -308,6 +308,17 @@ class Post_Views_Counter_Settings {
 					'callback'		=> [ $this, 'setting_reset_counts' ],
 					'validate'		=> [ $this, 'validate_reset_counts' ]
 				],
+				'caching_compatibility' => [
+					'tab'			=> 'general',
+					'title'			=> __( 'Caching Compatibility', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_settings',
+					'type'			=> 'boolean',
+					'class'			=> 'pvc-pro',
+					'disabled'		=> true,
+					'value'			=> false,
+					'skip_saving'	=> true,
+					'label'			=> __( 'Enable to apply changes improving compatibility with caching plugins.', 'post-views-counter' )
+				],
 				'object_cache' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Object Cache Support', 'post-views-counter' ),

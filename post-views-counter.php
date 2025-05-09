@@ -54,6 +54,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					'number'	=> 0,
 					'type'		=> 'days'
 				],
+				'caching_compatibility'	=> false,
 				'object_cache'			=> false,
 				'flush_interval'		=> [
 					'number'	=> 0,
