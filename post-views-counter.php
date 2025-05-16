@@ -111,6 +111,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		public $dashboard;
 		public $frontend;
 		public $functions;
+		public $settings;
 		public $settings_api;
 
 		/**
@@ -166,7 +167,9 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					self::$instance->functions = new Post_Views_Counter_Functions();
 
 					new Post_Views_Counter_Update();
-					new Post_Views_Counter_Settings();
+
+					self::$instance->settings = new Post_Views_Counter_Settings();
+
 					new Post_Views_Counter_Admin();
 					new Post_Views_Counter_Query();
 

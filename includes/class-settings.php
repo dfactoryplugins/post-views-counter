@@ -34,6 +34,7 @@ class Post_Views_Counter_Settings {
 	 * @param string $page_type
 	 * @param string $url_page
 	 * @param string $tab_key
+	 *
 	 * @return void
 	 */
 	public function settings_form( $setting, $page_type, $url_page, $tab_key ) {
@@ -320,7 +321,8 @@ class Post_Views_Counter_Settings {
 					'disabled'		=> true,
 					'value'			=> false,
 					'skip_saving'	=> true,
-					'label'			=> __( 'Enable to apply changes improving compatibility with caching plugins.', 'post-views-counter' )
+					'label'			=> __( 'Enable to apply changes improving compatibility with caching plugins.', 'post-views-counter' ),
+					'description'	=> $this->get_caching_compatibility_description()
 				],
 				'object_cache' => [
 					'tab'			=> 'general',
@@ -573,11 +575,12 @@ class Post_Views_Counter_Settings {
 
 		return $settings;
 	}
-
+	
 	/**
 	 * Add settings page.
 	 *
 	 * @param array $pages
+	 *
 	 * @return array
 	 */
 	public function settings_page( $pages ) {
@@ -776,6 +779,176 @@ class Post_Views_Counter_Settings {
 		}
 
 		return $input;
+	}
+
+	/**
+	 * Get caching compatibility description.
+	 *
+	 * @return array
+	 */
+	public function get_caching_compatibility_description() {
+		// caching compatibility description
+		$caching_compatibility_desc = '';
+
+		// get active caching plugins
+		$active_plugins = $this->get_active_caching_plugins();
+
+		if ( ! empty( $active_plugins ) ) {
+			$empty_active_caching_plugins = false;
+			$active_plugins_html = [];
+
+			$caching_compatibility_desc .= esc_html__( 'Currently detected active caching plugins', 'cookie-notice' ) . ': ';
+
+			foreach ( $active_plugins as $plugin ) {
+				$active_plugins_html[] = '<code>' . esc_html( $plugin ) . '</code>';
+			}
+
+			$caching_compatibility_desc .= implode( ', ', $active_plugins_html ) . '.';
+		} else {
+			$empty_active_caching_plugins = true;
+
+			$caching_compatibility_desc .= esc_html__( 'No compatible caching plugins found.', 'cookie-notice' );
+		}
+
+		return $caching_compatibility_desc . '<br />' . __( 'Current status', 'post-views-counter' ) . ': <span class="' . ( ! $empty_active_caching_plugins ? '' : 'un' ) . 'available">' . ( ! $empty_active_caching_plugins ? __( 'available', 'post-views-counter' ) : __( 'unavailable', 'post-views-counter' ) ) . '</span>.';
+	}
+
+	/**
+	 * Get active caching plugins.
+	 *
+	 * @return array
+	 */
+	public function get_active_caching_plugins() {
+		$active_plugins = [];
+
+		// autoptimize
+		if ( $this->is_plugin_active( 'autoptimize' ) )
+			$active_plugins[] = 'Autoptimize';
+
+		// breeze
+		// if ( $this->is_plugin_active( 'breeze' ) )
+			// $active_plugins[] = 'Breeze';
+
+		// hummingbird
+		if ( $this->is_plugin_active( 'hummingbird' ) )
+			$active_plugins[] = 'Hummingbird';
+
+		// litespeed
+		if ( $this->is_plugin_active( 'litespeed' ) )
+			$active_plugins[] = 'LiteSpeed Cache';
+
+		// speed optimizer
+		if ( $this->is_plugin_active( 'speedoptimizer' ) )
+			$active_plugins[] = 'Speed Optimizer';
+
+		// speedycache
+		if ( $this->is_plugin_active( 'speedycache' ) )
+			$active_plugins[] = 'SpeedyCache';
+
+		// wp fastest cache
+		if ( $this->is_plugin_active( 'wpfastestcache' ) )
+			$active_plugins[] = 'WP Fastest Cache';
+
+		// wp-optimize
+		if ( $this->is_plugin_active( 'wpoptimize' ) )
+			$active_plugins[] = 'WP-Optimize';
+
+		// wp rocket
+		if ( $this->is_plugin_active( 'wprocket' ) )
+			$active_plugins[] = 'WP Rocket';
+
+		// wp super cache
+		// if ( $this->is_plugin_active( 'wpsupercache' ) )
+			// $active_plugins[] = 'WP Super Cache';
+
+		return apply_filters( 'pvc_active_caching_plugins', $active_plugins );
+	}
+
+	/**
+	 * Check whether specified plugin is active.
+	 *
+	 * @global object $siteground_optimizer_loader
+	 * @global int $wpsc_version
+	 *
+	 * @param string $plugin
+	 *
+	 * @return bool
+	 */
+	public function is_plugin_active( $plugin = '' ) {
+		// set default flag
+		$is_plugin_active = false;
+
+		switch ( $plugin ) {
+			// autoptimize
+			case 'autoptimize':
+				if ( function_exists( 'autoptimize' ) && defined( 'AUTOPTIMIZE_PLUGIN_VERSION' ) && version_compare( AUTOPTIMIZE_PLUGIN_VERSION, '2.4', '>=' ) )
+					$is_plugin_active = true;
+				break;
+
+			// breeze
+			// case 'breeze':
+				// if ( class_exists( 'Breeze_PurgeCache' ) && class_exists( 'Breeze_Options_Reader' ) && function_exists( 'breeze_get_option' ) && function_exists( 'breeze_update_option' ) && defined( 'BREEZE_VERSION' ) && version_compare( BREEZE_VERSION, '1.1.0', '>=' ) )
+					// $is_plugin_active = true;
+				// break;
+
+			// hummingbird
+			case 'hummingbird':
+				if ( class_exists( 'Hummingbird\\WP_Hummingbird' ) && defined( 'WPHB_VERSION' ) && version_compare( WPHB_VERSION, '2.1.0', '>=' ) )
+					$is_plugin_active = true;
+				break;
+
+			// litespeed
+			case 'litespeed':
+				if ( class_exists( 'LiteSpeed\Core' ) && defined( 'LSCWP_CUR_V' ) && version_compare( LSCWP_CUR_V, '3.0', '>=' ) )
+					$is_plugin_active = true;
+				break;
+
+			// speed optimizer
+			case 'speedoptimizer':
+				global $siteground_optimizer_loader;
+
+				if ( ! empty( $siteground_optimizer_loader ) && is_object( $siteground_optimizer_loader ) && is_a( $siteground_optimizer_loader, 'SiteGround_Optimizer\Loader\Loader' ) && defined( '\SiteGround_Optimizer\VERSION' ) && version_compare( \SiteGround_Optimizer\VERSION, '5.5', '>=' ) )
+					$is_plugin_active = true;
+				break;
+
+			// speedycache
+			case 'speedycache':
+				if ( class_exists( 'SpeedyCache' ) && defined( 'SPEEDYCACHE_VERSION' ) && function_exists( 'speedycache_delete_cache' ) && version_compare( SPEEDYCACHE_VERSION, '1.0.0', '>=' ) )
+					$is_plugin_active = true;
+				break;
+
+			// wp fastest cache
+			case 'wpfastestcache':
+				if ( function_exists( 'wpfc_clear_all_cache' ) )
+					$is_plugin_active = true;
+				break;
+
+			// wp-optimize
+			case 'wpoptimize':
+				if ( function_exists( 'WP_Optimize' ) && defined( 'WPO_VERSION' ) && version_compare( WPO_VERSION, '3.0.12', '>=' ) )
+					$is_plugin_active = true;
+				break;
+
+			// wp rocket
+			case 'wprocket':
+				if ( function_exists( 'rocket_init' ) && defined( 'WP_ROCKET_VERSION' ) && version_compare( WP_ROCKET_VERSION, '3.8', '>=' ) )
+					$is_plugin_active = true;
+				break;
+
+			// wp super cache
+			// case 'wpsupercache':
+				// global $wpsc_version;
+
+				// if ( ( ! empty( $wpsc_version ) && $wpsc_version >= 169 ) || ( defined( 'WPSC_VERSION' ) && version_compare( WPSC_VERSION, '1.6.9', '>=' ) ) )
+					// $is_plugin_active = true;
+				// break;
+
+			// other caching plugin
+			default:
+				$is_plugin_active = apply_filters( 'pvc_is_plugin_active', false, $plugin );
+		}
+
+		return $is_plugin_active;
 	}
 
 	/**
