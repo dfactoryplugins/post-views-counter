@@ -20,7 +20,7 @@ class Post_Views_Counter_Frontend {
 	public function __construct() {
 		// actions
 		add_action( 'after_setup_theme', [ $this, 'register_shortcode' ] );
-		add_action( 'wp_enqueue_scripts', [ $this, 'wp_enqueue_scripts' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'wp_enqueue_scripts' ], 1 );
 		add_action( 'wp', [ $this, 'run' ] );
 	}
 
