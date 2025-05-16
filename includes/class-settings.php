@@ -164,6 +164,9 @@ class Post_Views_Counter_Settings {
 		// get post types
 		$post_types = $pvc->functions->get_post_types();
 
+		// check object cache
+		$wp_using_ext_object_cache = wp_using_ext_object_cache();
+
 		// add settings
 		$settings['post-views-counter'] = [
 			'label' => __( 'Post Views Counter Settings', 'post-views-counter' ),
@@ -329,7 +332,7 @@ class Post_Views_Counter_Settings {
 					'value'			=> false,
 					'skip_saving'	=> true,
 					'label'			=> sprintf( __( 'Enable to use object cache optimization.', 'post-views-counter' ), '<code>Redis</code>', '<code>Memcached</code>' ),
-					'description'	=> sprintf( __( 'This feature requires a persistent object cache like %s or %s to be installed and activated.', 'post-views-counter' ), '<code>Redis</code>', '<code>Memcached</code>' )
+					'description'	=> sprintf( __( 'This feature requires a persistent object cache like %s or %s to be installed and activated.', 'post-views-counter' ), '<code>Redis</code>', '<code>Memcached</code>' ) . '<br />' . __( 'Current status', 'post-views-counter' ) . ': <span class="' . ( $wp_using_ext_object_cache ? '' : 'un' ) . 'available">' . ( $wp_using_ext_object_cache ? __( 'available', 'post-views-counter' ) : __( 'unavailable', 'post-views-counter' ) ) . '</span>.'
 				],
 				'exclude' => [
 					'tab'			=> 'general',
