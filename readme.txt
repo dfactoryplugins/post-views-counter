@@ -3,8 +3,8 @@ Contributors: dfactory
 Tags: counter, postviews, statistics, analytics, pageviews
 Requires at least: 6.3.0
 Requires PHP: 7.4.0
-Tested up to: 6.8
-Stable tag: 1.5.3
+Tested up to: 6.8.1
+Stable tag: 1.5.4
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -52,6 +52,9 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.5.4 =
+* New: Caching compatibility option (Pro)
 
 = 1.5.3 =
 * Tweak: WordPress 6.8 compatibility
@@ -328,5 +331,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.5.3 =
-WordPress 6.8 compatibility, Move admin column options to Display settings
+= 1.5.4 =
+New: Caching compatibility option (Pro)
