@@ -1022,9 +1022,11 @@ class Post_Views_Counter_Counter {
 
 		if ( $increment_amount < 1 )
 			$increment_amount = 1;
+		
+		$count_time = apply_filters( 'pvc_count_time', current_time( 'timestamp', true ) );
 
 		// get day, week, month and year
-		$date = explode( '-', date( 'W-d-m-Y-o', current_time( 'timestamp', true ) ) );
+		$date = explode( '-', date( 'W-d-m-Y-o', $count_time ) );
 
 		foreach ( [
 			0 => $date[3] . $date[2] . $date[1],	// day like 20140324
