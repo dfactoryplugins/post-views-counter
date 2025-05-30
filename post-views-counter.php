@@ -50,6 +50,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					'number'	=> 24,
 					'type'		=> 'hours'
 				],
+				'count_time'			=> 'gmt',
 				'reset_counts'			=> [
 					'number'	=> 0,
 					'type'		=> 'days'

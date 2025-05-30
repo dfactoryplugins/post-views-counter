@@ -1017,13 +1017,17 @@ class Post_Views_Counter_Counter {
 	 * @return int
 	 */
 	private function count_visit( $id ) {
+		// get main instance
+		$pvc = Post_Views_Counter();
+		
 		// increment amount
 		$increment_amount = (int) apply_filters( 'pvc_views_increment_amount', 1, $id, 'post' );
 
 		if ( $increment_amount < 1 )
 			$increment_amount = 1;
 		
-		$count_time = apply_filters( 'pvc_count_time', current_time( 'timestamp', true ) );
+		$use_gmt = $pvc->options['general']['count_time'] === 'local' ? false : true;
+		$count_time = current_time( 'timestamp', $use_gmt );
 
 		// get day, week, month and year
 		$date = explode( '-', date( 'W-d-m-Y-o', $count_time ) );

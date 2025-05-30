@@ -70,17 +70,17 @@ class Post_Views_Counter_Settings {
 						<div class="inner">
 							<div class="pvc-sidebar-info">
 								<div class="pvc-sidebar-head">
-									<p>' . esc_html__( "You're using", 'post-views-counter' ) . '</p>
-									<h2>Post Views Counter</h2>
-									<h2>Lite</h2>
+									<h3 class="pvc-sidebar-title">Get Post Views Counter Pro</h3>
 								</div>
 								<div class="pvc-sidebar-body">
-									<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Get <b>more accurate information</b> about the number of views of your site, regardless of what the user is visiting.', 'post-views-counter' ) . '</p>
-									<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Unlock <b>optimization features</b> and speed up view count tracking.', 'post-views-counter' ) . '</p>
-									<p><span class="pvc-icon pvc-icon-arrow-right"></span>' . __( 'Take your insights to the next level with dedicated, <b>customizable reporting</b>.', 'post-views-counter' ) . '</p>
+									<p><span class="pvc-icon pvc-icon-check"></span>' . __( '<b>Collect more accurate data</b> about the number of views of your site, regardless of what the user is visiting.', 'post-views-counter' ) . '</p>
+									<p><span class="pvc-icon pvc-icon-check"></span>' . __( '<b>Unlock optimization features</b> and caching plugins compatibility to speed up view count tracking.', 'post-views-counter' ) . '</p>
+									<p><span class="pvc-icon pvc-icon-check"></span>' . __( '<b>Take your insights to the next level</b> with customizable Views by Date, Post and Author reporting.', 'post-views-counter' ) . '</p>
+									<p><span class="pvc-icon pvc-icon-check"></span>' . __( '<b>Order posts by views count</b> using built-in Elementor Pro, Divi Theme and GenerateBlocks integration.', 'post-views-counter' ) . '</p>
 								</div>
 								<div class="pvc-pricing-footer">
-									<a href="https://postviewscounter.com/upgrade/?utm_source=post-views-counter-lite&utm_medium=button&utm_campaign=upgrade-to-pro" class="button button-secondary button-hero pvc-button" target="_blank">' . esc_html__( 'Upgrade to Pro', 'post-views-counter' ) . '</a>
+									<a href="https://postviewscounter.com/upgrade/?utm_source=post-views-counter-lite&utm_medium=button&utm_campaign=upgrade-to-pro" class="button button-secondary button-hero pvc-button" target="_blank">' . esc_html__( 'Upgrade to Pro', 'post-views-counter' ) . ' &rarr;</a>
+									<p>Starting from $29 per year<br />14-day money back guarantee.</p>
 								</div>
 							</div>
 						</div>
@@ -287,6 +287,21 @@ class Post_Views_Counter_Settings {
 					'options'		=> $time_types,
 					'callback'		=> [ $this, 'setting_time_between_counts' ],
 					'validate'		=> [ $this, 'validate_time_between_counts' ]
+				],
+				'count_time' => [
+					'tab'			=> 'general',
+					'title'			=> __( 'Count Time', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_settings',
+					'type'			=> 'radio',
+					'class'			=> 'pvc-pro',
+					'skip_saving'	=> true,
+					'description'	=> __( "Whether to store the views using GMT timezone or adjust it to the GMT offset of the site.", 'post-views-counter' ),
+					'options'		=> [
+						'gmt'		=> __( 'GMT Time', 'post-views-counter' ),
+						'local'	=> __( 'Local Time', 'post-views-counter' )
+					],
+					'disabled'		=> [ 'gmt', 'local' ],
+					'value'			=> 'gmt'
 				],
 				'strict_counts' => [
 					'tab'			=> 'general',
