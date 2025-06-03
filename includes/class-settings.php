@@ -440,7 +440,7 @@ class Post_Views_Counter_Settings {
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'boolean',
 					'description'	=> '',
-					'label'			=> __( 'Enable to display post views count admin column for each counted content type.', 'post-views-counter' )
+					'label'			=> __( 'Enable to display views count admin column.', 'post-views-counter' )
 				],
 				'restrict_edit_views' => [
 					'tab'			=> 'display',
@@ -448,7 +448,7 @@ class Post_Views_Counter_Settings {
 					'section'		=> 'post_views_counter_display_settings',
 					'type'			=> 'boolean',
 					'description'	=> '',
-					'label'			=> __( 'Enable to restrict post views editing to admins only.', 'post-views-counter' )
+					'label'			=> __( 'Enable to allow views count editing.', 'post-views-counter' )
 				],
 				'dynamic_loading' => [
 					'tab'			=> 'display',

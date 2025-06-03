@@ -41,14 +41,10 @@ class Post_Views_Counter_Columns {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
-		// incorrect post type?
+		// break if display is not allowed
 		if ( ! $pvc->options['display']['post_views_column'] || ! in_array( $post->post_type, $pvc->options['general']['post_types_count'] ) )
 			return;
 
-		// break if current user can't edit this post
-		if ( ! current_user_can( 'edit_post', $post->ID ) )
-			return;
-		
 		if ( apply_filters( 'pvc_admin_display_post_views', true, $post->ID ) === false )
 			return;
 
@@ -64,10 +60,13 @@ class Post_Views_Counter_Columns {
 			</span>
 
 			<?php
-			// restrict editing
-			$restrict = (bool) $pvc->options['display']['restrict_edit_views'];
+			// allow editing
+			$allow_edit = (bool) $pvc->options['display']['restrict_edit_views'];
 
-			if ( $restrict === false || ( $restrict === true && current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) ) ) {
+			// allow editing condition
+			$allow_edit_condition = (bool) current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ); 
+
+			if ( $allow_edit === true && $allow_edit_condition === true ) {
 				?>
 				<a href="#post-views" class="edit-post-views hide-if-no-js"><?php _e( 'Edit', 'post-views-counter' ); ?></a>
 
@@ -132,9 +131,15 @@ class Post_Views_Counter_Columns {
 		// invalid post type?
 		if ( ! in_array( $post_type, $post_types, true ) )
 			return;
+		
+		// allow editing
+		$allow_edit = (bool) $pvc->options['display']['restrict_edit_views'];
 
-		// break if views editing is restricted
-		if ( (bool) $pvc->options['display']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+		// allow editing condition
+		$allow_edit_condition = (bool) current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ); 
+
+		// break if views editing not allowed or editing condition not met
+		if ( $allow_edit === false || $allow_edit_condition === false )
 			return;
 
 		// validate data
@@ -200,17 +205,13 @@ class Post_Views_Counter_Columns {
 	 * @return array
 	 */
 	public function register_sortable_custom_column( $columns ) {
+		global $post_type;
+		
 		// get main instance
 		$pvc = Post_Views_Counter();
-		
-		// break if views editing is restricted
-		$restrict = (bool) $pvc->options['display']['restrict_edit_views'];
 
-		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
-			return $columns;
-		
 		// break if display is disabled
-		if ( apply_filters( 'pvc_admin_display_post_views', true, $id = 0 ) === false )
+		if ( ! $pvc->options['display']['post_views_column'] || ! in_array( $post_type, $pvc->options['general']['post_types_count'] ) )
 			return $columns;
 		
 		// add new sortable column
@@ -301,27 +302,30 @@ class Post_Views_Counter_Columns {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
+		// break if display is not allowed
 		if ( ! $pvc->options['display']['post_views_column'] || ! in_array( $post_type, $pvc->options['general']['post_types_count'] ) )
 			return;
 		
-		// break if display is not allowed
 		if ( apply_filters( 'pvc_admin_display_post_views', true, $post->ID ) === false )
 			return;
 
-		// break if views editing is restricted
-		$restrict = (bool) $pvc->options['display']['restrict_edit_views'];
+		// allow editing
+		$allow_edit = (bool) $pvc->options['display']['restrict_edit_views'];
 
-		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
-			return;
-
+		// allow editing condition
+		$allow_edit_condition = (bool) current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ); 
 		?>
 		<fieldset class="inline-edit-col-left">
 			<div id="inline-edit-post_views" class="inline-edit-col">
 				<label class="inline-edit-group">
 					<span class="title"><?php _e( 'Post Views', 'post-views-counter' ); ?></span>
-					<span class="input-text-wrap"><input type="text" name="post_views" class="title text" value=""></span>
-					<input type="hidden" name="current_post_views" value="" />
-					<?php wp_nonce_field( 'post_views_count', 'pvc_nonce' ); ?>
+					<?php if ( $allow_edit === true && $allow_edit_condition === true ) { ?>
+						<span class="input-text-wrap"><input type="text" name="post_views" class="title text" value=""></span>
+						<input type="hidden" name="current_post_views" value="" />
+						<?php wp_nonce_field( 'post_views_count', 'pvc_nonce' ); ?>
+					<?php } else { ?>
+						<span class="input-text-wrap"><input type="text" name="post_views" class="title text" value="" disabled readonly /></span>
+					<?php } ?>
 				</label>
 			</div>
 		</fieldset>
@@ -357,10 +361,14 @@ class Post_Views_Counter_Columns {
 		if ( is_null( $count ) )
 			exit;
 
-		// break if views editing is restricted
-		$restrict = (bool) Post_Views_Counter()->options['display']['restrict_edit_views'];
+		// allow editing
+		$allow_edit = (bool) $pvc->options['display']['restrict_edit_views'];
 
-		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+		// allow editing condition
+		$allow_edit_condition = (bool) current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ); 
+
+		// break if views editing not allowed or editing condition not met
+		if ( $allow_edit === false || $allow_edit_condition === false )
 			exit;
 
 		// any post ids?
@@ -433,7 +441,7 @@ class Post_Views_Counter_Columns {
 		// get countable post types
 		$post_types = $pvc->options['general']['post_types_count'];
 
-		// whether to allow this post type or not
+		// break if display is not allowed
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
 			return;
 
@@ -529,7 +537,7 @@ class Post_Views_Counter_Columns {
 		// get countable post types
 		$post_types = $pvc->options['general']['post_types_count'];
 
-		// whether to allow this post type or not
+		// break if display is not allowed
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
 			return;
 

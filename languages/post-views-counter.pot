@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Views Counter\n"
-"POT-Creation-Date: 2025-05-30 15:56+0200\n"
+"POT-Creation-Date: 2025-06-03 16:44+0200\n"
 "PO-Revision-Date: 2015-04-08 18:59+0100\n"
 "Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
 "Language-Team: dFactory <info@dfactory.eu>\n"
@@ -119,25 +119,25 @@ msgstr ""
 msgid "Invalid post ID."
 msgstr ""
 
-#: ../includes/class-admin.php:172 ../includes/class-columns.php:63
-#: ../includes/class-columns.php:248 ../includes/class-columns.php:321
+#: ../includes/class-admin.php:172 ../includes/class-columns.php:59
+#: ../includes/class-columns.php:249 ../includes/class-columns.php:321
 #: ../includes/class-dashboard.php:100 ../includes/class-settings.php:609
 msgid "Post Views"
 msgstr ""
 
-#: ../includes/class-admin.php:173 ../includes/class-columns.php:76
+#: ../includes/class-admin.php:173 ../includes/class-columns.php:75
 msgid "Adjust the views count for this post."
 msgstr ""
 
-#: ../includes/class-admin.php:174 ../includes/class-columns.php:81
+#: ../includes/class-admin.php:174 ../includes/class-columns.php:80
 msgid "Cancel"
 msgstr ""
 
-#: ../includes/class-columns.php:72 ../includes/class-dashboard.php:500
+#: ../includes/class-columns.php:71 ../includes/class-dashboard.php:500
 msgid "Edit"
 msgstr ""
 
-#: ../includes/class-columns.php:80
+#: ../includes/class-columns.php:79
 msgid "OK"
 msgstr ""
 
@@ -546,9 +546,7 @@ msgid "Admin Column"
 msgstr ""
 
 #: ../includes/class-settings.php:443
-msgid ""
-"Enable to display post views count admin column for each counted content "
-"type."
+msgid "Enable to display views count admin column."
 msgstr ""
 
 #: ../includes/class-settings.php:447
@@ -556,7 +554,7 @@ msgid "Admin Edit"
 msgstr ""
 
 #: ../includes/class-settings.php:451
-msgid "Enable to restrict post views editing to admins only."
+msgid "Enable to allow views count editing."
 msgstr ""
 
 #: ../includes/class-settings.php:455
