@@ -629,6 +629,9 @@ class Post_Views_Counter_Settings {
 			]
 		];
 
+		// update admin title
+		add_filter( 'admin_title', [ $this, 'admin_title' ], 10, 2 );
+
 		// submenu?
 		if ( $pvc->options['other']['menu_position'] === 'sub' ) {
 			$pages['post-views-counter']['type'] = 'settings_page';
@@ -707,6 +710,7 @@ class Post_Views_Counter_Settings {
 	 *
 	 * @param string|null $submenu_file
 	 * @param string $parent_file
+	 *
 	 * @return string|null
 	 */
 	public function submenu_file( $submenu_file, $parent_file ) {
@@ -721,11 +725,58 @@ class Post_Views_Counter_Settings {
 	}
 
 	/**
+	 * Update admin title.
+	 *
+	 * @global array $submenu
+	 * @global string $pagenow
+	 *
+	 * @param string $admin_title
+	 * @param string $title
+	 *
+	 * @return string
+	 */
+	public function admin_title( $admin_title, $title ) {
+		global $submenu, $pagenow;
+
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		if ( isset( $_GET['page'] ) && $_GET['page'] === 'post-views-counter' ) {
+			if ( $pvc->options['other']['menu_position'] === 'sub' && $pagenow === 'options-general.php' ) {
+				// get tab
+				$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'general';
+
+				// get settings pages
+				$pages = $pvc->settings_api->get_pages();
+
+				if ( array_key_exists( $tab, $pages['post-views-counter']['tabs'] ) ) {
+					// update title
+					$admin_title = preg_replace( '/' . $pages['post-views-counter']['page_title'] . '/', $pages['post-views-counter']['page_title'] . ' - ' . $pages['post-views-counter']['tabs'][$tab]['label'], $admin_title, 1 );
+				}
+			} else if ( $pvc->options['other']['menu_position'] === 'top' && get_admin_page_parent() === 'post-views-counter' && ! empty( $submenu['post-views-counter'] ) ) {
+				// get tab
+				$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'general';
+
+				// get settings pages
+				$pages = $pvc->settings_api->get_pages();
+
+				if ( array_key_exists( 'post-views-counter-' . $tab, $pages ) ) {
+					// update title
+					$admin_title = $pages['post-views-counter']['page_title'] . ' - ' . preg_replace( '/' . $title . '/', $pages['post-views-counter-' . $tab]['page_title'], $admin_title, 1 );
+				}
+			}
+		}
+
+		return $admin_title;
+	}
+
+	/**
 	 * Validate options.
 	 *
 	 * @global object $wpdb
 	 *
 	 * @param array $input
+	 *
 	 * @return array
 	 */
 	public function validate_settings( $input ) {
