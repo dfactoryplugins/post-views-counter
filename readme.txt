@@ -56,7 +56,7 @@ No questions yet.
 = 1.5.5 =
 * New: Count Time option to store the views in GMT or Local time (Pro)
 * New: Reports extended with Author Posts and Author Archive (Pro)
-* New: Counting Jet Engine Profile Builder user profiles as archive view
+* New: Counting Jet Engine Profile Builder user profiles as archive view (Pro)
 * Tweak: Improved logic for Admin Display and Admin Edit
 * Tweak: Settings UI improvements
 
