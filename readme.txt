@@ -4,7 +4,7 @@ Tags: counter, postviews, statistics, analytics, pageviews
 Requires at least: 6.3.0
 Requires PHP: 7.4.0
 Tested up to: 6.8.1
-Stable tag: 1.5.4
+Stable tag: 1.5.5
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -52,6 +52,13 @@ No questions yet.
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.5.5 =
+* New: Count Time option to store the views in GMT or Local time (Pro)
+* New: Reports extended with Author Posts and Author Archive (Pro)
+* New: Counting Jet Engine Profile Builder user profiles as archive view
+* Tweak: Improved logic for Admin Display and Admin Edit
+* Tweak: Settings UI improvements
 
 = 1.5.4 =
 * New: Caching compatibility option (Pro)
@@ -331,5 +338,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.5.4 =
-New: Caching compatibility option (Pro)
+= 1.5.5 =
+Count Time option, Author Posts and Author Archive in Reports (Pro) and improved logic for Admin Display and Admin Edit
