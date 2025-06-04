@@ -214,6 +214,9 @@ class Post_Views_Counter_Columns {
 		if ( ! $pvc->options['display']['post_views_column'] || ! in_array( $post_type, $pvc->options['general']['post_types_count'] ) )
 			return $columns;
 		
+		if ( apply_filters( 'pvc_admin_display_post_views', true ) === false )
+			return $columns;
+		
 		// add new sortable column
 		$columns['post_views'] = 'post_views';
 
