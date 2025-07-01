@@ -6,9 +6,9 @@ var initPostViewsCounter = function() {
 		/**
 		 * Initialize counter.
 		 *
-		 * @param {object} args
+		 * @param object args
 		 *
-		 * @return {void}
+		 * @return void
 		 */
 		init: function( args ) {
 			this.args = args;
@@ -61,13 +61,13 @@ var initPostViewsCounter = function() {
 		/**
 		 * Handle fetch request.
 		 *
-		 * @param {string} url
-		 * @param {object} params
-		 * @param {string} method
-		 * @param {object} headers
-		 * @param {string} name
+		 * @param string url
+		 * @param object params
+		 * @param string method
+		 * @param object headers
+		 * @param string name
 		 *
-		 * @return {object}
+		 * @return object
 		 */
 		request: function( url, params, method, headers, name = '' ) {
 			let options = {
@@ -118,9 +118,9 @@ var initPostViewsCounter = function() {
 		/**
 		 * Prepare the data to be sent with the request.
 		 *
-		 * @param {object} data
+		 * @param object data
 		 *
-		 * @return {string}
+		 * @return string
 		 */
 		prepareRequestData: function( data ) {
 			return Object.keys( data ).map( function( el ) {
@@ -132,10 +132,10 @@ var initPostViewsCounter = function() {
 		/**
 		 * Prepare the data to be sent with the request.
 		 *
-		 * @param {string} eventName
-		 * @param {object} data
+		 * @param string eventName
+		 * @param object data
 		 *
-		 * @return {void}
+		 * @return void
 		 */
 		triggerEvent: function( eventName, data ) {
 			const newEvent = new CustomEvent( eventName, {
@@ -150,11 +150,11 @@ var initPostViewsCounter = function() {
 		/**
 		 * Save localStorage data.
 		 *
-		 * @param {string} name
-		 * @param {object} data
-		 * @param {string} type
+		 * @param string name
+		 * @param object data
+		 * @param string type
 		 *
-		 * @return {void}
+		 * @return void
 		 */
 		saveStorageData: function( name, data, type ) {
 			/* COUNT_POST_AS_AUTHOR_VIEW | removed setting localStorage user data
@@ -168,9 +168,9 @@ var initPostViewsCounter = function() {
 		/**
 		 * Read localStorage data.
 		 *
-		 * @param {string} name
+		 * @param string name
 		 *
-		 * @return {string}
+		 * @return string
 		 */
 		readStorageData: function( name ) {
 			let data = null;
@@ -188,10 +188,10 @@ var initPostViewsCounter = function() {
 		/**
 		 * Save cookies.
 		 *
-		 * @param {string} name
-		 * @param {object} data
+		 * @param string name
+		 * @param object data
 		 *
-		 * @return {void}
+		 * @return void
 		 */
 		saveCookieData: function( name, data ) {
 			var cookieSecure = '';
@@ -227,9 +227,9 @@ var initPostViewsCounter = function() {
 		/**
 		 * Read cookies.
 		 *
-		 * @param {string} name
+		 * @param string name
 		 *
-		 * @return {string}
+		 * @return string
 		 */
 		readCookieData: function( name ) {
 			var cookies = [];
@@ -250,7 +250,7 @@ var initPostViewsCounter = function() {
 		/**
 		 * Check whether localStorage is available.
 		 *
-		 * @return {bool}
+		 * @return bool
 		 */
 		isLocalStorageAvailable: function() {
 			var storage;

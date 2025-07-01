@@ -295,10 +295,10 @@ class Post_Views_Counter_Settings {
 					'type'			=> 'radio',
 					'class'			=> 'pvc-pro',
 					'skip_saving'	=> true,
-					'description'	=> __( "Whether to store the views using GMT timezone or adjust it to the GMT offset of the site.", 'post-views-counter' ),
+					'description'	=> __( 'Whether to store the views using GMT timezone or adjust it to the GMT offset of the site.', 'post-views-counter' ),
 					'options'		=> [
 						'gmt'		=> __( 'GMT Time', 'post-views-counter' ),
-						'local'	=> __( 'Local Time', 'post-views-counter' )
+						'local'		=> __( 'Local Time', 'post-views-counter' )
 					],
 					'disabled'		=> [ 'gmt', 'local' ],
 					'value'			=> 'gmt'

@@ -251,7 +251,8 @@ class Post_Views_Counter_Counter {
 	 *
 	 * @param int $post_id
 	 * @param array $content_data
-	 * @return void|int
+	 *
+	 * @return null|int
 	 */
 	public function check_post( $post_id = 0, $content_data = [] ) {
 		// force check cookie in short init mode
@@ -263,7 +264,7 @@ class Post_Views_Counter_Counter {
 
 		// empty id?
 		if ( empty( $post_id ) )
-			return;
+			return null;
 
 		// get main instance
 		$pvc = Post_Views_Counter();
@@ -285,7 +286,7 @@ class Post_Views_Counter_Counter {
 
 		// conditions failed?
 		if ( ! $conditions_met )
-			return;
+			return null;
 
 		// do not count visit by default
 		$count_visit = false;
@@ -1019,18 +1020,15 @@ class Post_Views_Counter_Counter {
 	private function count_visit( $id ) {
 		// get main instance
 		$pvc = Post_Views_Counter();
-		
+
 		// increment amount
 		$increment_amount = (int) apply_filters( 'pvc_views_increment_amount', 1, $id, 'post' );
 
 		if ( $increment_amount < 1 )
 			$increment_amount = 1;
-		
-		$use_gmt = $pvc->options['general']['count_time'] === 'local' ? false : true;
-		$count_time = current_time( 'timestamp', $use_gmt );
 
 		// get day, week, month and year
-		$date = explode( '-', date( 'W-d-m-Y-o', $count_time ) );
+		$date = explode( '-', date( 'W-d-m-Y-o', current_time( 'timestamp', $pvc->options['general']['count_time'] === 'gmt' ) ) );
 
 		foreach ( [
 			0 => $date[3] . $date[2] . $date[1],	// day like 20140324

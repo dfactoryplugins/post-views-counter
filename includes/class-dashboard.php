@@ -658,5 +658,4 @@ class Post_Views_Counter_Dashboard {
 	public function period2timestamp( $period ) {
 		return pvc_period2timestamp( $period );
 	}
-
 }
