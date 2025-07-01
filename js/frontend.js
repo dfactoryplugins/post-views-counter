@@ -91,7 +91,7 @@ var initPostViewsCounter = function() {
 				try {
 					if ( typeof response === 'object' && response !== null ) {
 						if ( 'success' in response && response.success === false ) {
-							console.log( 'Request error' );
+							console.log( 'PVC: Request error.' );
 							console.log( response.data );
 						} else {
 							if ( _this.args.dataStorage === 'cookieless' )
@@ -102,15 +102,15 @@ var initPostViewsCounter = function() {
 							_this.triggerEvent( 'pvcCheckPost', response );
 						}
 					} else {
-						console.log( 'Invalid object' );
+						console.log( 'PVC: Invalid object.' );
 						console.log( response );
 					}
 				} catch( error ) {
-					console.log( 'Invalid JSON data' );
+					console.log( 'PVC: Invalid JSON data.' );
 					console.log( error );
 				}
 			} ).catch( function( error ) {
-				console.log( 'Invalid response' );
+				console.log( 'PVC: Invalid response.' );
 				console.log( error );
 			} );
 		},
@@ -194,17 +194,16 @@ var initPostViewsCounter = function() {
 		 * @return void
 		 */
 		saveCookieData: function( name, data ) {
+			// empty storage? nothing to save
+			if ( ! data.hasOwnProperty( 'name' ) )
+				return;
+
 			var cookieSecure = '';
 
 			// ssl?
 			if ( document.location.protocol === 'https:' )
 				cookieSecure = ';secure';
 
-			if ( data.hasOwnProperty( 'name' ) === false ) {
-				console.log( 'Error saveCookieData' );
-				return;
-			}
-			
 			for ( let i = 0; i < data.name.length; i++ ) {
 				var cookieDate = new Date();
 				var expiration = parseInt( data.expiry[i] );
