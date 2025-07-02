@@ -266,6 +266,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				$this->options['general']['restrict_edit_views'] = $this->options['display']['restrict_edit_views'];
 
 			// actions
+			add_action( 'plugins_loaded', [ $this, 'extend_caching_plugins' ], -1 );
 			add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
 			add_action( 'wp_loaded', [ $this, 'load_pluggable_functions' ] );
 			add_action( 'init', [ $this, 'register_blocks' ] );
@@ -275,6 +276,17 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 
 			// filters
 			add_filter( 'plugin_action_links_' . POST_VIEWS_COUNTER_BASENAME, [ $this, 'plugin_settings_link' ] );
+		}
+
+		/**
+		 * Extend list of caching plugins.
+		 *
+		 * @return void
+		 */
+		public function extend_caching_plugins() {
+			// add new caching plugins
+			add_filter( 'pvc_active_caching_plugins', [ $this->settings, 'extend_active_caching_plugins' ] );
+			add_filter( 'pvc_is_plugin_active', [ $this->settings, 'extend_is_plugin_active' ], 10, 2 );
 		}
 
 		/**
