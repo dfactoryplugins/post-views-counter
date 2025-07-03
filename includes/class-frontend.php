@@ -72,7 +72,7 @@ class Post_Views_Counter_Frontend {
 
 		// default type?
 		if ( $args['type'] === 'post' )
-			$views = pvc_post_views( $args['id'], false );
+			$views = function_exists( 'pvc_post_views' ) ? pvc_post_views( $args['id'], false ) : 0;
 
 		return apply_filters( 'pvc_post_views_shortcode', $views, $args );
 	}
