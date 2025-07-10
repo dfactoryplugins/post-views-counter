@@ -863,7 +863,7 @@ class Post_Views_Counter_Settings {
 			$empty_active_caching_plugins = false;
 			$active_plugins_html = [];
 
-			$caching_compatibility_desc .= esc_html__( 'Currently detected active caching plugins', 'cookie-notice' ) . ': ';
+			$caching_compatibility_desc .= esc_html__( 'Currently detected active caching plugins', 'post-views-counter' ) . ': ';
 
 			foreach ( $active_plugins as $plugin ) {
 				$active_plugins_html[] = '<code>' . esc_html( $plugin ) . '</code>';
@@ -873,7 +873,7 @@ class Post_Views_Counter_Settings {
 		} else {
 			$empty_active_caching_plugins = true;
 
-			$caching_compatibility_desc .= esc_html__( 'No compatible caching plugins found.', 'cookie-notice' );
+			$caching_compatibility_desc .= esc_html__( 'No compatible caching plugins found.', 'post-views-counter' );
 		}
 
 		return $caching_compatibility_desc . '<br />' . __( 'Current status', 'post-views-counter' ) . ': <span class="' . ( ! $empty_active_caching_plugins ? '' : 'un' ) . 'available">' . ( ! $empty_active_caching_plugins ? __( 'available', 'post-views-counter' ) : __( 'unavailable', 'post-views-counter' ) ) . '</span>.';
