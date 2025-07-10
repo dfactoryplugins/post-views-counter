@@ -27,7 +27,7 @@ class Post_Views_Counter_Admin {
 	 * @return void
 	 */
 	public function register_chartjs() {
-		wp_register_script( 'pvc-chartjs', POST_VIEWS_COUNTER_URL . '/assets/chartjs/chart.min.js', [ 'jquery' ], '4.4.9', true );
+		wp_register_script( 'pvc-chartjs', POST_VIEWS_COUNTER_URL . '/assets/chartjs/chart.min.js', [ 'jquery' ], '4.5.0', true );
 	}
 
 	/**
