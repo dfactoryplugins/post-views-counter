@@ -23,9 +23,21 @@ var initPostViewsCounter = function() {
 			if ( args.dataStorage === 'cookieless' && this.isLocalStorageAvailable() ) {
 				params.storage_type = 'cookieless';
 				params.storage_data = this.readStorageData( name );
+
+				/* COUNT_POST_AS_AUTHOR_VIEW | removed parameter from request
+				if ( 'countAuthor' in args && args.countAuthor === true ) {
+					params.storage_data_author = this.readStorageData( 'pvc_visits_user' + ( args.multisite !== false ? '_' + parseInt( args.multisite ) : '' ) );
+				}
+				*/
 			} else {
 				params.storage_type = 'cookies';
 				params.storage_data = this.readCookieData( name );
+
+				/* COUNT_POST_AS_AUTHOR_VIEW | removed parameter from request
+				if ( 'countAuthor' in args && args.countAuthor === true ) {
+					params.storage_data_author = this.readCookieData( 'pvc_visits_user' + ( args.multisite !== false ? '_' + parseInt( args.multisite ) : '' ) );
+				}
+				*/
 			}
 
 			// rest api request
@@ -145,6 +157,11 @@ var initPostViewsCounter = function() {
 		 * @return void
 		 */
 		saveStorageData: function( name, data, type ) {
+			/* COUNT_POST_AS_AUTHOR_VIEW | removed setting localStorage user data
+			if ( 'countAuthor' in this.args && this.args.countAuthor === true && 'user' in data )
+				window.localStorage.setItem( 'pvc_visits_user' + ( this.args.multisite !== false ? '_' + parseInt( this.args.multisite ) : '' ), JSON.stringify( data['user'] ) );
+			*/
+
 			window.localStorage.setItem( name, JSON.stringify( data[type] ) );
 		},
 
