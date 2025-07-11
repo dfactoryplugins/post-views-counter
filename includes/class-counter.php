@@ -12,9 +12,6 @@ class Post_Views_Counter_Counter {
 
 	private $storage = [];
 	private $storage_type = 'cookies';
-	/* COUNT_POST_AS_AUTHOR_VIEW | removed property
-	private $storage_modified = false;
-	*/
 	private $queue = [];
 	private $queue_mode = false;
 	private $db_insert_values = '';
@@ -44,34 +41,6 @@ class Post_Views_Counter_Counter {
 	public function get_storage() {
 		return $this->storage;
 	}
-
-	/**
-	 * Set storage data. Used only for additional authors counting.
-	 *
-	 * @return bool
-	 */
-	/* COUNT_POST_AS_AUTHOR_VIEW | removed function
-	public function set_storage( $data, $class ) {
-		if ( ! is_a( $class, 'Post_Views_Counter_Pro_Counter' ) )
-			return false;
-
-		if ( ! $class->is_main_storage_allowed() )
-			return false;
-
-		// is it active content type?
-		if ( ! $class->is_content_type_active( 'user', 'posts' ) )
-			return false;
-
-		if ( $this->storage_type === 'cookies' )
-			$this->storage = $data;
-		else
-			$this->storage['user'] = $data;
-
-		$this->storage_modified = true;
-
-		return true;
-	}
-	*/
 
 	/**
 	 * Get storage type.
@@ -855,16 +824,6 @@ class Post_Views_Counter_Counter {
 				$cookies_data['expiry'][] = $content_data['expiration'];
 			}
 		}
-
-		/* COUNT_POST_AS_AUTHOR_VIEW | removed additional data
-		if ( $this->storage_modified && ! empty( $this->storage ) ) {
-			foreach ( $this->storage as $key => $value ) {
-				foreach ( $value as $subkey => $subvalue ) {
-					$cookies_data[$key][] = $subvalue;
-				}
-			}
-		}
-		*/
 
 		$this->storage = $cookies_data;
 
