@@ -1014,7 +1014,7 @@ class Post_Views_Counter_Counter {
 			]
 		];
 
-		call_user_func( apply_filters( 'pvc_during_count_visit', [ $this, 'db_insert_multi' ] ), $count_data );
+		call_user_func( apply_filters( 'pvc_count_visit_multi', [ $this, 'count_visit_multi' ] ), $count_data );
 
 		do_action( 'pvc_after_count_visit', $post_id, 'post' );
 
@@ -1028,7 +1028,7 @@ class Post_Views_Counter_Counter {
 	 *
 	 * @return void
 	 */
-	public function db_insert_multi( $data ) {
+	public function count_visit_multi( $data ) {
 		// no count data?
 		if ( empty( $data ) )
 			return;
