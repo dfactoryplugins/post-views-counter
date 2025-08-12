@@ -37,6 +37,7 @@ class Post_Views_Counter_Frontend {
 	 * Post views shortcode function.
 	 *
 	 * @param array $args
+	 *
 	 * @return string
 	 */
 	public function post_views_shortcode( $args ) {
