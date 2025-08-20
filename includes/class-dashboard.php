@@ -129,6 +129,11 @@ class Post_Views_Counter_Dashboard {
 		$this->widget_items = $items;
 	}
 
+	public function get_widget_items() {
+		// return widget items
+		return $this->widget_items;	
+	}
+
 	/**
 	 * Calculate canvas height based on number of legend items.
 	 *
