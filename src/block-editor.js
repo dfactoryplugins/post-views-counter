@@ -23,35 +23,35 @@ class PostViews extends Component {
 	}
 
 	// show/hide popover on button click
-	handleClick( e ) {
+	handleClick ( e ) {
 		if ( e.target.classList.contains( 'edit-post-post-views-toggle-link' ) ) {
 			this.setState( ( prevState ) => (
-				{ isVisible: ! prevState.isVisible }
+				{ isVisible: !prevState.isVisible }
 			) );
 		}
 	}
 
 	// show/hide popover on outside click
-	handleClickOutside( e ) {
-		if ( ! e.target.classList.contains( 'edit-post-post-views-toggle-link' ) ) {
+	handleClickOutside ( e ) {
+		if ( !e.target.classList.contains( 'edit-post-post-views-toggle-link' ) ) {
 			this.setState( ( prevState ) => (
-				{ isVisible: ! prevState.isVisible }
+				{ isVisible: !prevState.isVisible }
 			) );
 		}
 	}
 
 	// reset views on cancel click
-	handleCancel( e ) {
+	handleCancel ( e ) {
 		this.setState( ( prevState ) => (
 			{
 				postViews: pvcEditorArgs.postViews,
-				isVisible: ! prevState.isVisible
+				isVisible: !prevState.isVisible
 			}
 		) );
 	}
 
 	// reset post views on change
-	handleSetViews( value ) {
+	handleSetViews ( value ) {
 		// force update button to be clickable
 		wp.data.dispatch( 'core/editor' ).editPost( { meta: { _pvc_post_views: value } } );
 
@@ -63,9 +63,9 @@ class PostViews extends Component {
 	}
 
 	// save the post views
-	static getDerivedStateFromProps( nextProps, state ) {
+	static getDerivedStateFromProps ( nextProps, state ) {
 		// bail if autosave
-		if ( ( nextProps.isPublishing || nextProps.isSaving ) && ! nextProps.isAutoSaving ) {
+		if ( ( nextProps.isPublishing || nextProps.isSaving ) && !nextProps.isAutoSaving ) {
 			wp.apiRequest( { path: `/post-views-counter/update-post-views/?id=${nextProps.postId}`, method: 'POST', data: { post_views: state.postViews } } ).then(
 				( data ) => {
 					return data;
@@ -77,7 +77,7 @@ class PostViews extends Component {
 		}
 	}
 
-	render() {
+	render () {
 		return (
 			<PostViewsComponent
 				postViews={ this.state.postViews }
@@ -97,63 +97,83 @@ const PostViewsComponent = ( props ) => {
 	return (
 		<Fragment>
 			<PluginPostStatusInfo className="edit-post-post-views">
-				<span>{ pvcEditorArgs.textPostViews}</span>
-				{ ! pvcEditorArgs.canEdit && <span>{ props.postViews }</span> }
+				<div className="editor-post-panel__row-label">
+					<span>{ pvcEditorArgs.textPostViews }</span>
+				</div>
+				{ !pvcEditorArgs.canEdit && (
+					<div className="editor-post-panel__row-control">
+						<div className="components-dropdown edit-post-post-views-popover-wrapper">
+							<Button
+								size="compact"
+								variant="tertiary"
+								disabled
+								className="components-button edit-post-post-views-toggle-link"
+							>
+								{ props.postViews }
+							</Button>
+						</div>
+					</div>
+				) }
 				{ pvcEditorArgs.canEdit && (
-					<Button
-						isLink
-						className="edit-post-post-views-toggle-link"
-						onClick={ props.handleClick }
-					>
-						{ props.postViews }
-						{ props.isVisible && ( pvcEditorArgs.wpGreater53 ? (
-							<Popover
-								position="bottom right"
-								className="edit-post-post-views-popover"
-								onFocusOutside={ props.handleClickOutside }
+					<div className="editor-post-panel__row-control">
+						<div className="components-dropdown edit-post-post-views-popover-wrapper">
+							<Button
+								size="compact"
+								variant="tertiary"
+								className="components-button edit-post-post-views-toggle-link"
+								onClick={ props.handleClick }
 							>
-								<legend>{ pvcEditorArgs.textPostViews }</legend>
-								<TextControl
-									className="edit-post-post-views-input"
-									type={ 'number' }
-									key={ 'post_views' }
-									value={ props.postViews }
-									onChange={ props.handleSetViews }
-								/>
-								<p className="description">{ pvcEditorArgs.textHelp }</p>
-								<Button
-									isLink
-									className="edit-post-post-views-cancel-link"
-									onClick={ props.handleCancel }
-								>
-									{ pvcEditorArgs.textCancel }
-								</Button>
-							</Popover>
-						) : (
-							<Popover
-								position="bottom right"
-								className="edit-post-post-views-popover"
-								onClickOutside={ props.handleClickOutside }
-							>
-								<legend>{ pvcEditorArgs.textPostViews }</legend>
-								<TextControl
-									className="edit-post-post-views-input"
-									type={ 'number' }
-									key={ 'post_views' }
-									value={ props.postViews }
-									onChange={ props.handleSetViews }
-								/>
-								<p className="description">{ pvcEditorArgs.textHelp }</p>
-								<Button
-									isLink
-									className="edit-post-post-views-cancel-link"
-									onClick={ props.handleCancel }
-								>
-									{ pvcEditorArgs.textCancel }
-								</Button>
-							</Popover>
-						) ) }
-					</Button>
+								{ props.postViews }
+								{ props.isVisible && ( pvcEditorArgs.wpGreater53 ? (
+									<Popover
+										position="bottom right"
+										className="edit-post-post-views-popover"
+										onFocusOutside={ props.handleClickOutside }
+									>
+										<legend>{ pvcEditorArgs.textPostViews }</legend>
+										<TextControl
+											className="edit-post-post-views-input"
+											type={ 'number' }
+											key={ 'post_views' }
+											value={ props.postViews }
+											onChange={ props.handleSetViews }
+										/>
+										<p className="description">{ pvcEditorArgs.textHelp }</p>
+										<Button
+											isLink
+											className="edit-post-post-views-cancel-link"
+											onClick={ props.handleCancel }
+										>
+											{ pvcEditorArgs.textCancel }
+										</Button>
+									</Popover>
+								) : (
+									<Popover
+										position="bottom right"
+										className="edit-post-post-views-popover"
+										onClickOutside={ props.handleClickOutside }
+									>
+										<legend>{ pvcEditorArgs.textPostViews }</legend>
+										<TextControl
+											className="edit-post-post-views-input"
+											type={ 'number' }
+											key={ 'post_views' }
+											value={ props.postViews }
+											onChange={ props.handleSetViews }
+										/>
+										<p className="description">{ pvcEditorArgs.textHelp }</p>
+										<Button
+											isLink
+											className="edit-post-post-views-cancel-link"
+											onClick={ props.handleCancel }
+										>
+											{ pvcEditorArgs.textCancel }
+										</Button>
+									</Popover>
+								) ) }
+							</Button>
+						</div>
+					</div>
 				) }
 			</PluginPostStatusInfo>
 		</Fragment>
