@@ -988,7 +988,7 @@ class Post_Views_Counter_Counter {
 	 *
 	 * @param int $post_id
 	 *
-	 * @return int
+	 * @return int|null
 	 */
 	private function count_visit( $post_id ) {
 		// increment amount
@@ -1014,11 +1014,15 @@ class Post_Views_Counter_Counter {
 			]
 		];
 
-		call_user_func( apply_filters( 'pvc_count_visit_multi', [ $this, 'count_visit_multi' ] ), $count_data );
+		// attempt to count the visit and check for success
+		if ( call_user_func( apply_filters( 'pvc_count_visit_multi', [ $this, 'count_visit_multi' ] ), $count_data ) ) {
+			do_action( 'pvc_after_count_visit', $post_id, 'post' );
 
-		do_action( 'pvc_after_count_visit', $post_id, 'post' );
+			return $post_id;
+		}
 
-		return $post_id;
+		// return null on failure to indicate the count did not succeed
+		return null;
 	}
 
 	/**
@@ -1026,17 +1030,22 @@ class Post_Views_Counter_Counter {
 	 *
 	 * @param array $data
 	 *
-	 * @return void
+	 * @return bool
 	 */
 	public function count_visit_multi( $data ) {
 		// no count data?
 		if ( empty( $data ) )
-			return;
+			return false;
+
+		$success = true;
 
 		foreach ( $data['visits'] as $type => $period ) {
-			// hit the database directly
-			$this->db_insert( $data['content_id'], $type, $period, $data['increment'] );
+			// hit the database directly and check for failure
+			if ( ! $this->db_insert( $data['content_id'], $type, $period, $data['increment'] ) )
+				$success = false;
 		}
+
+		return $success;
 	}
 
 	/**
@@ -1166,16 +1175,25 @@ class Post_Views_Counter_Counter {
 	 * @param string $period
 	 * @param int $count
 	 *
-	 * @return int|bool
+	 * @return bool
 	 */
 	private function db_insert( $id, $type, $period, $count ) {
 		global $wpdb;
 
 		// skip single query?
 		if ( (bool) apply_filters( 'pvc_skip_single_query', false, $id, $type, $period, $count, 'post' ) )
-			return false;
+			return true; // consider skipped as "successful" for this context
 
-		return $wpdb->query( $wpdb->prepare( 'INSERT INTO ' . $wpdb->prefix . 'post_views (`id`, `type`, `period`, `count`) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = count + %d', $id, $type, $period, $count, $count ) );
+		$result = $wpdb->query( $wpdb->prepare( 'INSERT INTO ' . $wpdb->prefix . 'post_views (`id`, `type`, `period`, `count`) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = count + %d', $id, $type, $period, $count, $count ) );
+
+		// check for query failure
+		if ( $result === false ) {
+			// log the error for debugging
+			error_log( sprintf( 'Post Views Counter: Failed to insert/update views for ID %d, type %d, period %s. MySQL error: %s', $id, $type, $period, $wpdb->last_error ) );
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
