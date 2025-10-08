@@ -15,19 +15,16 @@ var initPostViewsCounter = function() {
 			// default parameters
 			var params = {};
 
-			// set cookie/storage name
-			var name = 'pvc_visits' + ( args.multisite !== false ? '_' + parseInt( args.multisite ) : '' );
-
 			// data storage
 			params.storage_type = 'cookies';
-			params.storage_data = this.readCookieData( name );
+			params.storage_data = this.readCookieData( 'pvc_visits' + ( args.multisite !== false ? '_' + parseInt( args.multisite ) : '' ) );
 
 			// rest api request
 			if ( args.mode === 'rest_api' ) {
 				this.promise = this.request( args.requestURL, params, 'POST', {
 					'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
 					'X-WP-Nonce': args.nonce
-				}, name );
+				} );
 			// ajax request
 			} else {
 				params.action = 'pvc-check-post';
@@ -36,7 +33,7 @@ var initPostViewsCounter = function() {
 
 				this.promise = this.request( args.requestURL, params, 'POST', {
 					'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
-				}, name );
+				} );
 			}
 		},
 
@@ -47,13 +44,9 @@ var initPostViewsCounter = function() {
 		 * @param {Object} params
 		 * @param {string} method
 		 * @param {Object} headers
-		 * @param {string} [name]
 		 * @return {Promise}
 		 */
-		request: function( url, params, method, headers, name ) {
-			if ( name === undefined )
-				name = '';
-
+		request: function( url, params, method, headers ) {
 			var options = {
 				method: method,
 				mode: 'cors',
@@ -78,7 +71,7 @@ var initPostViewsCounter = function() {
 							console.log( 'PVC: Request error.' );
 							console.log( response.data );
 						} else {
-							_this.saveCookieData( name, response.storage );
+							_this.saveCookieData( response.storage );
 
 							_this.triggerEvent( 'pvcCheckPost', response );
 						}
@@ -129,11 +122,10 @@ var initPostViewsCounter = function() {
 		/**
 		 * Save cookies.
 		 *
-		 * @param {string} name
 		 * @param {Object} data
 		 * @return {void}
 		 */
-		saveCookieData: function( name, data ) {
+		saveCookieData: function( data ) {
 			// empty storage? nothing to save
 			if ( ! data.hasOwnProperty( 'name' ) )
 				return;

@@ -1252,7 +1252,7 @@ class Post_Views_Counter_Counter {
 	 * Check whether user has excluded roles.
 	 *
 	 * @param int $user_id
-	 * @param string $option
+	 * @param array $option
 	 *
 	 * @return bool
 	 */
