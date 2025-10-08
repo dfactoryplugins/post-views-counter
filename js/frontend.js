@@ -6,27 +6,21 @@ var initPostViewsCounter = function() {
 		/**
 		 * Initialize counter.
 		 *
-		 * @param object args
-		 *
-		 * @return void
+		 * @param {Object} args
+		 * @return {void}
 		 */
 		init: function( args ) {
 			this.args = args;
 
 			// default parameters
-			let params = {};
+			var params = {};
 
 			// set cookie/storage name
-			let name = 'pvc_visits' + ( args.multisite !== false ? '_' + parseInt( args.multisite ) : '' );
+			var name = 'pvc_visits' + ( args.multisite !== false ? '_' + parseInt( args.multisite ) : '' );
 
-			// cookieless data storage?
-			if ( args.dataStorage === 'cookieless' && this.isLocalStorageAvailable() ) {
-				params.storage_type = 'cookieless';
-				params.storage_data = this.readStorageData( name );
-			} else {
-				params.storage_type = 'cookies';
-				params.storage_data = this.readCookieData( name );
-			}
+			// data storage
+			params.storage_type = 'cookies';
+			params.storage_data = this.readCookieData( name );
 
 			// rest api request
 			if ( args.mode === 'rest_api' ) {
@@ -34,7 +28,7 @@ var initPostViewsCounter = function() {
 					'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
 					'X-WP-Nonce': args.nonce
 				}, name );
-			// admin ajax request
+			// ajax request
 			} else {
 				params.action = 'pvc-check-post';
 				params.pvc_nonce = args.nonce;
@@ -49,16 +43,18 @@ var initPostViewsCounter = function() {
 		/**
 		 * Handle fetch request.
 		 *
-		 * @param string url
-		 * @param object params
-		 * @param string method
-		 * @param object headers
-		 * @param string name
-		 *
-		 * @return object
+		 * @param {string} url
+		 * @param {Object} params
+		 * @param {string} method
+		 * @param {Object} headers
+		 * @param {string} [name]
+		 * @return {Promise}
 		 */
-		request: function( url, params, method, headers, name = '' ) {
-			let options = {
+		request: function( url, params, method, headers, name ) {
+			if ( name === undefined )
+				name = '';
+
+			var options = {
 				method: method,
 				mode: 'cors',
 				cache: 'no-cache',
@@ -67,8 +63,8 @@ var initPostViewsCounter = function() {
 				body: this.prepareRequestData( params )
 			};
 
-			const _this = this;
-
+			var _this = this;
+			
 			return fetch( url, options ).then( function( response ) {
 				// invalid response?
 				if ( ! response.ok )
@@ -82,10 +78,7 @@ var initPostViewsCounter = function() {
 							console.log( 'PVC: Request error.' );
 							console.log( response.data );
 						} else {
-							if ( _this.args.dataStorage === 'cookieless' )
-								_this.saveStorageData.call( _this, name, response.storage, response.type );
-							else
-								_this.saveCookieData( name, response.storage );
+							_this.saveCookieData( name, response.storage );
 
 							_this.triggerEvent( 'pvcCheckPost', response );
 						}
@@ -106,9 +99,8 @@ var initPostViewsCounter = function() {
 		/**
 		 * Prepare the data to be sent with the request.
 		 *
-		 * @param object data
-		 *
-		 * @return string
+		 * @param {Object} data
+		 * @return {string}
 		 */
 		prepareRequestData: function( data ) {
 			return Object.keys( data ).map( function( el ) {
@@ -118,15 +110,14 @@ var initPostViewsCounter = function() {
 		},
 
 		/**
-		 * Prepare the data to be sent with the request.
+		 * Trigger a custom DOM event.
 		 *
-		 * @param string eventName
-		 * @param object data
-		 *
-		 * @return void
+		 * @param {string} eventName
+		 * @param {Object} data
+		 * @return {void}
 		 */
 		triggerEvent: function( eventName, data ) {
-			const newEvent = new CustomEvent( eventName, {
+			var newEvent = new CustomEvent( eventName, {
 				bubbles: true,
 				detail: data
 			} );
@@ -136,45 +127,11 @@ var initPostViewsCounter = function() {
 		},
 
 		/**
-		 * Save localStorage data.
-		 *
-		 * @param string name
-		 * @param object data
-		 * @param string type
-		 *
-		 * @return void
-		 */
-		saveStorageData: function( name, data, type ) {
-			window.localStorage.setItem( name, JSON.stringify( data[type] ) );
-		},
-
-		/**
-		 * Read localStorage data.
-		 *
-		 * @param string name
-		 *
-		 * @return string
-		 */
-		readStorageData: function( name ) {
-			let data = null;
-
-			// get data
-			data = window.localStorage.getItem( name );
-
-			// no data?
-			if ( data === null )
-				data = '';
-
-			return data;
-		},
-
-		/**
 		 * Save cookies.
 		 *
-		 * @param string name
-		 * @param object data
-		 *
-		 * @return void
+		 * @param {string} name
+		 * @param {Object} data
+		 * @return {void}
 		 */
 		saveCookieData: function( name, data ) {
 			// empty storage? nothing to save
@@ -187,7 +144,7 @@ var initPostViewsCounter = function() {
 			if ( document.location.protocol === 'https:' )
 				cookieSecure = ';secure';
 
-			for ( let i = 0; i < data.name.length; i++ ) {
+			for ( var i = 0; i < data.name.length; i++ ) {
 				var cookieDate = new Date();
 				var expiration = parseInt( data.expiry[i] );
 
@@ -209,15 +166,16 @@ var initPostViewsCounter = function() {
 		/**
 		 * Read cookies.
 		 *
-		 * @param string name
-		 *
-		 * @return string
+		 * @param {string} name
+		 * @return {string}
 		 */
 		readCookieData: function( name ) {
 			var cookies = [];
 
 			document.cookie.split( ';' ).forEach( function( el ) {
-				var [key, value] = el.split( '=' );
+				var parts = el.split( '=' );
+				var key = parts[0];
+				var value = parts[1];
 				var trimmedKey = key.trim();
 				var regex = new RegExp( name + '\\[\\d+\\]' );
 
@@ -227,26 +185,6 @@ var initPostViewsCounter = function() {
 			} );
 
 			return cookies.join( 'a' );
-		},
-
-		/**
-		 * Check whether localStorage is available.
-		 *
-		 * @return bool
-		 */
-		isLocalStorageAvailable: function() {
-			var storage;
-
-			try {
-				storage = window['localStorage'];
-
-				storage.setItem( '__pvcStorageTest', 0 );
-				storage.removeItem( '__pvcStorageTest' );
-
-				return true;
-			} catch( e ) {
-				return e instanceof DOMException && ( e.code === 22 || e.code === 1014 || e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' ) && ( storage && storage.length !== 0 );
-			}
 		}
 	}
 
