@@ -3,8 +3,8 @@ Contributors: dfactory
 Tags: counter, postviews, statistics, analytics, pageviews
 Requires at least: 6.3.0
 Requires PHP: 7.4.0
-Tested up to: 6.8.1
-Stable tag: 1.5.5
+Tested up to: 6.8.3
+Stable tag: 1.5.6
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -89,6 +89,16 @@ If you’ve purchased Post Views Counter Pro, your license includes one year of 
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.5.6 =
+* New: Count visits by device, browser and OS (Pro)
+* New: Count visits by browser language (Pro)
+* New: Traffic Information dashboard widget (Pro)
+* New: HTTP request improvements for caching and security (Pro)
+* New: Client size bot detection (Pro)
+* Tweak: Fix and simplify post views shortcode for loops
+* Tweak: Adjust the post views display in Gutenberg editor
+* Tweak: Check db query results and log error
 
 = 1.5.5 =
 * New: Count Time option to store the views in GMT or Local time (Pro)
@@ -375,5 +385,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.5.5 =
-Count Time option, Author Posts and Author Archive in Reports (Pro) and improved logic for Admin Display and Admin Edit
+= 1.5.6 =
+Count visits by device, browser, OS and browser language (Pro), DB query and UI improvements
