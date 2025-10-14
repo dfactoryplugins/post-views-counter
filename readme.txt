@@ -8,33 +8,54 @@ Stable tag: 1.5.5
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
-Post Views Counter allows you to display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
+Know What Content Drives Your Audience. Collect and display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
 
 == Description ==
 
-[Post Views Counter](https://postviewscounter.com/) allows you to display how many times a post, page or custom post type had been viewed with this simple, fast and easy to use plugin.
+Know What Content Drives Your Audience. Collect and display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
 
-= Features include: =
+[Post Views Counter](https://postviewscounter.com/) gives you clear, accurate post view stats — right inside WordPress. No external tools. No bloat. Just the numbers you need to see what’s working.
 
-* Option to select post types for which post views will be counted and displayed.
-* 3 methods of collecting post views data: PHP, Javascript and REST API for greater flexibility
-* Compatible with data privacy regulations
-* Possibility to manually set views count for each post
-* Dashboard post views stats widget
-* Full Privacy regulations compliance
-* Capability to query posts according to its views count
-* Custom REST API endpoints
-* Option to set counts interval
-* Excluding counts from visitors: bots, logged in users, selected user roles
-* Excluding users by IPs
-* Restricting display by user roles
-* Restricting post views editing to admins
-* One-click data import from WP-PostViews
-* Sortable admin column
-* Post views display position, automatic or manual via shortcode
-* Multisite compatibile
-* WPML and Polylang compatible
-* .pot file for translations included
+= Key Benefits =
+
+Clarity, speed, and control:
+
+- **Clear, Focused Metrics** — You get a clear picture of how your posts are performing.
+- **Made for WordPress** — Runs entirely in your site. No GA, no third-party pipes; accurate counts in your Dashboard.
+- **Privacy-aware** — Data lives on your server, with controls that respect visitors’ rights and privacy regulations.
+- **Works at scale** — Minimal overhead, no external scripts, Multisite-ready.
+- **Display anywhere** — Automatically show counts, or place them exactly where you want via blocks or shortcode.
+
+= Features =
+
+Practical features that matter:
+
+- Count & display views for **any post type** you select.
+- Three counting modes: **PHP, JavaScript, REST API**
+- Dashboard post views **stats widget**
+- Sortable Post Views **admin column**
+- Exclude bots, logged-in users, specific roles, or IPs
+- Manually adjust a post’s views when needed.
+- Query and **order content by views** (developer-friendly)
+- Custom REST API endpoints
+- Option to set count interval
+- One-click data import from **WP-PostViews**
+- Post views **display position**, automatic or manual via shortcode
+- **Multisite** compatibile
+- **WPML/Polylang** compatible; translation-ready (.pot)
+
+= Post Views Counter Pro =
+
+More capability without extra complexity:
+
+- **Fast AJAX counting** for more accurate data.
+- **Caching optimization** that guarantees performance even under heavy traffic.
+- **Reports**: Views by Date, Post, Author to spot winners, trends, and top contributors.
+- Customizable **Views Period** (e.g., last 7/30 days) to control the views count timeframe.
+- **Export to CSV/XML** to download and share data.
+- **Integrations** for ordering by views in popular builders (e.g., **Elementor Pro, Divi, GenerateBlocks**).
+
+[Learn more about Pro →](https://postviewscounter.com/pricing/)
 
 == Installation ==
 
@@ -42,9 +63,25 @@ Post Views Counter allows you to display how many times a post, page or custom p
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Go to the Post Views Counter settings and set your options.
 
-== Frequently Asked Questions ==
+For many frequently asked questions check the [Post Views Counter Docs](https://postviewscounter.com/documentation/).
 
-No questions yet.
+= Why use Post Views Counter vs Google Analytics? =
+
+Post Views Counter gives you clean, per-post view counts inside WordPress — fast, cache-friendly, and privacy-first, with data that stays on your server. Google Analytics might be an overkill when you just need accurate post/page views for editorial decisions.
+
+= Can I use Post Views Counter alongside Google Analytics? =
+
+Of course — many sites use both. Post Views Counter handles on-site, per-post view counts inside WordPress (no third-party scripts), while Google Analytics covers marketing funnels and acquisition.
+
+= Is Post Views Counter GDPR compliant? =
+
+Post Views Counter runs entirely inside WordPress with no third-party scripts and keeps data on your server — aligning with GDPR-style expectations.
+
+= How do I get support? =
+
+If you’re using the free version, please post your question in the WordPress.org support forum.
+
+If you’ve purchased Post Views Counter Pro, your license includes one year of updates and premium support. You can contact us directly through our dedicated support channel available after logging into your account at [Post Views Counter](https://postviewscounter.com/), and our team will get back to you.
 
 == Screenshots ==
 
