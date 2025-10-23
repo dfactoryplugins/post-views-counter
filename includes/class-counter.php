@@ -34,59 +34,6 @@ class Post_Views_Counter_Counter {
 	}
 
 	/**
-	 * Get storage data.
-	 *
-	 * @return array
-	 */
-	public function get_storage() {
-		return $this->storage;
-	}
-
-	/**
-	 * Get storage type.
-	 *
-	 * @return array
-	 */
-	public function get_storage_type() {
-		return $this->storage_type;
-	}
-
-	/**
-	 * Set storage type. Used only for Fast AJAX requests.
-	 *
-	 * @param string $storage_type
-	 * @param object $class
-	 *
-	 * @return bool
-	 */
-	public function set_storage_type( $storage_type, $class ) {
-		// allow only from pro counter class
-		if ( ! is_a( $class, 'Post_Views_Counter_Pro_Counter' ) )
-			return false;
-
-		// allow only fast ajax requests
-		if ( ! ( defined( 'SHORTINIT' ) && SHORTINIT ) )
-			return false;
-
-		// check post data
-		if ( ! isset( $_POST['action'], $_POST['content'], $_POST['type'], $_POST['subtype'], $_POST['storage_type'], $_POST['storage_data'], $_POST['pvcp_nonce'] ) )
-			return false;
-
-		// verify nonce
-		if ( ! wp_verify_nonce( $_POST['pvcp_nonce'], 'pvcp-check-post' ) )
-			return false;
-
-		// allow only valid storage type
-		if ( in_array( $storage_type, [ 'cookies', 'cookieless' ], true ) ) {
-			$this->storage_type = $storage_type;
-
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
 	 * Add Post ID to queue.
 	 *
 	 * @param int $post_id
