@@ -142,10 +142,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				if ( defined( 'SHORTINIT' ) && SHORTINIT ) {
 					include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-counter.php' );
 					include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-crawler-detect.php' );
-					include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-functions.php' );
 					include_once( POST_VIEWS_COUNTER_PATH . 'includes/functions.php' );
 
-					self::$instance->functions = new Post_Views_Counter_Functions();
 					self::$instance->counter = new Post_Views_Counter_Counter();
 					self::$instance->crawler = new Post_Views_Counter_Crawler_Detect();
 				// regular setup
