@@ -2,7 +2,7 @@
 /*
 Plugin Name: Post Views Counter
 Description: Know What Content Drives Your Audience. Collect and display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
-Version: 1.5.6
+Version: 1.5.7
 Author: dFactory
 Author URI: https://dfactory.co/
 Plugin URI: https://postviewscounter.com/
@@ -30,7 +30,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 	 * Post Views Counter final class.
 	 *
 	 * @class Post_Views_Counter
-	 * @version	1.5.6
+	 * @version	1.5.7
 	 */
 	final class Post_Views_Counter {
 
@@ -43,6 +43,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				'taxonomies_count'		=> false,
 				'users_count'			=> false,
 				'other_count'			=> false,
+				'technology_count'		=> false,
 				'data_storage'			=> 'cookies',
 				'amp_support'			=> false,
 				'counter_mode'			=> 'php',
@@ -102,7 +103,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				'deactivation_delete'	=> false,
 				'license'				=> ''
 			],
-			'version'	=> '1.5.6'
+			'version'	=> '1.5.7'
 		];
 
 		// instances

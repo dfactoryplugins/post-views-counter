@@ -239,6 +239,17 @@ class Post_Views_Counter_Settings {
 					'skip_saving'	=> true,
 					'value'			=> false
 				],
+				'technology_count' => [
+					'tab'			=> 'general',
+					'title'			=> __( 'Sources Count', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_settings',
+					'type'			=> 'boolean',
+					'label'			=> __( 'Enable to collect traffic information about browsers, devices, operating systems and referrers your website visitors are using.', 'post-views-counter' ),
+					'class'			=> 'pvc-pro',
+					'disabled'		=> true,
+					'skip_saving'	=> true,
+					'value'			=> false
+				],
 				'counter_mode' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Counter Mode', 'post-views-counter' ),
