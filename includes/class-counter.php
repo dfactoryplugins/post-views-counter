@@ -91,6 +91,13 @@ class Post_Views_Counter_Counter {
 	 * @return void
 	 */
 	public function print_queue_count() {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		// only load manual counter for js mode, not for rest_api mode
+		if ( $pvc->options['general']['counter_mode'] !== 'js' )
+			return;
+
 		// any ids to "view"?
 		if ( ! empty( $this->queue ) ) {
 			echo "
