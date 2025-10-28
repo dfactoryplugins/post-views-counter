@@ -497,6 +497,19 @@ class Post_Views_Counter_Counter {
 		if ( ! in_array( $storage_type, [ 'cookies', 'cookieless' ], true ) )
 			return new WP_Error( 'pvc_invalid_storage_type', __( 'Invalid storage type.', 'post-views-counter' ), [ 'status' => 404 ] );
 
+		// apply crawler/bot check filter
+		$allowed = apply_filters( 'pvc_rest_api_count_post_check', true, $request, $post_id );
+
+		if ( ! $allowed ) {
+			return new WP_REST_Response( [
+				'post_id'	=> $post_id,
+				'counted'	=> false,
+				'reason'	=> 'filtered',
+				'storage'	=> [],
+				'type'		=> 'post'
+			], 200 );
+		}
+
 		// set storage type
 		$this->storage_type = $storage_type;
 
