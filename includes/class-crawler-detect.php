@@ -175,10 +175,15 @@ class Post_Views_Counter_Crawler_Detect {
 		$crawlers = apply_filters( 'pvc_crawlers_list', $this->crawlers );
 
 		$agent = (string)( is_null( $user_agent ) ? $this->user_agent : $user_agent );
+		
+		// Treat empty or missing user agent as bot (security measure)
+		if ( strlen( trim( $agent ) ) === 0 )
+			return true;
+		
 		$agent = preg_replace( '/' . $this->get_exclusions() . '/i', '', $agent );
 
 		if ( strlen( trim( $agent ) ) === 0 )
-			return false;
+			return true;
 		else
 			$result = preg_match( '/' . $this->get_regex( $crawlers ) . '/i', trim( $agent ), $matches );
 
