@@ -152,7 +152,16 @@ class Post_Views_Counter_Crawler_Detect {
 	 * @return string
 	 */
 	public function get_regex( $crawlers = [] ) {
-		return '(' . implode( '|', empty( $crawlers ) ? $this->crawlers : $crawlers ) . ')';
+		$list = empty( $crawlers ) ? $this->crawlers : $crawlers;
+		
+		// Allow to intercept the regex
+		$regex = apply_filters( 'pvc_get_crawler_regex', null, $list );
+		
+		if ( $regex !== null ) {
+			return $regex;
+		}
+		
+		return '(' . implode( '|', $list ) . ')';
 	}
 
 	/**
@@ -161,6 +170,13 @@ class Post_Views_Counter_Crawler_Detect {
 	 * @return string
 	 */
 	public function get_exclusions() {
+		// Allow to intercept the exclusions regex
+		$regex = apply_filters( 'pvc_get_exclusions_regex', null, $this->exclusions );
+		
+		if ( $regex !== null ) {
+			return $regex;
+		}
+		
 		return '(' . implode( '|', $this->exclusions ) . ')';
 	}
 
