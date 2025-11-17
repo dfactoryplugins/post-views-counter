@@ -59,7 +59,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				'caching_compatibility'	=> false,
 				'object_cache'			=> false,
 				'flush_interval'		=> [
-					'number'	=> 0,
+					'number'	=> 5,
 					'type'		=> 'minutes'
 				],
 				'exclude'				=> [
