@@ -307,7 +307,7 @@ class Post_Views_Counter_Settings_API {
 
 		if ( $display_form ) {
 			echo '
-				<form action="options.php" method="post">';
+				<form action="options.php" method="post" novalidate>';
 		}
 
 		settings_fields( $setting );
