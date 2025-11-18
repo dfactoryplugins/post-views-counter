@@ -4,15 +4,15 @@ Tags: counter, postviews, statistics, analytics, pageviews
 Requires at least: 6.3.0
 Requires PHP: 7.4.0
 Tested up to: 6.8.3
-Stable tag: 1.5.7
+Stable tag: 1.5.8
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
-Know What Content Drives Your Audience. Collect and display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
+Post Views Counter allows you to collect and display how many times a post, page, or other content has been viewed in a simple, fast and reliable way.
 
 == Description ==
 
-Know What Content Drives Your Audience. Collect and display how many times a post, page or custom post type had been viewed in a simple, fast and reliable way.
+Post Views Counter allows you to collect and display how many times a post, page, or other content has been viewed in a simple, fast and reliable way.
 
 [Post Views Counter](https://postviewscounter.com/) gives you clear, accurate post view stats — right inside WordPress. No external tools. No bloat. Just the numbers you need to see what’s working.
 
@@ -22,7 +22,7 @@ Clarity, speed, and control:
 
 - **Clear, Focused Metrics** — You get a clear picture of how your posts are performing.
 - **Made for WordPress** — Runs entirely in your site. No GA, no third-party pipes; accurate counts in your Dashboard.
-- **Privacy-aware** — Data lives on your server, with controls that respect visitors’ rights and privacy regulations.
+- **Privacy-first** — Data lives on your server, with controls that respect visitors’ rights and privacy regulations.
 - **Works at scale** — Minimal overhead, no external scripts, Multisite-ready.
 - **Display anywhere** — Automatically show counts, or place them exactly where you want via blocks or shortcode.
 
@@ -89,6 +89,10 @@ If you’ve purchased Post Views Counter Pro, your license includes one year of 
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.5.8 =
+* Tweak: Updated default value for object cache flushing interval
+* Tweak: Treat empty or missing user agent as bot
 
 = 1.5.7 =
 * New: Count visits by referrer (Pro)
@@ -393,5 +397,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.5.7 =
-Prevent duplicate AJAX calls in REST API mode, Count visits by referrer (Pro), major FastAjax and object cache support improvements (Pro)
+= 1.5.8 =
+Tweak: Treat empty or missing user agent as bot
