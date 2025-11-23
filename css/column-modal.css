@@ -2,11 +2,6 @@
  * Post Views Counter - Column Modal Chart Styles
  */
 
-/* Clickable column link */
-.pvc-view-chart {
-	font-weight: 600;
-}
-
 /* Micromodal base styles */
 .pvc-modal {
 	display: none;
@@ -288,18 +283,6 @@
 		width: 100%;
 		text-align: center;
 	}
-}
-
-/* Accessibility improvements */
-.pvc-modal__close:focus-visible {
-	outline: 2px solid #2271b1;
-	outline-offset: 2px;
-}
-
-.pvc-view-chart:focus-visible {
-	outline: 2px solid #2271b1;
-	outline-offset: 2px;
-	border-radius: 2px;
 }
 
 /* Hide modal when printing */

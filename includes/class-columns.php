@@ -442,9 +442,7 @@ class Post_Views_Counter_Columns {
 				'loading'		=> __( 'Loading chart data...', 'post-views-counter' ),
 				'close'			=> __( 'Close', 'post-views-counter' ), 
 				'error'			=> __( 'An error occurred while fetching the data.', 'post-views-counter' ),
-				'summary'		=> __( 'Number of views during this period:', 'post-views-counter' ),
-				'view'			=> __( 'view', 'post-views-counter' ),
-				'views'			=> __( 'views', 'post-views-counter' )
+				'summary'		=> __( 'Total views in this period:', 'post-views-counter' )
 			]
 		] ) . "\n", 'before' );
 
