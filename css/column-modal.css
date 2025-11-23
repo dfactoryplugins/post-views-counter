@@ -97,7 +97,11 @@
 }
 
 .pvc-modal-count {
-	font-weight: 700;
+	font-weight: 100;
+	font-size: 32px;
+	line-height: 1;
+	margin-top: 5px;
+	display: block;
 }
 
 /* Chart container */

@@ -179,6 +179,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					self::$instance->counter = new Post_Views_Counter_Counter();
 
 					new Post_Views_Counter_Columns();
+					new Post_Views_Counter_Toolbar();
 
 					self::$instance->crawler = new Post_Views_Counter_Crawler_Detect();
 					self::$instance->frontend = new Post_Views_Counter_Frontend();
@@ -219,6 +220,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-admin.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-columns.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-toolbar.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-query.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-cron.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-counter.php' );
