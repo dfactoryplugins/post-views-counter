@@ -87,16 +87,23 @@
 	margin-bottom: 20px;
 }
 
-.pvc-modal-summary {
-	display: inline-block;
-}
-
 .pvc-modal-count {
 	font-weight: 100;
 	font-size: 32px;
 	line-height: 1;
-	margin-top: 5px;
-	display: block;
+}
+
+/* Modal stats structure */
+.pvc-modal-summary {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.pvc-modal-views-data {
+	display: flex;
+	align-items: center;
+	gap: 10px;
 }
 
 /* Chart container */
@@ -160,7 +167,7 @@
 }
 
 .pvc-modal-nav-next.pvc-disabled {
-	color: #a7aaad;
+	opacity: 0.5;
 	cursor: default;
 	pointer-events: none;
 }
@@ -168,7 +175,6 @@
 .pvc-modal-nav-current {
 	font-weight: 600;
 	font-size: 14px;
-	color: #1d2327;
 }
 
 /* Error state */

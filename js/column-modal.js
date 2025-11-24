@@ -49,18 +49,17 @@
 		$container.find( '.spinner' ).addClass( 'is-active' );
 
 		// clear previous content
-		$( '.pvc-modal-summary' ).text( '' );
+		$( '.pvc-modal-views-label' ).text( '' );
+		$( '.pvc-modal-count' ).text( '' );
 		$( '.pvc-modal-dates' ).html( '' );
 
 		return true;
 	}
 
-	/**
-	 * Reset modal content to initial state
-	 */
 	function resetModalContent() {
 		$( '#pvc-modal-title' ).text( '' );
-		$( '.pvc-modal-summary' ).text( '' );
+		$( '.pvc-modal-views-label' ).text( '' );
+		$( '.pvc-modal-count' ).text( '' );
 		$( '.pvc-modal-dates' ).html( '' );
 
 		const $container = $( '.pvc-modal-chart-container' );
@@ -128,7 +127,8 @@
 		$( ctx ).show();
 
 		// update stats
-		$( '.pvc-modal-summary' ).html( pvcColumnModal.i18n.summary + ' <span class="pvc-modal-count">' + data.total_views.toLocaleString() + '</span>' );
+		$( '.pvc-modal-views-label' ).text( pvcColumnModal.i18n.summary );
+		$( '.pvc-modal-count' ).text( data.total_views.toLocaleString() );
 
 		// update date navigation
 		$( '.pvc-modal-dates' ).html( data.dates_html );

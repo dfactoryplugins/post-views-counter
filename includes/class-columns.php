@@ -288,6 +288,17 @@ class Post_Views_Counter_Columns {
 			if ( $post_title === '' )
 				$post_title = __( '(no title)', 'post-views-counter' );
 
+			// get post type labels
+			$post_type_object = get_post_type_object( get_post_type( $id ) );
+
+			if ( $post_type_object ) {
+				$post_type_labels = get_post_type_labels( $post_type_object );
+			}
+
+			if ( $post_type_labels ) {
+				$post_title = $post_type_labels->singular_name . ': ' . $post_title;
+			}
+
 			// clickable link (modal opening handled via JavaScript)
 			echo '<a href="#" class="pvc-view-chart" data-post-id="' . esc_attr( $id ) . '" data-post-title="' . esc_attr( $post_title ) . '">' . esc_html( $count ) . '</a>';
 		}
@@ -634,7 +645,12 @@ class Post_Views_Counter_Columns {
 					</header>
 					<div class="pvc-modal__content">
 						<div class="pvc-modal-content-top">
-							<span class="pvc-modal-summary"></span>
+							<div class="pvc-modal-summary">
+								<span class="pvc-modal-views-label"></span>
+								<span class="pvc-modal-views-data">
+									<span class="pvc-modal-count"></span>
+								</span>
+							</div>
 						</div>
 						<div class="pvc-modal-chart-container">
 						<canvas id="pvc-modal-chart" height="200"></canvas>
