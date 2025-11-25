@@ -450,10 +450,12 @@ class Post_Views_Counter_Columns {
 			'ajaxURL'	=> admin_url( 'admin-ajax.php' ),
 			'nonce'		=> wp_create_nonce( 'pvc-column-modal' ),
 			'i18n'		=> [
-				'loading'		=> __( 'Loading chart data...', 'post-views-counter' ),
+				'loading'		=> __( 'Loading...', 'post-views-counter' ),
 				'close'			=> __( 'Close', 'post-views-counter' ), 
-				'error'			=> __( 'An error occurred while fetching the data.', 'post-views-counter' ),
-				'summary'		=> __( 'Total views in this period:', 'post-views-counter' )
+				'error'			=> __( 'An error occurred while loading data.', 'post-views-counter' ),
+				'summary'		=> __( 'Total views in this period:', 'post-views-counter' ),
+				'view'			=> __( 'view', 'post-views-counter' ),
+				'views'			=> __( 'views', 'post-views-counter' )
 			]
 		] ) . "\n", 'before' );
 

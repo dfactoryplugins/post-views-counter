@@ -4,7 +4,7 @@ Tags: counter, postviews, statistics, analytics, pageviews
 Requires at least: 6.3.0
 Requires PHP: 7.4.0
 Tested up to: 6.8.3
-Stable tag: 1.5.8
+Stable tag: 1.5.9
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -89,6 +89,11 @@ If you’ve purchased Post Views Counter Pro, your license includes one year of 
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.5.9 =
+* New: Admin column modal chart with post views data
+* New: Extended admin column modal with yearly and weekly views data (Pro)
+* New: Admin column modal chart for terms and users (Pro)
 
 = 1.5.8 =
 * Tweak: Updated default value for object cache flushing interval
@@ -397,5 +402,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.5.8 =
-Tweak: Treat empty or missing user agent as bot
+= 1.5.9 =
+New: Admin column modal chart with views data for posts, terms users.
