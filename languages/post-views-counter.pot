@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Views Counter\n"
-"POT-Creation-Date: 2025-11-24 20:26+0100\n"
+"POT-Creation-Date: 2025-11-25 11:19+0100\n"
 "PO-Revision-Date: 2015-04-08 18:59+0100\n"
 "Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
 "Language-Team: dFactory <info@dfactory.eu>\n"
@@ -115,7 +115,7 @@ msgstr ""
 msgid "You are not allowed to edit this item."
 msgstr ""
 
-#: ../includes/class-admin.php:108 ../includes/class-columns.php:481
+#: ../includes/class-admin.php:108 ../includes/class-columns.php:483
 #: ../includes/class-counter.php:491
 msgid "Invalid post ID."
 msgstr ""
@@ -148,38 +148,46 @@ msgid "(no title)"
 msgstr ""
 
 #: ../includes/class-columns.php:453
-msgid "Loading chart data..."
+msgid "Loading..."
 msgstr ""
 
-#: ../includes/class-columns.php:454 ../includes/class-columns.php:644
+#: ../includes/class-columns.php:454 ../includes/class-columns.php:646
 msgid "Close"
 msgstr ""
 
 #: ../includes/class-columns.php:455
-msgid "An error occurred while fetching the data."
+msgid "An error occurred while loading data."
 msgstr ""
 
 #: ../includes/class-columns.php:456
 msgid "Total views in this period:"
 msgstr ""
 
-#: ../includes/class-columns.php:472
+#: ../includes/class-columns.php:457
+msgid "view"
+msgstr ""
+
+#: ../includes/class-columns.php:458
+msgid "views"
+msgstr ""
+
+#: ../includes/class-columns.php:474
 msgid "Permission denied."
 msgstr ""
 
-#: ../includes/class-columns.php:487
+#: ../includes/class-columns.php:489
 msgid "Post not found."
 msgstr ""
 
-#: ../includes/class-columns.php:491
+#: ../includes/class-columns.php:493
 msgid "Admin column disabled."
 msgstr ""
 
-#: ../includes/class-columns.php:495
+#: ../includes/class-columns.php:497
 msgid "Post type is not tracked."
 msgstr ""
 
-#: ../includes/class-columns.php:499
+#: ../includes/class-columns.php:501
 msgid "Access denied for this post."
 msgstr ""
 
