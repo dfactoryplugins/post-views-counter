@@ -23,6 +23,7 @@ class Post_Views_Counter_Settings {
 
 		// filters
 		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_data' ] );
+		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_sections_compat' ], 99 );
 		add_filter( 'post_views_counter_settings_pages', [ $this, 'settings_page' ] );
 		add_filter( 'post_views_counter_settings_page_class', [ $this, 'settings_page_class' ] );
 	}
@@ -184,56 +185,102 @@ class Post_Views_Counter_Settings {
 			],
 			'validate' => [ $this, 'validate_settings' ],
 			'sections' => [
-				'post_views_counter_general_settings'	=> [
-					'tab'	=> 'general'
+				'post_views_counter_general_tracking_targets' => [
+					'tab'      => 'general',
+					'title'    => __( 'Tracking Targets', 'post-views-counter' ),
+					'callback' => [ $this, 'section_tracking_targets' ],
 				],
-				'post_views_counter_display_settings'	=> [
-					'tab'	=> 'display'
+				'post_views_counter_general_tracking_behavior' => [
+					'tab'      => 'general',
+					'title'    => __( 'Tracking Behavior', 'post-views-counter' ),
+					'callback' => [ $this, 'section_tracking_behavior' ],
+				],
+				'post_views_counter_general_exclusions' => [
+					'tab'      => 'general',
+					'title'    => __( 'Visitor Exclusions', 'post-views-counter' ),
+					'callback' => [ $this, 'section_tracking_exclusions' ],
+				],
+				'post_views_counter_general_performance' => [
+					'tab'      => 'general',
+					'title'    => __( 'Performance & Caching', 'post-views-counter' ),
+					'callback' => [ $this, 'section_tracking_performance' ],
+				],
+				'post_views_counter_display_appearance' => [
+					'tab'      => 'display',
+					'title'    => __( 'Counter Appearance', 'post-views-counter' ),
+					'callback' => [ $this, 'section_display_appearance' ],
+				],
+				'post_views_counter_display_locations' => [
+					'tab'   => 'display',
+					'title' => __( 'Display Targets', 'post-views-counter' ),
+					'callback' => [ $this, 'section_display_targets' ],
+				],
+				'post_views_counter_display_visibility' => [
+					'tab'   => 'display',
+					'title' => __( 'Display Audience', 'post-views-counter' ),
+					'callback' => [ $this, 'section_display_audience' ],
+				],
+				'post_views_counter_display_admin' => [
+					'tab'      => 'display',
+					'title'    => __( 'Admin Interface', 'post-views-counter' ),
+					'callback' => [ $this, 'section_display_admin' ],
 				],
 				'post_views_counter_reports_settings'	=> [
 					'tab'		=> 'reports',
 					'callback'  => [ $this, 'section_reports_placeholder' ]
 				],
-				'post_views_counter_other_settings'		=> [
-					'tab'	=> 'other'
+				'post_views_counter_other_status' => [
+					'tab'      => 'other',
+					'title'    => __( 'Plugin Status', 'post-views-counter' ),
+					'callback' => [ $this, 'section_other_status' ]
+				],
+				'post_views_counter_other_import' => [
+					'tab'      => 'other',
+					'title'    => __( 'Data Import', 'post-views-counter' ),
+					'callback' => [ $this, 'section_other_import' ]
+				],
+				'post_views_counter_other_management' => [
+					'tab'      => 'other',
+					'title'    => __( 'Admin & Cleanup', 'post-views-counter' ),
+					'callback' => [ $this, 'section_other_management' ]
 				]
 			],
 			'fields' => [
 				'post_types_count' => [
 					'tab'			=> 'general',
-					'title'			=> __( 'Post Types Count', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'title'			=> __( 'Post Types', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_tracking_targets',
 					'type'			=> 'checkbox',
 					'display_type'	=> 'horizontal',
-					'description'	=> __( 'Select post types for which post views will be counted.', 'post-views-counter' ),
+					'description'	=> __( 'Select post types whose views should be counted.', 'post-views-counter' ),
 					'options'		=> $post_types
 				],
 				'taxonomies_count' => [
 					'tab'			=> 'general',
-					'title'			=> __( 'Taxonomies Count', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'title'			=> __( 'Taxonomies', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_tracking_targets',
 					'type'			=> 'custom',
-					'label'			=> __( 'Enable to count taxonomy terms visits.', 'post-views-counter' ),
+					'label'			=> __( 'Enable counting views on taxonomy term archive pages.', 'post-views-counter' ),
 					'class'			=> 'pvc-pro',
 					'skip_saving'	=> true,
 					'callback'		=> [ $this, 'setting_taxonomies_count' ]
 				],
 				'users_count' => [
 					'tab'			=> 'general',
-					'title'			=> __( 'Authors Count', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'title'			=> __( 'Author Archives', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_tracking_targets',
 					'type'			=> 'custom',
-					'label'			=> __( 'Enable to count authors archive visits.', 'post-views-counter' ),
+					'label'			=> __( 'Enable counting views on author archive pages.', 'post-views-counter' ),
 					'class'			=> 'pvc-pro',
 					'skip_saving'	=> true,
 					'callback'		=> [ $this, 'setting_users_count' ]
 				],
 				'other_count' => [
 					'tab'			=> 'general',
-					'title'			=> __( 'Other Count', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'title'			=> __( 'Other Pages', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_tracking_targets',
 					'type'			=> 'boolean',
-					'label'			=> __( 'Enable to count visits of front page, post type and date archives, 404 and search pages.', 'post-views-counter' ),
+					'label'			=> __( 'Track views on the front page, post type archives, date archives, search results, and 404 pages.', 'post-views-counter' ),
 					'class'			=> 'pvc-pro',
 					'disabled'		=> true,
 					'skip_saving'	=> true,
@@ -241,10 +288,10 @@ class Post_Views_Counter_Settings {
 				],
 				'technology_count' => [
 					'tab'			=> 'general',
-					'title'			=> __( 'Sources Count', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'title'			=> __( 'Traffic Sources', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_tracking_targets',
 					'type'			=> 'boolean',
-					'label'			=> __( 'Enable to collect traffic information about browsers, devices, operating systems and referrers your website visitors are using.', 'post-views-counter' ),
+					'label'			=> __( 'Collect aggregate stats about visitors\' browsers, devices, operating systems and referrers.', 'post-views-counter' ),
 					'class'			=> 'pvc-pro',
 					'disabled'		=> true,
 					'skip_saving'	=> true,
@@ -253,9 +300,9 @@ class Post_Views_Counter_Settings {
 				'counter_mode' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Counter Mode', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'section'		=> 'post_views_counter_general_tracking_behavior',
 					'type'			=> 'radio',
-					'description'	=> __( 'Select the method of collecting post views data. If you are using any of the caching plugins select JavaScript, REST API or Fast AJAX (up to <code>10+</code> times faster!).', 'post-views-counter' ),
+					'description'	=> __( 'Choose how views are recorded. If you use caching, select JavaScript, REST API or Fast AJAX (up to <code>10+</code> times faster).', 'post-views-counter' ),
 					'class'			=> 'pvc-pro-extended',
 					'options'		=> $this->get_counter_modes(),
 					'disabled'		=> [ 'ajax' ]
@@ -263,7 +310,7 @@ class Post_Views_Counter_Settings {
 				'data_storage' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Data Storage', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'section'		=> 'post_views_counter_general_tracking_behavior',
 					'type'			=> 'radio',
 					'class'			=> 'pvc-pro',
 					'skip_saving'	=> true,
@@ -278,19 +325,19 @@ class Post_Views_Counter_Settings {
 				'amp_support' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'AMP Support', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'section'		=> 'post_views_counter_general_tracking_behavior',
 					'type'			=> 'boolean',
 					'class'			=> 'pvc-pro',
 					'disabled'		=> true,
 					'skip_saving'	=> true,
 					'value'			=> false,
-					'label'			=> __( 'Enable to support Google AMP.', 'post-views-counter' ),
-					'description'	=> __( 'This feature requires official WordPress Google AMP plugin to be installed and activated.', 'post-views-counter' )
+					'label'			=> __( 'Enable support for Google AMP.', 'post-views-counter' ),
+					'description'	=> sprintf( __( 'This feature requires the official %s plugin to be installed and activated.', 'post-views-counter' ), '<code><a href="https://wordpress.org/plugins/amp/" target="_blank">AMP</a></code>' )
 				],
 				'time_between_counts' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Count Interval', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'section'		=> 'post_views_counter_general_tracking_behavior',
 					'type'			=> 'custom',
 					'description'	=> '',
 					'min'			=> 0,
@@ -302,7 +349,7 @@ class Post_Views_Counter_Settings {
 				'count_time' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Count Time', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'section'		=> 'post_views_counter_general_tracking_behavior',
 					'type'			=> 'radio',
 					'class'			=> 'pvc-pro',
 					'skip_saving'	=> true,
@@ -316,22 +363,22 @@ class Post_Views_Counter_Settings {
 				],
 				'strict_counts' => [
 					'tab'			=> 'general',
-					'title'			=> __( 'Strict counts', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'title'			=> __( 'Strict Counts', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_general_tracking_behavior',
 					'type'			=> 'boolean',
 					'class'			=> 'pvc-pro',
 					'disabled'		=> true,
 					'skip_saving'	=> true,
 					'value'			=> false,
 					'description'	=> '',
-					'label'			=> __( 'Enable to prevent bypassing the counts interval (for e.g. using incognito browser window or by clearing cookies).', 'post-views-counter' )
+					'label'			=> __( 'Prevent bypassing the count interval (for example by using incognito mode or clearing cookies).', 'post-views-counter' )
 				],
 				'reset_counts' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Cleanup Interval', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'section'		=> 'post_views_counter_general_tracking_behavior',
 					'type'			=> 'custom',
-					'description'	=> sprintf( __( 'Delete single day post views data older than specified above. Enter %s if you want to preserve your daily views data regardless of its age.', 'post-views-counter' ), '<code>0</code>' ),
+					'description'	=> sprintf( __( 'Delete daily content view data older than the period specified above. Enter %s to keep data regardless of age. Cleanup runs once per day.', 'post-views-counter' ), '<code>0</code>' ),
 					'min'			=> 0,
 					'max'			=> 999999,
 					'options'		=> $time_types,
@@ -341,31 +388,31 @@ class Post_Views_Counter_Settings {
 				'caching_compatibility' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Caching Compatibility', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'section'		=> 'post_views_counter_general_performance',
 					'type'			=> 'boolean',
 					'class'			=> 'pvc-pro',
 					'disabled'		=> true,
 					'value'			=> false,
 					'skip_saving'	=> true,
-					'label'			=> __( 'Enable to apply changes improving compatibility with caching plugins.', 'post-views-counter' ),
+					'label'			=> __( 'Enable compatibility tweaks for supported caching plugins.', 'post-views-counter' ),
 					'description'	=> $this->get_caching_compatibility_description()
 				],
 				'object_cache' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Object Cache Support', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'section'		=> 'post_views_counter_general_performance',
 					'type'			=> 'boolean',
 					'class'			=> 'pvc-pro',
 					'disabled'		=> true,
 					'value'			=> false,
 					'skip_saving'	=> true,
-					'label'			=> sprintf( __( 'Enable to use object cache optimization.', 'post-views-counter' ), '<code>Redis</code>', '<code>Memcached</code>' ),
+					'label'			=> __( 'Enable Redis or Memcached object cache optimization.', 'post-views-counter' ),
 					'description'	=> sprintf( __( 'This feature requires a persistent object cache like %s or %s to be installed and activated.', 'post-views-counter' ), '<code>Redis</code>', '<code>Memcached</code>' ) . '<br />' . __( 'Current status', 'post-views-counter' ) . ': <span class="' . ( $wp_using_ext_object_cache ? '' : 'un' ) . 'available">' . ( $wp_using_ext_object_cache ? __( 'available', 'post-views-counter' ) : __( 'unavailable', 'post-views-counter' ) ) . '</span>.'
 				],
 				'exclude' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Exclude Visitors', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'section'		=> 'post_views_counter_general_exclusions',
 					'type'			=> 'custom',
 					'description'	=> '',
 					'class'			=> 'pvc-pro-extended',
@@ -382,7 +429,7 @@ class Post_Views_Counter_Settings {
 				'exclude_ips' => [
 					'tab'			=> 'general',
 					'title'			=> __( 'Exclude IPs', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_general_settings',
+					'section'		=> 'post_views_counter_general_exclusions',
 					'type'			=> 'custom',
 					'description'	=> '',
 					'callback'		=> [ $this, 'setting_exclude_ips' ],
@@ -391,9 +438,9 @@ class Post_Views_Counter_Settings {
 				'label' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Views Label', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'section'		=> 'post_views_counter_display_appearance',
 					'type'			=> 'input',
-					'description'	=> __( 'Enter the label for the post views counter field.', 'post-views-counter' ),
+					'description'	=> __( 'Text shown next to the view count.', 'post-views-counter' ),
 					'subclass'		=> 'regular-text',
 					'validate'		=> [ $this, 'validate_label' ],
 					'reset'			=> [ $this, 'reset_label' ]
@@ -401,12 +448,12 @@ class Post_Views_Counter_Settings {
 				'display_period' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Views Period', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'section'		=> 'post_views_counter_display_appearance',
 					'type'			=> 'select',
 					'class'			=> 'pvc-pro',
 					'disabled'		=> true,
 					'skip_saving'	=> true,
-					'description'	=> __( 'Select the time period to be included when displaying the number of views. The default display is the total number of views of the post.', 'post-views-counter' ),
+					'description'	=> __( 'Time range used when displaying the number of views. Only total views are available without Post Views Counter Pro.', 'post-views-counter' ),
 					'options'		=> 	[
 						'total'		=> __( 'Total Views', 'post-views-counter' )
 					]
@@ -414,75 +461,75 @@ class Post_Views_Counter_Settings {
 				'display_style' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Display Style', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'section'		=> 'post_views_counter_display_appearance',
 					'type'			=> 'custom',
-					'description'	=> __( 'Choose how to display the post views counter.', 'post-views-counter' ),
+					'description'	=> __( 'Choose whether to show an icon, label text, or both.', 'post-views-counter' ),
 					'callback'		=> [ $this, 'setting_display_style' ],
 					'validate'		=> [ $this, 'validate_display_style' ],
 					'options'		=> [
-						'icon'	=> __( 'icon', 'post-views-counter' ),
-						'text'	=> __( 'label', 'post-views-counter' )
+						'icon'	=> __( 'Icon', 'post-views-counter' ),
+						'text'	=> __( 'Label', 'post-views-counter' )
 					]
 				],
 				'icon_class' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Icon Class', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'section'		=> 'post_views_counter_display_appearance',
 					'type'			=> 'class',
 					'default'		=> '',
-					'description'	=> sprintf( __( 'Enter the post views icon class. Any of the <a href="%s" target="_blank">Dashicons</a> classes are available.', 'post-views-counter' ), 'https://developer.wordpress.org/resource/dashicons/' ),
+					'description'	=> sprintf( __( 'Enter the CSS class for the views icon. Any Dashicons class is supported.', 'post-views-counter' ), 'https://developer.wordpress.org/resource/dashicons/' ),
 					'subclass'		=> 'regular-text'
 				],
 				'position' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Position', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'section'		=> 'post_views_counter_display_locations',
 					'type'			=> 'select',
-					'description'	=> sprintf( __( 'Select where would you like to display the post views counter. Use %s shortcode for manual display.', 'post-views-counter' ), '<code>[post-views]</code>' ),
+					'description'	=> sprintf( __( 'Where to insert the counter automatically. Use %s shortcode for manual placement.', 'post-views-counter' ), '<code>[post-views]</code>' ),
 					'options'		=> [
-						'before'	=> __( 'before the content', 'post-views-counter' ),
-						'after'		=> __( 'after the content', 'post-views-counter' ),
-						'manual'	=> __( 'manual', 'post-views-counter' )
+						'before'	=> __( 'Before the content', 'post-views-counter' ),
+						'after'		=> __( 'After the content', 'post-views-counter' ),
+						'manual'	=> __( 'Manual only', 'post-views-counter' )
 					]
 				],
 				'post_views_column' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Admin Column', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'section'		=> 'post_views_counter_display_admin',
 					'type'			=> 'boolean',
 					'description'	=> '',
-					'label'			=> __( 'Enable to display views count admin column.', 'post-views-counter' )
+					'label'			=> __( 'Show a “Views” column on post and page list screens.', 'post-views-counter' )
 				],
 				'restrict_edit_views' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Admin Edit', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'section'		=> 'post_views_counter_display_admin',
 					'type'			=> 'boolean',
 					'description'	=> '',
-					'label'			=> __( 'Enable to allow views count editing.', 'post-views-counter' )
+					'label'			=> __( 'Allow editing the view count on the post edit screen.', 'post-views-counter' )
 				],
 				'dynamic_loading' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Dynamic Loading', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'section'		=> 'post_views_counter_display_appearance',
 					'type'			=> 'boolean',
 					'class'			=> 'pvc-pro',
 					'disabled'		=> true,
 					'skip_saving'	=> true,
 					'value'			=> false,
-					'label'			=> __( 'Enable dynamic loading and prevent caching of the displayed views count.', 'post-views-counter' )
+					'label'			=> __( 'Load the view count dynamically to avoid caching the displayed value.', 'post-views-counter' )
 				],
 				'use_format' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Format Number', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'section'		=> 'post_views_counter_display_appearance',
 					'type'			=> 'boolean',
-					'label'			=> __( 'Enable to display the views number formatted based on the locale (using the WP number_format_i18n function).', 'post-views-counter' )
+					'label'			=> __( 'Format the view count according to the site locale (uses the WordPress number_format_i18n function).', 'post-views-counter' )
 				],
 				'taxonomies_display' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Taxonomies', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'section'		=> 'post_views_counter_display_locations',
 					'type'			=> 'custom',
 					'class'			=> 'pvc-pro',
 					'skip_saving'	=> true,
@@ -491,37 +538,37 @@ class Post_Views_Counter_Settings {
 				],
 				'user_display' => [
 					'tab'			=> 'display',
-					'title'			=> __( 'Authors', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'title'			=> __( 'Author Archives', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_display_locations',
 					'type'			=> 'boolean',
 					'class'			=> 'pvc-pro',
 					'disabled'		=> true,
 					'skip_saving'	=> true,
 					'value'			=> false,
-					'label'			=> __( 'Display number of views on authors archive pages.', 'post-views-counter' )
+					'label'			=> __( 'Display the view count on author archive pages.', 'post-views-counter' )
 				],
 				'post_types_display' => [
 					'tab'			=> 'display',
-					'title'			=> __( 'Post Type', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'title'			=> __( 'Post Types', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_display_locations',
 					'type'			=> 'checkbox',
 					'display_type'	=> 'horizontal',
-					'description'	=> __( 'Select post types for which the views count will be displayed.', 'post-views-counter' ),
+					'description'	=> __( 'Select post types where the view counter will be displayed.', 'post-views-counter' ),
 					'options'		=> $post_types
 				],
 				'page_types_display' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Page Type', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'section'		=> 'post_views_counter_display_locations',
 					'type'			=> 'checkbox',
 					'display_type'	=> 'horizontal',
-					'description'	=> __( 'Select page types where the views count will be displayed.', 'post-views-counter' ),
+					'description'	=> __( 'Select page contexts where the view counter will be displayed.', 'post-views-counter' ),
 					'options'		=> apply_filters(
 						'pvc_page_types_display_options',
 						[
 							'home'		=> __( 'Home', 'post-views-counter' ),
 							'archive'	=> __( 'Archives', 'post-views-counter' ),
-							'singular'	=> __( 'Single pages', 'post-views-counter' ),
+							'singular'	=> __( 'Single posts and pages', 'post-views-counter' ),
 							'search'	=> __( 'Search results', 'post-views-counter' ),
 						]
 					)
@@ -529,7 +576,7 @@ class Post_Views_Counter_Settings {
 				'restrict_display' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'User Type', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'section'		=> 'post_views_counter_display_visibility',
 					'type'			=> 'custom',
 					'description'	=> '',
 					'options'		=> [
@@ -542,15 +589,15 @@ class Post_Views_Counter_Settings {
 				'toolbar_statistics' => [
 					'tab'			=> 'display',
 					'title'			=> __( 'Toolbar Chart', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_display_settings',
+					'section'		=> 'post_views_counter_display_admin',
 					'type'			=> 'boolean',
-					'description'	=> __( 'The post views chart will be displayed for the post types that are being counted.', 'post-views-counter' ),
-					'label'			=> __( 'Enable to display the post views chart at the toolbar.', 'post-views-counter' )
+					'description'	=> __( 'A views chart is shown for content types that are being counted.', 'post-views-counter' ),
+					'label'			=> __( 'Show a views chart in the admin toolbar.', 'post-views-counter' )
 				],
 				'license' => [
 					'tab'			=> 'other',
 					'title'			=> __( 'License', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_other_settings',
+					'section'		=> 'post_views_counter_other_status',
 					'disabled'		=> true,
 					'value'			=> $pvc->options['other']['license'],
 					'type'			=> 'input',
@@ -562,39 +609,39 @@ class Post_Views_Counter_Settings {
 				'menu_position' => [
 					'tab'			=> 'other',
 					'title'			=> __( 'Menu Position', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_other_settings',
+					'section'		=> 'post_views_counter_other_management',
 					'type'			=> 'radio',
 					'options'		=> [
 						'top'	=> __( 'Top menu', 'post-views-counter' ),
 						'sub'	=> __( 'Settings submenu', 'post-views-counter' )
 					],
-					'description'	=> __( "Choose where to display the plugin's menu.", 'post-views-counter' ),
+					'description'	=> __( 'Choose where the plugin menu appears in the admin sidebar.', 'post-views-counter' ),
 				],
 				'import_views' => [
 					'tab'			=> 'other',
 					'title'			=> __( 'Import Views', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_other_settings',
+					'section'		=> 'post_views_counter_other_import',
 					'type'			=> 'custom',
-					'description'	=> '',
+					'description'	=> __( 'Import views from another plugin using this meta key.', 'post-views-counter' ),
 					'skip_saving'	=> true,
 					'callback'		=> [ $this, 'setting_import_views' ]
 				],
 				'delete_views' => [
 					'tab'			=> 'other',
 					'title'			=> __( 'Delete Views', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_other_settings',
+					'section'		=> 'post_views_counter_other_import',
 					'type'			=> 'custom',
-					'description'	=> '',
+					'description'	=> __( 'Permanently delete all stored view data. This cannot be undone.', 'post-views-counter' ),
 					'skip_saving'	=> true,
 					'callback'		=> [ $this, 'setting_delete_views' ]
 				],
 				'deactivation_delete' => [
 					'tab'			=> 'other',
 					'title'			=> __( 'Deactivation', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_other_settings',
+					'section'		=> 'post_views_counter_other_management',
 					'type'			=> 'boolean',
-					'description'	=> __( 'If you deactivate the plugin with this option enabled all plugin data will be deleted along with the number of post views.', 'post-views-counter' ),
-					'label'			=> __( 'Enable to delete all plugin data on deactivation.', 'post-views-counter' )
+					'description'	=> __( 'When enabled, deactivating the plugin will delete all plugin data from the database, including all content view counts.', 'post-views-counter' ),
+					'label'			=> __( 'Delete all plugin data on deactivation.', 'post-views-counter' )
 				]
 			]
 		];
@@ -1096,7 +1143,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		$html .= '
-			<p class="description">' . esc_html__( 'Select taxonomies for which the views count will be displayed.', 'post-views-counter' ) . '</p>';
+			<p class="description">' . esc_html__( 'Select taxonomies where the view counter will be displayed.', 'post-views-counter' ) . '</p>';
 
 		return $html;
 	}
@@ -1210,7 +1257,7 @@ class Post_Views_Counter_Settings {
 
 		$html .= '
 		</select>
-		<p class="description">' . sprintf( __( 'Enter the time between single user visit count. Enter %s if you want to count every page view.', 'post-views-counter' ), '<code>0</code>' ) . '</p>';
+		<p class="description">' . sprintf( __( 'Minimum time between counting new views from the same visitor. Enter %s to count every page view.', 'post-views-counter' ), '<code>0</code>' ) . '</p>';
 
 		return $html;
 	}
@@ -1333,7 +1380,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		$html .= '
-			<p class="description">' . __( 'Use it exclude specific user groups from post views count.', 'post-views-counter' ) . '</p>
+			<p class="description">' . __( 'Use this to exclude specific visitor groups from counting views.', 'post-views-counter' ) . '</p>
 			<div class="pvc_user_roles pvc_subfield"' . ( in_array( 'roles', $pvc->options['general']['exclude']['groups'], true ) ? '' : ' style="display: none;"' ) . '>';
 
 		foreach ( $field['options']['roles'] as $role => $role_name ) {
@@ -1342,7 +1389,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		$html .= '
-				<p class="description">' . __( 'Use it to exclude specific user roles from post views count.', 'post-views-counter' ) . '</p>
+				<p class="description">' . __( 'Use this to exclude specific user roles from counting views.', 'post-views-counter' ) . '</p>
 			</div>';
 
 		return $html;
@@ -1417,7 +1464,7 @@ class Post_Views_Counter_Settings {
 
 		$html .= '
 			<p><input type="button" class="button button-secondary add-exclude-ip" value="' . esc_attr__( 'Add new', 'post-views-counter' ) . '" /> <input type="button" class="button button-secondary add-current-ip" value="' . esc_attr__( 'Add my current IP', 'post-views-counter' ) . '" data-rel="' . esc_attr( $_SERVER['REMOTE_ADDR'] ) . '" /></p>
-			<p class="description">' . esc_html__( 'Enter the IP addresses to be excluded from post views count.', 'post-views-counter' ) . '</p>';
+			<p class="description">' . esc_html__( 'Add IP addresses or wildcards (e.g. 192.168.0.*) to exclude them from counting views.', 'post-views-counter' ) . '</p>';
 
 		return $html;
 	}
@@ -1504,7 +1551,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		$html .= '
-			<p class="description">' . __( 'Use it to hide the post views counter from selected type of visitors.', 'post-views-counter' ) . '</p>
+			<p class="description">' . __( 'Hide the view counter for selected visitor groups.', 'post-views-counter' ) . '</p>
 			<div class="pvc_user_roles pvc-subfield"' . ( in_array( 'roles', $pvc->options['display']['restrict_display']['groups'], true ) ? '' : ' style="display: none;"' ) . '>';
 
 		foreach ( $field['options']['roles'] as $role => $role_name ) {
@@ -1513,7 +1560,7 @@ class Post_Views_Counter_Settings {
 		}
 
 		$html .= '
-				<p class="description">' . __( 'Use it to hide the post views counter from selected user roles.', 'post-views-counter' ) . '</p>
+				<p class="description">' . __( 'Hide the view counter for selected user roles.', 'post-views-counter' ) . '</p>
 			</div>';
 
 		return $html;
@@ -1591,5 +1638,142 @@ class Post_Views_Counter_Settings {
 	public function validate_license( $input, $field ) {
 		// save value from database
 		return $field['value'];
+	}
+
+	/**
+	 * Section description: display targets.
+	 *
+	 * @return void
+	 */
+	public function section_display_targets() {
+		echo '<p class="description">' . esc_html__( 'Choose where the counter is inserted and which content types it attaches to.', 'post-views-counter' ) . '</p>';
+	}
+
+	/**
+	 * Section description: display audience.
+	 *
+	 * @return void
+	 */
+	public function section_display_audience() {
+		echo '<p class="description">' . esc_html__( 'Control which visitor groups can see the counter. These rules apply on top of the display targets.', 'post-views-counter' ) . '</p>';
+	}
+
+	/**
+	 * Section description: counter appearance.
+	 *
+	 * @return void
+	 */
+	public function section_display_appearance() {
+		echo '<p class="description">' . esc_html__( 'Adjust the label, period, icon, and formatting used when the counter is rendered.', 'post-views-counter' ) . '</p>';
+	}
+
+	/**
+	 * Section description: admin interface.
+	 *
+	 * @return void
+	 */
+	public function section_display_admin() {
+		echo '<p class="description">' . esc_html__( 'Control how view counts are shown and managed in wp-admin (columns, edit permissions, toolbar chart).', 'post-views-counter' ) . '</p>';
+	}
+
+	/**
+	 * Section description: other - status.
+	 *
+	 * @return void
+	 */
+	public function section_other_status() {
+		echo '<p class="description">' . esc_html__( 'View license details and other status information.', 'post-views-counter' ) . '</p>';
+	}
+
+	/**
+	 * Section description: other - data import.
+	 *
+	 * @return void
+	 */
+	public function section_other_import() {
+		echo '<p class="description">' . esc_html__( 'Import view counts when migrating from other analytics plugins.', 'post-views-counter' ) . '</p>';
+	}
+
+	/**
+	 * Section description: other - admin & cleanup.
+	 *
+	 * @return void
+	 */
+	public function section_other_management() {
+		echo '<p class="description">' . esc_html__( 'Configure admin menu placement and what happens to data when the plugin is deactivated.', 'post-views-counter' ) . '</p>';
+	}
+
+	/**
+	 * Section description: tracking targets.
+	 *
+	 * @return void
+	 */
+	public function section_tracking_targets() {
+		echo '<p class="description">' . esc_html__( 'Control which post types, archives and other content types are included in view counting.', 'post-views-counter' ) . '</p>';
+	}
+
+	/**
+	 * Section description: tracking behavior.
+	 *
+	 * @return void
+	 */
+	public function section_tracking_behavior() {
+		echo '<p class="description">' . esc_html__( 'Control how views are recorded — counting mode, intervals, time zone, and cleanup.', 'post-views-counter' ) . '</p>';
+	}
+
+	/**
+	 * Section description: tracking exclusions.
+	 *
+	 * @return void
+	 */
+	public function section_tracking_exclusions() {
+		echo '<p class="description">' . esc_html__( 'Exclude specific visitor groups or IP addresses from incrementing view counts.', 'post-views-counter' ) . '</p>';
+	}
+
+	/**
+	 * Section description: performance & caching.
+	 *
+	 * @return void
+	 */
+	public function section_tracking_performance() {
+		echo '<p class="description">' . esc_html__( 'Configure caching compatibility and object-cache handling for counting.', 'post-views-counter' ) . '</p>';
+	}
+
+	/**
+	 * Backward compatibility for section IDs.
+	 *
+	 * @param array $settings
+	 * @return array
+	 */
+	public function settings_sections_compat( $settings ) {
+		if ( empty( $settings['post-views-counter']['fields'] ) )
+			return $settings;
+
+		$fields =& $settings['post-views-counter']['fields'];
+
+		$compat_sections = [
+			'technology_count' => [
+				'legacy' => 'post_views_counter_general_settings',
+				'current' => 'post_views_counter_general_tracking_targets'
+			],
+			'post_views_column' => [
+				'legacy' => 'post_views_counter_display_settings',
+				'current' => 'post_views_counter_display_admin'
+			],
+			'restrict_edit_views' => [
+				'legacy' => 'post_views_counter_display_settings',
+				'current' => 'post_views_counter_display_admin'
+			]
+		];
+
+		foreach ( $compat_sections as $field => $map ) {
+			if ( empty( $fields[$field] ) )
+				continue;
+
+			if ( isset( $fields[$field]['section'] ) && $fields[$field]['section'] === $map['legacy'] )
+				$fields[$field]['section'] = $map['current'];
+		}
+
+		return $settings;
 	}
 }
