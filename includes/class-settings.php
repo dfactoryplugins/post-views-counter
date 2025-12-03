@@ -26,6 +26,7 @@ class Post_Views_Counter_Settings {
 		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_sections_compat' ], 99 );
 		add_filter( 'post_views_counter_settings_pages', [ $this, 'settings_page' ] );
 		add_filter( 'post_views_counter_settings_page_class', [ $this, 'settings_page_class' ] );
+		add_filter( 'pvc_plugin_status_tables', [ $this, 'register_core_tables' ] );
 	}
 
 	/**
@@ -453,7 +454,7 @@ class Post_Views_Counter_Settings {
 					'class'			=> 'pvc-pro',
 					'disabled'		=> true,
 					'skip_saving'	=> true,
-					'description'	=> __( 'Time range used when displaying the number of views. Only total views are available without Post Views Counter Pro.', 'post-views-counter' ),
+					'description'	=> __( 'Time range used when displaying the number of views.', 'post-views-counter' ),
 					'options'		=> 	[
 						'total'		=> __( 'Total Views', 'post-views-counter' )
 					]
@@ -596,7 +597,7 @@ class Post_Views_Counter_Settings {
 				],
 				'license' => [
 					'tab'			=> 'other',
-					'title'			=> __( 'License', 'post-views-counter' ),
+					'title'			=> __( 'License Key', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_other_status',
 					'disabled'		=> true,
 					'value'			=> $pvc->options['other']['license'],
@@ -1673,7 +1674,7 @@ class Post_Views_Counter_Settings {
 	 * @return void
 	 */
 	public function section_display_admin() {
-		echo '<p class="description">' . esc_html__( 'Control how view counts are shown and managed in wp-admin (columns, edit permissions, toolbar chart).', 'post-views-counter' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Control how view counts are shown and managed in WordPress admin (columns, edit permissions, toolbar chart).', 'post-views-counter' ) . '</p>';
 	}
 
 	/**
@@ -1683,6 +1684,179 @@ class Post_Views_Counter_Settings {
 	 */
 	public function section_other_status() {
 		echo '<p class="description">' . esc_html__( 'View license details and other status information.', 'post-views-counter' ) . '</p>';
+
+		// render plugin status rows
+		$rows = $this->get_plugin_status_rows();
+
+		echo '<table class="form-table pvc-status-table"><tbody>'; 
+		foreach ( (array) $rows as $row ) {
+			$label = isset( $row['label'] ) ? $row['label'] : '';
+			$value = isset( $row['value'] ) ? $row['value'] : '';
+			$active = isset( $row['active'] ) ? (bool) $row['active'] : null;
+			$tables = isset( $row['tables'] ) ? $row['tables'] : null;
+
+			echo '<tr>';
+				echo '<th scope="row">' . esc_html( $label ) . '</th>';
+				echo '<td>';
+
+			// handle tables structure with individual badges
+			if ( is_array( $tables ) && ! empty( $tables ) ) {
+				foreach ( $tables as $table ) {
+					$table_name = isset( $table['name'] ) ? esc_html( $table['name'] ) : '';
+					$table_label = isset( $table['label'] ) ? esc_html( $table['label'] ) : $table_name;
+					$table_exists = isset( $table['exists'] ) ? (bool) $table['exists'] : false;
+
+					echo '<div style="margin-bottom: 5px;">';
+					echo $table_label;
+					if ( $table_exists ) {
+						echo ' <span class="pvc-status pvc-status-active">&#10003;</span>';
+					} else {
+						echo ' <span class="pvc-status pvc-status-missing">&#10007;</span>';
+					}
+					echo '</div>';
+				}
+			// handle boolean active status
+			} elseif ( $active === true ) {
+				 echo '<span class="pvc-status pvc-status-active">&#10003; ' . esc_html__( 'Active', 'post-views-counter' ) . '</span>';
+			} elseif ( $active === false ) {
+				 echo '<span class="pvc-status pvc-status-missing">&#10007; ' . esc_html__( 'Not Detected', 'post-views-counter' ) . '</span>';
+			// handle plain text value
+			} else {
+				echo esc_html( $value );
+			}				echo '</td>';
+			echo '</tr>';
+		}
+		echo '</tbody></table>';
+	}
+
+	/**
+	 * Prepare an array with plugin status rows.
+	 *
+	 * Rows should be associative arrays with: label, value (string) and optional active (bool) key.
+	 * The returned rows will be filtered by 'pvc_plugin_status_rows' which allows extensions to add/modify rows.
+	 *
+	 * @return array
+	 */
+	protected function get_plugin_status_rows() {
+		global $wpdb;
+
+		$pvc = Post_Views_Counter();
+		$version = isset( $pvc->defaults['version'] ) ? $pvc->defaults['version'] : '';
+
+		if ( empty( $version ) ) {
+			$version = esc_html__( 'unknown', 'post-views-counter' );
+		}
+
+		// detect pro activation status
+		$pvc_pro_active = class_exists( 'Post_Views_Counter_Pro' );
+
+		// get database tables via filter
+		$tables = $this->get_plugin_status_tables();
+
+		$rows = [
+			[
+				'label' => __( 'Plugin Version', 'post-views-counter' ),
+				'value' => $version
+			]
+		];
+
+		// add database tables row if any tables are defined
+		if ( ! empty( $tables ) ) {
+			$rows[] = [
+				'label' => __( 'Database Tables', 'post-views-counter' ),
+				'tables' => $tables
+			];
+		}
+
+		// add pro status after tables
+		$rows[] = [
+			'label' => 'Post Views Counter Pro',
+			'active' => $pvc_pro_active
+		];
+
+		/**
+		 * Filter the plugin status rows.
+		 *
+		 * Allows extensions to add or modify status rows displayed in the settings page.
+		 *
+		 * @since 1.5.9
+		 * @param array $rows Status rows
+		 * @param Post_Views_Counter_Settings $this Instance of settings class
+		 */
+		$rows = apply_filters( 'pvc_plugin_status_rows', $rows, $this );
+
+		return $rows;
+	}
+
+	/**
+	 * Get database tables for status display.
+	 *
+	 * Collects table definitions via filter, validates that table names contain 'post_views',
+	 * checks actual existence in database, and returns formatted array.
+	 *
+	 * @return array
+	 */
+	protected function get_plugin_status_tables() {
+		global $wpdb;
+
+		/**
+		 * Filter the database tables to check for plugin status.
+		 *
+		 * @since 1.5.9
+		 * @param array $table_definitions Array of table definitions
+		 * @param Post_Views_Counter_Settings $this Instance of settings class
+		 */
+		$table_definitions = apply_filters( 'pvc_plugin_status_tables', [], $this );
+
+		if ( empty( $table_definitions ) || ! is_array( $table_definitions ) ) {
+			return [];
+		}
+
+		$validated_tables = [];
+
+		foreach ( $table_definitions as $table_def ) {
+			// validate structure
+			if ( ! is_array( $table_def ) || empty( $table_def['name'] ) ) {
+				continue;
+			}
+
+			$table_name = sanitize_key( $table_def['name'] );
+
+			// security: only allow tables with 'post_views' in the name
+			if ( strpos( $table_name, 'post_views' ) === false ) {
+				continue;
+			}
+
+			// check if table exists
+			$full_table_name = $wpdb->prefix . $table_name;
+			$exists = (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $full_table_name ) );
+
+			// use provided label or fallback to table name
+			$label = ! empty( $table_def['label'] ) ? $table_def['label'] : $table_name;
+
+			$validated_tables[] = [
+				'name' => $table_name,
+				'label' => $label,
+				'exists' => $exists
+			];
+		}
+
+		return $validated_tables;
+	}
+
+	/**
+	 * Register core PVC database tables for status checking.
+	 *
+	 * @param array $tables Existing table definitions
+	 * @return array
+	 */
+	public function register_core_tables( $tables ) {
+		$tables[] = [
+			'name' => 'post_views',
+			'label' => 'post_views'
+		];
+
+		return $tables;
 	}
 
 	/**

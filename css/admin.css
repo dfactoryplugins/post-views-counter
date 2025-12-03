@@ -50,6 +50,16 @@
 .post-views-counter-settings .unavailable {
     color: #d63638;
 }
+.pvc-status-table .pvc-status {
+    display: inline-block;
+    font-size: 0.95em;
+}
+.pvc-status-table .pvc-status-active {
+    color: #00a32a;
+}
+.pvc-status-table .pvc-status-missing {
+    color: #d63638;
+}
 .pvc-subfield{
     margin-top: 12px;
 }
