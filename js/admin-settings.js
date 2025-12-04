@@ -73,6 +73,20 @@
 			else
 				$( 'input[data-pvc-menu="submenu"]' ).before( $( 'input[data-pvc-menu="topmenu"]' ) );
 		} );
+
+		// import provider switching
+		$( 'input[name="pvc_import_provider"]' ).on( 'change', function() {
+			var selectedProvider = $( this ).val(),
+				$current = $( '.pvc-provider-content:visible' ),
+				$target = $( '.pvc-provider-' + selectedProvider );
+
+			if ( ! $target.length || $target.is( ':visible' ) )
+				return;
+
+			$current.stop( true, true ).slideUp( 'fast', function() {
+				$target.stop( true, true ).slideDown( 'fast' );
+			} );
+		} );
 	} );
 
 } )( jQuery );

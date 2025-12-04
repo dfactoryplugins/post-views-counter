@@ -141,6 +141,32 @@ class Post_Views_Counter_Update {
 			$pvc->options['display'] = $display;
 		}
 
+		// update 1.6.0+ - migrate import settings to provider format
+		if ( version_compare( $current_db_version, '1.6.0', '<' ) ) {
+			// get other options
+			$other = $pvc->options['other'];
+
+			// check if migration is needed
+			if ( ! isset( $other['import_provider_settings'] ) && isset( $other['import_meta_key'] ) ) {
+				$old_meta_key = $other['import_meta_key'];
+
+				// create new provider settings structure
+				$other['import_provider_settings'] = [
+					'provider' => 'custom_meta_key',
+					'strategy' => 'merge',
+					'custom_meta_key' => [
+						'meta_key' => $old_meta_key
+					]
+				];
+
+				// update settings
+				update_option( 'post_views_counter_settings_other', $other );
+
+				// update options
+				$pvc->options['other'] = $other;
+			}
+		}
+
 		if ( isset( $_POST['post_view_counter_update'], $_POST['post_view_counter_number'] ) ) {
 			if ( $_POST['post_view_counter_number'] === 'update_1' ) {
 				$this->update_1();

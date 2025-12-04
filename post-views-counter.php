@@ -149,8 +149,6 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					self::$instance->crawler = new Post_Views_Counter_Crawler_Detect();
 				// regular setup
 				} else {
-					add_action( 'init', [ self::$instance, 'load_textdomain' ] );
-
 					self::$instance->includes();
 
 					// create settings API
@@ -238,6 +236,10 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		private function __construct() {
 			// define plugin constants
 			$this->define_constants();
+
+			// load translations early to avoid just-in-time loading warnings in WP 6.7+
+			if ( ! ( defined( 'SHORTINIT' ) && SHORTINIT ) )
+				$this->load_textdomain();
 
 			// short init?
 			if ( defined( 'SHORTINIT' ) && SHORTINIT ) {

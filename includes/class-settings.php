@@ -11,6 +11,19 @@ if ( ! defined( 'ABSPATH' ) )
 class Post_Views_Counter_Settings {
 
 	/**
+	 * Import providers registry.
+	 *
+	 * @var array
+	 */
+	private $import_providers = [];
+	/**
+	 * Whether providers have been initialized.
+	 *
+	 * @var bool
+	 */
+	private $import_providers_initialized = false;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @return void
@@ -27,6 +40,9 @@ class Post_Views_Counter_Settings {
 		add_filter( 'post_views_counter_settings_pages', [ $this, 'settings_page' ] );
 		add_filter( 'post_views_counter_settings_page_class', [ $this, 'settings_page_class' ] );
 		add_filter( 'pvc_plugin_status_tables', [ $this, 'register_core_tables' ] );
+
+		// register import providers after translations are available
+		add_action( 'init', [ $this, 'initialize_import_providers' ], 5 );
 	}
 
 	/**
@@ -602,10 +618,10 @@ class Post_Views_Counter_Settings {
 					'disabled'		=> true,
 					'value'			=> $pvc->options['other']['license'],
 					'type'			=> 'input',
-					'description'	=> __( 'Enter your Post Views Counter Pro license key (requires Pro version to be installed and active).', 'post-views-counter' ),
+					'description'	=> sprintf( __( 'Enter your %s license key (requires Pro version to be installed and active).', 'post-views-counter' ), '<a href="https://postviewscounter.com/" target="_blank">Post Views Counter Pro</a>' ),
 					'subclass'		=> 'regular-text',
 					'validate'		=> [ $this, 'validate_license' ],
-					'append'		=> '<span class="pvc-icon license-icon"></span>'
+					'append'		=> '<span class="pvc-status-icon"></span>'
 				],
 				'menu_position' => [
 					'tab'			=> 'other',
@@ -618,27 +634,44 @@ class Post_Views_Counter_Settings {
 					],
 					'description'	=> __( 'Choose where the plugin menu appears in the admin sidebar.', 'post-views-counter' ),
 				],
-				'import_views' => [
+				'import_from' => [
 					'tab'			=> 'other',
-					'title'			=> __( 'Import Views', 'post-views-counter' ),
+					'title'			=> __( 'Import From', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_other_import',
 					'type'			=> 'custom',
-					'description'	=> __( 'Import views from another plugin using this meta key.', 'post-views-counter' ),
 					'skip_saving'	=> true,
-					'callback'		=> [ $this, 'setting_import_views' ]
+					'callback'		=> [ $this, 'setting_import_from' ]
+				],
+				'import_strategy' => [
+					'tab'			=> 'other',
+					'title'			=> __( 'Import Strategy', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_other_import',
+					'type'			=> 'custom',
+					'description'	=> __( 'Choose how to handle existing view counts: override replaces them, merge adds the imported values to existing counts.', 'post-views-counter' ),
+					'skip_saving'	=> true,
+					'callback'		=> [ $this, 'setting_import_strategy' ]
+				],
+				'import_actions' => [
+					'tab'			=> 'other',
+					'title'			=> '',
+					'section'		=> 'post_views_counter_other_import',
+					'type'			=> 'custom',
+					'description'	=> __( 'Click Analyse Views to check how many views are available for import, or Import Views to begin the import process.', 'post-views-counter' ),
+					'skip_saving'	=> true,
+					'callback'		=> [ $this, 'setting_import_actions' ]
 				],
 				'delete_views' => [
 					'tab'			=> 'other',
 					'title'			=> __( 'Delete Views', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_other_import',
+					'section'		=> 'post_views_counter_other_management',
 					'type'			=> 'custom',
-					'description'	=> __( 'Permanently delete all stored view data. This cannot be undone.', 'post-views-counter' ),
+					'description'	=> __( 'Delete ALL the existing post views data. Note that this is an irreversible process!', 'post-views-counter' ),
 					'skip_saving'	=> true,
 					'callback'		=> [ $this, 'setting_delete_views' ]
 				],
 				'deactivation_delete' => [
 					'tab'			=> 'other',
-					'title'			=> __( 'Deactivation', 'post-views-counter' ),
+					'title'			=> __( 'Delete on Deactivation', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_other_management',
 					'type'			=> 'boolean',
 					'description'	=> __( 'When enabled, deactivating the plugin will delete all plugin data from the database, including all content view counts.', 'post-views-counter' ),
@@ -851,37 +884,76 @@ class Post_Views_Counter_Settings {
 		// use internal settings api to validate settings first
 		$input = $pvc->settings_api->validate_settings( $input );
 
-		// update meta key on save changes
-		if ( isset( $_POST['post_views_counter_import_meta_key'] ) && isset( $_POST['save_post_views_counter_settings_other'] ) )
-			$input['import_meta_key'] = sanitize_key( $_POST['post_views_counter_import_meta_key'] );
-
-		// import post views data from another plugin
-		if ( isset( $_POST['post_views_counter_import_wp_postviews'] ) ) {
+		// handle new provider-based import/analyse
+		if ( isset( $_POST['post_views_counter_import_views'] ) || isset( $_POST['post_views_counter_analyse_views'] ) ) {
 			// make sure we do not change anything in the settings
 			$input = $pvc->options['other'];
 
-			// get views key
-			$meta_key = sanitize_key( apply_filters( 'pvc_import_meta_key', ( isset( $_POST['post_views_counter_import_meta_key'] ) ? $_POST['post_views_counter_import_meta_key'] : $pvc->options['other']['import_meta_key'] ) ) );
+			// get provider selection
+			$provider_slug = isset( $_POST['pvc_import_provider'] ) ? sanitize_key( $_POST['pvc_import_provider'] ) : 'custom_meta_key';
 
-			// set meta_key option
-			$input['import_meta_key'] = $meta_key;
+			// get import strategy and validate
+			$strategy = isset( $_POST['pvc_import_strategy'] ) ? sanitize_key( $_POST['pvc_import_strategy'] ) : 'merge';
+			
+			// validate strategy is one of the allowed values
+			if ( ! in_array( $strategy, [ 'override', 'merge' ], true ) ) {
+				$strategy = 'merge';
+			}
 
-			// get views
-			$views = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM " . $wpdb->postmeta . " WHERE meta_key = %s", $meta_key ), ARRAY_A, 0 );
+			// get provider inputs
+			$provider_inputs = isset( $_POST['pvc_import_provider_inputs'] ) ? $_POST['pvc_import_provider_inputs'] : [];
 
-			// any views?
-			if ( ! empty( $views ) ) {
-				$sql = [];
+			// get available providers
+		$providers = $this->get_available_import_providers();
 
-				foreach ( $views as $view ) {
-					$sql[] = $wpdb->prepare( "(%d, 4, 'total', %d)", (int) $view['post_id'], (int) $view['meta_value'] );
+			// validate provider exists
+			if ( ! isset( $providers[$provider_slug] ) ) {
+				add_settings_error( 'pvc_import', 'pvc_import', __( 'Invalid import provider selected.', 'post-views-counter' ), 'error' );
+				return $input;
+			}
+
+			$provider = $providers[$provider_slug];
+
+			// sanitize provider inputs
+			$sanitized_inputs = [];
+			if ( is_callable( $provider['sanitize'] ) ) {
+				$sanitized_inputs = call_user_func( $provider['sanitize'], $provider_inputs );
+			}
+
+			// preserve existing provider settings, only update current provider
+		$existing_settings = isset( $pvc->options['other']['import_provider_settings'] ) ? $pvc->options['other']['import_provider_settings'] : [];
+			
+			// update with new values
+			$input['import_provider_settings'] = array_merge(
+				$existing_settings,
+				[
+					'provider' => $provider_slug,
+					'strategy' => $strategy,
+					$provider_slug => $sanitized_inputs
+				]
+			);
+
+			// handle analyse
+			if ( isset( $_POST['post_views_counter_analyse_views'] ) ) {
+				if ( is_callable( $provider['analyse'] ) ) {
+					$result = call_user_func( $provider['analyse'], $sanitized_inputs );
+
+					if ( isset( $result['message'] ) ) {
+						add_settings_error( 'pvc_analyse', 'pvc_analyse', $result['message'], 'updated' );
+					}
 				}
+			// handle import
+			} elseif ( isset( $_POST['post_views_counter_import_views'] ) ) {
+				if ( is_callable( $provider['import'] ) ) {
+					$result = call_user_func( $provider['import'], $sanitized_inputs, $strategy );
 
-				$wpdb->query( "INSERT INTO " . $wpdb->prefix . "post_views(id, type, period, count) VALUES " . implode( ',', $sql ) . " ON DUPLICATE KEY UPDATE count = " . ( isset( $_POST['post_views_counter_import_wp_postviews_override'] ) ? '' : 'count + ' ) . "VALUES(count)" );
-
-				add_settings_error( 'wp_postviews_import', 'wp_postviews_import', __( 'Post views data imported successfully.', 'post-views-counter' ), 'updated' );
-			} else
-				add_settings_error( 'wp_postviews_import', 'wp_postviews_import', __( 'There was no post views data to import.', 'post-views-counter' ), 'updated' );
+					if ( isset( $result['success'] ) && $result['success'] ) {
+						add_settings_error( 'pvc_import', 'pvc_import', $result['message'], 'updated' );
+					} else if ( isset( $result['message'] ) ) {
+						add_settings_error( 'pvc_import', 'pvc_import', $result['message'], isset( $result['success'] ) && ! $result['success'] ? 'updated' : 'error' );
+					}
+				}
+			}
 		// delete all post views data
 		} elseif ( isset( $_POST['post_views_counter_reset_views'] ) ) {
 			// make sure we do not change anything in the settings
@@ -901,6 +973,49 @@ class Post_Views_Counter_Settings {
 			$input['update_version'] = $pvc->options['general']['update_version'];
 			$input['update_notice'] = $pvc->options['general']['update_notice'];
 			$input['update_delay_date'] = $pvc->options['general']['update_delay_date'];
+		// save other settings (handle provider inputs)
+		} elseif ( isset( $_POST['save_post_views_counter_settings_other'] ) ) {
+			// get existing provider settings or initialize
+			$existing_settings = isset( $pvc->options['other']['import_provider_settings'] ) ? $pvc->options['other']['import_provider_settings'] : [];
+			
+			// check if provider inputs were submitted
+			if ( isset( $_POST['pvc_import_provider'], $_POST['pvc_import_provider_inputs'], $_POST['pvc_import_strategy'] ) ) {
+				$provider_slug = sanitize_key( $_POST['pvc_import_provider'] );
+				$provider_inputs = $_POST['pvc_import_provider_inputs'];
+				$strategy = sanitize_key( $_POST['pvc_import_strategy'] );
+				
+				// validate strategy
+				if ( ! in_array( $strategy, [ 'override', 'merge' ], true ) ) {
+					$strategy = 'merge';
+				}
+				
+				// get available providers
+				$providers = $this->get_available_import_providers();
+				
+				// validate provider exists
+				if ( isset( $providers[$provider_slug] ) ) {
+					$provider = $providers[$provider_slug];
+					
+					// sanitize provider inputs
+					$sanitized_inputs = [];
+					if ( is_callable( $provider['sanitize'] ) ) {
+						$sanitized_inputs = call_user_func( $provider['sanitize'], $provider_inputs );
+					}
+					
+					// update provider settings
+					$input['import_provider_settings'] = array_merge(
+						$existing_settings,
+						[
+							'provider' => $provider_slug,
+							'strategy' => $strategy,
+							$provider_slug => $sanitized_inputs
+						]
+					);
+				}
+			} else {
+				// preserve existing settings if not changed
+				$input['import_provider_settings'] = $existing_settings;
+			}
 		}
 
 		return $input;
@@ -1499,20 +1614,103 @@ class Post_Views_Counter_Settings {
 	}
 
 	/**
-	 * Setting: tools.
+	 * Setting: import from.
 	 *
 	 * @return string
 	 */
-	public function setting_import_views() {
-		$html = '
-		<div>
-			<input type="text" class="regular-text" name="post_views_counter_import_meta_key" value="' . esc_attr( Post_Views_Counter()->options['other']['import_meta_key'] ) . '"/>
-			<p class="description">' . esc_html__( 'Enter the meta key from which the views data is to be retrieved during import.', 'post-views-counter' ) . '</p>
-		</div>
-		<div class="pvc-subfield">
-			<input type="submit" class="button button-secondary" name="post_views_counter_import_wp_postviews" value="' . esc_attr__( 'Import Views', 'post-views-counter' ) . '"/> <label><input id="pvc-wp-postviews" type="checkbox" name="post_views_counter_import_wp_postviews_override" value="1" />' . esc_html__( 'Override existing views data during import.', 'post-views-counter' ) . '</label>
-			<p class="description">' . esc_html__( 'Click Import Views to start importing the views data.', 'post-views-counter' ) . '</p>
-		</div>';
+	public function setting_import_from() {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		// get all providers (not just available ones)
+		$this->ensure_import_providers_loaded();
+		$all_providers = $this->import_providers;
+
+		// get currently selected provider
+		$selected_provider = isset( $pvc->options['other']['import_provider_settings']['provider'] ) ? $pvc->options['other']['import_provider_settings']['provider'] : 'custom_meta_key';
+
+		// if selected provider is not available, fallback to custom_meta_key
+		if ( isset( $all_providers[$selected_provider] ) ) {
+			$is_selected_available = is_callable( $all_providers[$selected_provider]['is_available'] ) && call_user_func( $all_providers[$selected_provider]['is_available'] );
+			if ( ! $is_selected_available ) {
+				$selected_provider = 'custom_meta_key';
+			}
+		}
+
+		$html = '<div class="pvc-import-provider-selection">';
+
+		foreach ( $all_providers as $slug => $provider ) {
+			$is_available = is_callable( $provider['is_available'] ) && call_user_func( $provider['is_available'] );
+			$is_checked = ( $selected_provider === $slug );
+			$disabled_attr = ! $is_available ? ' disabled="disabled"' : '';
+			$disabled_class = ! $is_available ? ' class="pvc-provider-disabled"' : '';
+			$tooltip = ! $is_available ? ' title="' . esc_attr( sprintf( __( '%s is not currently available. Please install and activate the required plugin.', 'post-views-counter' ), $provider['label'] ) ) . '"' : '';
+			
+			$html .= '
+			<label' . $disabled_class . $tooltip . '>
+				<input type="radio" name="pvc_import_provider" value="' . esc_attr( $slug ) . '" ' . checked( $is_checked, true, false ) . $disabled_attr . ' />
+				' . esc_html( $provider['label'] ) . '
+			</label>';
+		}
+
+		$html .= '<p class="description">' . esc_html__( 'Choose a data source to import existing view counts from.', 'post-views-counter' ) . '</p>';
+
+		$html .= '</div><div class="pvc-import-provider-fields">';
+
+		foreach ( $all_providers as $slug => $provider ) {
+			$is_available = is_callable( $provider['is_available'] ) && call_user_func( $provider['is_available'] );
+			$is_active = ( $selected_provider === $slug );
+			$provider_html = '';
+
+			if ( $is_available && is_callable( $provider['render'] ) ) {
+				$provider_html = call_user_func( $provider['render'] );
+			} elseif ( ! $is_available ) {
+				$provider_html = '<p class="description pvc-provider-unavailable">' . sprintf( __( '%s is not available. Please install and activate the required plugin to use this import source.', 'post-views-counter' ), '<strong>' . esc_html( $provider['label'] ) . '</strong>' ) . '</p>';
+			}
+
+			$html .= '
+			<div class="pvc-provider-content pvc-provider-' . esc_attr( $slug ) . '" ' . ( ! $is_active ? 'style="display:none;"' : '' ) . '>
+				' . $provider_html . '
+			</div>';
+		}
+
+		$html .= '</div>';
+
+		return $html;
+	}
+
+	/**
+	 * Setting: import strategy.
+	 *
+	 * @return string
+	 */
+	public function setting_import_strategy() {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		// get import strategy
+		$import_strategy = isset( $pvc->options['other']['import_provider_settings']['strategy'] ) ? $pvc->options['other']['import_provider_settings']['strategy'] : 'merge';
+
+		$html = '<label class="pvc-strategy-radio">
+			<input type="radio" name="pvc_import_strategy" value="override" ' . checked( $import_strategy, 'override', false ) . ' />
+			' . esc_html__( 'Override existing views', 'post-views-counter' ) . '
+		</label>
+		<label class="pvc-strategy-radio">
+			<input type="radio" name="pvc_import_strategy" value="merge" ' . checked( $import_strategy, 'merge', false ) . ' />
+			' . esc_html__( 'Merge with existing views', 'post-views-counter' ) . '
+		</label>';
+
+		return $html;
+	}
+
+	/**
+	 * Setting: import actions.
+	 *
+	 * @return string
+	 */
+	public function setting_import_actions() {
+		$html = '<input type="submit" class="button button-secondary" name="post_views_counter_analyse_views" value="' . esc_attr__( 'Analyse Views', 'post-views-counter' ) . '" />
+		<input type="submit" class="button button-secondary" name="post_views_counter_import_views" value="' . esc_attr__( 'Import Views', 'post-views-counter' ) . '" />';
 
 		return $html;
 	}
@@ -1524,8 +1722,7 @@ class Post_Views_Counter_Settings {
 	 */
 	public function setting_delete_views() {
 		$html = '
-		<input type="submit" class="button button-secondary" name="post_views_counter_reset_views" value="' . esc_attr__( 'Delete Views', 'post-views-counter' ) . '" />
-		<p class="description">' . esc_html__( 'Delete ALL the existing post views data. Note that this is an irreversible process!', 'post-views-counter' ) . '</p>';
+		<input type="submit" class="button button-secondary" name="post_views_counter_reset_views" value="' . esc_attr__( 'Delete Views', 'post-views-counter' ) . '" />';
 
 		return $html;
 	}
@@ -1865,7 +2062,7 @@ class Post_Views_Counter_Settings {
 	 * @return void
 	 */
 	public function section_other_import() {
-		echo '<p class="description">' . esc_html__( 'Import view counts when migrating from other analytics plugins.', 'post-views-counter' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Import view counts when migrating from custom meta key or other analytics plugins.', 'post-views-counter' ) . '</p>';
 	}
 
 	/**
@@ -1949,5 +2146,263 @@ class Post_Views_Counter_Settings {
 		}
 
 		return $settings;
+	}
+
+	/**
+	 * Register import providers.
+	 *
+	 * @return void
+	 */
+	public function initialize_import_providers() {
+		if ( $this->import_providers_initialized )
+			return;
+
+		$this->register_import_providers();
+		$this->import_providers_initialized = true;
+	}
+
+	private function register_import_providers() {
+		// custom meta key provider (always available)
+		$this->import_providers['custom_meta_key'] = [
+			'slug'			=> 'custom_meta_key',
+			'label'			=> __( 'Custom Meta Key', 'post-views-counter' ),
+			'is_available'	=> '__return_true',
+			'render'		=> [ $this, 'render_provider_custom_meta_key' ],
+			'sanitize'		=> [ $this, 'sanitize_provider_custom_meta_key' ],
+			'analyse'		=> [ $this, 'analyse_provider_custom_meta_key' ],
+			'import'		=> [ $this, 'import_provider_custom_meta_key' ]
+		];
+
+		// wp-postviews provider (conditional)
+		$this->import_providers['wp_postviews'] = [
+			'slug'			=> 'wp_postviews',
+			'label'			=> __( 'WP-PostViews', 'post-views-counter' ),
+			'is_available'	=> [ $this, 'is_wp_postviews_available' ],
+			'render'		=> [ $this, 'render_provider_wp_postviews' ],
+			'sanitize'		=> [ $this, 'sanitize_provider_wp_postviews' ],
+			'analyse'		=> [ $this, 'analyse_provider_wp_postviews' ],
+			'import'		=> [ $this, 'import_provider_wp_postviews' ]
+		];
+
+		// allow extensions to register additional providers
+		$this->import_providers = apply_filters( 'pvc_import_providers', $this->import_providers );
+	}
+
+	/**
+	 * Get available import providers.
+	 *
+	 * @return array
+	 */
+	private function ensure_import_providers_loaded() {
+		if ( ! $this->import_providers_initialized && did_action( 'init' ) )
+			$this->initialize_import_providers();
+	}
+
+	private function get_available_import_providers() {
+		$this->ensure_import_providers_loaded();
+
+		$available = [];
+
+		foreach ( $this->import_providers as $slug => $provider ) {
+			if ( is_callable( $provider['is_available'] ) && call_user_func( $provider['is_available'] ) ) {
+				$available[$slug] = $provider;
+			}
+		}
+
+		return $available;
+	}
+
+	/**
+	 * Check if WP-PostViews is available.
+	 *
+	 * @return bool
+	 */
+	public function is_wp_postviews_available() {
+		return function_exists( 'the_views' );
+	}
+
+	/**
+	 * Render custom meta key provider fields.
+	 *
+	 * @return string
+	 */
+	public function render_provider_custom_meta_key() {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		// get saved meta key or default
+		$meta_key = isset( $pvc->options['other']['import_provider_settings']['custom_meta_key']['meta_key'] ) ? $pvc->options['other']['import_provider_settings']['custom_meta_key']['meta_key'] : 'views';
+
+		$html = '
+		<div class="pvc-provider-fields">
+			<label for="pvc_import_meta_key">' . esc_html__( 'Meta Key', 'post-views-counter' ) . '</label>
+			<input type="text" id="pvc_import_meta_key" class="regular-text" name="pvc_import_provider_inputs[meta_key]" value="' . esc_attr( $meta_key ) . '" />
+			<p class="description">' . esc_html__( 'Enter the meta key from which the views data is to be retrieved during import.', 'post-views-counter' ) . '</p>
+		</div>';
+
+		return $html;
+	}
+
+	/**
+	 * Sanitize custom meta key provider inputs.
+	 *
+	 * @param array $inputs
+	 * @return array
+	 */
+	public function sanitize_provider_custom_meta_key( $inputs ) {
+		$sanitized = [];
+
+		if ( isset( $inputs['meta_key'] ) ) {
+			$sanitized['meta_key'] = sanitize_key( $inputs['meta_key'] );
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Analyse custom meta key provider.
+	 *
+	 * @global object $wpdb
+	 *
+	 * @param array $inputs
+	 * @return array
+	 */
+	public function analyse_provider_custom_meta_key( $inputs ) {
+		global $wpdb;
+
+		$meta_key = isset( $inputs['meta_key'] ) ? sanitize_key( $inputs['meta_key'] ) : 'views';
+
+		// count views
+		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM " . $wpdb->postmeta . " WHERE meta_key = %s AND meta_value > 0", $meta_key ) );
+
+		return [
+			'count' => (int) $count,
+			'message' => sprintf( __( 'Found %s posts with views data in meta key: %s', 'post-views-counter' ), number_format_i18n( $count ), '<code>' . esc_html( $meta_key ) . '</code>' )
+		];
+	}
+
+	/**
+	 * Import custom meta key provider.
+	 *
+	 * @global object $wpdb
+	 *
+	 * @param array $inputs
+	 * @param string $strategy
+	 * @return array
+	 */
+	public function import_provider_custom_meta_key( $inputs, $strategy ) {
+		global $wpdb;
+
+		$meta_key = isset( $inputs['meta_key'] ) ? sanitize_key( $inputs['meta_key'] ) : 'views';
+
+		// get views
+		$views = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM " . $wpdb->postmeta . " WHERE meta_key = %s AND meta_value > 0", $meta_key ), ARRAY_A, 0 );
+
+		if ( empty( $views ) ) {
+			return [
+				'success' => false,
+				'message' => __( 'There was no post views data to import.', 'post-views-counter' )
+			];
+		}
+
+		$sql = [];
+
+		foreach ( $views as $view ) {
+			$sql[] = $wpdb->prepare( "(%d, 4, 'total', %d)", (int) $view['post_id'], (int) $view['meta_value'] );
+		}
+
+		// build SQL based on strategy
+		$on_duplicate = ( $strategy === 'override' ) ? 'count = VALUES(count)' : 'count = count + VALUES(count)';
+
+		$wpdb->query( "INSERT INTO " . $wpdb->prefix . "post_views(id, type, period, count) VALUES " . implode( ',', $sql ) . " ON DUPLICATE KEY UPDATE " . $on_duplicate );
+
+		return [
+			'success' => true,
+			'message' => sprintf( __( 'Post views data imported successfully from meta key: %s', 'post-views-counter' ), '<code>' . esc_html( $meta_key ) . '</code>' )
+		];
+	}
+
+	/**
+	 * Render WP-PostViews provider fields.
+	 *
+	 * @return string
+	 */
+	public function render_provider_wp_postviews() {
+		$html = '
+		<div class="pvc-provider-fields">
+			<p class="description">' . esc_html__( 'WP-PostViews post views data will be automatically imported from the meta key used by that plugin.', 'post-views-counter' ) . '</p>
+		</div>';
+
+		return $html;
+	}
+
+	/**
+	 * Sanitize WP-PostViews provider inputs.
+	 *
+	 * @param array $inputs
+	 * @return array
+	 */
+	public function sanitize_provider_wp_postviews( $inputs ) {
+		// no inputs needed for WP-PostViews
+		return [];
+	}
+
+	/**
+	 * Analyse WP-PostViews provider.
+	 *
+	 * @global object $wpdb
+	 *
+	 * @param array $inputs
+	 * @return array
+	 */
+	public function analyse_provider_wp_postviews( $inputs ) {
+		global $wpdb;
+
+		// wp-postviews uses 'views' meta key
+		$count = $wpdb->get_var( "SELECT COUNT(*) FROM " . $wpdb->postmeta . " WHERE meta_key = 'views' AND meta_value > 0" );
+
+		return [
+			'count' => (int) $count,
+			'message' => sprintf( __( 'Found %s posts with WP-PostViews data.', 'post-views-counter' ), number_format_i18n( $count ) )
+		];
+	}
+
+	/**
+	 * Import WP-PostViews provider.
+	 *
+	 * @global object $wpdb
+	 *
+	 * @param array $inputs
+	 * @param string $strategy
+	 * @return array
+	 */
+	public function import_provider_wp_postviews( $inputs, $strategy ) {
+		global $wpdb;
+
+		// wp-postviews uses 'views' meta key
+		$views = $wpdb->get_results( "SELECT post_id, meta_value FROM " . $wpdb->postmeta . " WHERE meta_key = 'views' AND meta_value > 0", ARRAY_A, 0 );
+
+		if ( empty( $views ) ) {
+			return [
+				'success' => false,
+				'message' => __( 'There was no WP-PostViews data to import.', 'post-views-counter' )
+			];
+		}
+
+		$sql = [];
+
+		foreach ( $views as $view ) {
+			$sql[] = $wpdb->prepare( "(%d, 4, 'total', %d)", (int) $view['post_id'], (int) $view['meta_value'] );
+		}
+
+		// build SQL based on strategy
+		$on_duplicate = ( $strategy === 'override' ) ? 'count = VALUES(count)' : 'count = count + VALUES(count)';
+
+		$wpdb->query( "INSERT INTO " . $wpdb->prefix . "post_views(id, type, period, count) VALUES " . implode( ',', $sql ) . " ON DUPLICATE KEY UPDATE " . $on_duplicate );
+
+		return [
+			'success' => true,
+			'message' => __( 'WP-PostViews data imported successfully.', 'post-views-counter' )
+		];
 	}
 }
