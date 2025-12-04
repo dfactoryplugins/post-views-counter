@@ -21,6 +21,11 @@
 			return confirm( pvcArgsSettings.resetViews );
 		} );
 
+		// ask whether to import views
+		$( document ).on( 'click', 'input[name="post_views_counter_import_views"]', function() {
+			return confirm( pvcArgsSettings.importViews );
+		} );
+
 		// remove ip box
 		$( document ).on( 'click', '.remove-exclude-ip', function( e ) {
 			e.preventDefault();

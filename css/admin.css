@@ -321,12 +321,12 @@ output {
     margin-right: 5px;
 }
 
-.pvc-provider-radio.pvc-provider-disabled {
+.pvc-provider-disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-.pvc-provider-radio.pvc-provider-disabled input[type="radio"] {
+.pvc-provider-disabled input[type="radio"] {
     cursor: not-allowed;
 }
 
@@ -357,13 +357,17 @@ output {
     margin-bottom: 25px;
 }
 
-.pvc-strategy-radio {
+.pvc-field-group label {
+    margin-right: 8px;
+}
+
+.pvc-radio-vertical label {
     display: block;
-    margin: 8px 0;
+    margin: 6px 0;
     font-weight: normal;
 }
 
-.pvc-strategy-radio input[type="radio"] {
+.pvc-radio-vertical input[type="radio"] {
     margin-right: 5px;
 }
 

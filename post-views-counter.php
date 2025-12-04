@@ -115,6 +115,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		public $functions;
 		public $settings;
 		public $settings_api;
+		public $import;
 
 		/**
 		 * Disable object cloning.
@@ -169,6 +170,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					new Post_Views_Counter_Update();
 
 					self::$instance->settings = new Post_Views_Counter_Settings();
+					self::$instance->import = new Post_Views_Counter_Import();
 
 					new Post_Views_Counter_Admin();
 					new Post_Views_Counter_Query();
@@ -216,6 +218,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-update.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-api.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-import.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-admin.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-columns.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-toolbar.php' );
@@ -862,7 +865,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				// prepare script data
 				$script_data = [
 					'resetToDefaults'	=> esc_html__( 'Are you sure you want to reset these settings to defaults?', 'post-views-counter' ),
-					'resetViews'		=> esc_html__( 'Are you sure you want to delete all existing data?', 'post-views-counter' )
+					'resetViews'		=> esc_html__( 'Are you sure you want to delete all existing data?', 'post-views-counter' ),
+					'importViews'		=> esc_html__( 'Are you sure you want to import views now?', 'post-views-counter' )
 				];
 
 				wp_add_inline_script( 'pvc-admin-settings', 'var pvcArgsSettings = ' . wp_json_encode( $script_data ) . ";\n", 'before' );

@@ -469,9 +469,15 @@ class Post_Views_Counter_Settings_API {
 				break;
 
 			case 'radio':
+				if ( empty( $args['options'] ) || ! is_array( $args['options'] ) )
+					break;
+				if ( count( $args['options'] ) > 1 )
+					$html .= '<div class="pvc-field-group pvc-radio-group">';
 				foreach ( $args['options'] as $key => $name ) {
 					$html .= '<label for="' . esc_attr( $args['id'] . '_' . $key ) . '"><input id="' . esc_attr( $args['id'] . '_' . $key ) . '" type="radio" name="' . esc_attr( $args['name'] ) . '" value="' . esc_attr( $key ) . '" ' . checked( $key, $args['value'], false ) . ' ' . disabled( ! empty( $args['disabled'] ) && in_array ( $key, $args['disabled'], true ), true, false ) . ' />' . esc_html( $name ) . '</label> ';
 				}
+				if ( count( $args['options'] ) > 1 )
+					$html .= '</div>';
 				break;
 
 			case 'checkbox':
@@ -483,9 +489,15 @@ class Post_Views_Counter_Settings_API {
 
 				$html .= '<input type="hidden" name="' . esc_attr( $args['name'] ) . '" value="empty" />';
 
+				if ( empty( $args['options'] ) || ! is_array( $args['options'] ) )
+					break;
+				if ( count( $args['options'] ) > 1 )
+					$html .= '<div class="pvc-field-group pvc-checkbox-group">';
 				foreach ( $args['options'] as $key => $name ) {
 					$html .= '<label><input id="' . esc_attr( $args['id'] . '_' . $key ) . '" type="checkbox" name="' . esc_attr( $args['name'] ) . '[]" value="' . esc_attr( $key ) . '" ' . checked( in_array( $key, $args['value'] ), true, false ) . ' ' . disabled( ! empty( $args['disabled'] ) && in_array ( $key, $args['disabled'], true ), true, false ) . ' />' . esc_html( $name ) . '</label>' . ( $display_type === 'horizontal' ? ' ' : '<br />' );
 				}
+				if ( count( $args['options'] ) > 1 )
+					$html .= '</div>';
 				break;
 
 			case 'select':
