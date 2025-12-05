@@ -95,10 +95,10 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					'text'	 => true
 				],
 				'icon_class'			=> 'dashicons-chart-bar',
-				'toolbar_statistics'	=> true
+				'toolbar_statistics'	=> true,
+				'menu_position'			=> 'top'
 			],
 			'other'		=> [
-				'menu_position'			=> 'top',
 				'import_meta_key'		=> 'views',
 				'deactivation_delete'	=> false,
 				'license'				=> ''
@@ -931,6 +931,23 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 		}
 
 		/**
+		 * Get the preferred admin menu position.
+		 *
+		 * @return string
+		 */
+		public function get_menu_position() {
+			$position = isset( $this->options['display']['menu_position'] ) ? $this->options['display']['menu_position'] : '';
+
+			if ( in_array( $position, [ 'top', 'sub' ], true ) )
+				return $position;
+
+			if ( isset( $this->options['other']['menu_position'] ) && in_array( $this->options['other']['menu_position'], [ 'top', 'sub' ], true ) )
+				return $this->options['other']['menu_position'];
+
+			return 'top';
+		}
+
+		/**
 		 * Add link to Settings page.
 		 *
 		 * @param array $links
@@ -942,7 +959,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				return $links;
 
 			// submenu?
-			if ( $this->options['other']['menu_position'] === 'sub' )
+			if ( $this->get_menu_position() === 'sub' )
 				$url = admin_url( 'options-general.php?page=post-views-counter' );
 			// topmenu?
 			else

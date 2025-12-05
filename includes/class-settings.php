@@ -20,6 +20,8 @@ class Post_Views_Counter_Settings {
 		add_action( 'admin_init', [ $this, 'update_counter_mode' ], 12 );
 		add_action( 'pvc_settings_sidebar', [ $this, 'settings_sidebar' ], 12 );
 		add_action( 'pvc_settings_form', [ $this, 'settings_form' ], 10, 4 );
+		add_action( 'update_option_post_views_counter_settings_display', [ $this, 'sync_menu_position_option' ], 10, 3 );
+		add_action( 'add_option_post_views_counter_settings_display', [ $this, 'sync_menu_position_option_on_add' ], 10, 2 );
 
 		// filters
 		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_data' ] );
@@ -42,6 +44,7 @@ class Post_Views_Counter_Settings {
 	public function settings_form( $setting, $page_type, $url_page, $tab_key ) {
 		// get main instance
 		$pvc = Post_Views_Counter();
+		$menu_position = $pvc->get_menu_position();
 
 		// topmenu referer
 		$topmenu = '<input type="hidden" name="_wp_http_referer" data-pvc-menu="topmenu" value="' .esc_url( admin_url( 'admin.php?page=post-views-counter' . ( $tab_key !== '' ? '&tab=' . $tab_key : '' ) ) ) . '" />';
@@ -49,7 +52,7 @@ class Post_Views_Counter_Settings {
 		// submenu referer
 		$submenu = '<input type="hidden" name="_wp_http_referer" data-pvc-menu="submenu" value="' .esc_url( admin_url( 'options-general.php?page=post-views-counter' . ( $tab_key !== '' ? '&tab=' . $tab_key : '' ) ) ) . '" />';
 
-		if ( $pvc->options['other']['menu_position'] === 'sub' )
+		if ( $menu_position === 'sub' )
 			echo $topmenu . $submenu;
 		else
 			echo $submenu . $topmenu;
@@ -595,6 +598,17 @@ class Post_Views_Counter_Settings {
 					'description'	=> __( 'A views chart is shown for content types that are being counted.', 'post-views-counter' ),
 					'label'			=> __( 'Show a views chart in the admin toolbar.', 'post-views-counter' )
 				],
+				'menu_position' => [
+					'tab'			=> 'display',
+					'title'			=> __( 'Menu Position', 'post-views-counter' ),
+					'section'		=> 'post_views_counter_display_admin',
+					'type'			=> 'radio',
+					'options'		=> [
+						'top'	=> __( 'Top menu', 'post-views-counter' ),
+						'sub'	=> __( 'Settings submenu', 'post-views-counter' )
+					],
+					'description'	=> __( 'Choose where the plugin menu appears in the admin sidebar.', 'post-views-counter' ),
+				],
 				'license' => [
 					'tab'			=> 'other',
 					'title'			=> __( 'License Key', 'post-views-counter' ),
@@ -606,17 +620,6 @@ class Post_Views_Counter_Settings {
 					'subclass'		=> 'regular-text',
 					'validate'		=> [ $this, 'validate_license' ],
 					'append'		=> '<span class="pvc-status-icon"></span>'
-				],
-				'menu_position' => [
-					'tab'			=> 'other',
-					'title'			=> __( 'Menu Position', 'post-views-counter' ),
-					'section'		=> 'post_views_counter_other_management',
-					'type'			=> 'radio',
-					'options'		=> [
-						'top'	=> __( 'Top menu', 'post-views-counter' ),
-						'sub'	=> __( 'Settings submenu', 'post-views-counter' )
-					],
-					'description'	=> __( 'Choose where the plugin menu appears in the admin sidebar.', 'post-views-counter' ),
 				],
 				'import_from' => [
 					'tab'			=> 'other',
@@ -677,12 +680,13 @@ class Post_Views_Counter_Settings {
 	public function settings_page( $pages ) {
 		// get main instance
 		$pvc = Post_Views_Counter();
+		$menu_position = $pvc->get_menu_position();
 
 		// default page
 		$pages['post-views-counter'] = [
 			'menu_slug'		=> 'post-views-counter',
 			'page_title'	=> __( 'Post Views Counter Settings', 'post-views-counter' ),
-			'menu_title'	=> $pvc->options['other']['menu_position'] === 'sub' ? __( 'Post Views Counter', 'post-views-counter' ) : __( 'Post Views', 'post-views-counter' ),
+			'menu_title'	=> $menu_position === 'sub' ? __( 'Post Views Counter', 'post-views-counter' ) : __( 'Post Views', 'post-views-counter' ),
 			'capability'	=> apply_filters( 'pvc_settings_capability', 'manage_options' ),
 			'callback'		=> null,
 			'tabs'			=> [
@@ -709,7 +713,7 @@ class Post_Views_Counter_Settings {
 		add_filter( 'admin_title', [ $this, 'admin_title' ], 10, 2 );
 
 		// submenu?
-		if ( $pvc->options['other']['menu_position'] === 'sub' ) {
+		if ( $menu_position === 'sub' ) {
 			$pages['post-views-counter']['type'] = 'settings_page';
 		// topmenu?
 		} else {
@@ -816,9 +820,10 @@ class Post_Views_Counter_Settings {
 
 		// get main instance
 		$pvc = Post_Views_Counter();
+		$menu_position = $pvc->get_menu_position();
 
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'post-views-counter' ) {
-			if ( $pvc->options['other']['menu_position'] === 'sub' && $pagenow === 'options-general.php' ) {
+			if ( $menu_position === 'sub' && $pagenow === 'options-general.php' ) {
 				// get tab
 				$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'general';
 
@@ -829,7 +834,7 @@ class Post_Views_Counter_Settings {
 					// update title
 					$admin_title = preg_replace( '/' . $pages['post-views-counter']['page_title'] . '/', $pages['post-views-counter']['page_title'] . ' - ' . $pages['post-views-counter']['tabs'][$tab]['label'], $admin_title, 1 );
 				}
-			} else if ( $pvc->options['other']['menu_position'] === 'top' && get_admin_page_parent() === 'post-views-counter' && ! empty( $submenu['post-views-counter'] ) ) {
+			} else if ( $menu_position === 'top' && get_admin_page_parent() === 'post-views-counter' && ! empty( $submenu['post-views-counter'] ) ) {
 				// get tab
 				$tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'general';
 
@@ -910,6 +915,54 @@ class Post_Views_Counter_Settings {
 		}
 
 		return $input;
+	}
+
+	/**
+	 * Mirror the saved menu position to legacy storage.
+	 *
+	 * @param mixed $old_value
+	 * @param mixed $value
+	 * @param string $option
+	 * @return void
+	 */
+	public function sync_menu_position_option( $old_value, $value, $option ) {
+		$this->mirror_menu_position_value( $value );
+	}
+
+	/**
+	 * Mirror the saved menu position when the option is added.
+	 *
+	 * @param string $option
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function sync_menu_position_option_on_add( $option, $value ) {
+		$this->mirror_menu_position_value( $value );
+	}
+
+	/**
+	 * Update the legacy menu position value stored under "Other" settings.
+	 *
+	 * @param mixed $value
+	 * @return void
+	 */
+	private function mirror_menu_position_value( $value ) {
+		if ( ! is_array( $value ) )
+			return;
+
+		$menu_position = isset( $value['menu_position'] ) && in_array( $value['menu_position'], [ 'top', 'sub' ], true ) ? $value['menu_position'] : 'top';
+		$other_options = get_option( 'post_views_counter_settings_other', [] );
+
+		if ( ! is_array( $other_options ) )
+			$other_options = [];
+
+		if ( ! isset( $other_options['menu_position'] ) || $other_options['menu_position'] !== $menu_position ) {
+			$other_options['menu_position'] = $menu_position;
+			update_option( 'post_views_counter_settings_other', $other_options );
+		}
+
+		$pvc = Post_Views_Counter();
+		$pvc->options['other']['menu_position'] = $menu_position;
 	}
 
 	/**
@@ -2043,6 +2096,10 @@ class Post_Views_Counter_Settings {
 			],
 			'restrict_edit_views' => [
 				'legacy' => 'post_views_counter_display_settings',
+				'current' => 'post_views_counter_display_admin'
+			],
+			'menu_position' => [
+				'legacy' => 'post_views_counter_other_management',
 				'current' => 'post_views_counter_display_admin'
 			]
 		];

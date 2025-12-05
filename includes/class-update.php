@@ -167,6 +167,9 @@ class Post_Views_Counter_Update {
 			}
 		}
 
+		// move menu position setting to display tab
+		$this->migrate_menu_position_option();
+
 		if ( isset( $_POST['post_view_counter_update'], $_POST['post_view_counter_number'] ) ) {
 			if ( $_POST['post_view_counter_number'] === 'update_1' ) {
 				$this->update_1();
@@ -226,5 +229,39 @@ class Post_Views_Counter_Update {
 		}
 
 		Post_Views_Counter()->add_notice( __( 'Thank you! Datebase was successfully updated.', 'post-views-counter' ), 'updated', true );
+	}
+
+	/**
+	 * Move menu position setting from "Other" to "Display" settings.
+	 *
+	 * @return void
+	 */
+	private function migrate_menu_position_option() {
+		$pvc = Post_Views_Counter();
+
+		if ( ! isset( $pvc->options['other'] ) || ! array_key_exists( 'menu_position', $pvc->options['other'] ) )
+			return;
+
+		$menu_position = in_array( $pvc->options['other']['menu_position'], [ 'top', 'sub' ], true ) ? $pvc->options['other']['menu_position'] : 'top';
+
+		$display_options = get_option( 'post_views_counter_settings_display', [] );
+
+		if ( ! isset( $display_options['menu_position'] ) || ! in_array( $display_options['menu_position'], [ 'top', 'sub' ], true ) ) {
+			$display_options['menu_position'] = $menu_position;
+			update_option( 'post_views_counter_settings_display', $display_options );
+		}
+
+		$other_options = get_option( 'post_views_counter_settings_other', [] );
+
+		if ( ! is_array( $other_options ) )
+			$other_options = [];
+
+		if ( ! isset( $other_options['menu_position'] ) || ! in_array( $other_options['menu_position'], [ 'top', 'sub' ], true ) ) {
+			$other_options['menu_position'] = $display_options['menu_position'];
+			update_option( 'post_views_counter_settings_other', $other_options );
+		}
+
+		$pvc->options['other']['menu_position'] = $other_options['menu_position'];
+		$pvc->options['display']['menu_position'] = $display_options['menu_position'];
 	}
 }
