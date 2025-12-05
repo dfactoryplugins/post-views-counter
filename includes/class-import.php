@@ -68,7 +68,7 @@ class Post_Views_Counter_Import {
 		// wp-postviews provider (conditional)
 		$this->import_providers['wp_postviews'] = [
 			'slug'			=> 'wp_postviews',
-			'label'			=> __( 'WP-PostViews', 'post-views-counter' ),
+			'label'			=> 'WP-PostViews',
 			'is_available'	=> [ $this, 'is_wp_postviews_available' ],
 			'render'		=> [ $this, 'render_provider_wp_postviews' ],
 			'sanitize'		=> [ $this, 'sanitize_provider_wp_postviews' ],
@@ -79,7 +79,7 @@ class Post_Views_Counter_Import {
 		// statify provider (conditional)
 		$this->import_providers['statify'] = [
 			'slug'			=> 'statify',
-			'label'			=> __( 'Statify', 'post-views-counter' ),
+			'label'			=> 'Statify',
 			'is_available'	=> [ $this, 'is_statify_available' ],
 			'render'		=> [ $this, 'render_provider_statify' ],
 			'sanitize'		=> [ $this, 'sanitize_provider_statify' ],
@@ -87,8 +87,29 @@ class Post_Views_Counter_Import {
 			'import'		=> [ $this, 'import_provider_statify' ]
 		];
 
-		// allow extensions to register additional providers
-		$this->import_providers = apply_filters( 'pvc_import_providers', $this->import_providers );
+		// page views count provider (conditional)
+		$this->import_providers['page_views_count'] = [
+			'slug'			=> 'page_views_count',
+			'label'			=> 'Page Views Count',
+			'is_available'	=> [ $this, 'is_page_views_count_available' ],
+			'render'		=> [ $this, 'render_provider_page_views_count' ],
+			'sanitize'		=> [ $this, 'sanitize_provider_page_views_count' ],
+			'analyse'		=> [ $this, 'analyse_provider_page_views_count' ],
+			'import'		=> [ $this, 'import_provider_page_views_count' ]
+		];
+
+		// allow extensions to register additional providers without overriding core ones
+		$additional_providers = apply_filters( 'pvc_import_providers', [] );
+
+		if ( is_array( $additional_providers ) ) {
+			foreach ( $additional_providers as $slug => $provider ) {
+				if ( ! is_string( $slug ) || $slug === '' || isset( $this->import_providers[ $slug ] ) ) {
+					continue;
+				}
+
+				$this->import_providers[ $slug ] = $provider;
+			}
+		}
 
 		foreach ( $this->import_providers as $slug => $provider ) {
 			$this->import_provider_labels[ $slug ] = isset( $provider['label'] ) ? $provider['label'] : $slug;
@@ -624,7 +645,7 @@ class Post_Views_Counter_Import {
 		];
 
 		foreach ( $rows as $row ) {
-			$content = $this->map_target_to_content( $row['target'], $tracked_post_types );
+			$content = $this->map_target_to_content( $row['target'], $tracked_post_types, 'statify' );
 			$post_id = isset( $content['content_id'] ) ? (int) $content['content_id'] : 0;
 			if ( ! $post_id ) {
 				$skipped_targets[] = $row['target'];
@@ -720,6 +741,7 @@ class Post_Views_Counter_Import {
 		 * Allow to adjust provider analysis statistics before displaying the message.
 		 *
 		 * @since 1.5.10
+		 * @since 1.5.11 Provider parameter moved to the third position.
 		 *
 		 * @param array $message_stats Prepared statistics for the UI.
 		 * @param array $context Additional context such as mode/source.
@@ -771,7 +793,7 @@ class Post_Views_Counter_Import {
 			if ( empty( $rows ) ) break;
 
 			foreach ( $rows as $row ) {
-				$content = $this->map_target_to_content( $row['target'], $tracked_post_types );
+				$content = $this->map_target_to_content( $row['target'], $tracked_post_types, 'statify' );
 				$post_id = isset( $content['content_id'] ) ? (int) $content['content_id'] : 0;
 				if ( ! $post_id ) {
 					$skipped_targets[] = $row['target'];
@@ -941,6 +963,249 @@ class Post_Views_Counter_Import {
 	}
 
 	/**
+	 * Check if Page Views Count is available.
+	 *
+	 * @return bool
+	 */
+	public function is_page_views_count_available() {
+		global $wpdb;
+		$table_total = $wpdb->prefix . 'pvc_total';
+		$table_daily = $wpdb->prefix . 'pvc_daily';
+		return $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table_total ) ) === $table_total &&
+			$wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table_daily ) ) === $table_daily;
+	}
+
+	/**
+	 * Render Page Views Count provider fields.
+	 *
+	 * @return string
+	 */
+	public function render_provider_page_views_count() {
+		$html = '
+		<div class="pvc-provider-fields">
+			<p class="description">' . esc_html__( 'Page Views Count total and daily view data will be imported into PVC\'s daily, weekly, monthly, yearly, and total view counts.', 'post-views-counter' ) . '</p>
+		</div>';
+
+		return $html;
+	}
+
+	/**
+	 * Sanitize Page Views Count provider inputs.
+	 *
+	 * @param array $inputs
+	 * @return array
+	 */
+	public function sanitize_provider_page_views_count( $inputs ) {
+		// no inputs needed for Page Views Count
+		return [];
+	}
+
+	/**
+	 * Analyse Page Views Count provider.
+	 *
+	 * @global object $wpdb
+	 *
+	 * @param array $inputs
+	 * @return array
+	 */
+	public function analyse_provider_page_views_count( $inputs ) {
+		global $wpdb;
+
+		$table_total = $wpdb->prefix . 'pvc_total';
+		$table_daily = $wpdb->prefix . 'pvc_daily';
+
+		$pvc_settings = Post_Views_Counter()->options['general'];
+		$tracked_post_types = array_map( 'sanitize_key', (array) $pvc_settings['post_types_count'] );
+
+		$post_types_cache = [];
+
+		// get total views
+		$totals = $wpdb->get_results( "SELECT postnum, postcount FROM {$table_total}", ARRAY_A );
+		$total_views = 0;
+		$valid_posts_total = [];
+		foreach ( $totals as $row ) {
+			$post_id = (int) $row['postnum'];
+			if ( ! isset( $post_types_cache[$post_id] ) ) {
+				$post_types_cache[$post_id] = get_post_type( $post_id );
+			}
+			if ( $post_types_cache[$post_id] && in_array( $post_types_cache[$post_id], $tracked_post_types, true ) ) {
+				$total_views += (int) $row['postcount'];
+				$valid_posts_total[] = $post_id;
+			}
+		}
+
+		// get daily views
+		$dailies = $wpdb->get_results( "SELECT time, postnum, postcount FROM {$table_daily}", ARRAY_A );
+		$daily_views = 0;
+		$valid_posts_daily = [];
+		foreach ( $dailies as $row ) {
+			$post_id = (int) $row['postnum'];
+			if ( ! isset( $post_types_cache[$post_id] ) ) {
+				$post_types_cache[$post_id] = get_post_type( $post_id );
+			}
+			if ( $post_types_cache[$post_id] && in_array( $post_types_cache[$post_id], $tracked_post_types, true ) ) {
+				$daily_views += (int) $row['postcount'];
+				$valid_posts_daily[] = $post_id;
+			}
+		}
+
+		$posts_processed = count( array_unique( array_merge( $valid_posts_total, $valid_posts_daily ) ) );
+
+		$stats = [
+			'total_views' => $total_views,
+			'posts_processed' => $posts_processed,
+			'source' => $this->get_provider_label( 'page_views_count' ),
+		];
+
+		return [
+			'count' => $total_views + $daily_views,
+			'message' => $this->generate_import_message( $stats, 'analyze' )
+		];
+	}
+
+	/**
+	 * Import Page Views Count provider.
+	 *
+	 * @global object $wpdb
+	 *
+	 * @param array $inputs
+	 * @param string $strategy
+	 * @return array
+	 */
+	public function import_provider_page_views_count( $inputs, $strategy ) {
+		global $wpdb;
+
+		$table_total = $wpdb->prefix . 'pvc_total';
+		$table_daily = $wpdb->prefix . 'pvc_daily';
+
+		$pvc_settings = Post_Views_Counter()->options['general'];
+		$tracked_post_types = array_map( 'sanitize_key', (array) $pvc_settings['post_types_count'] );
+
+		$post_types_cache = [];
+
+		$results = $wpdb->get_results(
+			"SELECT t.postnum, t.postcount AS total, d.time, d.postcount AS daily_count
+			FROM {$table_total} AS t
+			LEFT JOIN {$table_daily} AS d ON t.postnum = d.postnum
+			ORDER BY t.postnum, d.time",
+			ARRAY_A
+		);
+
+		$sql_parts = [];
+		$stats = [];
+		$total_views_imported = 0;
+
+		foreach ( $results as $row ) {
+			$post_id = (int) $row['postnum'];
+
+			if ( ! isset( $post_types_cache[ $post_id ] ) ) {
+				$post_types_cache[ $post_id ] = get_post_type( $post_id );
+			}
+
+			$post_type = $post_types_cache[ $post_id ];
+
+			if ( ! $post_type || ! in_array( $post_type, $tracked_post_types, true ) ) {
+				continue;
+			}
+
+			if ( isset( $row['total'] ) && ! isset( $stats[ $post_id ]['total_imported'] ) ) {
+				$total_views_imported += (int) $row['total'];
+				$sql_parts[] = $wpdb->prepare( "(%d, 4, 'total', %d)", $post_id, (int) $row['total'] );
+				$stats[ $post_id ]['total_imported'] = true;
+			}
+
+			if ( empty( $row['time'] ) ) {
+				continue;
+			}
+
+			$ts = strtotime( $row['time'] . ' 00:00:00' );
+			$period_keys = $this->get_period_keys_from_timestamp( $ts, false ); // Use site time as data is in site time
+
+			if ( ! isset( $stats[ $post_id ] ) ) {
+				$stats[ $post_id ] = [
+					'periods' => [
+						'daily' => [],
+						'weekly' => [],
+						'monthly' => [],
+						'yearly' => []
+					]
+				];
+			}
+
+			$stats[ $post_id ]['periods']['daily'][ $period_keys['day'] ] = ( $stats[ $post_id ]['periods']['daily'][ $period_keys['day'] ] ?? 0 ) + (int) $row['daily_count'];
+			$stats[ $post_id ]['periods']['weekly'][ $period_keys['week'] ] = ( $stats[ $post_id ]['periods']['weekly'][ $period_keys['week'] ] ?? 0 ) + (int) $row['daily_count'];
+			$stats[ $post_id ]['periods']['monthly'][ $period_keys['month'] ] = ( $stats[ $post_id ]['periods']['monthly'][ $period_keys['month'] ] ?? 0 ) + (int) $row['daily_count'];
+			$stats[ $post_id ]['periods']['yearly'][ $period_keys['year'] ] = ( $stats[ $post_id ]['periods']['yearly'][ $period_keys['year'] ] ?? 0 ) + (int) $row['daily_count'];
+		}
+
+		if ( empty( $sql_parts ) ) {
+			return [
+				'success' => false,
+				'message' => __( 'No valid post data found to import.', 'post-views-counter' )
+			];
+		}
+
+		$period_counts = [
+			'daily' => 0,
+			'weekly' => 0,
+			'monthly' => 0,
+			'yearly' => 0
+		];
+
+		foreach ( $stats as $post_id => $data ) {
+			foreach ( $data['periods']['daily'] as $period => $count ) {
+				$sql_parts[] = $wpdb->prepare( "(%d, 0, %s, %d)", $post_id, $period, $count );
+				$period_counts['daily']++;
+			}
+			foreach ( $data['periods']['weekly'] as $period => $count ) {
+				$sql_parts[] = $wpdb->prepare( "(%d, 1, %s, %d)", $post_id, $period, $count );
+				$period_counts['weekly']++;
+			}
+			foreach ( $data['periods']['monthly'] as $period => $count ) {
+				$sql_parts[] = $wpdb->prepare( "(%d, 2, %s, %d)", $post_id, $period, $count );
+				$period_counts['monthly']++;
+			}
+			foreach ( $data['periods']['yearly'] as $period => $count ) {
+				$sql_parts[] = $wpdb->prepare( "(%d, 3, %s, %d)", $post_id, $period, $count );
+				$period_counts['yearly']++;
+			}
+		}
+
+		$posts_processed = count( array_keys( $stats ) );
+
+		$on_duplicate = ( $strategy === 'override' ) ? 'count = VALUES(count)' : 'count = count + VALUES(count)';
+		$wpdb->query( "INSERT INTO {$wpdb->prefix}post_views (id, type, period, count) VALUES " . implode( ',', $sql_parts ) . " ON DUPLICATE KEY UPDATE {$on_duplicate}" );
+
+		do_action( 'pvc_import_after_provider', [
+			'strategy' => $strategy,
+			'source' => 'page_views_count',
+			'use_gmt' => false
+		] );
+
+		$this->flush_pvc_caches();
+
+		$provider_slug = 'page_views_count';
+		$provider_label = isset( $this->import_provider_labels[ $provider_slug ] ) ? $this->import_provider_labels[ $provider_slug ] : $provider_slug;
+
+		$stats = [
+			'total_views' => $total_views_imported,
+			'posts_processed' => $posts_processed,
+			'periods' => $period_counts,
+			'source' => $provider_label
+		];
+
+		$stats = apply_filters( 'pvc_import_message_stats', $stats, [
+			'mode' => 'import',
+			'source' => 'page_views_count'
+		] );
+
+		return [
+			'success' => true,
+			'message' => $this->generate_import_message( $stats )
+		];
+	}
+
+	/**
 	 * Generate import/analyze message with statistics.
 	 *
 	 * @param array $stats Import statistics
@@ -994,9 +1259,10 @@ class Post_Views_Counter_Import {
 	 *
 	 * @param string $target
 	 * @param array $tracked_post_types
+	 * @param string $provider
 	 * @return array
 	 */
-	private function map_target_to_content( $target, $tracked_post_types ) {
+	private function map_target_to_content( $target, $tracked_post_types, $provider ) {
 		$content = [
 			'content_type' => 'post',
 			'content_id' => $this->map_target_to_post_id( $target, $tracked_post_types )
@@ -1011,12 +1277,12 @@ class Post_Views_Counter_Import {
 		 *     @type string $content_type Resolved content type.
 		 *     @type int    $content_id   Target identifier.
 		 * }
-		 * @param string $target Target path recorded by Statify.
+		 * @param string $target Target path recorded by the provider.
+		 * @param string $provider Current import provider slug.
 		 * @param array  $tracked_post_types Allowed post types for PVC.
 		 * @param Post_Views_Counter_Import $importer Import handler instance.
-		 * @param string $provider Current import provider slug.
 		 */
-		return apply_filters( 'pvc_import_map_target_to_content', $content, $target, $tracked_post_types, $this, 'statify' );
+		return apply_filters( 'pvc_import_map_target_to_content', $content, $target, $provider, $tracked_post_types, $this );
 	}
 
 	/**
