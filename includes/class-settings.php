@@ -1922,7 +1922,7 @@ class Post_Views_Counter_Settings {
 		$rows = [
 			[
 				'label' => __( 'Plugin Version', 'post-views-counter' ),
-				'lines' => [ 'Post Views Counter ' . $version, 'Post Views Counter Pro ' . $pro_version ]
+				'lines' => [ 'Post Views Counter: ' . $version, 'Post Views Counter Pro: ' . $pro_version ]
 			]
 		];
 

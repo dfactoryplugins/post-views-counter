@@ -16,6 +16,7 @@ class Post_Views_Counter_Import {
 	 * @var array
 	 */
 	private $import_providers = [];
+	private $import_provider_labels = [];
 
 	/**
 	 * Whether providers have been initialized.
@@ -88,6 +89,10 @@ class Post_Views_Counter_Import {
 
 		// allow extensions to register additional providers
 		$this->import_providers = apply_filters( 'pvc_import_providers', $this->import_providers );
+
+		foreach ( $this->import_providers as $slug => $provider ) {
+			$this->import_provider_labels[ $slug ] = isset( $provider['label'] ) ? $provider['label'] : $slug;
+		}
 	}
 
 	/**
@@ -364,11 +369,11 @@ class Post_Views_Counter_Import {
 			$total_views += (int) $view['meta_value'];
 		}
 
-		// generate detailed message
 		$stats = [
 			'total_views' => $total_views,
 			'posts_processed' => count( $views ),
-			'additional_info' => sprintf( __( 'Source: meta key %s', 'post-views-counter' ), esc_html( $meta_key ) )
+			'source' => $this->get_provider_label( 'custom_meta_key' ),
+			'additional_info' => sprintf( __( 'Meta key "%s".', 'post-views-counter' ), esc_html( $meta_key ) )
 		];
 
 		return [
@@ -418,11 +423,11 @@ class Post_Views_Counter_Import {
 			$total_views += (int) $view['meta_value'];
 		}
 
-		// generate detailed message
 		$stats = [
 			'total_views' => $total_views,
 			'posts_processed' => count( $views ),
-			'additional_info' => sprintf( __( 'Source: meta key %s', 'post-views-counter' ), esc_html( $meta_key ) )
+			'source' => $this->get_provider_label( 'custom_meta_key' ),
+			'additional_info' => sprintf( __( 'Meta key "%s".', 'post-views-counter' ), esc_html( $meta_key ) )
 		];
 
 		return [
@@ -483,11 +488,10 @@ class Post_Views_Counter_Import {
 			$total_views += (int) $view['meta_value'];
 		}
 
-		// generate detailed message
 		$stats = [
 			'total_views' => $total_views,
 			'posts_processed' => count( $views ),
-			'additional_info' => sprintf( __( 'Source: %s', 'post-views-counter' ), 'WP-PostViews' )
+			'source' => $this->get_provider_label( 'wp_postviews' )
 		];
 
 		return [
@@ -535,11 +539,10 @@ class Post_Views_Counter_Import {
 			$total_views += (int) $view['meta_value'];
 		}
 
-		// generate detailed message
 		$stats = [
 			'total_views' => $total_views,
 			'posts_processed' => count( $views ),
-			'additional_info' => sprintf( __( 'Source: %s', 'post-views-counter' ), 'WP-PostViews' )
+			'source' => $this->get_provider_label( 'wp_postviews' )
 		];
 
 		return [
@@ -621,24 +624,49 @@ class Post_Views_Counter_Import {
 		];
 
 		foreach ( $rows as $row ) {
-			$post_id = $this->map_target_to_post_id( $row['target'], $tracked_post_types );
+			$content = $this->map_target_to_content( $row['target'], $tracked_post_types );
+			$post_id = isset( $content['content_id'] ) ? (int) $content['content_id'] : 0;
 			if ( ! $post_id ) {
 				$skipped_targets[] = $row['target'];
 				continue;
 			}
 
 			$ts = strtotime( $row['created'] );
-			if ( $use_gmt ) {
-				$date = gmdate( 'W-d-m-Y-o', $ts );
-			} else {
-				$date = date( 'W-d-m-Y-o', $ts );
-			}
-			$parts = explode( '-', $date );
+			$period_keys = $this->get_period_keys_from_timestamp( $ts, $use_gmt );
 
-			$day_key = $parts[3] . $parts[2] . $parts[1];
-			$week_key = $parts[4] . $parts[0];
-			$month_key = $parts[3] . $parts[2];
-			$year_key = $parts[3];
+			if ( isset( $content['content_type'] ) && $content['content_type'] !== 'post' ) {
+				/**
+				 * Allow to capture provider rows that map to non-post content.
+				 *
+				 * Returning true from this filter stops default processing for the row.
+				 *
+				 * @since 1.5.10
+				 *
+				 * @param bool $handled Whether the row was fully processed.
+				 * @param array $context Contextual data about the provider row.
+				 * @param Post_Views_Counter_Import $importer Import handler instance.
+				 */
+				$handled = apply_filters( 'pvc_import_handle_non_post_row', false, [
+					'mode' => 'analyze',
+					'source' => 'statify',
+					'row' => $row,
+					'content' => $content,
+					'period_keys' => $period_keys,
+					'timestamp' => $ts,
+					'use_gmt' => $use_gmt
+				], $this );
+
+				if ( $handled )
+					continue;
+
+				$skipped_targets[] = $row['target'];
+				continue;
+			}
+
+			$day_key = $period_keys['day'];
+			$week_key = $period_keys['week'];
+			$month_key = $period_keys['month'];
+			$year_key = $period_keys['year'];
 
 			if ( ! isset( $stats[$post_id] ) ) {
 				$stats[$post_id] = [
@@ -672,19 +700,34 @@ class Post_Views_Counter_Import {
 		}
 
 		// prepare statistics for message generation
+		$provider_slug = 'statify';
+		$provider_label = isset( $this->import_provider_labels[ $provider_slug ] ) ? $this->import_provider_labels[ $provider_slug ] : $provider_slug;
+
 		$message_stats = [
 			'total_views' => $total_views,
 			'posts_processed' => count( $stats ),
-			'periods' => $period_counts
+			'periods' => $period_counts,
+			'source' => $provider_label
 		];
 
 		// add skipped URLs info if any
 		if ( ! empty( $skipped_targets ) ) {
 			$unique_skipped = array_unique( $skipped_targets );
-			$message_stats['additional_info'] = sprintf( __( 'Would skip %s non-post URLs. Source: %s', 'post-views-counter' ), number_format_i18n( count( $unique_skipped ) ), 'Statify' );
-		} else {
-			$message_stats['additional_info'] = sprintf( __( 'Source: %s', 'post-views-counter' ), 'Statify' );
+			$message_stats['additional_info'] = sprintf( __( 'Would skip %s non-post URLs.', 'post-views-counter' ), number_format_i18n( count( $unique_skipped ) ) );
 		}
+
+		/**
+		 * Allow to adjust provider analysis statistics before displaying the message.
+		 *
+		 * @since 1.5.10
+		 *
+		 * @param array $message_stats Prepared statistics for the UI.
+		 * @param array $context Additional context such as mode/source.
+		 */
+		$message_stats = apply_filters( 'pvc_import_message_stats', $message_stats, [
+			'mode' => 'analyze',
+			'source' => 'statify'
+		] );
 
 		return [
 			'count' => $total_views,
@@ -728,24 +771,40 @@ class Post_Views_Counter_Import {
 			if ( empty( $rows ) ) break;
 
 			foreach ( $rows as $row ) {
-				$post_id = $this->map_target_to_post_id( $row['target'], $tracked_post_types );
+				$content = $this->map_target_to_content( $row['target'], $tracked_post_types );
+				$post_id = isset( $content['content_id'] ) ? (int) $content['content_id'] : 0;
 				if ( ! $post_id ) {
 					$skipped_targets[] = $row['target'];
 					continue;
 				}
 
 				$ts = strtotime( $row['created'] );
-				if ( $use_gmt ) {
-					$date = gmdate( 'W-d-m-Y-o', $ts );
-				} else {
-					$date = date( 'W-d-m-Y-o', $ts );
-				}
-				$parts = explode( '-', $date );
+				$period_keys = $this->get_period_keys_from_timestamp( $ts, $use_gmt );
 
-				$day_key = $parts[3] . $parts[2] . $parts[1];
-				$week_key = $parts[4] . $parts[0];
-				$month_key = $parts[3] . $parts[2];
-				$year_key = $parts[3];
+				if ( isset( $content['content_type'] ) && $content['content_type'] !== 'post' ) {
+					/** This filter is documented above. */
+					$handled = apply_filters( 'pvc_import_handle_non_post_row', false, [
+						'mode' => 'import',
+						'source' => 'statify',
+						'row' => $row,
+						'content' => $content,
+						'period_keys' => $period_keys,
+						'timestamp' => $ts,
+						'use_gmt' => $use_gmt,
+						'strategy' => $strategy
+					], $this );
+
+					if ( $handled )
+						continue;
+
+					$skipped_targets[] = $row['target'];
+					continue;
+				}
+
+				$day_key = $period_keys['day'];
+				$week_key = $period_keys['week'];
+				$month_key = $period_keys['month'];
+				$year_key = $period_keys['year'];
 
 				if ( ! isset( $stats[$post_id] ) ) {
 					$stats[$post_id] = [
@@ -826,22 +885,54 @@ class Post_Views_Counter_Import {
 		$on_duplicate = ( $strategy === 'override' ) ? 'count = VALUES(count)' : 'count = count + VALUES(count)';
 		$wpdb->query( "INSERT INTO {$wpdb->prefix}post_views (id, type, period, count) VALUES " . implode( ',', $sql_parts ) . " ON DUPLICATE KEY UPDATE {$on_duplicate}" );
 
+		/**
+		 * Fires after a provider's post rows have been inserted.
+		 *
+		 * @since 1.5.10
+		 *
+		 * @param array $context {
+		 *     @type string $strategy Selected merge strategy.
+		 *     @type string $source   Provider slug (statify).
+		 *     @type bool   $use_gmt  Whether GMT dates were used.
+		 * }
+		 */
+		do_action( 'pvc_import_after_provider', [
+			'strategy' => $strategy,
+			'source' => 'statify',
+			'use_gmt' => $use_gmt
+		] );
+
 		$this->flush_pvc_caches();
 
 		// prepare statistics for message generation
+		$provider_slug = 'statify';
+		$provider_label = isset( $this->import_provider_labels[ $provider_slug ] ) ? $this->import_provider_labels[ $provider_slug ] : $provider_slug;
+
 		$stats = [
 			'total_views' => $total_views,
 			'posts_processed' => $posts_processed,
-			'periods' => $period_counts
+			'periods' => $period_counts,
+			'source' => $provider_label
 		];
 
 		// add skipped URLs info if any
 		if ( ! empty( $skipped_targets ) ) {
 			$unique_skipped = array_unique( $skipped_targets );
-			$stats['additional_info'] = sprintf( __( 'Skipped %s non-post URLs. Source: %s', 'post-views-counter' ), number_format_i18n( count( $unique_skipped ) ), 'Statify' );
-		} else {
-			$stats['additional_info'] = sprintf( __( 'Source: %s', 'post-views-counter' ), 'Statify' );
+			$stats['additional_info'] = sprintf( __( 'Skipped %s non-post URLs.', 'post-views-counter' ), number_format_i18n( count( $unique_skipped ) ) );
 		}
+
+		/**
+		 * Allow to adjust provider import statistics before displaying the message.
+		 *
+		 * @since 1.5.10
+		 *
+		 * @param array $stats Prepared statistics for the UI.
+		 * @param array $context Additional context such as mode/source.
+		 */
+		$stats = apply_filters( 'pvc_import_message_stats', $stats, [
+			'mode' => 'import',
+			'source' => 'statify'
+		] );
 
 		return [
 			'success' => true,
@@ -858,6 +949,20 @@ class Post_Views_Counter_Import {
 	 */
 	private function generate_import_message( $stats, $mode = 'import' ) {
 		$message_parts = [];
+
+		$source_label = '';
+
+		if ( ! empty( $stats['source'] ) ) {
+			$source_label = $stats['source'];
+		}
+
+		if ( $source_label !== '' ) {
+			if ( $mode === 'analyze' ) {
+				$message_parts[] = sprintf( __( 'Analysis of %s:', 'post-views-counter' ), $source_label );
+			} else {
+				$message_parts[] = sprintf( __( 'Import from %s:', 'post-views-counter' ), $source_label );
+			}
+		}
 
 		// main success message
 		if ( isset( $stats['total_views'] ) && isset( $stats['posts_processed'] ) ) {
@@ -876,33 +981,42 @@ class Post_Views_Counter_Import {
 			}
 		}
 
-		// period breakdown (only if period data exists)
-		if ( ! empty( $stats['periods'] ) ) {
-			$period_parts = [];
-			if ( isset( $stats['periods']['daily'] ) && $stats['periods']['daily'] > 0 ) {
-				$period_parts[] = sprintf( __( '%s daily', 'post-views-counter' ), number_format_i18n( $stats['periods']['daily'] ) );
-			}
-			if ( isset( $stats['periods']['weekly'] ) && $stats['periods']['weekly'] > 0 ) {
-				$period_parts[] = sprintf( __( '%s weekly', 'post-views-counter' ), number_format_i18n( $stats['periods']['weekly'] ) );
-			}
-			if ( isset( $stats['periods']['monthly'] ) && $stats['periods']['monthly'] > 0 ) {
-				$period_parts[] = sprintf( __( '%s monthly', 'post-views-counter' ), number_format_i18n( $stats['periods']['monthly'] ) );
-			}
-			if ( isset( $stats['periods']['yearly'] ) && $stats['periods']['yearly'] > 0 ) {
-				$period_parts[] = sprintf( __( '%s yearly', 'post-views-counter' ), number_format_i18n( $stats['periods']['yearly'] ) );
-			}
-
-			if ( ! empty( $period_parts ) ) {
-				$message_parts[] = __( 'Period records:', 'post-views-counter' ) . ' ' . implode( ', ', $period_parts ) . '.';
-			}
-		}
-
 		// additional info (like skipped URLs)
 		if ( ! empty( $stats['additional_info'] ) ) {
 			$message_parts[] = $stats['additional_info'];
 		}
 
 		return implode( ' ', $message_parts );
+	}
+
+	/**
+	 * Map provider target URL to content data.
+	 *
+	 * @param string $target
+	 * @param array $tracked_post_types
+	 * @return array
+	 */
+	private function map_target_to_content( $target, $tracked_post_types ) {
+		$content = [
+			'content_type' => 'post',
+			'content_id' => $this->map_target_to_post_id( $target, $tracked_post_types )
+		];
+
+		/**
+		 * Filter provider content mapping so it's possible to process non-post URLs.
+		 *
+		 * @since 1.5.10
+		 *
+		 * @param array $content {
+		 *     @type string $content_type Resolved content type.
+		 *     @type int    $content_id   Target identifier.
+		 * }
+		 * @param string $target Target path recorded by Statify.
+		 * @param array  $tracked_post_types Allowed post types for PVC.
+		 * @param Post_Views_Counter_Import $importer Import handler instance.
+		 * @param string $provider Current import provider slug.
+		 */
+		return apply_filters( 'pvc_import_map_target_to_content', $content, $target, $tracked_post_types, $this, 'statify' );
 	}
 
 	/**
@@ -964,5 +1078,38 @@ class Post_Views_Counter_Import {
 				wp_cache_delete( $key, $group );
 			}
 		}
+	}
+
+	/**
+	 * Retrieve the human readable label for a provider.
+	 *
+	 * @param string $slug
+	 * @return string
+	 */
+	private function get_provider_label( $slug ) {
+		if ( isset( $this->import_provider_labels[ $slug ] ) ) {
+			return $this->import_provider_labels[ $slug ];
+		}
+
+		return ucwords( str_replace( '_', ' ', $slug ) );
+	}
+
+	/**
+	 * Build period keys for a timestamp.
+	 *
+	 * @param int $timestamp
+	 * @param bool $use_gmt
+	 * @return array
+	 */
+	private function get_period_keys_from_timestamp( $timestamp, $use_gmt ) {
+		$date = $use_gmt ? gmdate( 'W-d-m-Y-o', $timestamp ) : date( 'W-d-m-Y-o', $timestamp );
+		$parts = explode( '-', $date );
+
+		return [
+			'day' => $parts[3] . $parts[2] . $parts[1],
+			'week' => $parts[4] . $parts[0],
+			'month' => $parts[3] . $parts[2],
+			'year' => $parts[3]
+		];
 	}
 }
