@@ -242,7 +242,7 @@ class Post_Views_Counter_Settings {
 				],
 				'post_views_counter_other_management' => [
 					'tab'      => 'other',
-					'title'    => __( 'Admin & Cleanup', 'post-views-counter' ),
+					'title'    => __( 'Data Removal', 'post-views-counter' ),
 					'callback' => [ $this, 'section_other_management' ]
 				]
 			],
@@ -1394,8 +1394,11 @@ class Post_Views_Counter_Settings {
 		$html .= '</div>';
 
 		$html .= '
-			<p class="description">' . __( 'Use this to exclude specific visitor groups from counting views.', 'post-views-counter' ) . '</p>
-			<div class="pvc_user_roles pvc_subfield"' . ( in_array( 'roles', $pvc->options['general']['exclude']['groups'], true ) ? '' : ' style="display: none;"' ) . '>';
+			<p class="description">' . __( 'Use this to exclude specific visitor groups from counting views.', 'post-views-counter' ) . '</p>';
+
+		// user roles subfield
+		$html .= '
+			<div class="pvc_user_roles pvc_subfield pvc-field-group pvc-checkbox-group"' . ( in_array( 'roles', $pvc->options['general']['exclude']['groups'], true ) ? '' : ' style="display: none;"' ) . '>';
 
 		foreach ( $field['options']['roles'] as $role => $role_name ) {
 			$html .= '
@@ -1655,7 +1658,7 @@ class Post_Views_Counter_Settings {
 
 		$html .= '
 			<p class="description">' . __( 'Hide the view counter for selected visitor groups.', 'post-views-counter' ) . '</p>
-			<div class="pvc_user_roles pvc-subfield"' . ( in_array( 'roles', $pvc->options['display']['restrict_display']['groups'], true ) ? '' : ' style="display: none;"' ) . '>';
+			<div class="pvc_user_roles pvc-subfield pvc-field-group pvc-checkbox-group"' . ( in_array( 'roles', $pvc->options['display']['restrict_display']['groups'], true ) ? '' : ' style="display: none;"' ) . '>';
 
 		foreach ( $field['options']['roles'] as $role => $role_name ) {
 			$html .= '
@@ -1808,14 +1811,19 @@ class Post_Views_Counter_Settings {
 					$table_label = isset( $table['label'] ) ? esc_html( $table['label'] ) : $table_name;
 					$table_exists = isset( $table['exists'] ) ? (bool) $table['exists'] : false;
 
-					echo '<div style="margin-bottom: 5px;">';
+					echo '<p>';
 					echo $table_label;
 					if ( $table_exists ) {
 						echo ' <span class="pvc-status pvc-status-active">&#10003;</span>';
 					} else {
 						echo ' <span class="pvc-status pvc-status-missing">&#10007;</span>';
 					}
-					echo '</div>';
+					echo '</p>';
+				}
+			// handle lines array
+			} elseif ( isset( $row['lines'] ) && is_array( $row['lines'] ) ) {
+				foreach ( $row['lines'] as $line ) {
+					echo '<p>' . wp_kses( $line, [ 'span' => [ 'class' => [] ] ] ) . '</p>';
 				}
 			// handle boolean active status
 			} elseif ( $active === true ) {
@@ -1824,7 +1832,7 @@ class Post_Views_Counter_Settings {
 				 echo '<span class="pvc-status pvc-status-missing">&#10007; ' . esc_html__( 'Not Detected', 'post-views-counter' ) . '</span>';
 			// handle plain text value
 			} else {
-				echo esc_html( $value );
+				echo wp_kses( $value, [ 'br' => [] ] );
 			}				echo '</td>';
 			echo '</tr>';
 		}
@@ -1852,13 +1860,16 @@ class Post_Views_Counter_Settings {
 		// detect pro activation status
 		$pvc_pro_active = class_exists( 'Post_Views_Counter_Pro' );
 
+		// get pro version
+		$pro_version = $pvc_pro_active ? get_option( 'post_views_counter_pro_version', '1.0.0' ) : '<span class="pvc-status pvc-status-missing">✗</span>';
+
 		// get database tables via filter
 		$tables = $this->get_plugin_status_tables();
 
 		$rows = [
 			[
 				'label' => __( 'Plugin Version', 'post-views-counter' ),
-				'value' => $version
+				'lines' => [ 'Post Views Counter ' . $version, 'Post Views Counter Pro ' . $pro_version ]
 			]
 		];
 
@@ -1869,12 +1880,6 @@ class Post_Views_Counter_Settings {
 				'tables' => $tables
 			];
 		}
-
-		// add pro status after tables
-		$rows[] = [
-			'label' => 'Post Views Counter Pro',
-			'active' => $pvc_pro_active
-		];
 
 		/**
 		 * Filter the plugin status rows.
@@ -1976,7 +1981,7 @@ class Post_Views_Counter_Settings {
 	 * @return void
 	 */
 	public function section_other_management() {
-		echo '<p class="description">' . esc_html__( 'Configure admin menu placement and what happens to data when the plugin is deactivated.', 'post-views-counter' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Choose what happens to stored view data on uninstall, and manage other removal-related tools.', 'post-views-counter' ) . '</p>';
 	}
 
 	/**

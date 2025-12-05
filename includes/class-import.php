@@ -312,7 +312,6 @@ class Post_Views_Counter_Import {
 
 		$html = '
 		<div class="pvc-provider-fields">
-			<label for="pvc_import_meta_key">' . esc_html__( 'Meta Key', 'post-views-counter' ) . '</label>
 			<input type="text" id="pvc_import_meta_key" class="regular-text" name="pvc_import_provider_inputs[meta_key]" value="' . esc_attr( $meta_key ) . '" />
 			<p class="description">' . esc_html__( 'Enter the meta key from which the views data is to be retrieved during import.', 'post-views-counter' ) . '</p>
 		</div>';
