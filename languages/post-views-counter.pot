@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Post Views Counter\n"
-"POT-Creation-Date: 2025-12-03 14:51+0100\n"
+"POT-Creation-Date: 2025-12-06 20:57+0100\n"
 "PO-Revision-Date: 2015-04-08 18:59+0100\n"
 "Last-Translator: Bartosz Arendt <info@dfactory.eu>\n"
 "Language-Team: dFactory <info@dfactory.eu>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.8\n"
 "X-Poedit-KeywordsList: "
-"gettext;gettext_noop;__;_e;esc_attr__;esc_attr_e;esc_html__;esc_html_e\n"
+"gettext;gettext_noop;__;_e;esc_attr__;esc_attr_e;esc_html__;esc_html_e;_x\n"
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-SearchPath-0: ..\n"
@@ -24,7 +24,7 @@ msgid "Something went wrong. Try again or refresh the page."
 msgstr ""
 
 #: ../blocks/most-viewed-posts/src/edit.js:26
-#: ../blocks/post-views/src/edit.js:22 ../post-views-counter.php:945
+#: ../blocks/post-views/src/edit.js:22 ../post-views-counter.php:968
 msgid "Settings"
 msgstr ""
 
@@ -123,7 +123,7 @@ msgstr ""
 #: ../includes/class-admin.php:172 ../includes/class-columns.php:60
 #: ../includes/class-columns.php:254 ../includes/class-columns.php:348
 #: ../includes/class-dashboard.php:61 ../includes/class-dashboard.php:100
-#: ../includes/class-settings.php:668
+#: ../includes/class-settings.php:689
 msgid "Post Views"
 msgstr ""
 
@@ -228,9 +228,9 @@ msgstr ""
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: ../includes/class-dashboard.php:301 ../includes/class-settings.php:459
+#: ../includes/class-dashboard.php:301 ../includes/class-settings.php:462
 #: ../includes/class-widgets.php:85 ../includes/functions.php:625
-#: ../post-views-counter.php:360
+#: ../post-views-counter.php:365
 msgid "Total Views"
 msgstr ""
 
@@ -246,595 +246,734 @@ msgstr ""
 msgid "No most viewed posts found."
 msgstr ""
 
+#: ../includes/class-import.php:60
+msgid "Custom Meta Key"
+msgstr ""
+
+#: ../includes/class-import.php:204
+msgid "total"
+msgstr ""
+
+#: ../includes/class-import.php:207
+msgid "yearly"
+msgstr ""
+
+#: ../includes/class-import.php:210
+msgid "monthly"
+msgstr ""
+
+#: ../includes/class-import.php:213
+msgid "weekly"
+msgstr ""
+
+#: ../includes/class-import.php:216
+msgid "daily"
+msgstr ""
+
+#: ../includes/class-import.php:221
+msgid "post types"
+msgstr ""
+
+#: ../includes/class-import.php:222
+msgid "taxonomies"
+msgstr ""
+
+#: ../includes/class-import.php:223
+msgid "author archives"
+msgstr ""
+
+#: ../includes/class-import.php:224
+msgid "other pages"
+msgstr ""
+
+#: ../includes/class-import.php:225
+msgid "traffic sources"
+msgstr ""
+
+#: ../includes/class-import.php:239
+#, php-format
+msgid "Imports %s view counts for %s"
+msgstr ""
+
+#: ../includes/class-import.php:241
+#, php-format
+msgid "Imports %s view counts"
+msgstr ""
+
+#: ../includes/class-import.php:253
+#, php-format
+msgid "PVC Pro additionally imports %s view counts"
+msgstr ""
+
+#: ../includes/class-import.php:275
+msgid "and"
+msgstr ""
+
+#: ../includes/class-import.php:306
+msgid "Invalid import provider selected."
+msgstr ""
+
+#: ../includes/class-import.php:452
+msgid ""
+"Enter the meta key from which the views data is to be retrieved during "
+"import."
+msgstr ""
+
+#: ../includes/class-import.php:498 ../includes/class-import.php:623
+#: ../includes/class-import.php:760
+#, php-format
+msgid "No valid views data found for %s."
+msgstr ""
+
+#: ../includes/class-import.php:498
+#, php-format
+msgid "meta key: %s"
+msgstr ""
+
+#: ../includes/class-import.php:512 ../includes/class-import.php:566
+#, php-format
+msgid "Meta key \"%s\"."
+msgstr ""
+
+#: ../includes/class-import.php:541 ../includes/class-import.php:663
+#: ../includes/class-import.php:1013 ../includes/class-import.php:1277
+msgid "No valid post data found to import."
+msgstr ""
+
+#: ../includes/class-import.php:864
+#, php-format
+msgid "Would skip %s non-post URLs."
+msgstr ""
+
+#: ../includes/class-import.php:1017
+msgid "No post types are selected for tracking in settings."
+msgstr ""
+
+#: ../includes/class-import.php:1022
+#, php-format
+msgid "All %s URLs were skipped. Sample URLs: %s"
+msgstr ""
+
+#: ../includes/class-import.php:1070
+#, php-format
+msgid "Skipped %s non-post URLs."
+msgstr ""
+
+#: ../includes/class-import.php:1359
+#, php-format
+msgid "Analysis of %s:"
+msgstr ""
+
+#: ../includes/class-import.php:1361
+#, php-format
+msgid "Import from %s:"
+msgstr ""
+
+#: ../includes/class-import.php:1369
+#, php-format
+msgid "Found %s total views for %s posts."
+msgstr ""
+
+#: ../includes/class-import.php:1375
+#, php-format
+msgid "Successfully imported %s total views for %s posts."
+msgstr ""
+
 #: ../includes/class-settings-api.php:328
 msgid "Reset to defaults"
 msgstr ""
 
-#: ../includes/class-settings-api.php:697
+#: ../includes/class-settings-api.php:709
 msgid "Settings saved."
 msgstr ""
 
-#: ../includes/class-settings-api.php:723
+#: ../includes/class-settings-api.php:735
 msgid "Settings restored to defaults."
 msgstr ""
 
-#: ../includes/class-settings.php:78
+#: ../includes/class-settings.php:81
 msgid ""
 "<b>Collect more accurate data</b> about the number of views of your site, "
 "regardless of what the user is visiting."
 msgstr ""
 
-#: ../includes/class-settings.php:79
+#: ../includes/class-settings.php:82
 msgid ""
 "<b>Unlock optimization features</b> and caching plugins compatibility to "
 "speed up view count tracking."
 msgstr ""
 
-#: ../includes/class-settings.php:80
+#: ../includes/class-settings.php:83
 msgid ""
 "<b>Take your insights to the next level</b> with customizable Views by Date, "
 "Post and Author reporting."
 msgstr ""
 
-#: ../includes/class-settings.php:81
+#: ../includes/class-settings.php:84
 msgid ""
 "<b>Order posts by views count</b> using built-in Elementor Pro, Divi Theme "
 "and GenerateBlocks integration."
 msgstr ""
 
-#: ../includes/class-settings.php:84 ../includes/class-settings.php:1625
+#: ../includes/class-settings.php:87 ../includes/class-settings.php:1783
 msgid "Upgrade to Pro"
 msgstr ""
 
-#: ../includes/class-settings.php:125
+#: ../includes/class-settings.php:128
 msgid "PHP"
 msgstr ""
 
-#: ../includes/class-settings.php:126
+#: ../includes/class-settings.php:129
 msgid "JavaScript"
 msgstr ""
 
-#: ../includes/class-settings.php:127
+#: ../includes/class-settings.php:130
 msgid "REST API"
 msgstr ""
 
-#: ../includes/class-settings.php:128
+#: ../includes/class-settings.php:131
 msgid "Fast AJAX"
 msgstr ""
 
-#: ../includes/class-settings.php:147 ../includes/class-settings.php:1357
+#: ../includes/class-settings.php:150 ../includes/class-settings.php:1419
 msgid "minutes"
 msgstr ""
 
-#: ../includes/class-settings.php:148
+#: ../includes/class-settings.php:151
 msgid "hours"
 msgstr ""
 
-#: ../includes/class-settings.php:149
+#: ../includes/class-settings.php:152
 msgid "days"
 msgstr ""
 
-#: ../includes/class-settings.php:150
+#: ../includes/class-settings.php:153
 msgid "weeks"
 msgstr ""
 
-#: ../includes/class-settings.php:151
+#: ../includes/class-settings.php:154
 msgid "months"
 msgstr ""
 
-#: ../includes/class-settings.php:152
+#: ../includes/class-settings.php:155
 msgid "years"
 msgstr ""
 
-#: ../includes/class-settings.php:157
+#: ../includes/class-settings.php:160
 msgid "crawlers"
 msgstr ""
 
-#: ../includes/class-settings.php:158
+#: ../includes/class-settings.php:161
 msgid "AI bots"
 msgstr ""
 
-#: ../includes/class-settings.php:159
+#: ../includes/class-settings.php:162
 msgid "logged in users"
 msgstr ""
 
-#: ../includes/class-settings.php:160
+#: ../includes/class-settings.php:163
 msgid "guests"
 msgstr ""
 
-#: ../includes/class-settings.php:161
+#: ../includes/class-settings.php:164
 msgid "selected user roles"
 msgstr ""
 
-#: ../includes/class-settings.php:175 ../includes/class-settings.php:667
+#: ../includes/class-settings.php:178 ../includes/class-settings.php:688
 msgid "Post Views Counter Settings"
 msgstr ""
 
-#: ../includes/class-settings.php:191
+#: ../includes/class-settings.php:194
 msgid "Tracking Targets"
 msgstr ""
 
-#: ../includes/class-settings.php:196
+#: ../includes/class-settings.php:199
 msgid "Tracking Behavior"
 msgstr ""
 
-#: ../includes/class-settings.php:201
+#: ../includes/class-settings.php:204
 msgid "Visitor Exclusions"
 msgstr ""
 
-#: ../includes/class-settings.php:206
+#: ../includes/class-settings.php:209
 msgid "Performance & Caching"
 msgstr ""
 
-#: ../includes/class-settings.php:211
+#: ../includes/class-settings.php:214
 msgid "Counter Appearance"
 msgstr ""
 
-#: ../includes/class-settings.php:216
+#: ../includes/class-settings.php:219
 msgid "Display Targets"
 msgstr ""
 
-#: ../includes/class-settings.php:221
+#: ../includes/class-settings.php:224
 msgid "Display Audience"
 msgstr ""
 
-#: ../includes/class-settings.php:226
+#: ../includes/class-settings.php:229
 msgid "Admin Interface"
 msgstr ""
 
-#: ../includes/class-settings.php:235
+#: ../includes/class-settings.php:238
 msgid "Plugin Status"
 msgstr ""
 
-#: ../includes/class-settings.php:240
+#: ../includes/class-settings.php:243
 msgid "Data Import"
 msgstr ""
 
-#: ../includes/class-settings.php:245
-msgid "Admin & Cleanup"
+#: ../includes/class-settings.php:248
+msgid "Data Removal"
 msgstr ""
 
-#: ../includes/class-settings.php:252 ../includes/class-settings.php:553
+#: ../includes/class-settings.php:255 ../includes/class-settings.php:556
 #: ../includes/class-widgets.php:135
 msgid "Post Types"
 msgstr ""
 
-#: ../includes/class-settings.php:256
+#: ../includes/class-settings.php:259
 msgid "Select post types whose views should be counted."
 msgstr ""
 
-#: ../includes/class-settings.php:261 ../includes/class-settings.php:532
+#: ../includes/class-settings.php:264 ../includes/class-settings.php:535
 msgid "Taxonomies"
 msgstr ""
 
-#: ../includes/class-settings.php:264
+#: ../includes/class-settings.php:267
 msgid "Enable counting views on taxonomy term archive pages."
 msgstr ""
 
-#: ../includes/class-settings.php:271 ../includes/class-settings.php:542
+#: ../includes/class-settings.php:274 ../includes/class-settings.php:545
 msgid "Author Archives"
 msgstr ""
 
-#: ../includes/class-settings.php:274
+#: ../includes/class-settings.php:277
 msgid "Enable counting views on author archive pages."
 msgstr ""
 
-#: ../includes/class-settings.php:281
+#: ../includes/class-settings.php:284
 msgid "Other Pages"
 msgstr ""
 
-#: ../includes/class-settings.php:284
+#: ../includes/class-settings.php:287
 msgid ""
 "Track views on the front page, post type archives, date archives, search "
 "results, and 404 pages."
 msgstr ""
 
-#: ../includes/class-settings.php:292
+#: ../includes/class-settings.php:295
 msgid "Traffic Sources"
 msgstr ""
 
-#: ../includes/class-settings.php:295
+#: ../includes/class-settings.php:298
 msgid ""
 "Collect aggregate stats about visitors' browsers, devices, operating systems "
 "and referrers."
 msgstr ""
 
-#: ../includes/class-settings.php:303
+#: ../includes/class-settings.php:306
 msgid "Counter Mode"
 msgstr ""
 
-#: ../includes/class-settings.php:306
+#: ../includes/class-settings.php:309
 msgid ""
 "Choose how views are recorded. If you use caching, select JavaScript, REST "
 "API or Fast AJAX (up to <code>10+</code> times faster)."
 msgstr ""
 
-#: ../includes/class-settings.php:313
+#: ../includes/class-settings.php:316
 msgid "Data Storage"
 msgstr ""
 
-#: ../includes/class-settings.php:318
+#: ../includes/class-settings.php:321
 msgid ""
 "Choose how to store the content views data in the user's browser - with or "
 "without cookies."
 msgstr ""
 
-#: ../includes/class-settings.php:320
+#: ../includes/class-settings.php:323
 msgid "Cookies"
 msgstr ""
 
-#: ../includes/class-settings.php:321
+#: ../includes/class-settings.php:324
 msgid "Cookieless"
 msgstr ""
 
-#: ../includes/class-settings.php:328
+#: ../includes/class-settings.php:331
 msgid "AMP Support"
 msgstr ""
 
-#: ../includes/class-settings.php:335
+#: ../includes/class-settings.php:338
 msgid "Enable support for Google AMP."
 msgstr ""
 
-#: ../includes/class-settings.php:336
+#: ../includes/class-settings.php:339
 #, php-format
 msgid ""
 "This feature requires the official %s plugin to be installed and activated."
 msgstr ""
 
-#: ../includes/class-settings.php:340
+#: ../includes/class-settings.php:343
 msgid "Count Interval"
 msgstr ""
 
-#: ../includes/class-settings.php:352
+#: ../includes/class-settings.php:355
 msgid "Count Time"
 msgstr ""
 
-#: ../includes/class-settings.php:357
+#: ../includes/class-settings.php:360
 msgid ""
 "Whether to store the views using GMT timezone or adjust it to the GMT offset "
 "of the site."
 msgstr ""
 
-#: ../includes/class-settings.php:359
+#: ../includes/class-settings.php:362
 msgid "GMT Time"
 msgstr ""
 
-#: ../includes/class-settings.php:360
+#: ../includes/class-settings.php:363
 msgid "Local Time"
 msgstr ""
 
-#: ../includes/class-settings.php:367
+#: ../includes/class-settings.php:370
 msgid "Strict Counts"
 msgstr ""
 
-#: ../includes/class-settings.php:375
+#: ../includes/class-settings.php:378
 msgid ""
 "Prevent bypassing the count interval (for example by using incognito mode or "
 "clearing cookies)."
 msgstr ""
 
-#: ../includes/class-settings.php:379
+#: ../includes/class-settings.php:382
 msgid "Cleanup Interval"
 msgstr ""
 
-#: ../includes/class-settings.php:382
+#: ../includes/class-settings.php:385
 #, php-format
 msgid ""
 "Delete daily content view data older than the period specified above. Enter "
 "%s to keep data regardless of age. Cleanup runs once per day."
 msgstr ""
 
-#: ../includes/class-settings.php:391
+#: ../includes/class-settings.php:394
 msgid "Caching Compatibility"
 msgstr ""
 
-#: ../includes/class-settings.php:398
+#: ../includes/class-settings.php:401
 msgid "Enable compatibility tweaks for supported caching plugins."
 msgstr ""
 
-#: ../includes/class-settings.php:403
+#: ../includes/class-settings.php:406
 msgid "Object Cache Support"
 msgstr ""
 
-#: ../includes/class-settings.php:410
+#: ../includes/class-settings.php:413
 msgid "Enable Redis or Memcached object cache optimization."
 msgstr ""
 
-#: ../includes/class-settings.php:411
+#: ../includes/class-settings.php:414
 #, php-format
 msgid ""
 "This feature requires a persistent object cache like %s or %s to be "
 "installed and activated."
 msgstr ""
 
-#: ../includes/class-settings.php:411 ../includes/class-settings.php:938
+#: ../includes/class-settings.php:414 ../includes/class-settings.php:997
 msgid "Current status"
 msgstr ""
 
-#: ../includes/class-settings.php:411 ../includes/class-settings.php:938
-#: ../includes/class-settings.php:1358
+#: ../includes/class-settings.php:414 ../includes/class-settings.php:997
+#: ../includes/class-settings.php:1420
 msgid "available"
 msgstr ""
 
-#: ../includes/class-settings.php:411 ../includes/class-settings.php:938
-#: ../includes/class-settings.php:1358
+#: ../includes/class-settings.php:414 ../includes/class-settings.php:997
+#: ../includes/class-settings.php:1420
 msgid "unavailable"
 msgstr ""
 
-#: ../includes/class-settings.php:415
+#: ../includes/class-settings.php:418
 msgid "Exclude Visitors"
 msgstr ""
 
-#: ../includes/class-settings.php:432
+#: ../includes/class-settings.php:435
 msgid "Exclude IPs"
 msgstr ""
 
-#: ../includes/class-settings.php:441
+#: ../includes/class-settings.php:444
 msgid "Views Label"
 msgstr ""
 
-#: ../includes/class-settings.php:444
+#: ../includes/class-settings.php:447
 msgid "Text shown next to the view count."
 msgstr ""
 
-#: ../includes/class-settings.php:451 ../includes/class-widgets.php:146
+#: ../includes/class-settings.php:454 ../includes/class-widgets.php:146
 msgid "Views Period"
 msgstr ""
 
-#: ../includes/class-settings.php:457
+#: ../includes/class-settings.php:460
 msgid "Time range used when displaying the number of views."
 msgstr ""
 
-#: ../includes/class-settings.php:464 ../includes/class-widgets.php:182
+#: ../includes/class-settings.php:467 ../includes/class-widgets.php:182
 msgid "Display Style"
 msgstr ""
 
-#: ../includes/class-settings.php:467
+#: ../includes/class-settings.php:470
 msgid "Choose whether to show an icon, label text, or both."
 msgstr ""
 
-#: ../includes/class-settings.php:471
+#: ../includes/class-settings.php:474
 msgid "Icon"
 msgstr ""
 
-#: ../includes/class-settings.php:472
+#: ../includes/class-settings.php:475
 msgid "Label"
 msgstr ""
 
-#: ../includes/class-settings.php:477
+#: ../includes/class-settings.php:480
 msgid "Icon Class"
 msgstr ""
 
-#: ../includes/class-settings.php:481
+#: ../includes/class-settings.php:484
 msgid ""
 "Enter the CSS class for the views icon. Any Dashicons class is supported."
 msgstr ""
 
-#: ../includes/class-settings.php:486
+#: ../includes/class-settings.php:489
 msgid "Position"
 msgstr ""
 
-#: ../includes/class-settings.php:489
+#: ../includes/class-settings.php:492
 #, php-format
 msgid ""
 "Where to insert the counter automatically. Use %s shortcode for manual "
 "placement."
 msgstr ""
 
-#: ../includes/class-settings.php:491
+#: ../includes/class-settings.php:494
 msgid "Before the content"
 msgstr ""
 
-#: ../includes/class-settings.php:492
+#: ../includes/class-settings.php:495
 msgid "After the content"
 msgstr ""
 
-#: ../includes/class-settings.php:493
+#: ../includes/class-settings.php:496
 msgid "Manual only"
 msgstr ""
 
-#: ../includes/class-settings.php:498
+#: ../includes/class-settings.php:501
 msgid "Admin Column"
 msgstr ""
 
-#: ../includes/class-settings.php:502
+#: ../includes/class-settings.php:505
 msgid "Show a “Views” column on post and page list screens."
 msgstr ""
 
-#: ../includes/class-settings.php:506
+#: ../includes/class-settings.php:509
 msgid "Admin Edit"
 msgstr ""
 
-#: ../includes/class-settings.php:510
+#: ../includes/class-settings.php:513
 msgid "Allow editing the view count on the post edit screen."
 msgstr ""
 
-#: ../includes/class-settings.php:514
+#: ../includes/class-settings.php:517
 msgid "Dynamic Loading"
 msgstr ""
 
-#: ../includes/class-settings.php:521
+#: ../includes/class-settings.php:524
 msgid "Load the view count dynamically to avoid caching the displayed value."
 msgstr ""
 
-#: ../includes/class-settings.php:525
+#: ../includes/class-settings.php:528
 msgid "Format Number"
 msgstr ""
 
-#: ../includes/class-settings.php:528
+#: ../includes/class-settings.php:531
 msgid ""
 "Format the view count according to the site locale (uses the WordPress "
 "number_format_i18n function)."
 msgstr ""
 
-#: ../includes/class-settings.php:549
+#: ../includes/class-settings.php:552
 msgid "Display the view count on author archive pages."
 msgstr ""
 
-#: ../includes/class-settings.php:557
+#: ../includes/class-settings.php:560
 msgid "Select post types where the view counter will be displayed."
 msgstr ""
 
-#: ../includes/class-settings.php:562
+#: ../includes/class-settings.php:565
 msgid "Page Type"
 msgstr ""
 
-#: ../includes/class-settings.php:566
+#: ../includes/class-settings.php:569
 msgid "Select page contexts where the view counter will be displayed."
 msgstr ""
 
-#: ../includes/class-settings.php:570
+#: ../includes/class-settings.php:573
 msgid "Home"
 msgstr ""
 
-#: ../includes/class-settings.php:571
+#: ../includes/class-settings.php:574
 msgid "Archives"
 msgstr ""
 
-#: ../includes/class-settings.php:572
+#: ../includes/class-settings.php:575
 msgid "Single posts and pages"
 msgstr ""
 
-#: ../includes/class-settings.php:573
+#: ../includes/class-settings.php:576
 msgid "Search results"
 msgstr ""
 
-#: ../includes/class-settings.php:579
+#: ../includes/class-settings.php:582
 msgid "User Type"
 msgstr ""
 
-#: ../includes/class-settings.php:592
+#: ../includes/class-settings.php:595
 msgid "Toolbar Chart"
 msgstr ""
 
-#: ../includes/class-settings.php:595
+#: ../includes/class-settings.php:598
 msgid "A views chart is shown for content types that are being counted."
 msgstr ""
 
-#: ../includes/class-settings.php:596
+#: ../includes/class-settings.php:599
 msgid "Show a views chart in the admin toolbar."
 msgstr ""
 
-#: ../includes/class-settings.php:600
-msgid "License Key"
-msgstr ""
-
-#: ../includes/class-settings.php:605
-msgid ""
-"Enter your Post Views Counter Pro license key (requires Pro version to be "
-"installed and active)."
-msgstr ""
-
-#: ../includes/class-settings.php:612
+#: ../includes/class-settings.php:603
 msgid "Menu Position"
 msgstr ""
 
-#: ../includes/class-settings.php:616
+#: ../includes/class-settings.php:607
 msgid "Top menu"
 msgstr ""
 
-#: ../includes/class-settings.php:617
+#: ../includes/class-settings.php:608
 msgid "Settings submenu"
 msgstr ""
 
-#: ../includes/class-settings.php:619
+#: ../includes/class-settings.php:610
 msgid "Choose where the plugin menu appears in the admin sidebar."
 msgstr ""
 
-#: ../includes/class-settings.php:623 ../includes/class-settings.php:1513
-msgid "Import Views"
+#: ../includes/class-settings.php:614
+msgid "License Key"
+msgstr ""
+
+#: ../includes/class-settings.php:619
+#, php-format
+msgid ""
+"Enter your %s license key (requires Pro version to be installed and active)."
 msgstr ""
 
 #: ../includes/class-settings.php:626
-msgid "Import views from another plugin using this meta key."
+msgid "Import From"
 msgstr ""
 
-#: ../includes/class-settings.php:632 ../includes/class-settings.php:1527
+#: ../includes/class-settings.php:634
+msgid "Import Strategy"
+msgstr ""
+
+#: ../includes/class-settings.php:637
+msgid ""
+"Choose how to handle existing view counts: override replaces them, merge "
+"adds the imported values to existing counts."
+msgstr ""
+
+#: ../includes/class-settings.php:646
+msgid ""
+"Click Analyse Views to check how many views are available for import, or "
+"Import Views to begin the import process."
+msgstr ""
+
+#: ../includes/class-settings.php:652 ../includes/class-settings.php:1684
 msgid "Delete Views"
 msgstr ""
 
-#: ../includes/class-settings.php:635
-msgid "Permanently delete all stored view data. This cannot be undone."
+#: ../includes/class-settings.php:655
+msgid ""
+"Delete ALL the existing post views data. Note that this is an irreversible "
+"process!"
 msgstr ""
 
-#: ../includes/class-settings.php:641
-msgid "Deactivation"
+#: ../includes/class-settings.php:661
+msgid "Delete on Deactivation"
 msgstr ""
 
-#: ../includes/class-settings.php:644
+#: ../includes/class-settings.php:664
 msgid ""
 "When enabled, deactivating the plugin will delete all plugin data from the "
 "database, including all content view counts."
 msgstr ""
 
-#: ../includes/class-settings.php:645
+#: ../includes/class-settings.php:665
 msgid "Delete all plugin data on deactivation."
 msgstr ""
 
-#: ../includes/class-settings.php:668
+#: ../includes/class-settings.php:689
 msgid "Post Views Counter"
 msgstr ""
 
-#: ../includes/class-settings.php:673 ../includes/class-settings.php:712
-#: ../includes/class-settings.php:713
+#: ../includes/class-settings.php:694 ../includes/class-settings.php:733
+#: ../includes/class-settings.php:734
 msgid "Counting"
 msgstr ""
 
-#: ../includes/class-settings.php:677 ../includes/class-settings.php:722
-#: ../includes/class-settings.php:723
+#: ../includes/class-settings.php:698 ../includes/class-settings.php:743
+#: ../includes/class-settings.php:744
 msgid "Display"
 msgstr ""
 
-#: ../includes/class-settings.php:681 ../includes/class-settings.php:732
-#: ../includes/class-settings.php:733
+#: ../includes/class-settings.php:702 ../includes/class-settings.php:753
+#: ../includes/class-settings.php:754
 msgid "Reports"
 msgstr ""
 
-#: ../includes/class-settings.php:685 ../includes/class-settings.php:742
-#: ../includes/class-settings.php:743
+#: ../includes/class-settings.php:706 ../includes/class-settings.php:763
+#: ../includes/class-settings.php:764
 msgid "Other"
 msgstr ""
 
-#: ../includes/class-settings.php:882
-msgid "Post views data imported successfully."
-msgstr ""
-
-#: ../includes/class-settings.php:884
-msgid "There was no post views data to import."
-msgstr ""
-
-#: ../includes/class-settings.php:891
+#: ../includes/class-settings.php:899
 msgid "All existing data deleted successfully."
 msgstr ""
 
-#: ../includes/class-settings.php:893
+#: ../includes/class-settings.php:901
 msgid "Error occurred. All existing data were not deleted."
 msgstr ""
 
-#: ../includes/class-settings.php:925
+#: ../includes/class-settings.php:984
 msgid "Currently detected active caching plugins"
 msgstr ""
 
-#: ../includes/class-settings.php:935
+#: ../includes/class-settings.php:994
 msgid "No compatible caching plugins found."
 msgstr ""
 
-#: ../includes/class-settings.php:1147
+#: ../includes/class-settings.php:1208
 msgid "Select taxonomies where the view counter will be displayed."
 msgstr ""
 
-#: ../includes/class-settings.php:1261
+#: ../includes/class-settings.php:1323
 #, php-format
 msgid ""
 "Minimum time between counting new views from the same visitor. Enter %s to "
 "count every page view."
 msgstr ""
 
-#: ../includes/class-settings.php:1358
+#: ../includes/class-settings.php:1420
 msgid "Persistent Object Cache"
 msgstr ""
 
-#: ../includes/class-settings.php:1359
+#: ../includes/class-settings.php:1421
 #, php-format
 msgid ""
 "How often to flush cached view counts from the object cache into the "
@@ -847,166 +986,182 @@ msgid ""
 "the duration of the interval."
 msgstr ""
 
-#: ../includes/class-settings.php:1384
+#: ../includes/class-settings.php:1450
 msgid "Use this to exclude specific visitor groups from counting views."
 msgstr ""
 
-#: ../includes/class-settings.php:1393
+#: ../includes/class-settings.php:1462
 msgid "Use this to exclude specific user roles from counting views."
 msgstr ""
 
-#: ../includes/class-settings.php:1456 ../includes/class-settings.php:1462
+#: ../includes/class-settings.php:1525 ../includes/class-settings.php:1531
 msgid "Remove"
 msgstr ""
 
-#: ../includes/class-settings.php:1467
+#: ../includes/class-settings.php:1536
 msgid "Add new"
 msgstr ""
 
-#: ../includes/class-settings.php:1467
+#: ../includes/class-settings.php:1536
 msgid "Add my current IP"
 msgstr ""
 
-#: ../includes/class-settings.php:1468
+#: ../includes/class-settings.php:1537
 msgid ""
 "Add IP addresses or wildcards (e.g. 192.168.0.*) to exclude them from "
 "counting views."
 msgstr ""
 
-#: ../includes/class-settings.php:1510
+#: ../includes/class-settings.php:1601
+#, php-format
 msgid ""
-"Enter the meta key from which the views data is to be retrieved during "
-"import."
+"%s is not currently available. Please install and activate the required "
+"plugin."
 msgstr ""
 
-#: ../includes/class-settings.php:1513
-msgid "Override existing views data during import."
-msgstr ""
-
-#: ../includes/class-settings.php:1514
-msgid "Click Import Views to start importing the views data."
-msgstr ""
-
-#: ../includes/class-settings.php:1528
-msgid ""
-"Delete ALL the existing post views data. Note that this is an irreversible "
-"process!"
-msgstr ""
-
-#: ../includes/class-settings.php:1555
-msgid "Hide the view counter for selected visitor groups."
-msgstr ""
-
-#: ../includes/class-settings.php:1564
-msgid "Hide the view counter for selected user roles."
-msgstr ""
-
-#: ../includes/class-settings.php:1621
-msgid "Display Reports and Export Views to CSV/XML"
-msgstr ""
-
-#: ../includes/class-settings.php:1622
-msgid "View detailed stats about the popularity of your content."
+#: ../includes/class-settings.php:1611
+msgid "Choose a data source to import existing view counts from."
 msgstr ""
 
 #: ../includes/class-settings.php:1623
+#, php-format
+msgid ""
+"%s is not available. Please install and activate the required plugin to use "
+"this import source."
+msgstr ""
+
+#: ../includes/class-settings.php:1653
+msgid "Override existing views"
+msgstr ""
+
+#: ../includes/class-settings.php:1657
+msgid "Merge with existing views"
+msgstr ""
+
+#: ../includes/class-settings.php:1671
+msgid "Analyse Views"
+msgstr ""
+
+#: ../includes/class-settings.php:1672
+msgid "Import Views"
+msgstr ""
+
+#: ../includes/class-settings.php:1713
+msgid "Hide the view counter for selected visitor groups."
+msgstr ""
+
+#: ../includes/class-settings.php:1722
+msgid "Hide the view counter for selected user roles."
+msgstr ""
+
+#: ../includes/class-settings.php:1779
+msgid "Display Reports and Export Views to CSV/XML"
+msgstr ""
+
+#: ../includes/class-settings.php:1780
+msgid "View detailed stats about the popularity of your content."
+msgstr ""
+
+#: ../includes/class-settings.php:1781
 msgid "Generate views reports in any date range you need."
 msgstr ""
 
-#: ../includes/class-settings.php:1624
+#: ../includes/class-settings.php:1782
 msgid "Export, download and share your website views data."
 msgstr ""
 
-#: ../includes/class-settings.php:1650
+#: ../includes/class-settings.php:1808
 msgid ""
 "Choose where the counter is inserted and which content types it attaches to."
 msgstr ""
 
-#: ../includes/class-settings.php:1659
+#: ../includes/class-settings.php:1817
 msgid ""
 "Control which visitor groups can see the counter. These rules apply on top "
 "of the display targets."
 msgstr ""
 
-#: ../includes/class-settings.php:1668
+#: ../includes/class-settings.php:1826
 msgid ""
 "Adjust the label, period, icon, and formatting used when the counter is "
 "rendered."
 msgstr ""
 
-#: ../includes/class-settings.php:1677
+#: ../includes/class-settings.php:1835
 msgid ""
 "Control how view counts are shown and managed in WordPress admin (columns, "
 "edit permissions, toolbar chart)."
 msgstr ""
 
-#: ../includes/class-settings.php:1686
+#: ../includes/class-settings.php:1844
 msgid "View license details and other status information."
 msgstr ""
 
-#: ../includes/class-settings.php:1720
+#: ../includes/class-settings.php:1883
 msgid "Active"
 msgstr ""
 
-#: ../includes/class-settings.php:1722
+#: ../includes/class-settings.php:1885
 msgid "Not Detected"
 msgstr ""
 
-#: ../includes/class-settings.php:1747
+#: ../includes/class-settings.php:1910
 msgid "unknown"
 msgstr ""
 
-#: ../includes/class-settings.php:1758
+#: ../includes/class-settings.php:1924
 msgid "Plugin Version"
 msgstr ""
 
-#: ../includes/class-settings.php:1766
+#: ../includes/class-settings.php:1932
 msgid "Database Tables"
 msgstr ""
 
-#: ../includes/class-settings.php:1868
-msgid "Import view counts when migrating from other analytics plugins."
-msgstr ""
-
-#: ../includes/class-settings.php:1877
+#: ../includes/class-settings.php:2028
 msgid ""
-"Configure admin menu placement and what happens to data when the plugin is "
-"deactivated."
+"Import view counts when migrating from custom meta key or other analytics "
+"plugins."
 msgstr ""
 
-#: ../includes/class-settings.php:1886
+#: ../includes/class-settings.php:2037
+msgid ""
+"Choose what happens to stored view data on uninstall, and manage other "
+"removal-related tools."
+msgstr ""
+
+#: ../includes/class-settings.php:2046
 msgid ""
 "Control which post types, archives and other content types are included in "
 "view counting."
 msgstr ""
 
-#: ../includes/class-settings.php:1895
+#: ../includes/class-settings.php:2055
 msgid ""
 "Control how views are recorded — counting mode, intervals, time zone, and "
 "cleanup."
 msgstr ""
 
-#: ../includes/class-settings.php:1904
+#: ../includes/class-settings.php:2064
 msgid ""
 "Exclude specific visitor groups or IP addresses from incrementing view "
 "counts."
 msgstr ""
 
-#: ../includes/class-settings.php:1913
+#: ../includes/class-settings.php:2073
 msgid "Configure caching compatibility and object-cache handling for counting."
 msgstr ""
 
-#: ../includes/class-update.php:163
+#: ../includes/class-update.php:192
 msgid ""
 "<strong>Post Views Counter</strong> - this version requires a database "
 "update. Make sure to back up your database first."
 msgstr ""
 
-#: ../includes/class-update.php:164
+#: ../includes/class-update.php:193
 msgid "Run the Update"
 msgstr ""
 
-#: ../includes/class-update.php:202
+#: ../includes/class-update.php:231
 msgid "Thank you! Datebase was successfully updated."
 msgstr ""
 
@@ -1038,42 +1193,46 @@ msgstr ""
 msgid "Display post thumbnail?"
 msgstr ""
 
-#: ../post-views-counter.php:515
+#: ../post-views-counter.php:520
 #, php-format
 msgid ""
 "Hey, you've been using <strong>Post Views Counter</strong> for more than %s."
 msgstr ""
 
-#: ../post-views-counter.php:515
+#: ../post-views-counter.php:520
 msgid ""
 "Could you please do me a BIG favor and give it a 5-star rating on WordPress "
 "to help us spread the word and boost our motivation."
 msgstr ""
 
-#: ../post-views-counter.php:515
+#: ../post-views-counter.php:520
 msgid "Your help is much appreciated. Thank you very much"
 msgstr ""
 
-#: ../post-views-counter.php:515
+#: ../post-views-counter.php:520
 msgid "founder of"
 msgstr ""
 
-#: ../post-views-counter.php:515
+#: ../post-views-counter.php:520
 msgid "Ok, you deserve it"
 msgstr ""
 
-#: ../post-views-counter.php:515
+#: ../post-views-counter.php:520
 msgid "Nope, maybe later"
 msgstr ""
 
-#: ../post-views-counter.php:515
+#: ../post-views-counter.php:520
 msgid "I already did"
 msgstr ""
 
-#: ../post-views-counter.php:862
+#: ../post-views-counter.php:867
 msgid "Are you sure you want to reset these settings to defaults?"
 msgstr ""
 
-#: ../post-views-counter.php:863
+#: ../post-views-counter.php:868
 msgid "Are you sure you want to delete all existing data?"
+msgstr ""
+
+#: ../post-views-counter.php:869
+msgid "Are you sure you want to import views now?"
 msgstr ""

@@ -272,7 +272,7 @@ class Post_Views_Counter_Import {
 		}
 
 		$last = array_pop( $items );
-		return implode( ', ', $items ) . ' ' . __( 'and', 'post-views-counter' ) . ' ' . $last;
+		return implode( ', ', $items ) . ' ' . _x( 'and', 'view_counts', 'post-views-counter' ) . ' ' . $last;
 	}
 
 	/**
