@@ -58,6 +58,7 @@ class Post_Views_Counter_Import {
 		$this->import_providers['custom_meta_key'] = [
 			'slug'			=> 'custom_meta_key',
 			'label'			=> __( 'Custom Meta Key', 'post-views-counter' ),
+			'supports'		=> [ 'total', 'post_types' ],
 			'is_available'	=> '__return_true',
 			'render'		=> [ $this, 'render_provider_custom_meta_key' ],
 			'sanitize'		=> [ $this, 'sanitize_provider_custom_meta_key' ],
@@ -69,6 +70,7 @@ class Post_Views_Counter_Import {
 		$this->import_providers['wp_postviews'] = [
 			'slug'			=> 'wp_postviews',
 			'label'			=> 'WP-PostViews',
+			'supports'		=> [ 'total', 'post_types' ],
 			'is_available'	=> [ $this, 'is_wp_postviews_available' ],
 			'render'		=> [ $this, 'render_provider_wp_postviews' ],
 			'sanitize'		=> [ $this, 'sanitize_provider_wp_postviews' ],
@@ -80,6 +82,7 @@ class Post_Views_Counter_Import {
 		$this->import_providers['statify'] = [
 			'slug'			=> 'statify',
 			'label'			=> 'Statify',
+			'supports'		=> [ 'total', 'yearly', 'monthly', 'weekly', 'daily', 'post_types', 'taxonomies', 'authors', 'other_pages' ],
 			'is_available'	=> [ $this, 'is_statify_available' ],
 			'render'		=> [ $this, 'render_provider_statify' ],
 			'sanitize'		=> [ $this, 'sanitize_provider_statify' ],
@@ -91,6 +94,7 @@ class Post_Views_Counter_Import {
 		$this->import_providers['page_views_count'] = [
 			'slug'			=> 'page_views_count',
 			'label'			=> 'Page Views Count',
+			'supports'		=> [ 'total', 'yearly', 'monthly', 'weekly', 'daily', 'post_types' ],
 			'is_available'	=> [ $this, 'is_page_views_count_available' ],
 			'render'		=> [ $this, 'render_provider_page_views_count' ],
 			'sanitize'		=> [ $this, 'sanitize_provider_page_views_count' ],
@@ -108,6 +112,13 @@ class Post_Views_Counter_Import {
 				}
 
 				$this->import_providers[ $slug ] = $provider;
+			}
+		}
+
+		// ensure third-party providers have default supports
+		foreach ( $this->import_providers as $slug => $provider ) {
+			if ( ! isset( $provider['supports'] ) || ! is_array( $provider['supports'] ) ) {
+				$this->import_providers[ $slug ]['supports'] = [ 'total', 'post_types' ];
 			}
 		}
 
@@ -164,6 +175,104 @@ class Post_Views_Counter_Import {
 	public function get_provider( $slug ) {
 		$this->ensure_import_providers_loaded();
 		return isset( $this->import_providers[$slug] ) ? $this->import_providers[$slug] : null;
+	}
+
+	/**
+	 * Get supports for a specific provider.
+	 *
+	 * @param string $slug
+	 * @return array
+	 */
+	public function get_provider_supports( $slug ) {
+		$provider = $this->get_provider( $slug );
+		$supports = $provider && isset( $provider['supports'] ) ? $provider['supports'] : [];
+		return apply_filters( 'pvc_import_provider_supports', $supports, $slug );
+	}
+
+	/**
+	 * Generate a description for a provider based on its supports.
+	 *
+	 * @param array $supports
+	 * @return string
+	 */
+	private function generate_provider_description( $supports ) {
+		$parts = [];
+
+		// Date periods
+		$dates = [];
+		if ( in_array( 'total', $supports, true ) ) {
+			$dates[] = _x( 'total', 'view_counts', 'post-views-counter' );
+		}
+		if ( in_array( 'yearly', $supports, true ) ) {
+			$dates[] = _x( 'yearly', 'view_counts', 'post-views-counter' );
+		}
+		if ( in_array( 'monthly', $supports, true ) ) {
+			$dates[] = _x( 'monthly', 'view_counts', 'post-views-counter' );
+		}
+		if ( in_array( 'weekly', $supports, true ) ) {
+			$dates[] = _x( 'weekly', 'view_counts', 'post-views-counter' );
+		}
+		if ( in_array( 'daily', $supports, true ) ) {
+			$dates[] = _x( 'daily', 'view_counts', 'post-views-counter' );
+		}
+
+		// Content types
+		$content_labels = [
+			'post_types' => _x( 'post types', 'view_counts', 'post-views-counter' ),
+			'taxonomies' => _x( 'taxonomies', 'view_counts', 'post-views-counter' ),
+			'authors' => _x( 'author archives', 'view_counts', 'post-views-counter' ),
+			'other_pages' => _x( 'other pages', 'view_counts', 'post-views-counter' ),
+			'traffic_sources' => _x( 'traffic sources', 'view_counts', 'post-views-counter' )
+		];
+
+		$content = [];
+		$pro_only_keys = [ 'taxonomies', 'authors', 'other_pages', 'traffic_sources' ];
+		$content_keys = [ 'post_types' ];
+
+		foreach ( $content_keys as $key ) {
+			if ( in_array( $key, $supports, true ) && isset( $content_labels[ $key ] ) ) {
+				$content[] = $content_labels[ $key ];
+			}
+		}
+
+		if ( ! empty( $dates ) && ! empty( $content ) ) {
+			$parts[] = sprintf( __( 'Imports %s view counts for %s', 'post-views-counter' ), $this->format_list( $dates ), $this->format_list( $content ) );
+		} elseif ( ! empty( $dates ) ) {
+			$parts[] = sprintf( __( 'Imports %s view counts', 'post-views-counter' ), $this->format_list( $dates ) );
+		}
+
+		$pro_content = [];
+
+		foreach ( $pro_only_keys as $key ) {
+			if ( in_array( $key, $supports, true ) && isset( $content_labels[ $key ] ) ) {
+				$pro_content[] = $content_labels[ $key ];
+			}
+		}
+
+		if ( ! empty( $pro_content ) ) {
+			$parts[] = sprintf( __( 'PVC Pro additionally imports %s view counts', 'post-views-counter' ), $this->format_list( $pro_content ) );
+		}
+
+		if ( empty( $parts ) ) {
+			return '';
+		}
+
+		return implode( '. ', $parts ) . '.';
+	}
+
+	/**
+	 * Format a list of items into a human-readable string.
+	 *
+	 * @param array $items
+	 * @return string
+	 */
+	private function format_list( $items ) {
+		if ( count( $items ) === 1 ) {
+			return $items[0];
+		}
+
+		$last = array_pop( $items );
+		return implode( ', ', $items ) . ' ' . __( 'and', 'post-views-counter' ) . ' ' . $last;
 	}
 
 	/**
@@ -336,10 +445,16 @@ class Post_Views_Counter_Import {
 		// get saved meta key or default
 		$meta_key = isset( $pvc->options['other']['import_provider_settings']['custom_meta_key']['meta_key'] ) ? $pvc->options['other']['import_provider_settings']['custom_meta_key']['meta_key'] : 'views';
 
+		// get provider
+		$provider = $this->get_provider( 'custom_meta_key' );
+
+		// generate description
+		$description = $this->generate_provider_description( $provider['supports'] ) . ' ' . esc_html__( 'Enter the meta key from which the views data is to be retrieved during import.', 'post-views-counter' );
+
 		$html = '
 		<div class="pvc-provider-fields">
 			<input type="text" id="pvc_import_meta_key" class="regular-text" name="pvc_import_provider_inputs[meta_key]" value="' . esc_attr( $meta_key ) . '" />
-			<p class="description">' . esc_html__( 'Enter the meta key from which the views data is to be retrieved during import.', 'post-views-counter' ) . '</p>
+			<p class="description">' . $description . '</p>
 		</div>';
 
 		return $html;
@@ -463,9 +578,15 @@ class Post_Views_Counter_Import {
 	 * @return string
 	 */
 	public function render_provider_wp_postviews() {
+		// get provider
+		$provider = $this->get_provider( 'wp_postviews' );
+
+		// generate description
+		$description = $this->generate_provider_description( $provider['supports'] );
+
 		$html = '
 		<div class="pvc-provider-fields">
-			<p class="description">' . esc_html__( 'WP-PostViews post views data will be automatically imported from the meta key used by that plugin.', 'post-views-counter' ) . '</p>
+			<p class="description">' . $description . '</p>
 		</div>';
 
 		return $html;
@@ -589,9 +710,15 @@ class Post_Views_Counter_Import {
 	 * @return string
 	 */
 	public function render_provider_statify() {
+		// get provider
+		$provider = $this->get_provider( 'statify' );
+
+		// generate description
+		$description = $this->generate_provider_description( $provider['supports'] );
+
 		$html = '
 		<div class="pvc-provider-fields">
-			<p class="description">' . esc_html__( 'Statify visit data will be aggregated and imported into PVC\'s daily, weekly, monthly, yearly, and total view counts.', 'post-views-counter' ) . '</p>
+			<p class="description">' . $description . '</p>
 		</div>';
 
 		return $html;
@@ -981,9 +1108,15 @@ class Post_Views_Counter_Import {
 	 * @return string
 	 */
 	public function render_provider_page_views_count() {
+		// get provider
+		$provider = $this->get_provider( 'page_views_count' );
+
+		// generate description
+		$description = $this->generate_provider_description( $provider['supports'] );
+
 		$html = '
 		<div class="pvc-provider-fields">
-			<p class="description">' . esc_html__( 'Page Views Count total and daily view data will be imported into PVC\'s daily, weekly, monthly, yearly, and total view counts.', 'post-views-counter' ) . '</p>
+			<p class="description">' . $description . '</p>
 		</div>';
 
 		return $html;
