@@ -633,8 +633,8 @@ class Post_Views_Counter_Settings {
 					'tab'			=> 'other',
 					'title'			=> __( 'Import Strategy', 'post-views-counter' ),
 					'section'		=> 'post_views_counter_other_import',
+					'class'			=> 'pvc-pro-extended',
 					'type'			=> 'custom',
-					'description'	=> __( 'Choose how to handle existing view counts: override replaces them, merge adds the imported values to existing counts.', 'post-views-counter' ),
 					'skip_saving'	=> true,
 					'callback'		=> [ $this, 'setting_import_strategy' ]
 				],
@@ -1644,18 +1644,49 @@ class Post_Views_Counter_Settings {
 		$pvc = Post_Views_Counter();
 
 		// get import strategy
-		$import_strategy = isset( $pvc->options['other']['import_provider_settings']['strategy'] ) ? $pvc->options['other']['import_provider_settings']['strategy'] : 'merge';
+		$import_strategy = isset( $pvc->options['other']['import_provider_settings']['strategy'] ) ? $pvc->import->normalize_strategy( $pvc->options['other']['import_provider_settings']['strategy'] ) : $pvc->import->get_default_strategy();
+		$strategies = $pvc->import->get_import_strategies();
 
-		$html = '<div class="pvc-field-group pvc-radio-group pvc-radio-vertical">';
+		$html = '<div class="pvc-field-group pvc-radio-group">';
 
-		$html .= '<label>
-			<input type="radio" name="pvc_import_strategy" value="override" ' . checked( $import_strategy, 'override', false ) . ' />
-			' . esc_html__( 'Override existing views', 'post-views-counter' ) . '
-		</label>
-		<label>
-			<input type="radio" name="pvc_import_strategy" value="merge" ' . checked( $import_strategy, 'merge', false ) . ' />
-			' . esc_html__( 'Merge with existing views', 'post-views-counter' ) . '
-		</label>';
+		foreach ( $strategies as $slug => $strategy ) {
+			$label = isset( $strategy['label'] ) ? $strategy['label'] : ucwords( str_replace( '_', ' ', $slug ) );
+			$description = isset( $strategy['description'] ) ? $strategy['description'] : '';
+			$is_enabled = $pvc->import->is_strategy_enabled( $slug );
+			$input_id = 'pvc_import_strategy_' . $slug;
+
+			if ( $slug === $import_strategy ) {
+				$current_description = $description;
+			}
+
+			$html .= '<label for="' . esc_attr( $input_id ) . '" class="pvc-import-strategy-option" data-description="' . esc_attr( $description ) . '">
+				<input type="radio" id="' . esc_attr( $input_id ) . '" name="pvc_import_strategy" value="' . esc_attr( $slug ) . '" ' . checked( $import_strategy, $slug, false ) . ' ' . disabled( ! $is_enabled, true, false ) . ' />
+				' . esc_html( $label );
+
+			// Future idea: display description text next to each strategy option.
+			// if ( $description !== '' ) {
+			// 	$html .= '<span class="description pvc-import-strategy-description">' . esc_html( $description ) . '</span>';
+			// }
+
+			$html .= '</label>';
+		}
+
+		$html .= '</div>';
+
+		$html .= '</div>';
+
+		$html .= '<p class="description">' . esc_html__( 'Choose how to handle existing view counts when importing.', 'post-views-counter' ) . '</p>';
+
+		$html .= '<div class="pvc-provider-fields pvc-import-strategy-details">';
+
+		foreach ( $strategies as $slug => $strategy ) {
+			$description = isset( $strategy['description'] ) ? $strategy['description'] : '';
+			$is_active = ( $slug === $import_strategy );
+
+			$html .= '<div class="pvc-strategy-content pvc-strategy-' . esc_attr( $slug ) . '"' . ( $is_active ? '' : ' style="display:none;"' ) . '>
+				<p class="description">' . esc_html( $description ) . '</p>
+			</div>';
+		}
 
 		$html .= '</div>';
 

@@ -92,6 +92,37 @@
 				$target.stop( true, true ).slideDown( 'fast' );
 			} );
 		} );
+
+		// import strategy description switching
+		( function() {
+			var $container = $( '.pvc-import-strategy-details' ),
+				$strategyRadios = $( 'input[name="pvc_import_strategy"]' );
+
+			if ( ! $container.length || ! $strategyRadios.length )
+				return;
+
+			var showStrategy = function( slug ) {
+				var $target = $container.find( '.pvc-strategy-' + slug );
+
+				if ( ! $target.length )
+					return;
+
+				var $current = $container.find( '.pvc-strategy-content:visible' );
+
+				if ( $target.is( ':visible' ) )
+					return;
+
+				$current.stop( true, true ).slideUp( 'fast', function() {
+					$target.stop( true, true ).slideDown( 'fast' );
+				} );
+			};
+
+			$strategyRadios.on( 'change', function() {
+				showStrategy( $( this ).val() );
+			} );
+
+			showStrategy( $strategyRadios.filter( ':checked' ).val() );
+		} )();
 	} );
 
 } )( jQuery );

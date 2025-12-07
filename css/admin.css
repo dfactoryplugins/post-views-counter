@@ -303,14 +303,6 @@ output {
 }
 
 /* Import Providers */
-.pvc-import-providers {
-    max-width: 700px;
-}
-
-.pvc-import-provider-selection {
-    margin-bottom: 20px;
-}
-
 .pvc-provider-radio {
     display: inline-block;
     margin-right: 20px;
@@ -336,6 +328,7 @@ output {
 
 .pvc-provider-fields {
     padding: 0;
+    margin-top: 15px;
 }
 
 .pvc-provider-fields label {
@@ -354,11 +347,25 @@ output {
 }
 
 .pvc-import-strategy {
-    margin-bottom: 25px;
+	margin-bottom: 25px;
+}
+
+.post-views-counter-settings tr.pvc-pro-extended label[for="pvc_import_strategy_skip_existing"]:after,
+.post-views-counter-settings tr.pvc-pro-extended label[for="pvc_import_strategy_keep_higher_count"]:after,
+.post-views-counter-settings tr.pvc-pro-extended label[for="pvc_import_strategy_fill_empty_only"]:after {
+	content: 'PRO';
+	display: inline-block;
+	margin-left: 6px;
+	padding: 1px 4px;
+	font-size: 11px;
+	border-radius: 4px;
+	background-color: #ffc107;
+	color: #fff;
+	font-weight: 600;
 }
 
 .pvc-field-group label {
-    margin-right: 8px;
+	margin-right: 8px;
 }
 
 .pvc-radio-vertical label {

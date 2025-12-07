@@ -17,6 +17,8 @@ class Post_Views_Counter_Import {
 	 */
 	private $import_providers = [];
 	private $import_provider_labels = [];
+	private $import_strategies = null;
+	private $default_import_strategy = 'merge';
 
 	/**
 	 * Whether providers have been initialized.
@@ -190,6 +192,123 @@ class Post_Views_Counter_Import {
 	}
 
 	/**
+	 * Get registered import strategies.
+	 *
+	 * @return array
+	 */
+	public function get_import_strategies() {
+		if ( $this->import_strategies === null ) {
+			$this->import_strategies = [
+				'override' => [
+					'label' => __( 'Override existing views', 'post-views-counter' ),
+					'description' => __( 'Replace stored counts with the imported values.', 'post-views-counter' ),
+					'pro_only' => false,
+				],
+				'merge' => [
+					'label' => __( 'Merge with existing views', 'post-views-counter' ),
+					'description' => __( 'Add imported counts on top of the existing totals.', 'post-views-counter' ),
+					'pro_only' => false,
+				],
+				'skip_existing' => [
+					'label' => __( 'Skip Existing', 'post-views-counter' ),
+					'description' => __( 'Only import data when the target record does not exist yet.', 'post-views-counter' ),
+					'pro_only' => true,
+				],
+				'keep_higher_count' => [
+					'label' => __( 'Keep Higher Count', 'post-views-counter' ),
+					'description' => __( 'Keep whichever value is higher when comparing imported and stored counts.', 'post-views-counter' ),
+					'pro_only' => true,
+				],
+				'fill_empty_only' => [
+					'label' => __( 'Fill Empty Counts', 'post-views-counter' ),
+					'description' => __( 'Only import data for posts or periods that currently store zero views.', 'post-views-counter' ),
+					'pro_only' => true,
+				],
+			];
+
+			/**
+			 * Filter the available import strategies.
+			 *
+			 * @since 1.5.10
+			 *
+			 * @param array $strategies Strategy definitions.
+			 * @param Post_Views_Counter_Import $importer Import handler instance.
+			 */
+			$this->import_strategies = apply_filters( 'pvc_import_strategies', $this->import_strategies, $this );
+		}
+
+		return $this->import_strategies;
+	}
+
+	/**
+	 * Get default import strategy.
+	 *
+	 * @return string
+	 */
+	public function get_default_strategy() {
+		return $this->default_import_strategy;
+	}
+
+	/**
+	 * Normalize import strategy against current availability.
+	 *
+	 * @param string $strategy
+	 * @return string
+	 */
+	public function normalize_strategy( $strategy ) {
+		$strategy = sanitize_key( $strategy );
+
+		if ( $this->is_strategy_enabled( $strategy ) ) {
+			return $strategy;
+		}
+
+		return $this->get_default_strategy();
+	}
+
+	/**
+	 * Check if a strategy can be used in the current environment.
+	 *
+	 * @param string $strategy
+	 * @return bool
+	 */
+	public function is_strategy_enabled( $strategy ) {
+		$strategy = sanitize_key( $strategy );
+		$definition = $this->get_strategy_definition( $strategy );
+
+		if ( $definition === null ) {
+			return false;
+		}
+
+		if ( ! empty( $definition['pro_only'] ) && ! $this->is_pro_active() ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get strategy definition.
+	 *
+	 * @param string $strategy
+	 * @return array|null
+	 */
+	private function get_strategy_definition( $strategy ) {
+		$strategy = sanitize_key( $strategy );
+		$strategies = $this->get_import_strategies();
+
+		return isset( $strategies[ $strategy ] ) ? $strategies[ $strategy ] : null;
+	}
+
+	/**
+	 * Check if Post Views Counter Pro is active.
+	 *
+	 * @return bool
+	 */
+	private function is_pro_active() {
+		return class_exists( 'Post_Views_Counter_Pro' );
+	}
+
+	/**
 	 * Generate a description for a provider based on its supports.
 	 *
 	 * @param array $supports
@@ -286,12 +405,7 @@ class Post_Views_Counter_Import {
 		$provider_slug = isset( $request['pvc_import_provider'] ) ? sanitize_key( $request['pvc_import_provider'] ) : 'custom_meta_key';
 
 		// get import strategy and validate
-		$strategy = isset( $request['pvc_import_strategy'] ) ? sanitize_key( $request['pvc_import_strategy'] ) : 'merge';
-
-		// validate strategy is one of the allowed values
-		if ( ! in_array( $strategy, [ 'override', 'merge' ], true ) ) {
-			$strategy = 'merge';
-		}
+		$strategy = isset( $request['pvc_import_strategy'] ) ? $this->normalize_strategy( $request['pvc_import_strategy'] ) : $this->get_default_strategy();
 
 		// get provider inputs
 		$provider_inputs = isset( $request['pvc_import_provider_inputs'] ) ? $request['pvc_import_provider_inputs'] : [];
@@ -388,12 +502,7 @@ class Post_Views_Counter_Import {
 		if ( isset( $request['pvc_import_provider'], $request['pvc_import_provider_inputs'], $request['pvc_import_strategy'] ) ) {
 			$provider_slug = sanitize_key( $request['pvc_import_provider'] );
 			$provider_inputs = $request['pvc_import_provider_inputs'];
-			$strategy = sanitize_key( $request['pvc_import_strategy'] );
-
-			// validate strategy
-			if ( ! in_array( $strategy, [ 'override', 'merge' ], true ) ) {
-				$strategy = 'merge';
-			}
+			$strategy = $this->normalize_strategy( $request['pvc_import_strategy'] );
 
 			// get available providers
 			$providers = $this->get_available_providers();
@@ -543,28 +652,28 @@ class Post_Views_Counter_Import {
 		}
 
 		$sql = [];
-
-		foreach ( $views as $view ) {
-			$sql[] = $wpdb->prepare( "(%d, 4, 'total', %d)", (int) $view['post_id'], (int) $view['meta_value'] );
-		}
-
-		// build SQL based on strategy
-		$on_duplicate = ( $strategy === 'override' ) ? 'count = VALUES(count)' : 'count = count + VALUES(count)';
-
-		$wpdb->query( "INSERT INTO " . $wpdb->prefix . "post_views(id, type, period, count) VALUES " . implode( ',', $sql ) . " ON DUPLICATE KEY UPDATE " . $on_duplicate );
-
-		// calculate total views
+		$totals_map = [];
 		$total_views = 0;
+
 		foreach ( $views as $view ) {
-			$total_views += (int) $view['meta_value'];
+			$post_id = (int) $view['post_id'];
+			$count = (int) $view['meta_value'];
+
+			$sql[] = $wpdb->prepare( "(%d, 4, 'total', %d)", $post_id, $count );
+			$total_views += $count;
+			$totals_map[ $post_id ] = ( isset( $totals_map[ $post_id ] ) ? $totals_map[ $post_id ] : 0 ) + $count;
 		}
+
+		$this->execute_provider_insert_query( $sql, $strategy, 'custom_meta_key' );
 
 		$stats = [
 			'total_views' => $total_views,
-			'posts_processed' => count( $views ),
+			'posts_processed' => count( $totals_map ),
 			'source' => $this->get_provider_label( 'custom_meta_key' ),
 			'additional_info' => sprintf( __( 'Meta key "%s".', 'post-views-counter' ), esc_html( $meta_key ) )
 		];
+
+		$this->apply_skip_statistics( $stats, $totals_map, $strategy );
 
 		return [
 			'success' => true,
@@ -665,27 +774,27 @@ class Post_Views_Counter_Import {
 		}
 
 		$sql = [];
-
-		foreach ( $views as $view ) {
-			$sql[] = $wpdb->prepare( "(%d, 4, 'total', %d)", (int) $view['post_id'], (int) $view['meta_value'] );
-		}
-
-		// build SQL based on strategy
-		$on_duplicate = ( $strategy === 'override' ) ? 'count = VALUES(count)' : 'count = count + VALUES(count)';
-
-		$wpdb->query( "INSERT INTO " . $wpdb->prefix . "post_views(id, type, period, count) VALUES " . implode( ',', $sql ) . " ON DUPLICATE KEY UPDATE " . $on_duplicate );
-
-		// calculate total views
+		$totals_map = [];
 		$total_views = 0;
+
 		foreach ( $views as $view ) {
-			$total_views += (int) $view['meta_value'];
+			$post_id = (int) $view['post_id'];
+			$count = (int) $view['meta_value'];
+
+			$sql[] = $wpdb->prepare( "(%d, 4, 'total', %d)", $post_id, $count );
+			$total_views += $count;
+			$totals_map[ $post_id ] = ( isset( $totals_map[ $post_id ] ) ? $totals_map[ $post_id ] : 0 ) + $count;
 		}
+
+		$this->execute_provider_insert_query( $sql, $strategy, 'wp_postviews' );
 
 		$stats = [
 			'total_views' => $total_views,
-			'posts_processed' => count( $views ),
+			'posts_processed' => count( $totals_map ),
 			'source' => $this->get_provider_label( 'wp_postviews' )
 		];
+
+		$this->apply_skip_statistics( $stats, $totals_map, $strategy );
 
 		return [
 			'success' => true,
@@ -986,6 +1095,8 @@ class Post_Views_Counter_Import {
 			'yearly' => 0
 		];
 
+		$totals_map = [];
+
 		foreach ( $stats as $post_id => $periods ) {
 			$posts_processed++;
 
@@ -1007,6 +1118,7 @@ class Post_Views_Counter_Import {
 			}
 			$sql_parts[] = $wpdb->prepare( "(%d, 4, 'total', %d)", $post_id, $periods['total'] );
 			$total_views += $periods['total'];
+			$totals_map[ $post_id ] = $periods['total'];
 		}
 
 		if ( empty( $sql_parts ) ) {
@@ -1031,8 +1143,7 @@ class Post_Views_Counter_Import {
 			];
 		}
 
-		$on_duplicate = ( $strategy === 'override' ) ? 'count = VALUES(count)' : 'count = count + VALUES(count)';
-		$wpdb->query( "INSERT INTO {$wpdb->prefix}post_views (id, type, period, count) VALUES " . implode( ',', $sql_parts ) . " ON DUPLICATE KEY UPDATE {$on_duplicate}" );
+		$this->execute_provider_insert_query( $sql_parts, $strategy, 'statify' );
 
 		/**
 		 * Fires after a provider's post rows have been inserted.
@@ -1057,7 +1168,7 @@ class Post_Views_Counter_Import {
 		$provider_slug = 'statify';
 		$provider_label = isset( $this->import_provider_labels[ $provider_slug ] ) ? $this->import_provider_labels[ $provider_slug ] : $provider_slug;
 
-		$stats = [
+		$message_stats = [
 			'total_views' => $total_views,
 			'posts_processed' => $posts_processed,
 			'periods' => $period_counts,
@@ -1067,8 +1178,10 @@ class Post_Views_Counter_Import {
 		// add skipped URLs info if any
 		if ( ! empty( $skipped_targets ) ) {
 			$unique_skipped = array_unique( $skipped_targets );
-			$stats['additional_info'] = sprintf( __( 'Skipped %s non-post URLs.', 'post-views-counter' ), number_format_i18n( count( $unique_skipped ) ) );
+			$message_stats['additional_info'] = sprintf( __( 'Skipped %s non-post URLs.', 'post-views-counter' ), number_format_i18n( count( $unique_skipped ) ) );
 		}
+
+		$this->apply_skip_statistics( $message_stats, $totals_map, $strategy );
 
 		/**
 		 * Allow to adjust provider import statistics before displaying the message.
@@ -1078,14 +1191,14 @@ class Post_Views_Counter_Import {
 		 * @param array $stats Prepared statistics for the UI.
 		 * @param array $context Additional context such as mode/source.
 		 */
-		$stats = apply_filters( 'pvc_import_message_stats', $stats, [
+		$message_stats = apply_filters( 'pvc_import_message_stats', $message_stats, [
 			'mode' => 'import',
 			'source' => 'statify'
 		] );
 
 		return [
 			'success' => true,
-			'message' => $this->generate_import_message( $stats )
+			'message' => $this->generate_import_message( $message_stats )
 		];
 	}
 
@@ -1226,6 +1339,7 @@ class Post_Views_Counter_Import {
 
 		$sql_parts = [];
 		$stats = [];
+		$totals_map = [];
 		$total_views_imported = 0;
 
 		foreach ( $results as $row ) {
@@ -1242,8 +1356,10 @@ class Post_Views_Counter_Import {
 			}
 
 			if ( isset( $row['total'] ) && ! isset( $stats[ $post_id ]['total_imported'] ) ) {
-				$total_views_imported += (int) $row['total'];
-				$sql_parts[] = $wpdb->prepare( "(%d, 4, 'total', %d)", $post_id, (int) $row['total'] );
+				$count = (int) $row['total'];
+				$total_views_imported += $count;
+				$sql_parts[] = $wpdb->prepare( "(%d, 4, 'total', %d)", $post_id, $count );
+				$totals_map[ $post_id ] = $count;
 				$stats[ $post_id ]['total_imported'] = true;
 			}
 
@@ -1306,8 +1422,7 @@ class Post_Views_Counter_Import {
 
 		$posts_processed = count( array_keys( $stats ) );
 
-		$on_duplicate = ( $strategy === 'override' ) ? 'count = VALUES(count)' : 'count = count + VALUES(count)';
-		$wpdb->query( "INSERT INTO {$wpdb->prefix}post_views (id, type, period, count) VALUES " . implode( ',', $sql_parts ) . " ON DUPLICATE KEY UPDATE {$on_duplicate}" );
+		$this->execute_provider_insert_query( $sql_parts, $strategy, 'page_views_count' );
 
 		do_action( 'pvc_import_after_provider', [
 			'strategy' => $strategy,
@@ -1320,22 +1435,219 @@ class Post_Views_Counter_Import {
 		$provider_slug = 'page_views_count';
 		$provider_label = isset( $this->import_provider_labels[ $provider_slug ] ) ? $this->import_provider_labels[ $provider_slug ] : $provider_slug;
 
-		$stats = [
+		$message_stats = [
 			'total_views' => $total_views_imported,
 			'posts_processed' => $posts_processed,
 			'periods' => $period_counts,
 			'source' => $provider_label
 		];
 
-		$stats = apply_filters( 'pvc_import_message_stats', $stats, [
+		$this->apply_skip_statistics( $message_stats, $totals_map, $strategy );
+
+		$message_stats = apply_filters( 'pvc_import_message_stats', $message_stats, [
 			'mode' => 'import',
 			'source' => 'page_views_count'
 		] );
 
 		return [
 			'success' => true,
-			'message' => $this->generate_import_message( $stats )
+			'message' => $this->generate_import_message( $message_stats )
 		];
+	}
+
+	/**
+	 * Get SQL clause for the provided strategy.
+	 *
+	 * @param string $strategy
+	 * @param string $provider
+	 * @return string
+	 */
+	private function get_strategy_on_duplicate_clause( $strategy, $provider ) {
+		$strategy_key = sanitize_key( $strategy );
+
+		$clauses = [
+			'override' => 'count = VALUES(count)',
+			'merge' => 'count = count + VALUES(count)'
+		];
+
+		$clause = isset( $clauses[ $strategy_key ] ) ? $clauses[ $strategy_key ] : $clauses['merge'];
+
+		/**
+		 * Filter the SQL ON DUPLICATE KEY UPDATE clause used during import.
+		 *
+		 * @since 1.5.10
+		 *
+		 * @param string $clause SQL clause for the duplicate key handler.
+		 * @param array  $context {
+		 *     @type string $strategy Selected strategy key.
+		 *     @type string $provider Provider slug.
+		 * }
+		 * @param Post_Views_Counter_Import $importer Import handler instance.
+		 */
+		return apply_filters( 'pvc_import_strategy_clause', $clause, [
+			'strategy' => $strategy_key,
+			'provider' => $provider
+		], $this );
+	}
+
+	/**
+	 * Execute a provider insert query.
+	 *
+	 * @param array $sql_parts Prepared SQL value tuples.
+	 * @param string $strategy Selected strategy.
+	 * @param string $provider Provider slug.
+	 * @return int|false Number of rows affected by the query or false when skipped.
+	 */
+	private function execute_provider_insert_query( $sql_parts, $strategy, $provider ) {
+		global $wpdb;
+
+		if ( empty( $sql_parts ) ) {
+			return false;
+		}
+
+		$on_duplicate = $this->get_strategy_on_duplicate_clause( $strategy, $provider );
+		$query = "INSERT INTO {$wpdb->prefix}post_views (id, type, period, count) VALUES " . implode( ',', $sql_parts ) . " ON DUPLICATE KEY UPDATE {$on_duplicate}";
+
+		/**
+		 * Filter the SQL query used when inserting provider data.
+		 *
+		 * Returning false will skip executing the default query. Extensions can run
+		 * their custom SQL before returning false.
+		 *
+		 * @since 1.5.10
+		 *
+		 * @param string|false $query SQL query string or false to skip execution.
+		 * @param array        $context {
+		 *     @type string $strategy Selected strategy.
+		 *     @type string $provider Provider slug.
+		 *     @type array  $sql_parts Prepared SQL tuples.
+		 *     @type string $on_duplicate Default ON DUPLICATE KEY clause.
+		 * }
+		 * @param Post_Views_Counter_Import $importer Import handler instance.
+		 */
+		$query = apply_filters( 'pvc_import_provider_query', $query, [
+			'strategy' => sanitize_key( $strategy ),
+			'provider' => $provider,
+			'sql_parts' => $sql_parts,
+			'on_duplicate' => $on_duplicate
+		], $this );
+
+		if ( $query === false ) {
+			return false;
+		}
+
+		return $wpdb->query( $query );
+	}
+
+	/**
+	 * Adjust import statistics to include skipped totals information.
+	 *
+	 * @param array $stats
+	 * @param array $totals_map
+	 * @param string $strategy
+	 * @return void
+	 */
+	private function apply_skip_statistics( &$stats, $totals_map, $strategy ) {
+		if ( empty( $stats ) || empty( $totals_map ) ) {
+			return;
+		}
+
+		$skip_stats = $this->calculate_total_skip_stats( $totals_map, $strategy );
+
+		if ( empty( $skip_stats ) ) {
+			return;
+		}
+
+		$stats['skipped'] = $skip_stats;
+
+		if ( isset( $stats['total_views'] ) ) {
+			$stats['total_views'] = max( 0, (int) $stats['total_views'] - $skip_stats['views'] );
+		}
+
+		if ( isset( $stats['posts_processed'] ) ) {
+			$stats['posts_processed'] = max( 0, (int) $stats['posts_processed'] - $skip_stats['posts'] );
+		}
+	}
+
+	/**
+	 * Calculate how many totals will be skipped by the given strategy.
+	 *
+	 * @param array $totals_map Array of post_id => total_count.
+	 * @param string $strategy
+	 * @return array
+	 */
+	private function calculate_total_skip_stats( $totals_map, $strategy ) {
+		$strategy = sanitize_key( $strategy );
+		$advanced_strategies = [ 'skip_existing', 'keep_higher_count', 'fill_empty_only' ];
+
+		if ( empty( $totals_map ) || ! in_array( $strategy, $advanced_strategies, true ) ) {
+			return [];
+		}
+
+		$existing = $this->get_existing_total_counts( array_keys( $totals_map ) );
+		$skipped_views = 0;
+		$skipped_posts = 0;
+
+		foreach ( $totals_map as $post_id => $value ) {
+			$current = isset( $existing[ $post_id ] ) ? (int) $existing[ $post_id ] : null;
+			$skip = false;
+
+			if ( $strategy === 'skip_existing' && $current !== null ) {
+				$skip = true;
+			} elseif ( $strategy === 'keep_higher_count' && $current !== null && $current >= $value ) {
+				$skip = true;
+			} elseif ( $strategy === 'fill_empty_only' && $current !== null && $current > 0 ) {
+				$skip = true;
+			}
+
+			if ( $skip ) {
+				$skipped_views += (int) $value;
+				$skipped_posts++;
+			}
+		}
+
+		if ( $skipped_posts === 0 ) {
+			return [];
+		}
+
+		return [
+			'views' => $skipped_views,
+			'posts' => $skipped_posts
+		];
+	}
+
+	/**
+	 * Get existing total counts for selected posts.
+	 *
+	 * @param array $post_ids
+	 * @return array
+	 */
+	private function get_existing_total_counts( $post_ids ) {
+		global $wpdb;
+
+		$post_ids = array_filter( array_map( 'intval', (array) $post_ids ) );
+		$post_ids = array_values( array_unique( $post_ids ) );
+
+		if ( empty( $post_ids ) ) {
+			return [];
+		}
+
+		$existing = [];
+
+		foreach ( array_chunk( $post_ids, 500 ) as $chunk ) {
+			$placeholders = implode( ',', array_fill( 0, count( $chunk ), '%d' ) );
+			$sql = $wpdb->prepare(
+				"SELECT id, count FROM {$wpdb->prefix}post_views WHERE type = 4 AND period = 'total' AND id IN ({$placeholders})",
+				$chunk
+			);
+			$rows = $wpdb->get_results( $sql, ARRAY_A );
+
+			foreach ( (array) $rows as $row ) {
+				$existing[ (int) $row['id'] ] = (int) $row['count'];
+			}
+		}
+
+		return $existing;
 	}
 
 	/**
@@ -1382,6 +1694,14 @@ class Post_Views_Counter_Import {
 		// additional info (like skipped URLs)
 		if ( ! empty( $stats['additional_info'] ) ) {
 			$message_parts[] = $stats['additional_info'];
+		}
+
+		if ( isset( $stats['skipped']['views'], $stats['skipped']['posts'] ) ) {
+			$message_parts[] = sprintf(
+				__( 'Skipped %1$s total views for %2$s posts.', 'post-views-counter' ),
+				number_format_i18n( $stats['skipped']['views'] ),
+				number_format_i18n( $stats['skipped']['posts'] )
+			);
 		}
 
 		return implode( ' ', $message_parts );
