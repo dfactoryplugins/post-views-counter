@@ -912,6 +912,11 @@ class Post_Views_Counter_Settings {
 		// save other settings (handle provider inputs)
 		} elseif ( isset( $_POST['save_post_views_counter_settings_other'] ) ) {
 			$input['import_provider_settings'] = $pvc->import->prepare_provider_settings_from_request( $_POST );
+
+			// keep menu position for backward compatibility with older add-ons expecting it under "other" settings
+			if ( ! isset( $input['menu_position'] ) ) {
+				$input['menu_position'] = $pvc->get_menu_position();
+			}
 		}
 
 		return $input;

@@ -239,10 +239,12 @@ class Post_Views_Counter_Update {
 	private function migrate_menu_position_option() {
 		$pvc = Post_Views_Counter();
 
-		if ( ! isset( $pvc->options['other'] ) || ! array_key_exists( 'menu_position', $pvc->options['other'] ) )
-			return;
-
-		$menu_position = in_array( $pvc->options['other']['menu_position'], [ 'top', 'sub' ], true ) ? $pvc->options['other']['menu_position'] : 'top';
+		// prefer legacy value if present, otherwise fall back to current display option
+		$menu_position = isset( $pvc->options['other']['menu_position'] ) && in_array( $pvc->options['other']['menu_position'], [ 'top', 'sub' ], true )
+			? $pvc->options['other']['menu_position']
+			: ( isset( $pvc->options['display']['menu_position'] ) && in_array( $pvc->options['display']['menu_position'], [ 'top', 'sub' ], true )
+				? $pvc->options['display']['menu_position']
+				: 'top' );
 
 		$display_options = get_option( 'post_views_counter_settings_display', [] );
 

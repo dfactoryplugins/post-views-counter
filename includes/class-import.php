@@ -206,7 +206,7 @@ class Post_Views_Counter_Import {
 				],
 				'merge' => [
 					'label' => __( 'Merge with existing views', 'post-views-counter' ),
-					'description' => __( 'Add imported counts on top of the existing totals.', 'post-views-counter' ),
+					'description' => __( 'Add imported counts on top of the existing values.', 'post-views-counter' ),
 					'pro_only' => false,
 				],
 				'skip_existing' => [
