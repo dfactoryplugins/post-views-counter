@@ -39,7 +39,7 @@ Practical features that matter:
 - Query and **order content by views** (developer-friendly)
 - Custom REST API endpoints
 - Option to set count interval
-- One-click data import from **WP-PostViews**
+- One-click data import from **WP-PostViews**, **Statify** and **Page Views Count**
 - Post views **display position**, automatic or manual via shortcode
 - **Multisite** compatibile
 - **WPML/Polylang** compatible; translation-ready (.pot)
