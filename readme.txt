@@ -3,8 +3,8 @@ Contributors: dfactory
 Tags: counter, postviews, statistics, analytics, pageviews
 Requires at least: 6.3.0
 Requires PHP: 7.4.0
-Tested up to: 6.8.3
-Stable tag: 1.5.9
+Tested up to: 6.9
+Stable tag: 1.6.0
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -89,6 +89,14 @@ If you’ve purchased Post Views Counter Pro, your license includes one year of 
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.6.0 =
+* New: Dedicated import framework with provider-aware analysis/reporting and strategy selector.
+* New: Option to import views from Statify and Page Views Count plugins.
+* New (Pro): Additional import strategies (skip existing, keep higher count, fill empty-only).
+* New: Plugin Status panel now surfaces detected PVC database tables for easier troubleshooting.
+* Tweak: Settings UI reorganized with refreshed copy, clearer visitor exclusion controls, and a polished Other tab experience.
+* Tweak: Menu placement option moved to Display settings and mirrored for backward compatibility.
 
 = 1.5.9 =
 * New: Admin column modal chart with post views data
@@ -402,5 +410,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.5.9 =
-New: Admin column modal chart with views data for posts, terms users.
+= 1.6.0 =
+New provider-based import framework (Statify/Page Views Count support, smarter strategies), refreshed settings UI
