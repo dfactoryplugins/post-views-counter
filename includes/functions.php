@@ -469,6 +469,8 @@ if ( ! function_exists( 'pvc_get_views' ) ) {
 			$query_data
 		);
 
+		$query = apply_filters( 'pvc_get_views_query_sql', $query, $args, $views_query );
+
 		// get cached data
 		$post_views = wp_cache_get( md5( $query ), 'pvc-get_views' );
 

@@ -84,6 +84,8 @@ class Post_Views_Counter_Dashboard {
 			'nonceUser'	=> wp_create_nonce( 'pvc-dashboard-user-options' )
 		];
 
+		$script_data = apply_filters( 'pvc_admin_dashboard_script_data', $script_data );
+
 		wp_add_inline_script( 'pvc-admin-dashboard', 'var pvcArgs = ' . wp_json_encode( $script_data ) . ";\n", 'before' );
 	}
 

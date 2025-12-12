@@ -176,7 +176,8 @@
 			data: {
 				action: 'pvc_dashboard_post_views_chart',
 				nonce: pvcArgs.nonce,
-				period: period
+				period: period,
+				lang: pvcArgs.lang ? pvcArgs.lang : ''
 			},
 			success: function ( response ) {
 				// remove loader
