@@ -148,6 +148,9 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 
 					self::$instance->counter = new Post_Views_Counter_Counter();
 					self::$instance->crawler = new Post_Views_Counter_Crawler_Detect();
+
+					// we need to initialize crawler here since it is not called in SHORTINIT mode
+					self::$instance->crawler->init();
 				// regular setup
 				} else {
 					self::$instance->includes();
