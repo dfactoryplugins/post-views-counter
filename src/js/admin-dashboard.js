@@ -119,6 +119,7 @@
 				action: 'pvc_dashboard_post_most_viewed',
 				nonce: pvcArgs.nonce,
 				period,
+				lang: pvcArgs.lang ? pvcArgs.lang : '',
 			},
 			success( response ) {
 				$( container ).removeClass( 'loading' );
