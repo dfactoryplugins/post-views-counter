@@ -1,3 +1,71 @@
-# Dependency directories
+# Dependencies
 node_modules/
-blocks/most-viewed-posts/node_modules/
+blocks/*/node_modules/
+
+# Build outputs
+blocks/*/build/
+js/*.min.js
+css/*.min.css
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+.cache/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+
+# IDE and editor files
+.github/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# WordPress specific
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+*.sql
+
+# Temporary files
+tmp/
+temp/

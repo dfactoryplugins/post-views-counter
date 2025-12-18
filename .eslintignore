@@ -1,0 +1,9 @@
+node_modules/
+js/*.js
+css/*.css
+blocks/*/build/
+package-lock.json
+.git/
+.vscode/
+*.min.js
+*.min.css

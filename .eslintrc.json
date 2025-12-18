@@ -1,0 +1,42 @@
+{
+    "env": {
+        "browser": true,
+        "es2022": true
+    },
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "globals": {
+        "wp": "readonly",
+        "jQuery": "readonly",
+        "ajaxurl": "readonly"
+    },
+    "plugins": ["import", "promise", "prettier"],
+    "extends": [
+        "standard",
+        "plugin:import/recommended",
+        "plugin:promise/recommended",
+        "plugin:prettier/recommended"
+    ],
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [".js", ".jsx"]
+            }
+        }
+    },
+    "rules": {
+        "prettier/prettier": "warn",
+        "no-unused-vars": [
+            "warn",
+            {
+                "argsIgnorePattern": "^_",
+                "varsIgnorePattern": "^_"
+            }
+        ]
+    }
+}

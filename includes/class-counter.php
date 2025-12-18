@@ -134,7 +134,7 @@ class Post_Views_Counter_Counter {
 							}
 						}
 
-						pvcLoadManualCounter( '" . POST_VIEWS_COUNTER_URL . "/js/counter" . ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.min' : '' ) . ".js', pvcExecuteManualCounter );
+						pvcLoadManualCounter( '" . POST_VIEWS_COUNTER_URL . "/js/counter.js', pvcExecuteManualCounter );
 					}, false );
 				} )( window, document );
 			</script>";

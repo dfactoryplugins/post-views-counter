@@ -202,7 +202,7 @@ class Post_Views_Counter_Frontend {
 			wp_enqueue_style( 'dashicons' );
 
 			// load style
-			wp_enqueue_style( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/css/frontend' . ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.min' : '' ) . '.css', [], $pvc->defaults['version'] );
+			wp_enqueue_style( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/css/frontend.css', [], $pvc->defaults['version'] );
 		}
 
 		// skip special requests
@@ -228,7 +228,7 @@ class Post_Views_Counter_Frontend {
 
 		// specific counter mode?
 		if ( in_array( $mode, [ 'js', 'rest_api' ], true ) ) {
-			wp_enqueue_script( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/js/frontend' . ( ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '.min' : '' ) . '.js', [], $pvc->defaults['version'], false );
+			wp_enqueue_script( 'post-views-counter-frontend', POST_VIEWS_COUNTER_URL . '/js/frontend.js', [], $pvc->defaults['version'], false );
 
 			// prepare args
 			$args = [

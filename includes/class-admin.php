@@ -142,7 +142,7 @@ class Post_Views_Counter_Admin {
 			return;
 
 		// enqueue the bundled block JS file
-		wp_enqueue_script( 'pvc-block-editor', POST_VIEWS_COUNTER_URL . '/js/block-editor.min.js', [ 'wp-element', 'wp-components', 'wp-edit-post', 'wp-data', 'wp-plugins' ], $pvc->defaults['version'] );
+		wp_enqueue_script( 'pvc-block-editor', POST_VIEWS_COUNTER_URL . '/js/block-editor.js', [ 'wp-element', 'wp-components', 'wp-edit-post', 'wp-data', 'wp-plugins' ], $pvc->defaults['version'] );
 
 		// restrict editing
 		$can_edit = false;
@@ -177,6 +177,6 @@ class Post_Views_Counter_Admin {
 		wp_add_inline_script( 'pvc-block-editor', 'var pvcEditorArgs = ' . wp_json_encode( $script_data ) . ";\n", 'before' );
 
 		// enqueue frontend and editor block styles
-		wp_enqueue_style( 'pvc-block-editor', POST_VIEWS_COUNTER_URL . '/css/block-editor.min.css', '', $pvc->defaults['version'] );
+		wp_enqueue_style( 'pvc-block-editor', POST_VIEWS_COUNTER_URL . '/css/block-editor.css', '', $pvc->defaults['version'] );
 	}
 }

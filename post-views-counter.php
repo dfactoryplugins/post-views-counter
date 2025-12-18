@@ -854,7 +854,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			global $wp_version;
 
 			// register styles
-			wp_register_style( 'pvc-admin', POST_VIEWS_COUNTER_URL . '/css/admin.min.css', [], $this->defaults['version'] );
+			wp_register_style( 'pvc-admin', POST_VIEWS_COUNTER_URL . '/css/admin.css', [], $this->defaults['version'] );
 
 			// register scripts
 			wp_register_script( 'pvc-admin-settings', POST_VIEWS_COUNTER_URL . '/js/admin-settings.js', [ 'jquery' ], $this->defaults['version'] );

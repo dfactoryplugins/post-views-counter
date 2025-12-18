@@ -71,7 +71,7 @@ class Post_Views_Counter_Dashboard {
 		$pvc = Post_Views_Counter();
 
 		// styles
-		wp_enqueue_style( 'pvc-admin-dashboard', POST_VIEWS_COUNTER_URL . '/css/admin-dashboard.min.css', [], $pvc->defaults['version'] );
+		wp_enqueue_style( 'pvc-admin-dashboard', POST_VIEWS_COUNTER_URL . '/css/admin-dashboard.css', [], $pvc->defaults['version'] );
 		wp_enqueue_style( 'pvc-microtip', POST_VIEWS_COUNTER_URL . '/assets/microtip/microtip.min.css', [], '1.0.0' );
 
 		// scripts

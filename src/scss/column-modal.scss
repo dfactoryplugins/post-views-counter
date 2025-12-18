@@ -1,0 +1,260 @@
+/**
+ * Post Views Counter - Column Modal Chart Styles
+ */
+
+/* Micromodal base styles */
+.pvc-modal {
+    display: none;
+
+    &.is-open {
+        display: block;
+    }
+
+    &__overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 100000;
+    }
+
+    &__container {
+        background-color: #fff;
+        padding: 0;
+        max-width: 800px;
+        width: 90%;
+        max-height: 90vh;
+        border-radius: 4px;
+        overflow-y: auto;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        position: relative;
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        border-bottom: 1px solid #dcdcde;
+    }
+
+    &__title {
+        margin: 0;
+    }
+
+    &__close {
+        background: transparent;
+        border: none;
+        font-size: 28px;
+        font-weight: 400;
+        line-height: 1;
+        color: #50575e;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s ease;
+
+        &:hover,
+        &:focus {
+            color: #1d2327;
+            outline: none;
+        }
+
+        &::before {
+            content: '\00d7';
+            margin-top: -4px;
+        }
+    }
+
+    &__content {
+        padding: 20px;
+
+        p {
+            margin: 0 0 1em 0;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin: 0 0 1em 1.25em;
+
+            li {
+                margin-bottom: 0.5em;
+            }
+        }
+    }
+
+    &-chart-container {
+        height: 200px;
+    }
+
+    &-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        border-top: 1px solid #dcdcde;
+
+        button {
+            background: #2271b1;
+            border: none;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition:
+                background-color 0.2s ease,
+                transform 0.1s ease;
+
+            &:hover,
+            &:focus {
+                background: #135e96;
+                outline: none;
+            }
+
+            &:active {
+                transform: translateY(1px);
+            }
+
+            &:disabled {
+                background: #c3c4c7;
+                cursor: not-allowed;
+            }
+
+            .dashicons {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+            }
+        }
+    }
+
+    &-nav-prev {
+        padding-left: 10px;
+    }
+
+    &-nav-next {
+        padding-right: 10px;
+    }
+}
+
+/* Micromodal animations */
+@keyframes mmfadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes mmfadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes mmslideIn {
+    from {
+        transform: translateY(-10%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes mmslideOut {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-10%);
+    }
+}
+
+.micromodal-slide {
+    display: none;
+}
+
+.micromodal-slide.is-open {
+    display: block;
+}
+
+.micromodal-slide[aria-hidden='false'] .pvc-modal__overlay {
+    animation: mmfadeIn 0.3s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.micromodal-slide[aria-hidden='false'] .pvc-modal__container {
+    animation: mmslideIn 0.3s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.micromodal-slide[aria-hidden='true'] .pvc-modal__overlay {
+    animation: mmfadeOut 0.3s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.micromodal-slide[aria-hidden='true'] .pvc-modal__container {
+    animation: mmslideOut 0.3s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.micromodal-slide .pvc-modal__container,
+.micromodal-slide .pvc-modal__overlay {
+    will-change: transform;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+    .pvc-modal {
+        &__container {
+            width: 95%;
+            max-height: 95vh;
+        }
+
+        &__header {
+            padding: 15px;
+        }
+
+        &__title {
+            font-size: 18px;
+            padding-right: 10px;
+        }
+
+        &__content {
+            padding: 15px;
+        }
+
+        &-chart-container {
+            height: 180px;
+        }
+
+        &-nav {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        &-nav-prev,
+        &-nav-next {
+            width: 100%;
+            text-align: center;
+        }
+    }
+}
+
+/* Hide modal when printing */
+@media print {
+    .pvc-modal {
+        display: none !important;
+    }
+}
