@@ -50,16 +50,18 @@
         }
 
         &:focus {
-            box-shadow: 0 0 0 1px #fff, 0 0 0 3px #6610f2;
+            box-shadow:
+                0 0 0 1px #fff,
+                0 0 0 3px #6610f2;
         }
     }
 
     .pvc-pro-extended {
-        label[for="pvc_import_strategy_skip_existing"],
-        label[for="pvc_import_strategy_keep_higher_count"],
-        label[for="pvc_import_strategy_fill_empty_only"] {
+        label[for='pvc_import_strategy_skip_existing'],
+        label[for='pvc_import_strategy_keep_higher_count'],
+        label[for='pvc_import_strategy_fill_empty_only'] {
             &:after {
-                content: "PRO";
+                content: 'PRO';
                 display: inline-block;
                 margin-left: 6px;
                 padding: 1px 4px;
@@ -127,7 +129,7 @@
             text-decoration: none !important;
             vertical-align: top;
             color: #888;
-            content: "\f185";
+            content: '\f185';
             top: -1px;
         }
     }
@@ -267,7 +269,7 @@ output {
             border-radius: 100px;
 
             &::after {
-                content: "";
+                content: '';
                 display: block;
                 box-sizing: border-box;
                 position: absolute;
@@ -295,20 +297,20 @@ output {
         padding-bottom: 3px;
 
         &:before {
-            content: "?";
+            content: '?';
             color: #d63638;
         }
     }
 
     &.license-status {
         .pvc-status-icon:before {
-            content: "?";
+            content: '?';
             color: #d63638;
         }
 
         &.valid {
             .pvc-status-icon:before {
-                content: "?";
+                content: '?';
                 color: #00a32a;
             }
         }
@@ -380,7 +382,7 @@ output {
     margin-right: 20px;
     font-weight: normal;
 
-    input[type="radio"] {
+    input[type='radio'] {
         margin-right: 5px;
     }
 }
@@ -389,7 +391,7 @@ output {
     opacity: 0.6;
     cursor: not-allowed;
 
-    input[type="radio"] {
+    input[type='radio'] {
         cursor: not-allowed;
     }
 }
@@ -435,7 +437,7 @@ output {
         font-weight: normal;
     }
 
-    input[type="radio"] {
+    input[type='radio'] {
         margin-right: 5px;
     }
 }

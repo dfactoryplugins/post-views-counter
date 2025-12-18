@@ -1,6 +1,10 @@
 /**
- * Post Views Counter - Column Modal Chart
+ * Post Views Counter - Column Modal Chart JavaScript
+ *
+ * Handles the modal popup for displaying post views charts in admin columns.
+ * Uses Micromodal for modal functionality and Chart.js for data visualization.
  */
+
 ( function( $ ) {
 	'use strict';
 
@@ -16,7 +20,9 @@
 		return;
 
 	/**
-	 * Initialize Micromodal
+	 * Initialize Micromodal library for modal functionality.
+	 *
+	 * @return {boolean} True if Micromodal is available and initialized, false otherwise
 	 */
 	function initMicromodal() {
 		if ( typeof MicroModal === 'undefined' )
@@ -32,7 +38,11 @@
 	}
 
 	/**
-	 * Prepare modal for specific post
+	 * Prepare the modal for displaying chart data for a specific post.
+	 *
+	 * @param {number} postId - The ID of the post to display chart for
+	 * @param {string} postTitle - The title of the post
+	 * @return {boolean} True if modal prepared successfully, false otherwise
 	 */
 	function prepareModalForPost( postId, postTitle ) {
 		if ( ! postId )
@@ -56,6 +66,11 @@
 		return true;
 	}
 
+	/**
+	 * Reset the modal content to its initial state.
+	 *
+	 * Clears all displayed data, removes loading states, and hides error messages.
+	 */
 	function resetModalContent() {
 		$( '#pvc-modal-title' ).text( '' );
 		$( '.pvc-modal-views-label' ).text( '' );
@@ -71,7 +86,10 @@
 	}
 
 	/**
-	 * Load chart data via AJAX
+	 * Load chart data for a specific post and period via AJAX.
+	 *
+	 * @param {number} postId - The ID of the post to load data for
+	 * @param {string} period - The time period for the chart data
 	 */
 	function loadChartData( postId, period ) {
 		const $container = $( '.pvc-modal-chart-container' );
@@ -108,7 +126,9 @@
 	}
 
 	/**
-	 * Render chart with data
+	 * Render the chart using Chart.js with the provided data.
+	 *
+	 * @param {Object} data - The chart data object containing datasets, dates, and design options
 	 */
 	function renderChart( data ) {
 		const ctx = document.getElementById( 'pvc-modal-chart' );
@@ -204,7 +224,9 @@
 	}
 
 	/**
-	 * Show error message without destroying modal structure
+	 * Display an error message in the modal without destroying its structure.
+	 *
+	 * @param {string} message - The error message to display
 	 */
 	function showError( message ) {
 		// destroy existing chart

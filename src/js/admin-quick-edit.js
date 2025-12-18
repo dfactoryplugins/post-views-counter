@@ -1,3 +1,10 @@
+/**
+ * Post Views Counter Admin Quick Edit JavaScript
+ *
+ * Extends WordPress quick edit functionality to include post views editing.
+ * Handles both individual post quick edit and bulk edit operations.
+ */
+
 ( function( $ ) {
 
 	// ready event
@@ -5,6 +12,11 @@
 		// we create a copy of the WP inline edit post function
 		const wpInlineEdit = inlineEditPost.edit;
 
+		/**
+		 * Override WordPress's inline edit function to include post views editing.
+		 *
+		 * @param {number|string|Object} id - The post ID or element identifier
+		 */
 		// and then we overwrite the function with our own code
 		inlineEditPost.edit = function( id ) {
 			// call the original WP edit function, we don't want to leave WordPress hanging

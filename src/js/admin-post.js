@@ -1,3 +1,10 @@
+/**
+ * Post Views Counter Admin Post JavaScript
+ *
+ * Handles the inline post views editing functionality in the WordPress admin.
+ * Provides UI for manually setting view counts on individual posts.
+ */
+
 ( function( $ ) {
 
 	// ready event

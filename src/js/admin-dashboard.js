@@ -1,7 +1,16 @@
+/**
+ * Post Views Counter Admin Dashboard JavaScript
+ *
+ * Handles the admin dashboard widgets and AJAX functionality for Post Views Counter.
+ * Manages collapsible widgets, data updates, and user preferences.
+ */
+
 ( function ( $ ) {
 
 	/**
-	 * Load initial data.
+	 * Load initial data on window load.
+	 *
+	 * Updates the post views and most viewed widgets when the page loads.
 	 */
 	window.addEventListener( 'load', function () {
 		pvcUpdatePostViewsWidget();
@@ -9,7 +18,9 @@
 	} );
 
 	/**
-	 * Ready event.
+	 * Ready event handler.
+	 *
+	 * Sets up event listeners for dashboard interactions when DOM is ready.
 	 */
 	$( function () {
 		// toggle collapse items
@@ -38,9 +49,10 @@
 	const pvcAjaxQueue = $( {} );
 
 	/**
-	 * Put AJAX requests in a queue, run one request at a time and prevent overwriting user options.
-	 * 
-	 * @param {type} ajaxOpts
+	 * Put AJAX requests in a queue to run one request at a time and prevent overwriting user options.
+	 *
+	 * @param {Object} ajaxOpts - The AJAX options object
+	 * @return {Promise} jQuery promise object
 	 */
 	$.pvcAjaxQueue = function ( ajaxOpts ) {
 		let jqXHR;
@@ -83,7 +95,9 @@
 	};
 
 	/**
-	 * Update user options.
+	 * Update user options via AJAX.
+	 *
+	 * @param {Object} options - The user options to update
 	 */
 	pvcUpdateUserOptions = function ( options ) {
 		$.pvcAjaxQueue( {
@@ -100,7 +114,11 @@
 	}
 
 	/**
-	 * Update configuration.
+	 * Update chart configuration with new data and design options.
+	 *
+	 * @param {Object} config - The Chart.js configuration object
+	 * @param {Object} args - Arguments containing data, design, and other options
+	 * @return {Object} The updated configuration object
 	 */
 	pvcUpdateConfig = function ( config, args ) {
 		// update datasets
@@ -132,7 +150,11 @@
 	}
 
 	/**
-	 * Get post most viewed data.
+	 * Get post most viewed data via AJAX.
+	 *
+	 * @param {boolean} init - Whether this is the initial load
+	 * @param {string} period - The time period for the data
+	 * @param {jQuery} container - The container element to update
 	 */
 	function pvcGetPostMostViewedData( init, period, container ) {
 		$( container ).addClass( 'loading' ).find( '.spinner' ).addClass( 'is-active' );
@@ -164,7 +186,11 @@
 	}
 
 	/**
-	 * Get post views data.
+	 * Get post views data via AJAX.
+	 *
+	 * @param {boolean} init - Whether this is the initial load
+	 * @param {string} period - The time period for the data
+	 * @param {jQuery} container - The container element to update
 	 */
 	function pvcGetPostViewsData( init, period, container ) {
 		$( container ).addClass( 'loading' ).find( '.spinner' ).addClass( 'is-active' );
@@ -280,7 +306,9 @@
 	}
 
 	/**
-	 * Update post views widget.
+	 * Update the post views dashboard widget with chart data.
+	 *
+	 * @param {string} period - The time period for the data (optional, defaults to '')
 	 */
 	function pvcUpdatePostViewsWidget( period = '' ) {
 		const container = $( '#pvc-post-views' ).find( '.pvc-dashboard-container' );
@@ -293,7 +321,9 @@
 	}
 
 	/**
-	 * Update post most viewed widget.
+	 * Update the post most viewed dashboard widget with data.
+	 *
+	 * @param {string} period - The time period for the data (optional, defaults to '')
 	 */
 	function pvcUpdatePostMostViewedWidget( period = '' ) {
 		const container = $( '#pvc-post-most-viewed' ).find( '.pvc-dashboard-container' );
@@ -306,7 +336,10 @@
 	}
 
 	/**
-	 * Bind date events.
+	 * Bind date navigation events to the widget container.
+	 *
+	 * @param {string|boolean} newDates - HTML for new dates or false to keep existing
+	 * @param {jQuery} container - The widget container element
 	 */
 	function pvcBindDateEvents( newDates, container ) {
 		const dates = $( container ).find( '.pvc-date-nav' );
@@ -350,7 +383,9 @@
 	}
 
 	/**
-	 * Load post views data.
+	 * Load post views data for the dashboard widget.
+	 *
+	 * @param {string} period - The time period for the data (optional, defaults to '')
 	 */
 	function pvcLoadPostViewsData( period = '' ) {
 		const container = $( '#pvc-post-views' ).find( '.pvc-dashboard-container' );
@@ -359,7 +394,9 @@
 	}
 
 	/**
-	 * Load post most viewed data.
+	 * Load post most viewed data for the dashboard widget.
+	 *
+	 * @param {string} period - The time period for the data (optional, defaults to '')
 	 */
 	function pvcLoadPostMostViewedData( period = '' ) {
 		const container = $( '#pvc-post-most-viewed' ).find( '.pvc-dashboard-container' );
@@ -368,7 +405,10 @@
 	}
 
 	/**
-	 * Trigger load widget JS event.
+	 * Trigger a custom JavaScript event for dashboard widget loading.
+	 *
+	 * @param {string} name - The event name
+	 * @param {Object} response - The AJAX response data
 	 */
 	function pvcTriggerEvent( name, response ) {
 		// remove unneeded data

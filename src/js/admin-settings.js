@@ -1,3 +1,10 @@
+/**
+ * Post Views Counter Admin Settings JavaScript
+ *
+ * Manages the settings page interactions for Post Views Counter plugin.
+ * Handles IP exclusion lists, reset confirmations, and import/export operations.
+ */
+
 ( function( $ ) {
 
 	// ready event

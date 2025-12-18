@@ -1,3 +1,18 @@
+/**
+ * Post Views Counter Frontend JavaScript
+ *
+ * Handles the frontend view counting functionality for Post Views Counter plugin.
+ * Manages AJAX/REST API requests to track post views and cookie storage.
+ */
+
+/**
+ * Initialize the Post Views Counter on page load.
+ *
+ * Sets up the PostViewsCounter object and triggers the view counting request
+ * when the DOM is ready.
+ *
+ * @return {void}
+ */
 const initPostViewsCounter = function() {
 	PostViewsCounter = {
 		promise: null,

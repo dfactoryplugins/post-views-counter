@@ -1,3 +1,10 @@
+/**
+ * Post Views Counter Manual JavaScript
+ *
+ * Provides manual view counting functionality for Post Views Counter plugin.
+ * Allows triggering view updates for specific posts via AJAX requests.
+ */
+
 PostViewsCounterManual = {
 	/**
 	 * Initialize counter.

@@ -1,3 +1,10 @@
+/**
+ * Post Views Counter Admin Widgets JavaScript
+ *
+ * Handles widget configuration in the WordPress admin.
+ * Manages thumbnail display options for post views widgets.
+ */
+
 ( function( $ ) {
 
 	// ready event
