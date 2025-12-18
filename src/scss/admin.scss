@@ -297,20 +297,20 @@ output {
         padding-bottom: 3px;
 
         &:before {
-            content: '?';
+            content: '✗';
             color: #d63638;
         }
     }
 
     &.license-status {
         .pvc-status-icon:before {
-            content: '?';
+            content: '✗';
             color: #d63638;
         }
 
         &.valid {
             .pvc-status-icon:before {
-                content: '?';
+                content: '✓';
                 color: #00a32a;
             }
         }
@@ -326,13 +326,6 @@ output {
     overflow: hidden;
     box-sizing: border-box;
     min-height: 400px;
-
-    #pvc-reports-bg {
-        width: 100%;
-        height: auto;
-        opacity: 0.8;
-        filter: blur(2px);
-    }
 
     #pvc-reports-modal {
         position: absolute;
@@ -363,6 +356,13 @@ output {
             margin-bottom: 10px;
         }
     }
+}
+
+#pvc-reports-bg {
+    width: 100%;
+    height: auto;
+    opacity: 0.8;
+    filter: blur(2px);
 }
 
 /* All Mobile Sizes (devices and browser) */

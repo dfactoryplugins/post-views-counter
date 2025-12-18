@@ -5,50 +5,47 @@
  * Provides UI for manually setting view counts on individual posts.
  */
 
-( function( $ ) {
+(( $ ) => {
+	$( () => {
+		const $inputContainer = $( '#post-views-input-container' );
+		const $postViewsDisplay = $( '#post-views-display b' );
+		const $postViewsInput = $( '#post-views-input' );
+		const $editTrigger = $( '#post-views .edit-post-views' );
 
-	// ready event
-	$( function() {
-		// post views input
-		$( '#post-views .edit-post-views' ).on( 'click', function() {
-			if ( $( '#post-views-input-container' ).is( ":hidden" ) ) {
-				$( '#post-views-input-container' ).slideDown( 'fast' );
-				$( this ).hide();
+		$editTrigger.on( 'click', ( event ) => {
+			if ( $inputContainer.is( ':hidden' ) ) {
+				$inputContainer.slideDown( 'fast' );
+				$( event.currentTarget ).hide();
 			}
 
 			return false;
 		} );
 
-		// save post views
-		$( '#post-views .save-post-views' ).on( 'click', function() {
-			let views = ( $( '#post-views-display b' ).text() ).trim();
+		$( '#post-views .save-post-views' ).on( 'click', () => {
+			let views = $postViewsDisplay.text().trim();
 
-			$( '#post-views-input-container' ).slideUp( 'fast' );
-			$( '#post-views .edit-post-views' ).show();
+			$inputContainer.slideUp( 'fast' );
+			$editTrigger.show();
 
-			views = parseInt( $( '#post-views-input' ).val() );
-			// reassign value as integer
-			$( '#post-views-input' ).val( views );
-
-			$( '#post-views-display b' ).text( views );
+			views = parseInt( $postViewsInput.val(), 10 );
+			$postViewsInput.val( views );
+			$postViewsDisplay.text( views );
 
 			return false;
 		} );
 
-		// cancel post views
-		$( '#post-views .cancel-post-views' ).on( 'click', function() {
-			let views = ( $( '#post-views-display b' ).text() ).trim();
+		$( '#post-views .cancel-post-views' ).on( 'click', () => {
+			let views = $postViewsDisplay.text().trim();
 
-			$( '#post-views-input-container' ).slideUp( 'fast' );
-			$( '#post-views .edit-post-views' ).show();
+			$inputContainer.slideUp( 'fast' );
+			$editTrigger.show();
 
-			views = parseInt( $( '#post-views-current' ).val() );
+			views = parseInt( $( '#post-views-current' ).val(), 10 );
 
-			$( '#post-views-display b' ).text( views );
-			$( '#post-views-input' ).val( views );
+			$postViewsDisplay.text( views );
+			$postViewsInput.val( views );
 
 			return false;
 		} );
 	} );
-
-} )( jQuery );
+})( jQuery );

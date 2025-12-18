@@ -5,27 +5,22 @@
  * Allows triggering view updates for specific posts via AJAX requests.
  */
 
-PostViewsCounterManual = {
+window.PostViewsCounterManual = {
 	/**
 	 * Initialize counter.
 	 *
 	 * @param {object} args
 	 *
-	 * @return {void}
+	 * @return {Promise}
 	 */
-	init: function( args ) {
+	init( args ) {
 		const params = {
-			action:	'pvc-view-posts',
+			action: 'pvc-view-posts',
 			pvc_nonce: args.nonce,
-			ids: args.ids
+			ids: args.ids,
 		};
 
-		const newParams = Object.keys( params ).map( function( el ) {
-			// add extra "data" array
-			return encodeURIComponent( el ) + '=' + encodeURIComponent( params[el] );
-		} ).join( '&' ).replace( /%20/g, '+' );
-
-		const _this = this;
+		const requestBody = Object.keys( params ).map( ( key ) => `${ encodeURIComponent( key ) }=${ encodeURIComponent( params[key] ) }` ).join( '&' ).replace( /%20/g, '+' );
 
 		return fetch( args.url, {
 			method: 'POST',
@@ -33,44 +28,44 @@ PostViewsCounterManual = {
 			cache: 'no-cache',
 			credentials: 'same-origin',
 			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+				'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
 			},
-			body: newParams
-		} ).then( function( response ) {
-			// invalid response?
-			if ( ! response.ok )
+			body: requestBody,
+		} ).then( ( response ) => {
+			if ( ! response.ok ) {
 				throw Error( response.statusText );
+			}
 
 			return response.json();
-		} ).then( function( response ) {
+		} ).then( ( response ) => {
 			try {
-				if ( typeof response === 'object' && response !== null )
-					_this.triggerEvent( 'pvcCheckPost', response );
-			} catch( error ) {
+				if ( typeof response === 'object' && response !== null ) {
+					this.triggerEvent( 'pvcCheckPost', response );
+				}
+			} catch ( error ) {
 				console.log( 'Invalid JSON data' );
 				console.log( error );
 			}
-		} ).catch( function( error ) {
+		} ).catch( ( error ) => {
 			console.log( 'Invalid response' );
 			console.log( error );
 		} );
 	},
 
 	/**
-	 * Prepare the data to be sent with the request.
+	 * Trigger custom event with provided data.
 	 *
 	 * @param {string} eventName
 	 * @param {object} data
 	 *
 	 * @return {void}
 	 */
-	triggerEvent: function( eventName, data ) {
+	triggerEvent( eventName, data ) {
 		const newEvent = new CustomEvent( eventName, {
 			bubbles: true,
-			detail: data
+			detail: data,
 		} );
 
-		// trigger event
 		document.dispatchEvent( newEvent );
-	}
-}
+	},
+};

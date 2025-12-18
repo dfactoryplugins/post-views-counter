@@ -5,13 +5,10 @@
  * Manages thumbnail display options for post views widgets.
  */
 
-( function( $ ) {
-
-	// ready event
-	$( function() {
-		$( document ).on( 'change', '.pvc-show-post-thumbnail', function() {
-			$( this ).closest( '.widget-content' ).find( '.pvc-post-thumbnail-size' ).fadeToggle( 300 );
+(( $ ) => {
+	$( () => {
+		$( document ).on( 'change', '.pvc-show-post-thumbnail', ( event ) => {
+			$( event.currentTarget ).closest( '.widget-content' ).find( '.pvc-post-thumbnail-size' ).fadeToggle( 300 );
 		} );
 	} );
-
-} )( jQuery );
+})( jQuery );

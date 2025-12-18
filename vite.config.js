@@ -1,3 +1,4 @@
+import babel from '@rollup/plugin-babel';
 import { defineConfig } from 'vite';
 
 const cssOutputMap = {
@@ -19,6 +20,7 @@ export default defineConfig(({ mode }) => {
             outDir: '.',
             assetsDir: '',
             emptyOutDir: false,
+            target: 'es2015',
             rollupOptions: {
                 input: {
                     'block-editor': './src/js/block-editor.jsx',
@@ -36,6 +38,35 @@ export default defineConfig(({ mode }) => {
                     'frontend-style': './src/scss/frontend.scss',
                     'column-modal-style': './src/scss/column-modal.scss',
                 },
+                plugins: [
+                    babel({
+                        // inline avoids emitting a shared helpers chunk
+                        babelHelpers: 'inline',
+                        extensions: ['.js', '.jsx'],
+                        include: ['src/js/**'],
+                        presets: [
+                            [
+                                '@babel/preset-env',
+                                {
+                                    targets: '> 0.5%, not dead, ie 11',
+                                    // keep syntax transforms only; no auto polyfill imports that create extra chunks
+                                    useBuiltIns: false,
+                                    modules: false,
+                                    bugfixes: true,
+                                },
+                            ],
+                        ],
+                        plugins: [
+                            [
+                                '@babel/plugin-transform-react-jsx',
+                                {
+                                    pragma: 'wp.element.createElement',
+                                    pragmaFrag: 'wp.element.Fragment',
+                                },
+                            ],
+                        ],
+                    }),
+                ],
                 output: {
                     entryFileNames: 'js/[name].js',
                     chunkFileNames: 'js/[name].js',
@@ -50,7 +81,7 @@ export default defineConfig(({ mode }) => {
             },
             cssCodeSplit: true,
             sourcemap: false,
-            minify: isProd ? 'esbuild' : false,
+            minify: isProd ? 'terser' : false,
         },
         plugins: [
             {
@@ -73,9 +104,6 @@ export default defineConfig(({ mode }) => {
                 },
             },
         ],
-        esbuild: {
-            jsxFactory: 'wp.element.createElement',
-            jsxFragment: 'wp.element.Fragment',
-        },
+        esbuild: false,
     };
 });

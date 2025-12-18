@@ -224,7 +224,7 @@ class Post_Views_Counter_Dashboard {
 						<?php echo wp_kses( $item['content'], $allowed_html ); ?>
 						<span class="spinner"></span>
 					</div>
-					<div class="pvc-dashboard-content-bottom pvc-date-nav">
+					<div class="pvc-dashboard-content-bottom">
 						<div class="pvc-date-nav pvc-months">
 							<?php 
 							// generate dates
