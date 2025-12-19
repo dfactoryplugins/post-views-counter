@@ -4,7 +4,7 @@ Tags: counter, postviews, statistics, analytics, pageviews
 Requires at least: 6.3.0
 Requires PHP: 7.4.0
 Tested up to: 6.9
-Stable tag: 1.6.0
+Stable tag: 1.6.1
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -89,6 +89,11 @@ If you’ve purchased Post Views Counter Pro, your license includes one year of 
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.6.1 =
+* Tweak: Switch to Vite build system for improved development workflow.
+* Fix (Pro): Fixed empty user agent handling in Fast AJAX mode.
+* Tweak: Additional UI improvements for settings pages.
 
 = 1.6.0 =
 * New: Dedicated import framework with provider-aware analysis/reporting and strategy selector.
@@ -410,5 +415,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.6.0 =
-New provider-based import framework (Statify/Page Views Count support, smarter strategies), refreshed settings UI
+= 1.6.1 =
+Build system improvements. Fixed empty user agent handling in Fast AJAX mode (Pro).
