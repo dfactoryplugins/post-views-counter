@@ -221,6 +221,10 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-update.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-api.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-general.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-display.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-reports.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-other.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-import.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-admin.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-columns.php' );
