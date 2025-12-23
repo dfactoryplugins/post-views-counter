@@ -66,9 +66,10 @@ class Post_Views_Counter_Settings_Integrations {
 		$slug = $field['slug'];
 		$integrations = Post_Views_Counter_Integrations::get_integrations();
 		$integration = $integrations[$slug];
+		$pro_missing = ! empty( $integration['pro'] ) && empty( $integration['pro_active'] );
 
 		$checked = $integration['status'] ? 'checked' : '';
-		$disabled = ! $integration['availability'] ? 'disabled' : '';
+		$disabled = ! $integration['availability'] || $pro_missing ? 'disabled' : '';
 
 		$classes = [ 'pvc-integration-content' ];
 		if ( ! $integration['availability'] )

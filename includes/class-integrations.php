@@ -32,6 +32,7 @@ class Post_Views_Counter_Integrations {
 
 		// compute effective status for each
 		foreach ( $integrations as $slug => &$integration ) {
+			$pro_active = ! ( isset( $integration['pro'] ) && $integration['pro'] ) || class_exists( 'Post_Views_Counter_Pro' );
 			$available = self::is_integration_available( $integration );
 			$saved_status = isset( $saved_statuses[$slug] ) ? (bool) $saved_statuses[$slug] : null;
 
@@ -43,7 +44,8 @@ class Post_Views_Counter_Integrations {
 				? $integration['enabled_check']
 				: function( $default_status, $integration, $slug, $saved_status ) { return $default_status; };
 
-			$integration['status'] = $available && call_user_func( $enabled_check, $default_status, $integration, $slug, $saved_status );
+			$integration['pro_active'] = $pro_active;
+			$integration['status'] = $available && $pro_active && call_user_func( $enabled_check, $default_status, $integration, $slug, $saved_status );
 			$integration['availability'] = $available;
 		}
 
@@ -78,11 +80,6 @@ class Post_Views_Counter_Integrations {
 	 * @return bool
 	 */
 	private static function is_integration_available( $integration ) {
-		// check if Pro is required but not active
-		if ( isset( $integration['pro'] ) && $integration['pro'] && ! class_exists( 'Post_Views_Counter_Pro' ) ) {
-			return false;
-		}
-
 		if ( ! isset( $integration['availability_check'] ) )
 			return false;
 
@@ -119,10 +116,90 @@ class Post_Views_Counter_Integrations {
 					]
 				]
 			],
+			'amp' => [
+				'name' => 'AMP',
+				'description' => __( 'Integrate with AMP plugin to handle post views on AMP pages.', 'post-views-counter' ),
+				'menu_order' => 20,
+				'pro' => true,
+				'availability_check' => function() { return function_exists( 'amp_is_request' ); },
+				'enabled_check' => function( $default_status, $integration, $slug, $saved_status ) { return $default_status; },
+				'items' => [
+					[
+						'name' => __( 'AMP Support', 'post-views-counter' ),
+						'description' => __( 'Tracks and displays views on AMP-enabled pages.', 'post-views-counter' ),
+						'status' => true
+					]
+				]
+			],
+			'divi' => [
+				'name' => 'Divi',
+				'description' => __( 'Integrate with Divi Theme to order module posts by views when the module uses the "orderby-post-views" CSS class.', 'post-views-counter' ),
+				'menu_order' => 20,
+				'pro' => true,
+				'availability_check' => function() { return defined( 'ET_CORE_VERSION' ); },
+				'enabled_check' => function( $default_status, $integration, $slug, $saved_status ) { return $default_status; },
+				'items' => [
+					[
+						'name' => __( 'Blog Module', 'post-views-counter' ),
+						'description' => __( 'Orders posts by views in the Divi Blog module.', 'post-views-counter' ),
+						'status' => true
+					],
+					[
+						'name' => __( 'Post Slider Module', 'post-views-counter' ),
+						'description' => __( 'Orders posts by views in the Divi Post Slider module.', 'post-views-counter' ),
+						'status' => true
+					],
+					[
+						'name' => __( 'Portfolio Module', 'post-views-counter' ),
+						'description' => __( 'Orders posts by views in the Divi Portfolio module.', 'post-views-counter' ),
+						'status' => true
+					]
+				]
+			],
+			'elementor-pro' => [
+				'name' => 'Elementor Pro',
+				'description' => __( 'Integrate with Elementor Pro to order posts by views when a widget query uses the "post_views" Query ID.', 'post-views-counter' ),
+				'menu_order' => 20,
+				'pro' => true,
+				'availability_check' => function() { return defined( 'ELEMENTOR_PRO_VERSION' ); },
+				'enabled_check' => function( $default_status, $integration, $slug, $saved_status ) { return $default_status; },
+				'items' => [
+					[
+						'name' => __( 'Posts Widget', 'post-views-counter' ),
+						'description' => __( 'Orders posts by views in the Elementor Pro Posts widget when its Query ID is set to "post_views".', 'post-views-counter' ),
+						'status' => true
+					],
+					[
+						'name' => __( 'Portfolio Widget', 'post-views-counter' ),
+						'description' => __( 'Orders items by views in the Elementor Pro Portfolio widget when its Query ID is set to "post_views".', 'post-views-counter' ),
+						'status' => true
+					],
+					[
+						'name' => __( 'Loop Grid / Loop Carousel', 'post-views-counter' ),
+						'description' => __( 'Orders items by views in the Elementor Pro Loop Grid and Loop Carousel widgets when the Query ID is set to "post_views".', 'post-views-counter' ),
+						'status' => true
+					]
+				]
+			],
+			'generateblocks' => [
+				'name' => 'GenerateBlocks',
+				'description' => __( 'Integrate with GenerateBlocks to display post views in dynamic content.', 'post-views-counter' ),
+				'menu_order' => 20,
+				'pro' => true,
+				'availability_check' => function() { return defined( 'GENERATEBLOCKS_VERSION' ); },
+				'enabled_check' => function( $default_status, $integration, $slug, $saved_status ) { return $default_status; },
+				'items' => [
+					[
+						'name' => __( 'Dynamic Content', 'post-views-counter' ),
+						'description' => __( 'Displays post views in GenerateBlocks dynamic content fields.', 'post-views-counter' ),
+						'status' => true
+					]
+				]
+			],
 			'jet-engine' => [
 				'name' => 'JetEngine',
 				'description' => __( 'Integrate with JetEngine plugin to display post views in custom listings and queries.', 'post-views-counter' ),
-				'menu_order' => 10,
+				'menu_order' => 20,
 				'pro' => true,
 				'availability_check' => function() { return class_exists( 'Jet_Engine' ); },
 				'enabled_check' => function( $default_status, $integration, $slug, $saved_status ) { return $default_status; },
@@ -139,97 +216,42 @@ class Post_Views_Counter_Integrations {
 					]
 				]
 			],
-			'elementor-pro' => [
-				'name' => 'Elementor Pro',
-				'description' => __( 'Integrate with Elementor Pro to add post views ordering for custom queries.', 'post-views-counter' ),
+			'polylang' => [
+				'name' => 'Polylang',
+				'description' => __( 'Integrate with Polylang to filter reports, exports, and dashboard widgets by language.', 'post-views-counter' ),
 				'menu_order' => 20,
 				'pro' => true,
-				'availability_check' => function() { return defined( 'ELEMENTOR_PRO_VERSION' ); },
+				'availability_check' => function() { return function_exists( 'pll_languages_list' ) || class_exists( 'Polylang' ); },
 				'enabled_check' => function( $default_status, $integration, $slug, $saved_status ) { return $default_status; },
 				'items' => [
 					[
-						'name' => __( 'Custom Query', 'post-views-counter' ),
-						'description' => __( 'Adds a custom query ID that orders posts by view count in Elementor Pro.', 'post-views-counter' ),
+						'name' => __( 'Reports Language Filters', 'post-views-counter' ),
+						'description' => __( 'Adds language filtering and a language column to Reports tables, charts, and exports.', 'post-views-counter' ),
 						'status' => true
-					]
-				]
-			],
-			'generateblocks' => [
-				'name' => 'GenerateBlocks',
-				'description' => __( 'Integrate with GenerateBlocks to display post views in dynamic content.', 'post-views-counter' ),
-				'menu_order' => 30,
-				'pro' => true,
-				'availability_check' => function() { return defined( 'GENERATEBLOCKS_VERSION' ); },
-				'enabled_check' => function( $default_status, $integration, $slug, $saved_status ) { return $default_status; },
-				'items' => [
+					],
 					[
-						'name' => __( 'Dynamic Content', 'post-views-counter' ),
-						'description' => __( 'Displays post views in GenerateBlocks dynamic content fields.', 'post-views-counter' ),
+						'name' => __( 'Dashboard Widgets', 'post-views-counter' ),
+						'description' => __( 'Filters dashboard widgets (site, post, and term views) by the selected language.', 'post-views-counter' ),
 						'status' => true
 					]
 				]
 			],
 			'wpml' => [
 				'name' => 'WPML',
-				'description' => __( 'Integrate with WPML for multilingual post views synchronization.', 'post-views-counter' ),
-				'menu_order' => 40,
+				'description' => __( 'Integrate with WPML to filter reports, exports, and dashboard widgets by language.', 'post-views-counter' ),
+				'menu_order' => 20,
 				'pro' => true,
 				'availability_check' => function() { return defined( 'WPML_PLUGIN_FILE' ) || class_exists( 'SitePress' ); },
 				'enabled_check' => function( $default_status, $integration, $slug, $saved_status ) { return $default_status; },
 				'items' => [
 					[
-						'name' => __( 'Multilingual Sync', 'post-views-counter' ),
-						'description' => __( 'Synchronizes view counts across translated posts.', 'post-views-counter' ),
-						'status' => true
-					]
-				]
-			],
-			'polylang' => [
-				'name' => 'Polylang',
-				'description' => __( 'Integrate with Polylang for multilingual post views synchronization.', 'post-views-counter' ),
-				'menu_order' => 50,
-				'pro' => true,
-				'availability_check' => function() { return function_exists( 'pll_languages_list' ) || class_exists( 'Polylang' ); },
-				'enabled_check' => function( $default_status, $integration, $slug, $saved_status ) { return $default_status; },
-				'items' => [
-					[
-						'name' => __( 'Multilingual Sync', 'post-views-counter' ),
-						'description' => __( 'Synchronizes view counts across translated posts.', 'post-views-counter' ),
-						'status' => true
-					]
-				]
-			],
-			'amp' => [
-				'name' => 'AMP',
-				'description' => __( 'Integrate with AMP plugin to handle post views on AMP pages.', 'post-views-counter' ),
-				'menu_order' => 60,
-				'pro' => true,
-				'availability_check' => function() { return function_exists( 'amp_is_request' ); },
-				'enabled_check' => function( $default_status, $integration, $slug, $saved_status ) { return $default_status; },
-				'items' => [
-					[
-						'name' => __( 'AMP Support', 'post-views-counter' ),
-						'description' => __( 'Tracks and displays views on AMP-enabled pages.', 'post-views-counter' ),
-						'status' => true
-					]
-				]
-			],
-			'divi' => [
-				'name' => 'Divi',
-				'description' => __( 'Integrate with Divi theme to add post views modules and ordering.', 'post-views-counter' ),
-				'menu_order' => 70,
-				'pro' => true,
-				'availability_check' => function() { return defined( 'ET_CORE_VERSION' ); },
-				'enabled_check' => function( $default_status, $integration, $slug, $saved_status ) { return $default_status; },
-				'items' => [
-					[
-						'name' => __( 'Post Views Module', 'post-views-counter' ),
-						'description' => __( 'Adds a post views display module to Divi.', 'post-views-counter' ),
+						'name' => __( 'Reports Language Filters', 'post-views-counter' ),
+						'description' => __( 'Adds language filtering and a language column to Reports tables, charts, and exports.', 'post-views-counter' ),
 						'status' => true
 					],
 					[
-						'name' => __( 'Order by Views', 'post-views-counter' ),
-						'description' => __( 'Enables ordering posts by view count in Divi queries.', 'post-views-counter' ),
+						'name' => __( 'Dashboard Widgets', 'post-views-counter' ),
+						'description' => __( 'Filters dashboard widgets (site, post, and term views) by the selected language.', 'post-views-counter' ),
 						'status' => true
 					]
 				]
