@@ -104,6 +104,27 @@ export default defineConfig(({ mode }) => {
                     }
                 },
             },
+            {
+                name: 'pvc-wrap-js-iife',
+                generateBundle(_, bundle) {
+                    const iifeTargets = new Set([
+                        'js/block-editor.js',
+                        'js/integration-gutenberg.js',
+                    ]);
+
+                    for (const [fileName, chunk] of Object.entries(bundle)) {
+                        if (chunk.type !== 'chunk') {
+                            continue;
+                        }
+
+                        if (!iifeTargets.has(fileName)) {
+                            continue;
+                        }
+
+                        chunk.code = `(function(){\n${chunk.code}\n})();\n`;
+                    }
+                },
+            },
         ],
         esbuild: false,
     };
