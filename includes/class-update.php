@@ -198,6 +198,11 @@ class Post_Views_Counter_Update {
 				// update plugin version
 				update_option( 'post_views_counter_version', $pvc->defaults['version'], false );
 		}
+
+		// ensure integrations option exists
+		if ( ! get_option( 'post_views_counter_settings_integrations' ) ) {
+			add_option( 'post_views_counter_settings_integrations', $pvc->defaults['integrations'], null, false );
+		}
 	}
 
 	/**

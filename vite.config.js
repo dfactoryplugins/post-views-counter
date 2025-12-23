@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => {
                     'column-modal': './src/js/column-modal.js',
                     counter: './src/js/counter.js',
                     frontend: './src/js/frontend.js',
+                    'integration-gutenberg': './src/js/integration-gutenberg.jsx',
                     'block-editor-style': './src/scss/block-editor.scss',
                     'admin-style': './src/scss/admin.scss',
                     'admin-dashboard-style': './src/scss/admin-dashboard.scss',

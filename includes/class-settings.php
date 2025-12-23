@@ -31,6 +31,11 @@ class Post_Views_Counter_Settings {
 	public $other;
 
 	/**
+	 * @var Post_Views_Counter_Settings_Integrations
+	 */
+	public $integrations;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @return void
@@ -51,6 +56,7 @@ class Post_Views_Counter_Settings {
 		$this->general = new Post_Views_Counter_Settings_General();
 		$this->display = new Post_Views_Counter_Settings_Display();
 		$this->reports = new Post_Views_Counter_Settings_Reports();
+		$this->integrations = new Post_Views_Counter_Settings_Integrations();
 		$this->other = new Post_Views_Counter_Settings_Other( $this );
 	}
 
@@ -76,6 +82,11 @@ class Post_Views_Counter_Settings {
 		// Check if method exists in reports page class
 		if ( method_exists( $this->reports, $method ) ) {
 			return call_user_func_array( [ $this->reports, $method ], $args );
+		}
+
+		// Check if method exists in integrations page class
+		if ( method_exists( $this->integrations, $method ) ) {
+			return call_user_func_array( [ $this->integrations, $method ], $args );
 		}
 
 		// Check if method exists in other page class
@@ -171,6 +182,7 @@ class Post_Views_Counter_Settings {
 				'general'	=> 'post_views_counter_settings_general',
 				'display'	=> 'post_views_counter_settings_display',
 				'reports'	=> 'post_views_counter_settings_reports',
+				'integrations'	=> 'post_views_counter_settings_integrations',
 				'other'		=> 'post_views_counter_settings_other'
 			],
 			'validate' => [ $this, 'validate_settings' ],
@@ -178,13 +190,15 @@ class Post_Views_Counter_Settings {
 				$this->general->get_sections(),
 				$this->display->get_sections(),
 				$this->reports->get_sections(),
-				$this->other->get_sections()
+				$this->other->get_sections(),
+				$this->integrations->get_sections()
 			),
 			'fields' => array_merge(
 				$this->general->get_fields(),
 				$this->display->get_fields(),
 				$this->reports->get_fields(),
-				$this->other->get_fields()
+				$this->other->get_fields(),
+				$this->integrations->get_fields()
 			)
 		];
 
@@ -222,6 +236,10 @@ class Post_Views_Counter_Settings {
 				'reports'	=> [
 					'label'			=> __( 'Reports', 'post-views-counter' ),
 					'option_name'	=> 'post_views_counter_settings_reports'
+				],
+				'integrations'	 => [
+					'label'			=> __( 'Integrations', 'post-views-counter' ),
+					'option_name'	=> 'post_views_counter_settings_integrations'
 				],
 				'other'		=> [
 					'label'			=> __( 'Other', 'post-views-counter' ),
@@ -273,6 +291,16 @@ class Post_Views_Counter_Settings {
 				'type'			=> 'subpage',
 				'page_title'	=> __( 'Reports', 'post-views-counter' ),
 				'menu_title'	=> __( 'Reports', 'post-views-counter' ),
+				'capability'	=> apply_filters( 'pvc_settings_capability', 'manage_options' ),
+				'callback'		=> null
+			];
+
+			$pages['post-views-counter-integrations'] = [
+				'menu_slug'		=> 'post-views-counter&tab=integrations',
+				'parent_slug'	=> 'post-views-counter',
+				'type'			=> 'subpage',
+				'page_title'	=> __( 'Integrations', 'post-views-counter' ),
+				'menu_title'	=> self::mark_new( __( 'Integrations', 'post-views-counter' ) ),
 				'capability'	=> apply_filters( 'pvc_settings_capability', 'manage_options' ),
 				'callback'		=> null
 			];
@@ -438,6 +466,30 @@ class Post_Views_Counter_Settings {
 			if ( ! isset( $input['menu_position'] ) ) {
 				$input['menu_position'] = $pvc->get_menu_position();
 			}
+		// save integrations settings
+		} elseif ( isset( $_POST['save_post_views_counter_settings_integrations'] ) ) {
+			// ensure integrations array exists
+			if ( ! isset( $input['integrations'] ) ) {
+				$input['integrations'] = [];
+			}
+
+			// get all known integrations
+			$known_integrations = array_keys( Post_Views_Counter_Integrations::get_base_integrations() );
+
+			// preserve unknown slugs from existing settings
+			$existing = $pvc->options['integrations']['integrations'];
+			foreach ( $existing as $slug => $status ) {
+				if ( ! in_array( $slug, $known_integrations, true ) ) {
+					$input['integrations'][$slug] = $status;
+				}
+			}
+
+			// set missing known integrations to false (unchecked boxes don't submit)
+			foreach ( $known_integrations as $slug ) {
+				if ( ! isset( $input['integrations'][$slug] ) ) {
+					$input['integrations'][$slug] = false;
+				}
+			}
 		}
 
 		return $input;
@@ -498,5 +550,19 @@ class Post_Views_Counter_Settings {
 		}
 
 		return $settings;
+	}
+
+	/**
+	 * Mark menu item as new.
+	 *
+	 * @param string $text
+	 * @return string
+	 */
+	public static function mark_new( $text ) {
+		return sprintf(
+			'%s<span class="pvc-admin-menu-new">&nbsp;%s</span>',
+			$text,
+			__( 'NEW!', 'post-views-counter' )
+		);
 	}
 }

@@ -103,6 +103,9 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				'deactivation_delete'	=> false,
 				'license'				=> ''
 			],
+			'integrations' => [
+				'integrations'			=> []
+			],
 			'version'	=> '1.6.1'
 		];
 
@@ -224,6 +227,8 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-general.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-display.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-reports.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-integrations.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-integrations.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-settings-other.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-import.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-admin.php' );
@@ -236,6 +241,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-frontend.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-dashboard.php' );
 			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-widgets.php' );
+			include_once( POST_VIEWS_COUNTER_PATH . 'includes/class-integration-gutenberg.php' );
 		}
 
 		/**
@@ -268,9 +274,10 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 
 			// settings
 			$this->options = [
-				'general'	=> array_merge( $this->defaults['general'], get_option( 'post_views_counter_settings_general', $this->defaults['general'] ) ),
-				'display'	=> array_merge( $this->defaults['display'], get_option( 'post_views_counter_settings_display', $this->defaults['display'] ) ),
-				'other'		=> array_merge( $this->defaults['other'], get_option( 'post_views_counter_settings_other', $this->defaults['other'] ) )
+				'general'		=> array_merge( $this->defaults['general'], get_option( 'post_views_counter_settings_general', $this->defaults['general'] ) ),
+				'display'		=> array_merge( $this->defaults['display'], get_option( 'post_views_counter_settings_display', $this->defaults['display'] ) ),
+				'other'			=> array_merge( $this->defaults['other'], get_option( 'post_views_counter_settings_other', $this->defaults['other'] ) ),
+				'integrations'	=> array_merge( $this->defaults['integrations'], get_option( 'post_views_counter_settings_integrations', $this->defaults['integrations'] ) )
 			];
 
 			// 1.5.3+
@@ -283,6 +290,7 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 			// actions
 			add_action( 'plugins_loaded', [ $this, 'extend_caching_plugins' ], -1 );
 			add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
+			add_action( 'admin_print_styles', [ $this, 'admin_print_styles' ] );
 			add_action( 'wp_loaded', [ $this, 'load_pluggable_functions' ] );
 			add_action( 'init', [ $this, 'register_blocks' ] );
 			add_action( 'admin_init', [ $this, 'update_notice' ] );
@@ -887,7 +895,24 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 					return;
 
 				wp_enqueue_style( 'pvc-admin' );
+
+			// only enqueue post script in classic editor (not block editor)
+			// block editor doesn't have the #post-views metabox that this script targets
+			if ( ! function_exists( 'use_block_editor_for_post' ) ) {
+				// WP < 5.0, always use classic editor
 				wp_enqueue_script( 'pvc-admin-post' );
+			} else {
+				// get post ID from request
+				$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : ( isset( $_POST['post_ID'] ) ? absint( $_POST['post_ID'] ) : 0 );
+				
+				// check if classic editor is being used
+				if ( $post_id && ! use_block_editor_for_post( $post_id ) ) {
+					wp_enqueue_script( 'pvc-admin-post' );
+				} elseif ( ! $post_id && $page === 'post-new.php' && ! use_block_editor_for_post_type( $post_type ) ) {
+					// new post - check if block editor is default for this post type
+					wp_enqueue_script( 'pvc-admin-post' );
+				}
+			}
 			// edit post
 			} elseif ( $page === 'edit.php' ) {
 				$post_types = Post_Views_Counter()->options['general']['post_types_count'];
@@ -935,6 +960,24 @@ if ( ! class_exists( 'Post_Views_Counter' ) ) {
 				font-weight: bold;
 				font-size: 11px;
 			}' );
+		}
+
+		/**
+		 * Load admin style inline, for menu badge only.
+		 *
+		 * @return void
+		 */
+		public function admin_print_styles() {
+			echo '
+			<style>
+				.toplevel_page_post-views-counter .pvc-admin-menu-new,
+				.settings_page_post-views-counter .pvc-admin-menu-new {
+					font-size: 10px;
+					vertical-align: super;
+					color: #ffc107;
+				}
+			</style>
+			';
 		}
 
 		/**

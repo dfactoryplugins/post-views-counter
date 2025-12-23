@@ -198,18 +198,6 @@ class Post_Views_Counter_Settings_General {
 				'disabled'		=> [ 'cookies', 'cookieless' ],
 				'value'			=> 'cookies'
 			],
-			'amp_support' => [
-				'tab'			=> 'general',
-				'title'			=> __( 'AMP Support', 'post-views-counter' ),
-				'section'		=> 'post_views_counter_general_tracking_behavior',
-				'type'			=> 'boolean',
-				'class'			=> 'pvc-pro',
-				'disabled'		=> true,
-				'skip_saving'	=> true,
-				'value'			=> false,
-				'label'			=> __( 'Enable support for Google AMP.', 'post-views-counter' ),
-				'description'	=> sprintf( __( 'This feature requires the official %s plugin to be installed and activated.', 'post-views-counter' ), '<code><a href="https://wordpress.org/plugins/amp/" target="_blank">AMP</a></code>' )
-			],
 			'time_between_counts' => [
 				'tab'			=> 'general',
 				'title'			=> __( 'Count Interval', 'post-views-counter' ),

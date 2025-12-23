@@ -453,3 +453,35 @@ output {
         font-weight: 600;
     }
 }
+
+.pvc-integration-content {
+    &.unavailable {
+        opacity: 0.6;
+        color: inherit;
+        pointer-events: none;
+    }
+
+    input[type='checkbox'] {
+        margin-right: 10px;
+    }
+
+    label {
+        display: block;
+        cursor: pointer;
+    }
+
+    .pvc-integration-items {
+        margin-top: 10px;
+        padding-left: 20px;
+
+        li {
+            margin-bottom: 5px;
+            list-style: disc;
+
+            strong {
+                font-size: 14px;
+            }
+        }
+    }
+}
+

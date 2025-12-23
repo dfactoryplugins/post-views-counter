@@ -63,6 +63,8 @@ More capability without extra complexity:
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Go to the Post Views Counter settings and set your options.
 
+== Frequently Asked Questions ==
+
 For many frequently asked questions check the [Post Views Counter Docs](https://postviewscounter.com/documentation/).
 
 = Why use Post Views Counter vs Google Analytics? =
