@@ -19,8 +19,8 @@ class Post_Views_Counter_Settings_Integrations {
 		return [
 			'post_views_counter_integrations' => [
 				'tab'			=> 'integrations',
-				'title'			=> '',
-				'callback'		=> null
+				'title'			=> __( 'Integrations', 'post-views-counter' ),
+				'callback'		=> [ $this, 'section_integrations' ]
 			]
 		];
 	}
@@ -54,6 +54,15 @@ class Post_Views_Counter_Settings_Integrations {
 		}
 
 		return $fields;
+	}
+
+	/**
+	 * Section description: integrations.
+	 *
+	 * @return void
+	 */
+	public function section_integrations() {
+		echo '<p class="description">' . esc_html__( 'Manage available Post Views Counter integrations.', 'post-views-counter' ) . '</p>';
 	}
 
 	/**

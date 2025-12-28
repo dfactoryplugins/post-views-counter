@@ -1,7 +1,0 @@
-{
-    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces": true,
-    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": true,
-    "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
-    "javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
-    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": true
-}

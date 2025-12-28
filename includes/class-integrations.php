@@ -131,6 +131,31 @@ class Post_Views_Counter_Integrations {
 					]
 				]
 			],
+			'beaver-builder' => [
+				'name' => 'Beaver Builder',
+				'description' => __( 'Integrate with Beaver Builder to order module posts by views.', 'post-views-counter' ),
+				'menu_order' => 20,
+				'pro' => true,
+				'availability_check' => function() { return class_exists( 'FLBuilder' ); },
+				'enabled_check' => function( $default_status, $integration, $slug, $saved_status ) { return $default_status; },
+				'items' => [
+					[
+						'name' => __( 'Post Grid Module', 'post-views-counter' ),
+						'description' => __( 'Orders posts by views in the Beaver Builder Post Grid module.', 'post-views-counter' ),
+						'status' => true
+					],
+					[
+						'name' => __( 'Post Carousel Module', 'post-views-counter' ),
+						'description' => __( 'Orders posts by views in the Beaver Builder Post Carousel module.', 'post-views-counter' ),
+						'status' => true
+					],
+					[
+						'name' => __( 'Post Slider Module', 'post-views-counter' ),
+						'description' => __( 'Orders posts by views in the Beaver Builder Post Slider module.', 'post-views-counter' ),
+						'status' => true
+					]
+				]
+			],
 			'divi' => [
 				'name' => 'Divi',
 				'description' => __( 'Integrate with Divi Theme to order module posts by views when the module uses the "orderby-post-views" CSS class.', 'post-views-counter' ),
@@ -183,7 +208,7 @@ class Post_Views_Counter_Integrations {
 			],
 			'generateblocks' => [
 				'name' => 'GenerateBlocks',
-				'description' => __( 'Integrate with GenerateBlocks to display post views in dynamic content.', 'post-views-counter' ),
+				'description' => __( 'Integrate with GenerateBlocks to order Query block results by views.', 'post-views-counter' ),
 				'menu_order' => 20,
 				'pro' => true,
 				'availability_check' => function() { return defined( 'GENERATEBLOCKS_VERSION' ); },
@@ -191,7 +216,7 @@ class Post_Views_Counter_Integrations {
 				'items' => [
 					[
 						'name' => __( 'Dynamic Content', 'post-views-counter' ),
-						'description' => __( 'Displays post views in GenerateBlocks dynamic content fields.', 'post-views-counter' ),
+						'description' => __( 'Adds post_views ordering to the GenerateBlocks Query block.', 'post-views-counter' ),
 						'status' => true
 					]
 				]
@@ -205,13 +230,13 @@ class Post_Views_Counter_Integrations {
 				'enabled_check' => function( $default_status, $integration, $slug, $saved_status ) { return $default_status; },
 				'items' => [
 					[
-						'name' => __( 'Custom Listings', 'post-views-counter' ),
-						'description' => __( 'Displays post views in JetEngine custom listings.', 'post-views-counter' ),
+						'name' => __( 'Query Builder', 'post-views-counter' ),
+						'description' => __( 'Enables ordering posts by view count in Query Builder posts queries.', 'post-views-counter' ),
 						'status' => true
 					],
 					[
-						'name' => __( 'Query Integration', 'post-views-counter' ),
-						'description' => __( 'Allows ordering posts by views in JetEngine queries.', 'post-views-counter' ),
+						'name' => __( 'Listing Grid', 'post-views-counter' ),
+						'description' => __( 'Enables ordering posts by view count in Listing Grid, Maps Listing and Calendar widgets.', 'post-views-counter' ),
 						'status' => true
 					]
 				]
