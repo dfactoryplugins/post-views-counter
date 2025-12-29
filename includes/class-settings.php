@@ -46,7 +46,8 @@ class Post_Views_Counter_Settings {
 		add_action( 'pvc_settings_form', [ $this, 'settings_form' ], 10, 4 );
 
 		// filters
-		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_data' ] );
+		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_data' ], 1 );
+		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_fields_compat' ], 2 );
 		add_filter( 'post_views_counter_settings_data', [ $this, 'settings_sections_compat' ], 99 );
 		add_filter( 'post_views_counter_settings_pages', [ $this, 'settings_page' ] );
 		add_filter( 'post_views_counter_settings_page_class', [ $this, 'settings_page_class' ] );
@@ -204,7 +205,70 @@ class Post_Views_Counter_Settings {
 
 		return $settings;
 	}
-	
+
+	/**
+	 * Backward compatibility for missing fields.
+	 *
+	 * @param array $settings
+	 * @return array
+	 */
+	public function settings_fields_compat( $settings ) {
+		if ( empty( $settings['post-views-counter']['fields'] ) )
+			return $settings;
+
+		$fields =& $settings['post-views-counter']['fields'];
+
+		$canonical_fields = array_merge(
+			$this->general->get_fields(),
+			$this->display->get_fields(),
+			$this->reports->get_fields(),
+			$this->other->get_fields(),
+			$this->integrations->get_fields()
+		);
+
+		$compat_fields = [
+			'data_storage',
+			'restrict_edit_views',
+			'post_views_column',
+			'count_time',
+			'caching_compatibility',
+			'counter_mode',
+			'other_count'
+		];
+
+		$fallback_fields = [
+			'amp_support' => [
+				'tab'			=> 'general',
+				'title'			=> __( 'AMP Support', 'post-views-counter' ),
+				'section'		=> 'post_views_counter_general_tracking_behavior',
+				'type'			=> 'boolean',
+				'class'			=> 'pvc-pro',
+				'disabled'		=> true,
+				'skip_saving'	=> true,
+				'value'			=> false,
+				'label'			=> __( 'Enable support for Accelerated Mobile Pages.', 'post-views-counter' )
+			]
+		];
+
+		foreach ( $compat_fields as $field_key ) {
+			if ( empty( $fields[$field_key] ) || ! is_array( $fields[$field_key] ) ) {
+				if ( isset( $canonical_fields[$field_key] ) && is_array( $canonical_fields[$field_key] ) ) {
+					$fields[$field_key] = $canonical_fields[$field_key];
+				} else if ( isset( $fallback_fields[$field_key] ) ) {
+					$fields[$field_key] = $fallback_fields[$field_key];
+				} else {
+					$fields[$field_key] = [];
+				}
+			}
+		}
+
+		if ( empty( $fields['amp_support'] ) || ! is_array( $fields['amp_support'] ) ) {
+			$fields['amp_support'] = $fallback_fields['amp_support'];
+		}
+
+		return $settings;
+	}
+
 	/**
 	 * Add settings page.
 	 *
