@@ -4,7 +4,7 @@ Tags: counter, postviews, statistics, analytics, pageviews
 Requires at least: 6.3.0
 Requires PHP: 7.4.0
 Tested up to: 6.9
-Stable tag: 1.6.1
+Stable tag: 1.7.0
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 
@@ -91,6 +91,13 @@ If you’ve purchased Post Views Counter Pro, your license includes one year of 
 2. screenshot-2.png
 
 == Changelog ==
+
+= 1.7.0 =
+* New: Integrations page with user-controlled handling for third-party plugins.
+* New (Pro): Beaver Builder integration for ordering posts by views in modules.
+* New (Pro): Improved JetEngine integration copy and settings UI.
+* Tweak: Refactored settings into modular page classes with backward compatibility.
+* Fix: Editor JS scope collisions by wrapping editor bundles in IIFE.
 
 = 1.6.1 =
 * Tweak: Switch to Vite build system for improved development workflow.
@@ -417,5 +424,5 @@ Initial release
 
 == Upgrade Notice ==
 
-= 1.6.1 =
-Build system improvements. Fixed empty user agent handling in Fast AJAX mode (Pro).
+= 1.7.0 =
+New Integrations page for managing third-party plugin connections.
